@@ -1,0 +1,34 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+# Render → New → Blueprint → pick this repository. Values marked `sync: false`
+# are asked for once in the Render dashboard and never stored in Git.
+services:
+  - type: web
+    name: ukvalley
+    runtime: node
+    # Free instances sleep after 15 min idle (~1 min cold start) and have
+    # 512 MB RAM, which a `next build` of this site can exceed. Starter is
+    # always on; downgrade in the dashboard if that trade-off is fine.
+    plan: starter
+    # Closest Render region to India. Put the Atlas cluster in the same
+    # region (AWS ap-southeast-1) to keep database round trips short.
+    region: singapore
+    branch: main
+    autoDeploy: true
+    buildCommand: npm ci && npm run build
+    # `next start` listens on $PORT, which Render sets.
+    startCommand: npm start
+    # Static route: a health check that doesn't depend on the database.
+    healthCheckPath: /robots.txt
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: ukvalley
