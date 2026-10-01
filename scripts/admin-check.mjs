@@ -1,0 +1,27 @@
+import puppeteer from "puppeteer-core";
+const CHROME = process.env.CHROME ?? "C:/Program Files/Google/Chrome/Application/chrome.exe";
+const base = process.env.BASE ?? "http://localhost:3111";
+const browser = await puppeteer.launch({ executablePath: CHROME, headless: true });
+const page = await browser.newPage();
+await page.setViewport({ width: 1366, height: 800 });
+await page.goto(base + "/admin/login", { waitUntil: "networkidle0" });
+await page.screenshot({ path: ".shots/admin/login.png" });
+await page.type("#email", process.env.ADMIN_EMAIL);
+await page.type("#password", "wrong-password");
+await page.click("button[type=submit]");
+await page.waitForSelector("[role=alert]");
+console.log("wrong password ->", await page.$eval("[role=alert]", (e) => e.textContent));
+
+await page.type("#password", process.env.ADMIN_PASSWORD);
+console.log("email kept ->", await page.$eval("#email", (e) => e.value));
+await page.click("button[type=submit]"); await new Promise(r => setTimeout(r, 3000));
+console.log("after login url ->", page.url());
+await page.screenshot({ path: ".shots/admin/dashboard.png" });
+await page.setViewport({ width: 390, height: 800 });
+await page.screenshot({ path: ".shots/admin/dashboard-mobile.png" });
+await page.evaluate(() => document.documentElement.classList.add("dark"));
+await page.setViewport({ width: 1366, height: 800 });
+await page.screenshot({ path: ".shots/admin/dashboard-dark.png" });
+await page.click("header form button[type=submit]"); await new Promise(r => setTimeout(r, 3000));
+console.log("after sign out url ->", page.url());
+await browser.close();

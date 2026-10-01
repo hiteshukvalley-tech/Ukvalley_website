@@ -1,0 +1,17 @@
+import puppeteer from "puppeteer-core";
+const base = process.env.BASE;
+const b = await puppeteer.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: true });
+const p = await b.newPage(); await p.setViewport({ width: 1366, height: 900 });
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+p.on("response", async r => { if (r.request().method()==="POST") console.log("POST", r.status(), r.url(), r.headers()["x-action-redirect"]||"", r.headers()["location"]||""); });
+p.on("console", m => console.log("console:", m.text())); p.on("pageerror", e => console.log("pageerror:", e.message));
+await p.goto(base + "/admin/login", { waitUntil: "networkidle0" });
+await p.type("#email", process.env.ADMIN_EMAIL); await p.type("#password", process.env.ADMIN_PASSWORD);
+await p.click("button[type=submit]"); await sleep(9000);
+await p.goto(base + "/admin/settings", { waitUntil: "networkidle0" });
+await p.click("#f-email", { clickCount: 3 }); await p.keyboard.press("Backspace"); await p.type("#f-email", "not-an-email");
+await p.click("button[type=submit]"); await sleep(6000);
+console.log(await p.evaluate(() => [...document.querySelectorAll('[role=alert],[role=status]')].map(e => e.textContent)));
+console.log(await p.evaluate(() => document.querySelector('#f-email')?.value));
+await p.screenshot({ path: ".shots/admin/dbg.png" });
+await b.close();

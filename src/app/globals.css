@@ -1,26 +1,1487 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Justified long-form copy (article bodies, overviews, page intros).
+   Hyphenation (needs <html lang>, which is set) splits long words so
+   justified lines don't open wide "rivers" between words; the last line
+   stays left-aligned. Use on multi-line reading paragraphs only — never on
+   short card blurbs or centred text.
+   Phones keep plain left alignment: at ~40 characters per line, justify
+   opens wide gaps between words, so it only switches on from 768px. */
+@utility text-justify-prose {
+  text-align: left;
+  @media (min-width: 768px) {
+    text-align: justify;
+    text-justify: inter-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+    hyphenate-limit-chars: 7 3 3;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Glow shadows used across CTAs and accents (shadow-glow-blue,
+   shadow-glow-blue-sm, shadow-glow-yellow). Arctic Mint brand + amber. */
+@theme {
+  --shadow-glow-blue:
+    0 0 0 1px rgba(49, 0, 255, 0.22), 0 14px 40px -10px rgba(49, 0, 255, 0.5),
+    0 2px 6px rgba(15, 23, 42, 0.1);
+  --shadow-glow-blue-sm:
+    0 8px 30px -8px rgba(49, 0, 255, 0.55), 0 1px 2px rgba(15, 23, 42, 0.12);
+  --shadow-glow-yellow:
+    0 8px 30px -8px rgba(255, 245, 0, 0.55), 0 1px 2px rgba(15, 23, 42, 0.1);
+}
+
+/* ============================================================
+   UKVALLEY TECHNOLOGIES — DESIGN TOKENS · DARK AURORA
+   Electric Indigo #3100FF = brand/action · #684DFF indigo glow ·
+   #287BFF electric blue · #fff500 cyan highlight (badges, chips,
+   highlights — never body text). Dark: Deep Space #070511 surfaces
+   with aurora glows; Light: #F8F7FF + indigo/blue companion.
+   ============================================================ */
+
+@theme inline {
+  /* shadcn semantic mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-heading: var(--font-heading);
+  /* inner-page hero display face (Sora) → font-heading-display utility */
+  --font-heading-display: var(--font-heading-display);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* UKVALLEY SEMANTIC SURFACE + FOREGROUND TOKENS
+     → utilities: bg-uk-surface, bg-uk-card, text-uk-heading,
+       text-uk-body, text-uk-muted, border-uk-line, etc. */
+  --color-uk-surface: var(--uk-surface);
+  --color-uk-surface-2: var(--uk-surface-2);
+  --color-uk-surface-3: var(--uk-surface-3);
+  --color-uk-surface-blue: var(--uk-surface-blue);
+  --color-uk-surface-premium: var(--uk-surface-premium);
+  --color-uk-card: var(--uk-card);
+  --color-uk-card-hi: var(--uk-card-hi);
+  --color-uk-heading: var(--uk-heading);
+  --color-uk-heading-strong: var(--uk-heading-strong);
+  --color-uk-body: var(--uk-body);
+  --color-uk-muted: var(--uk-muted);
+  --color-uk-line: var(--uk-line);
+  --color-uk-line-2: var(--uk-line-2);
+
+  /* UKVALLEY BRAND TOKENS → utilities like bg-uk-blue, text-uk-yellow */
+  --color-uk-blue: var(--uk-blue);
+  --color-uk-blue-bright: var(--uk-blue-bright);
+  --color-uk-blue-deep: var(--uk-blue-deep);
+  --color-uk-violet: var(--uk-violet);
+  --color-uk-yellow: var(--uk-yellow);
+  --color-uk-gray: var(--uk-gray);
+  --color-uk-white: #ffffff;
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* premium easing */
+  --ease-premium: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+}
+
+/* Light enterprise theme — single source of truth. */
+:root {
+  /* Dark Aurora light companion — semantic surface + foreground (light) */
+  --uk-surface: #f8f7ff;          /* Primary page bg */
+  --uk-surface-2: #f0eeff;        /* Alternate section bg */
+  --uk-surface-3: #e9e5fb;        /* Deep tint / chips */
+  --uk-surface-blue: #efecff;     /* Indigo accent bg */
+  --uk-surface-premium: #f4f2ff;  /* Premium section band bg */
+  --uk-card: #ffffff;             /* Card bg */
+  --uk-card-hi: #f7f5ff;          /* Highlighted card bg */
+  --uk-heading: #151122;          /* Primary heading text */
+  --uk-heading-strong: #0e0b18;   /* Display heading text — near-black indigo */
+  --uk-body: #423b58;             /* Body text */
+  --uk-muted: #68627a;            /* Muted text */
+  --uk-line: #e5e1f2;             /* Light border */
+  --uk-line-2: #d4cee8;           /* Subtle indigo divider */
+  --uk-gray: #68627a;             /* Gray text — same as muted for light mode */
+  --uk-blue: #3100ff;             /* Electric Indigo — primary action color */
+  --uk-blue-bright: #2400c7;      /* Primary hover (per spec) */
+  --uk-blue-deep: #2400c7;        /* Deep indigo — buttons, headings */
+  --uk-violet: #287bff;           /* Electric Blue — aurora partner accent */
+  --uk-yellow: #fff500;           /* Yellow highlight (badges, dots, accents) */
+
+  /* shadcn semantic (light) */
+  --background: #f8f7ff;
+  --foreground: #151122;
+  --card: #ffffff;
+  --card-foreground: #151122;
+  --popover: #ffffff;
+  --popover-foreground: #151122;
+  --primary: #3100ff;             /* Electric Indigo — 8.1:1 with white text */
+  --primary-foreground: #ffffff;
+  --secondary: #efecff;
+  --secondary-foreground: #151122;
+  --muted: #f0eef8;
+  --muted-foreground: #68627a;    /* Secondary text — matches uk-muted */
+  --accent: #efecff;
+  --accent-foreground: #3100ff;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #e5e1f2;
+  --input: #dad5ec;
+  --ring: #3100ff;
+  --chart-1: #3100ff;
+  --chart-2: #fff500;
+  --chart-3: #287bff;
+  --chart-4: #68627a;
+  --chart-5: #151122;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #151122;
+  --sidebar-primary: #3100ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #efecff;
+  --sidebar-accent-foreground: #3100ff;
+  --sidebar-border: #e5e1f2;
+  --sidebar-ring: #3100ff;
+}
+
+/* ── Dark theme overrides ── */
+.dark {
+  color-scheme: dark;
+  /* Dark Aurora — semantic surface + foreground (dark): Deep Space
+     surfaces with the indigo → blue → cyan aurora accent ramp.
+     Page-level surfaces are slightly translucent (the body behind them
+     is the same Deep Space colour, so they render identically) so the
+     fixed aurora-blob background layer bleeds through as ambient glow. */
+  --uk-surface: rgba(7, 5, 17, 0.84);
+  --uk-surface-2: rgba(13, 9, 28, 0.86);
+  --uk-surface-3: #121027;
+  --uk-surface-blue: #150f30;
+  --uk-surface-premium: rgba(16, 12, 34, 0.86);
+  --uk-card: #121027;
+  --uk-card-hi: #1a1636;
+  --uk-heading: #f7f5ff;
+  --uk-heading-strong: #ffffff;
+  --uk-body: #c9c2e8;
+  --uk-muted: #a9a3bc;
+  --uk-line: #27213d;
+  --uk-line-2: #3d2b7a;
+  --uk-blue: #684dff;
+  --uk-blue-bright: #8a70ff;
+  --uk-blue-deep: #287bff;
+  --uk-violet: #287bff;
+  --uk-yellow: #fff500;
+  --uk-gray: #a9a3bc;
+
+  /* shadcn semantic (dark) */
+  --background: #070511;
+  --foreground: #f7f5ff;
+  --card: #121027;
+  --card-foreground: #f7f5ff;
+  --popover: #121027;
+  --popover-foreground: #f7f5ff;
+  --primary: #3100ff;
+  --primary-foreground: #ffffff;
+  --secondary: #121027;
+  --secondary-foreground: #f7f5ff;
+  --muted: #121027;
+  --muted-foreground: #a9a3bc;
+  --accent: #121027;
+  --accent-foreground: #684dff;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #27213d;
+  --input: #3d2b7a;
+  --ring: #684dff;
+  --chart-1: #684dff;
+  --chart-2: #fff500;
+  --chart-3: #287bff;
+  --chart-4: #a9a3bc;
+  --chart-5: #f7f5ff;
+  --sidebar: #0d091c;
+  --sidebar-foreground: #f7f5ff;
+  --sidebar-primary: #3100ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #121027;
+  --sidebar-accent-foreground: #684dff;
+  --sidebar-border: #27213d;
+  --sidebar-ring: #684dff;
+}
+
+html { color-scheme: light; }
+html.dark { color-scheme: dark; }
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    /* Decorative glows/blobs may extend past the viewport; never let them
+       create a sideways scrollbar (matters in phone "Desktop site" mode).
+       `clip` doesn't create a scroll container, so sticky headers and
+       Lenis smooth-scroll keep working. */
+    overflow-x: clip;
+  }
+  body {
+    overflow-x: clip;
+    @apply bg-background text-foreground;
+    font-feature-settings: "kern";
+    /* Mobile: no grey flash on every tap (Android/iOS), and no iOS text
+       inflation when the phone rotates to landscape. */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  ::selection {
+    background: rgba(49, 0, 255, 0.18);
+    color: #151122;
+  }
+  /* Premium scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #eceafb;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #3100ff;
+    border-radius: 999px;
+    border: 2px solid #f8f7ff;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #2400c7;
+  }
+
+  /* Dark mode scrollbar + selection */
+  .dark ::-webkit-scrollbar-track {
+    background: #0d091c;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: #684dff;
+    border: 2px solid #070511;
+  }
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #8a70ff;
+  }
+  .dark ::selection {
+    background: rgba(104, 77, 255, 0.28);
+    color: #f7f5ff;
+  }
+}
+
+/* ============================================================
+   UTILITY LAYER — premium reusable patterns
+   ============================================================ */
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading), var(--font-sans), sans-serif;
+    letter-spacing: -0.02em;
+  }
+
+  .text-gradient-blue {
+    background: linear-gradient(115deg, #3100ff 0%, #287bff 55%, #2400c7 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Animated brand gradient — blue → violet, slowly panning. Applied
+     automatically to brand-blue spans inside headings (font-heading /
+     font-heading-display), so every section title and page hero across
+     the site shares one living accent without per-page edits. */
+  .font-heading-display .text-uk-blue,
+  .font-heading .text-uk-blue {
+    background: linear-gradient(100deg, #3100ff 10%, #2400c7 50%, #3100ff 90%);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gradient-pan 9s ease-in-out infinite;
+  }
+  .dark .font-heading-display .text-uk-blue,
+  .dark .font-heading .text-uk-blue {
+    background: linear-gradient(100deg, #684dff 10%, #287bff 50%, #684dff 90%);
+    /* Re-declare clip + size: the `background` shorthand above resets them
+       (and its higher specificity would otherwise win the cascade), which
+       un-clips the gradient and leaves the glyphs fully transparent —
+       i.e. invisible dark-mode headings. */
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  @keyframes gradient-pan {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Standalone animated gradient text — use on any inline emphasis. */
+  .text-gradient-animated {
+    background: linear-gradient(100deg, #3100ff, #2400c7, #3100ff);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: gradient-pan 9s ease-in-out infinite;
+  }
+  .dark .text-gradient-animated {
+    background: linear-gradient(100deg, #684dff, #287bff, #684dff);
+    background-size: 220% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Amber marker highlight — dark text on an amber chip, readable
+     on light surfaces (unlike light mint text itself). */
+  .highlight-yellow {
+    background: linear-gradient(100deg, rgba(255, 245, 0, 0.35) 0%, #fff500 100%);
+    color: #151122;
+    padding: 0.02em 0.18em;
+    border-radius: 0.35rem;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+
+  /* Glassmorphism cards (light surfaces) */
+  .glass {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(49, 0, 255, 0.12);
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(16px) saturate(130%);
+    -webkit-backdrop-filter: blur(16px) saturate(130%);
+    border: 1px solid rgba(49, 0, 255, 0.14);
+  }
+
+  /* Soft blue glow */
+  .glow-blue {
+    box-shadow: 0 0 0 1px rgba(49, 0, 255, 0.18),
+      0 18px 60px -12px rgba(49, 0, 255, 0.45),
+      0 2px 6px rgba(15, 23, 42, 0.10);
+  }
+  .glow-blue-sm {
+    box-shadow: 0 8px 30px -8px rgba(49, 0, 255, 0.55),
+      0 1px 2px rgba(15, 23, 42, 0.12);
+  }
+  .glow-yellow {
+    box-shadow: 0 8px 30px -8px rgba(255, 245, 0, 0.55);
+  }
+
+  /* Hairline grid background (light: faint blue lines) */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(49, 0, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(49, 0, 255, 0.08) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .bg-grid-fade {
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 30%, transparent 75%);
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(rgba(49, 0, 255, 0.14) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /* Section edge fades */
+  .mask-fade-y {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 12%, #000 88%, transparent);
+  }
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  /* Section padding — tightened so stacked sections don't leave a
+     oversized blank band between them (48px → 80px per side). */
+  .section-py {
+    padding-top: clamp(3rem, 5vw, 5rem);
+    padding-bottom: clamp(3rem, 5vw, 5rem);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    will-change: transform, opacity;
+  }
+
+  .marquee-track {
+    animation: marquee 38s linear infinite;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Soft premium shadows (light theme) — deep enough to lift white cards
+     off white/ice backgrounds (Stripe-grade elevation) */
+  .shadow-premium {
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+      0 1px 2px rgba(15, 23, 42, 0.06),
+      0 20px 44px -18px rgba(15, 23, 42, 0.16),
+      0 0 0 1px rgba(49, 0, 255, 0.06);
+  }
+  .shadow-premium-lg {
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+      0 2px 4px rgba(15, 23, 42, 0.06),
+      0 28px 56px -16px rgba(15, 23, 42, 0.18),
+      0 64px 120px -30px rgba(49, 0, 255, 0.20);
+  }
+  .shadow-float {
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.07),
+      0 18px 50px -12px rgba(15, 23, 42, 0.14),
+      0 0 0 1px rgba(49, 0, 255, 0.12);
+  }
+
+  /* Yellow attention badge — #FFF500 bg + dark text (always paired) */
+  .badge-yellow {
+    color: #1f2937;
+    background: #fff500;
+    font-weight: 700;
+    box-shadow: 0 4px 14px -4px #fff5008c;
+  }
+
+  /* Premium layered card: gradient hairline border + top highlight + lift.
+     Background- and radius-agnostic — pair with the element's own bg-*
+     and rounded-* classes so section/card contrast is preserved. */
+  .card-premium {
+    position: relative;
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+      0 1px 2px rgba(15, 23, 42, 0.07),
+      0 20px 40px -22px rgba(15, 23, 42, 0.16),
+      0 0 0 1px rgba(49, 0, 255, 0.07);
+    transition: transform 0.45s var(--ease-out-expo), box-shadow 0.45s var(--ease-out-expo);
+  }
+  .card-premium::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(49, 0, 255, 0.45) 0%, rgba(229, 225, 242, 0.9) 30%, transparent 60%, rgba(255, 245, 0, 0.35) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    transition: opacity 0.45s var(--ease-out-expo);
+    opacity: 0.85;
+  }
+  .card-premium:hover {
+    transform: translateY(-8px);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+      0 2px 4px rgba(15, 23, 42, 0.07),
+      0 36px 72px -20px rgba(15, 23, 42, 0.22),
+      0 24px 60px -16px rgba(49, 0, 255, 0.28),
+      0 0 0 1px rgba(49, 0, 255, 0.18);
+  }
+  .card-premium:hover::before { opacity: 1; }
+
+  /* Cursor spotlight overlay (set --mx/--my in % via JS, defaults centered) */
+  .card-spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 0%), rgba(49, 0, 255, 0.10), transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .card-spotlight:hover::after { opacity: 1; }
+
+  /* Universal content hover — Stripe/Framer-style feedback for plain
+     cards/panels that shouldn't carry the full card-premium border.
+     Small lift + brand-blue border tint + deep layered shadow.
+     Pair with the element's own bg-* and rounded-* classes. */
+  .card-hover {
+    transition: transform 0.45s var(--ease-out-expo), border-color 0.3s ease, box-shadow 0.45s var(--ease-out-expo);
+  }
+  .card-hover:hover {
+    transform: translateY(-6px);
+    border-color: rgba(49, 0, 255, 0.40);
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.07),
+      0 24px 48px -20px rgba(15, 23, 42, 0.20),
+      0 0 0 1px rgba(49, 0, 255, 0.15);
+  }
+  .dark .card-hover:hover {
+    border-color: rgba(104, 77, 255, 0.45);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.30),
+      0 24px 48px -20px rgba(0, 0, 0, 0.50),
+      0 0 0 1px rgba(104, 77, 255, 0.18);
+  }
+
+  /* Universal hover lift — any card-like content surface (a rounded-*
+     element that carries bg-uk-card in light or dark) rises gently
+     toward the cursor on hover, on every page, without sprinkling
+     hover classes by hand. Elements that already manage their own
+     hover/transition behavior (buttons, inputs, premium cards, cards
+     with an explicit hover:-translate-y-1) are excluded so effects
+     never stack or fight. */
+  [class*="bg-uk-card"][class*="rounded-"]:not([class*="transition-"]):not([class*="card-hover"]):not([class*="card-premium"]):not([class*="hover:-translate-y"]):not(input):not(textarea):not(select):not(button):not(form) {
+    transition:
+      transform 0.45s var(--ease-out-expo),
+      border-color 0.3s ease,
+      box-shadow 0.45s var(--ease-out-expo);
+  }
+  [class*="bg-uk-card"][class*="rounded-"]:not([class*="transition-"]):not([class*="card-hover"]):not([class*="card-premium"]):not([class*="hover:-translate-y"]):not(input):not(textarea):not(select):not(button):not(form):hover {
+    transform: translateY(-6px);
+    border-color: rgba(49, 0, 255, 0.40);
+    box-shadow:
+      0 2px 4px rgba(15, 23, 42, 0.07),
+      0 24px 48px -20px rgba(15, 23, 42, 0.20),
+      0 0 0 1px rgba(49, 0, 255, 0.15);
+  }
+  .dark [class*="bg-uk-card"][class*="rounded-"]:not([class*="transition-"]):not([class*="card-hover"]):not([class*="card-premium"]):not([class*="hover:-translate-y"]):not(input):not(textarea):not(select):not(button):not(form):hover {
+    border-color: rgba(104, 77, 255, 0.45);
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.30),
+      0 24px 48px -20px rgba(0, 0, 0, 0.50),
+      0 0 0 1px rgba(104, 77, 255, 0.18);
+  }
+
+  /* Hero "What we build for you" showcase — the marquee panel gets a
+     prouder hover than plain content cards: a bigger lift plus a soft
+     brand-blue halo so the centerpiece clearly reacts. */
+  .showcase-hover {
+    transition: transform 0.5s var(--ease-out-expo), border-color 0.3s ease, box-shadow 0.5s var(--ease-out-expo);
+  }
+  .showcase-hover:hover {
+    transform: translateY(-10px);
+    border-color: rgba(49, 0, 255, 0.35);
+    box-shadow:
+      0 1px 0 0 rgba(255, 255, 255, 0.9) inset,
+      0 2px 6px rgba(15, 23, 42, 0.08),
+      0 40px 80px -24px rgba(49, 0, 255, 0.35),
+      0 24px 60px -16px rgba(15, 23, 42, 0.25);
+  }
+  .dark .showcase-hover:hover {
+    border-color: rgba(104, 77, 255, 0.40);
+    box-shadow:
+      0 2px 6px rgba(0, 0, 0, 0.35),
+      0 40px 80px -24px rgba(104, 77, 255, 0.30),
+      0 24px 60px -16px rgba(0, 0, 0, 0.55);
+  }
+
+  /* Inside the same showcase — each mockup tile gives a mini-lift so
+     the whole dashboard feels alive under the cursor. */
+  [class*="dark:bg-white/[0.04]"]:not([class*="transition-"]):not(button):not(input) {
+    transition: transform 0.4s var(--ease-out-expo), border-color 0.3s ease;
+  }
+  [class*="dark:bg-white/[0.04]"]:not([class*="transition-"]):not(button):not(input):hover {
+    transform: translateY(-2px);
+    border-color: rgba(49, 0, 255, 0.35);
+  }
+  .dark [class*="dark:bg-white/[0.04]"]:not([class*="transition-"]):not(button):not(input):hover {
+    border-color: rgba(104, 77, 255, 0.45);
+  }
+
+  /* Button shimmer/sheen sweep on hover */
+  .btn-sheen { position: relative; overflow: hidden; }
+  .btn-sheen::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-18deg);
+    transition: left 0.6s var(--ease-out-expo);
+    pointer-events: none;
+  }
+  .btn-sheen:hover::after { left: 130%; }
+
+  /* Unified button hover — a small, confident rise on hover with a
+     firm press-back on click. Pairs with btn-sheen (shimmer sweep)
+     and the shadow-glow-* shadows so every button on the site shares
+     one motion language: lift on hover, press on click. */
+  .btn-lift {
+    transition:
+      transform 0.35s var(--ease-out-expo),
+      box-shadow 0.35s var(--ease-out-expo),
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      color 0.25s ease;
+  }
+  .btn-lift:hover {
+    transform: translateY(-2px);
+  }
+  .btn-lift:active {
+    transform: translateY(0);
+    transition-duration: 0.1s;
+  }
+
+  /* Primary CTA breathing glow — a slow, confident halo pulse for the
+     hero's main action. Pair with .btn-sheen and bg-uk-blue. */
+  .btn-glow { animation: btn-glow-pulse 3.2s ease-in-out infinite; }
+  @keyframes btn-glow-pulse {
+    0%, 100% {
+      box-shadow: 0 10px 34px -10px rgba(49, 0, 255, 0.55), 0 0 0 0 rgba(49, 0, 255, 0.28);
+    }
+    50% {
+      box-shadow: 0 14px 44px -8px rgba(36, 0, 199, 0.65), 0 0 0 7px rgba(49, 0, 255, 0.10);
+    }
+  }
+  .dark .btn-glow { animation-name: btn-glow-pulse-dark; }
+  @keyframes btn-glow-pulse-dark {
+    0%, 100% {
+      box-shadow: 0 10px 34px -10px rgba(104, 77, 255, 0.45), 0 0 0 0 rgba(104, 77, 255, 0.25);
+    }
+    50% {
+      box-shadow: 0 14px 44px -8px rgba(138, 112, 255, 0.55), 0 0 0 7px rgba(104, 77, 255, 0.12);
+    }
+  }
+
+  /* Rotating "border beam" — a light streak that travels around the
+     border of a relative, overflow-hidden panel. Trending SaaS-hero
+     effect; apply to the page's single centerpiece card. */
+  .border-beam::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from var(--beam-angle),
+      transparent 0deg,
+      rgba(49, 0, 255, 0.85) 40deg,
+      rgba(40, 123, 255, 0.85) 75deg,
+      rgba(255, 245, 0, 0.45) 100deg,
+      transparent 140deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: beam-rotate 5s linear infinite;
+    pointer-events: none;
+  }
+  /* Dark mode: #3100FF at high alpha vanishes on Deep Space — the travelling
+     streak switches to the bright ramp (bright indigo → blue → cyan). */
+  .dark .border-beam::before {
+    background: conic-gradient(
+      from var(--beam-angle),
+      transparent 0deg,
+      rgba(104, 77, 255, 0.90) 40deg,
+      rgba(40, 123, 255, 0.90) 75deg,
+      rgba(255, 245, 0, 0.60) 100deg,
+      transparent 140deg
+    );
+  }
+  @keyframes beam-rotate { to { --beam-angle: 360deg; } }
+
+  /* Aurora layered radial background — premium texture (light) */
+  .bg-aurora {
+    background-image:
+      radial-gradient(ellipse 60% 50% at 15% 0%, rgba(49, 0, 255, 0.14), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 10%, rgba(40, 123, 255, 0.10), transparent 55%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(255, 245, 0, 0.12), transparent 60%);
+  }
+  /* Subtle noise texture for depth — inline SVG data-uri, very low opacity */
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+  }
+
+  /* Route enter — universal per-navigation entrance (all browsers).
+     Opacity-only: transform/filter would create a containing block
+     that breaks the position:fixed sticky header. Opacity does not. */
+  .route-enter {
+    animation: route-enter 0.45s var(--ease-out-expo) both;
+  }
+  @keyframes route-enter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* First-paint loader (light overlay) */
+  .loader-shimmer {
+    background: linear-gradient(90deg, rgba(49,0,255,0) 0%, rgba(49,0,255,0.9) 50%, rgba(49,0,255,0) 100%);
+    background-size: 200% 100%;
+    animation: loader-shimmer 1.1s linear infinite;
+  }
+  @keyframes loader-shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
+  .loader-grid {
+    background-image:
+      linear-gradient(to right, rgba(49, 0, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(49, 0, 255, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  /* Section divider — gradient hairline */
+  .divider-glow {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(49, 0, 255, 0.45), rgba(40, 123, 255, 0.40), rgba(255, 245, 0, 0.45), transparent);
+    box-shadow: 0 0 24px rgba(49, 0, 255, 0.18);
+  }
+
+  /* Blueprint grid — engineering-drawing texture (finer + stronger than bg-grid) */
+  .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgba(49, 0, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(49, 0, 255, 0.07) 1px, transparent 1px),
+      linear-gradient(to right, rgba(49, 0, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(49, 0, 255, 0.04) 1px, transparent 1px);
+    background-size: 112px 112px, 112px 112px, 28px 28px, 28px 28px;
+  }
+
+  /* Editorial ink-underline — draws left→right on hover */
+  .link-ink {
+    background-image: linear-gradient(90deg, #3100ff, #2400c7);
+    background-size: 0% 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.45s var(--ease-out-expo);
+  }
+  .link-ink:hover { background-size: 100% 2px; }
+
+  /* Live console (hero) */
+  .console {
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 0.72rem;
+    line-height: 1.7;
+  }
+  .console-cursor {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    background: #3100ff;
+    vertical-align: text-bottom;
+    animation: console-blink 1s steps(1) infinite;
+  }
+  @keyframes console-blink {
+    0%, 55% { opacity: 1; }
+    56%, 100% { opacity: 0; }
+  }
+
+  /* Data-flow dashes (global delivery mesh) */
+  @keyframes flow-dash {
+    to { stroke-dashoffset: -28; }
+  }
+  .flow-dash {
+    stroke-dasharray: 3 5;
+    animation: flow-dash 1.6s linear infinite;
+  }
+  @keyframes node-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(49, 0, 255, 0.45); }
+    70% { box-shadow: 0 0 0 9px rgba(49, 0, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(49, 0, 255, 0); }
+  }
+  .node-pulse {
+    animation: node-pulse 2.4s var(--ease-premium) infinite;
+  }
+  @keyframes glow-drift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(4%, -6%, 0) scale(1.12); }
+  }
+  .glow-drift {
+    animation: glow-drift 12s ease-in-out infinite;
+  }
+
+  /* Radar sweep (tech-stack core) */
+  @keyframes radar-sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .radar-sweep {
+    animation: radar-sweep 5s linear infinite;
+  }
+
+  /* Insights: data dot travelling up the trend path (lower-left → upper-right) */
+  @keyframes insight-travel {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+  .insight-travel {
+    offset-path: path("M40 330 L130 290 L200 300 L280 210 L340 230 L368 148");
+    offset-rotate: 0deg;
+    animation: insight-travel 7s linear infinite;
+  }
+
+  /* Company: satellite circling the team constellation ellipse */
+  @keyframes orgbit-travel {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+  .orgbit-travel {
+    offset-path: path("M200 84 A88 116 0 1 1 200 316 A88 116 0 1 1 200 84");
+    offset-rotate: 0deg;
+    animation: orgbit-travel 14s linear infinite;
+  }
+
+  /* Services: prompt signals travelling the input streams into the AI core */
+  @keyframes ncortex-travel {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+  .ncortex-a {
+    offset-path: path("M200 64 C200 100 200 122 200 142");
+    offset-rotate: 0deg;
+    animation: ncortex-travel 5.5s linear infinite;
+  }
+  .ncortex-b {
+    offset-path: path("M121 279 C142 262 154 250 164 234");
+    offset-rotate: 0deg;
+    animation: ncortex-travel 6.5s linear infinite;
+  }
+
+  /* Work: deploy packet travelling the pipeline from the rack to results */
+  @keyframes wpipeline-travel {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+  .wpipeline {
+    offset-path: path("M180 138 C214 138 228 160 236 186");
+    offset-rotate: 0deg;
+    animation: wpipeline-travel 5s linear infinite;
+  }
+
+  /* Solutions: assembly ring sweeping around the core */
+  @keyframes assem-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .assem-ring {
+    animation: assem-spin 36s linear infinite;
+  }
+
+  /* Solutions: assembly sparks travelling the module flows into the core */
+  @keyframes assem-travel {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+  .assem-a {
+    offset-path: path("M162 81 H206 V136");
+    offset-rotate: 0deg;
+    animation: assem-travel 5s linear infinite;
+  }
+  .assem-b {
+    offset-path: path("M228 110 C217 117 210 126 206 138");
+    offset-rotate: 0deg;
+    animation: assem-travel 4.5s linear infinite;
+  }
+
+  /* Hire: applicants travelling the converging flows into the matching engine */
+  @keyframes hire-travel {
+    from { offset-distance: 0%; }
+    to { offset-distance: 100%; }
+  }
+  .hire-travel-a {
+    offset-path: path("M110 110 C138 122 150 138 158 156");
+    offset-rotate: 0deg;
+    animation: hire-travel 6s linear infinite;
+  }
+  .hire-travel-b {
+    offset-path: path("M290 290 C262 278 250 262 242 244");
+    offset-rotate: 0deg;
+    animation: hire-travel 5.5s linear infinite;
+  }
+
+  /* ── DARK MODE UTILITY OVERRIDES ── */
+  .dark .glass {
+    background: rgba(18, 16, 39, 0.72);
+    border: 1px solid rgba(104, 77, 255, 0.16);
+  }
+  .dark .glass-strong {
+    background: rgba(18, 16, 39, 0.88);
+    border: 1px solid rgba(104, 77, 255, 0.20);
+  }
+  .dark .glow-blue {
+    box-shadow:
+      0 0 0 1px rgba(104, 77, 255, 0.25),
+      0 18px 60px -12px rgba(104, 77, 255, 0.35),
+      0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+  .dark .glow-blue-sm {
+    box-shadow:
+      0 8px 30px -8px rgba(104, 77, 255, 0.40),
+      0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .dark .glow-yellow {
+    box-shadow: 0 8px 30px -8px rgba(255, 245, 0, 0.35);
+  }
+  .dark .shadow-premium {
+    box-shadow:
+      0 1px 0 0 rgba(104, 77, 255, 0.08) inset,
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 20px 44px -18px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(104, 77, 255, 0.10);
+  }
+  .dark .shadow-premium-lg {
+    box-shadow:
+      0 1px 0 0 rgba(104, 77, 255, 0.08) inset,
+      0 2px 4px rgba(0, 0, 0, 0.3),
+      0 28px 56px -16px rgba(0, 0, 0, 0.50),
+      0 64px 120px -30px rgba(104, 77, 255, 0.15);
+  }
+  .dark .shadow-float {
+    box-shadow:
+      0 2px 4px rgba(0, 0, 0, 0.25),
+      0 18px 50px -12px rgba(0, 0, 0, 0.40),
+      0 0 0 1px rgba(104, 77, 255, 0.12);
+  }
+  .dark .card-premium {
+    box-shadow:
+      0 1px 0 0 rgba(104, 77, 255, 0.08) inset,
+      0 1px 2px rgba(0, 0, 0, 0.3),
+      0 20px 40px -22px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(104, 77, 255, 0.10);
+  }
+  .dark .card-premium::before {
+    background: linear-gradient(135deg, rgba(104, 77, 255, 0.50) 0%, rgba(61, 43, 122, 0.80) 30%, transparent 60%, rgba(255, 245, 0, 0.25) 100%);
+    opacity: 0.90;
+  }
+  .dark .card-premium:hover {
+    box-shadow:
+      0 1px 0 0 rgba(104, 77, 255, 0.10) inset,
+      0 2px 4px rgba(0, 0, 0, 0.3),
+      0 36px 72px -20px rgba(0, 0, 0, 0.55),
+      0 24px 60px -16px rgba(104, 77, 255, 0.20),
+      0 0 0 1px rgba(104, 77, 255, 0.18);
+  }
+  .dark .card-spotlight::after {
+    background: radial-gradient(180px circle at var(--mx, 50%) var(--my, 0%), rgba(104, 77, 255, 0.12), transparent 60%);
+  }
+  .dark .badge-yellow {
+    color: #1f2937;
+    background: #fff500;
+    box-shadow: 0 4px 14px -4px #fff5008c;
+  }
+  .dark .highlight-yellow {
+    background: linear-gradient(100deg, rgba(255, 245, 0, 0.30) 0%, rgba(255, 245, 0, 0.60) 100%);
+    color: #070511;
+  }
+  .dark .text-gradient-blue {
+    background: linear-gradient(115deg, #684dff 0%, #8a70ff 45%, #287bff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  .dark .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(104, 77, 255, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(104, 77, 255, 0.06) 1px, transparent 1px);
+  }
+  .dark .bg-dots {
+    background-image: radial-gradient(rgba(104, 77, 255, 0.10) 1px, transparent 1px);
+  }
+  .dark .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgba(104, 77, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(104, 77, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to right, rgba(104, 77, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(104, 77, 255, 0.03) 1px, transparent 1px);
+  }
+  .dark .bg-aurora {
+    background-image:
+      radial-gradient(ellipse 60% 50% at 15% 0%, rgba(104, 77, 255, 0.10), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 85% 10%, rgba(138, 112, 255, 0.08), transparent 55%),
+      radial-gradient(ellipse 70% 50% at 50% 100%, rgba(255, 245, 0, 0.08), transparent 60%);
+  }
+  .dark .divider-glow {
+    background: linear-gradient(90deg, transparent, rgba(104, 77, 255, 0.40), rgba(138, 112, 255, 0.35), rgba(255, 245, 0, 0.35), transparent);
+    box-shadow: 0 0 24px rgba(104, 77, 255, 0.12);
+  }
+  .dark .link-ink {
+    background-image: linear-gradient(90deg, #684dff, #8a70ff);
+  }
+  .dark .console {
+    color: #c9c2e8;
+  }
+  .dark .console-cursor {
+    background: #684dff;
+  }
+  .dark .loader-shimmer {
+    background: linear-gradient(90deg, rgba(104, 77, 255, 0) 0%, rgba(104, 77, 255, 0.9) 50%, rgba(104, 77, 255, 0) 100%);
+  }
+  .dark .loader-grid {
+    background-image:
+      linear-gradient(to right, rgba(104, 77, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(104, 77, 255, 0.04) 1px, transparent 1px);
+  }
+  .dark .node-pulse {
+    animation-name: node-pulse-dark;
+  }
+  @keyframes node-pulse-dark {
+    0% { box-shadow: 0 0 0 0 rgba(104, 77, 255, 0.45); }
+    70% { box-shadow: 0 0 0 9px rgba(104, 77, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(104, 77, 255, 0); }
+  }
+
+  /* ── GRADIENT CLASSES (light + dark variants) ── */
+  .hero-gradient {
+    background: linear-gradient(165deg, #EAE6FF 0%, #F4F2FF 40%, #FDFDFF 100%);
+  }
+  .dark .hero-gradient {
+    /* Dark Aurora — exact spec gradient: indigo glow + cyan glow over Deep Space */
+    background:
+      radial-gradient(circle at 20% 20%, rgba(49, 0, 255, 0.28), transparent 35%),
+      radial-gradient(circle at 80% 30%, rgba(255, 245, 0, 0.16), transparent 30%),
+      #070511;
+  }
+  .page-hero-gradient {
+    background: linear-gradient(160deg, #EFECFF 0%, #F8F7FF 60%, #FFFFFF 100%);
+  }
+  .dark .page-hero-gradient {
+    /* Aurora companion for inner-page heroes, anchored on Dark Indigo */
+    background:
+      radial-gradient(circle at 15% 25%, rgba(49, 0, 255, 0.22), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(255, 245, 0, 0.12), transparent 35%),
+      #0d091c;
+  }
+  .cta-gradient {
+    /* Special CTA — #3100FF → #684DFF → #287BFF (used sparingly) */
+    background: linear-gradient(135deg, #3100FF 0%, #684DFF 55%, #287BFF 100%);
+  }
+  .dark .cta-gradient {
+    background: linear-gradient(135deg, #2400C7 0%, #684DFF 60%, #287BFF 100%);
+  }
+  .radar-sweep-bg {
+    background: conic-gradient(from 0deg, rgba(49, 0, 255, 0.14) 0deg, transparent 55deg, transparent 360deg);
+  }
+  .dark .radar-sweep-bg {
+    background: conic-gradient(from 0deg, rgba(104, 77, 255, 0.10) 0deg, transparent 55deg, transparent 360deg);
+  }
+  .cta-conic-sweep {
+    background: conic-gradient(from 90deg, transparent 0deg, rgba(255,255,255,0.14) 60deg, transparent 130deg, transparent 360deg);
+  }
+  .dark .cta-conic-sweep {
+    background: conic-gradient(from 90deg, transparent 0deg, rgba(255,255,255,0.08) 60deg, transparent 130deg, transparent 360deg);
+  }
+
+  /* ── INNER-PAGE HERO ("engineering canvas") ──
+     Same light ice-blue palette as before; adds slow orbit rings for the
+     radar motif on the right side of the band. */
+  @keyframes hero-orbit {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .hero-orbit {
+    animation: hero-orbit 28s linear infinite;
+  }
+  .hero-orbit-rev {
+    animation: hero-orbit 40s linear infinite reverse;
+  }
+
+  /* Page-hero artwork: slow "Ken Burns" zoom drift inside the circle */
+  /* Gentle range (1.02 → 1.07) so the zoom never magnifies the artwork
+     past its sharp native resolution. */
+  @keyframes hero-image-drift {
+    from { transform: scale(1.02) translate3d(0, 0, 0); }
+    to { transform: scale(1.07) translate3d(-1%, 1%, 0); }
+  }
+  .hero-image-drift {
+    animation: hero-image-drift 22s ease-in-out infinite alternate;
+  }
+}
+
+/* ============================================================
+   VIEW TRANSITIONS — Chromium 125+ progressive enhancement.
+   No-op elsewhere; content swaps instantly.
+   ============================================================ */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-group(root) {
+  animation-duration: 0.4s;
+  animation-timing-function: var(--ease-out-expo);
+}
+
+/* ============================================================
+   LENIS — recommended global styles (applied via .lenis classes)
+   ============================================================ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* First-paint loader failsafe (components/site/page-loader.tsx): if the
+   JS that normally fades the loader never runs, this CSS-only animation
+   still hides it after 3.2s so the page is never trapped behind it. */
+.page-loader-failsafe {
+  animation: loader-failsafe 0.5s ease 3.2s forwards;
+}
+@keyframes loader-failsafe {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* Scoping-call popup entrance (see components/site/scoping-modal.tsx) */
+.scoping-fade {
+  animation: scoping-fade 0.25s ease both;
+}
+.scoping-pop {
+  animation: scoping-pop 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+/* Light sweep across the popup's top accent bar */
+.scoping-sheen {
+  animation: scoping-sheen 2.8s ease-in-out infinite;
+}
+@keyframes scoping-sheen {
+  0% { transform: translateX(-100%); }
+  55%, 100% { transform: translateX(220%); }
+}
+/* Rotating conic gradient border around the popup panel */
+/* Registered custom property for the rotating border-beam conic gradient
+   (see .border-beam in the utility layer) and the scoping popup ring. */
+@property --beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@property --scoping-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.scoping-ring {
+  background: conic-gradient(
+    from var(--scoping-angle),
+    rgba(255, 245, 0, 0.95),
+    rgba(49, 0, 255, 0.95),
+    rgba(104, 77, 255, 0.95),
+    rgba(255, 245, 0, 0.95)
+  );
+  animation: scoping-rotate 6s linear infinite;
+}
+.dark .scoping-ring {
+  background: conic-gradient(
+    from var(--scoping-angle),
+    rgba(255, 245, 0, 0.95),
+    rgba(104, 77, 255, 0.95),
+    rgba(138, 112, 255, 0.95),
+    rgba(255, 245, 0, 0.95)
+  );
+}
+@keyframes scoping-rotate {
+  to { --scoping-angle: 360deg; }
+}
+/* The popup's inner scrollbar is intentionally HIDDEN — scrolling still
+   works (wheel, touch, keyboard) and progress is shown by the brand
+   gradient line outside the panel instead (scoping-modal.tsx). */
+.scoping-scroll {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scoping-scroll::-webkit-scrollbar {
+  display: none;
+}
+@keyframes scoping-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scoping-pop {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+  .route-enter { animation: none; }
+  .loader-shimmer { animation: none; }
+  .marquee-track { animation: none; }
+  .scoping-fade, .scoping-pop, .scoping-sheen, .scoping-ring { animation: none; }
+  .aurora-blob { animation: none; }
+  .font-heading-display .text-uk-blue,
+  .font-heading .text-uk-blue,
+  .text-gradient-animated,
+  .btn-glow { animation: none; }
+  .border-beam::before { animation: none; }
+  .reveal { opacity: 1; transform: none; }
+  .orbit-ring, .orbit-ring-rev, .orbit-item, .orbit-item-rev,
+  .hero-orbit, .hero-orbit-rev, .hero-image-drift,
+  .radar-sweep, .glow-drift, .flow-dash, .node-pulse, .console-cursor,
+  .insight-travel, .orgbit-travel, .ncortex-a, .ncortex-b, .wpipeline,
+  .assem-ring, .assem-a, .assem-b, .hire-travel-a, .hire-travel-b {
+    animation: none !important;
+  }
+  html { scroll-behavior: auto; }
+  /* Hover lifts are intentionally NOT disabled here: they are small,
+     user-initiated feedback (not autonomous motion), so content still
+     rises on hover even when the OS requests reduced motion. */
+}
+
+/* ------------------------------------------------------------------ */
+/* AURORA BLOBS — organic glowing-rim shapes                           */
+/* CSS recreation of the ChatGPT reference artwork: soft blobs on deep  */
+/* space, each with a thin gradient rim (indigo → blue → cyan), a dark  */
+/* core and a blurred colour glow. Strongest in dark mode.              */
+/* ------------------------------------------------------------------ */
+
+.aurora-blob {
+  position: absolute;
+  opacity: 0.32;
+  animation: aurora-float 22s ease-in-out infinite alternate;
+}
+.dark .aurora-blob {
+  opacity: 0.5;
+}
+
+.aurora-blob-glow {
+  position: absolute;
+  inset: -22%;
+  border-radius: 50%;
+  filter: blur(32px);
+}
+
+.aurora-blob-rim {
+  position: absolute;
+  inset: 0;
+  filter: blur(0.4px);
+}
+
+/* The core sits 2px inside the rim, so the gradient reads as a thin
+   organic outline rather than a filled shape. */
+.aurora-blob-core {
+  position: absolute;
+  inset: 2px;
+  background: rgba(255, 255, 255, 0.94);
+}
+.dark .aurora-blob-core {
+  background: rgba(7, 5, 17, 0.94);
+}
+
+/* Tones — each keeps to the Dark Aurora ramp (#3100FF / #684DFF /
+   #287BFF / #fff500). */
+.aurora-blob--indigo .aurora-blob-rim {
+  background: linear-gradient(140deg, rgba(49, 0, 255, 0.92), rgba(104, 77, 255, 0.92) 52%, rgba(40, 123, 255, 0.92));
+}
+.aurora-blob--indigo .aurora-blob-glow {
+  background: radial-gradient(closest-side, rgba(49, 0, 255, 0.32), transparent 72%);
+}
+.aurora-blob--indigo .aurora-blob-core {
+  background:
+    radial-gradient(80% 60% at 30% 25%, rgba(104, 77, 255, 0.10), transparent 70%),
+    rgba(255, 255, 255, 0.94);
+}
+.dark .aurora-blob--indigo .aurora-blob-core {
+  background:
+    radial-gradient(80% 60% at 30% 25%, rgba(104, 77, 255, 0.10), transparent 70%),
+    rgba(7, 5, 17, 0.94);
+}
+
+.aurora-blob--blue .aurora-blob-rim {
+  background: linear-gradient(140deg, rgba(40, 123, 255, 0.92), rgba(104, 77, 255, 0.85) 50%, rgba(255, 245, 0, 0.88));
+}
+.aurora-blob--blue .aurora-blob-glow {
+  background: radial-gradient(closest-side, rgba(40, 123, 255, 0.30), transparent 72%);
+}
+.aurora-blob--blue .aurora-blob-core {
+  background:
+    radial-gradient(80% 60% at 30% 25%, rgba(40, 123, 255, 0.10), transparent 70%),
+    rgba(255, 255, 255, 0.94);
+}
+.dark .aurora-blob--blue .aurora-blob-core {
+  background:
+    radial-gradient(80% 60% at 30% 25%, rgba(40, 123, 255, 0.10), transparent 70%),
+    rgba(7, 5, 17, 0.94);
+}
+
+.aurora-blob--cyan .aurora-blob-rim {
+  background: linear-gradient(140deg, rgba(255, 245, 0, 0.88), rgba(40, 123, 255, 0.90) 55%, rgba(104, 77, 255, 0.92));
+}
+.aurora-blob--cyan .aurora-blob-glow {
+  background: radial-gradient(closest-side, rgba(255, 245, 0, 0.26), transparent 72%);
+}
+.aurora-blob--cyan .aurora-blob-core {
+  background:
+    radial-gradient(80% 60% at 30% 25%, rgba(255, 245, 0, 0.09), transparent 70%),
+    rgba(255, 255, 255, 0.94);
+}
+.dark .aurora-blob--cyan .aurora-blob-core {
+  background:
+    radial-gradient(80% 60% at 30% 25%, rgba(255, 245, 0, 0.09), transparent 70%),
+    rgba(7, 5, 17, 0.94);
+}
+
+/* Organic shapes — rim and core use slightly different ratios so the
+   outline never looks like a perfect ellipse. */
+.aurora-blob--shape-a .aurora-blob-rim { border-radius: 58% 42% 55% 45% / 48% 56% 44% 52%; }
+.aurora-blob--shape-a .aurora-blob-core { border-radius: 56% 44% 53% 47% / 50% 54% 46% 50%; }
+.aurora-blob--shape-b .aurora-blob-rim { border-radius: 45% 55% 48% 52% / 56% 44% 58% 42%; }
+.aurora-blob--shape-b .aurora-blob-core { border-radius: 47% 53% 50% 50% / 54% 46% 56% 44%; }
+.aurora-blob--shape-c .aurora-blob-rim { border-radius: 62% 38% 50% 50% / 44% 60% 40% 56%; }
+.aurora-blob--shape-c .aurora-blob-core { border-radius: 60% 40% 48% 52% / 46% 58% 42% 54%; }
+
+@keyframes aurora-float {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to { transform: translate3d(0, -26px, 0) rotate(4deg); }
+}
+
+/* ------------------------------------------------------------------ */
+/* EXPLORE BLOB CARDS — six organic navigation cards                   */
+/* Gradient-rim "blob" cards built with the padding trick: an outer    */
+/* gradient layer, a core inset 1.5px, and an interior tone glow.      */
+/* ------------------------------------------------------------------ */
+
+.explore-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.explore-card:hover {
+  transform: translateY(-6px);
+}
+.explore-card:focus-visible {
+  outline: 2px solid #684dff;
+  outline-offset: 4px;
+}
+
+.explore-card-rim {
+  position: absolute;
+  inset: 0;
+  opacity: 0.75;
+  transition: opacity 0.4s ease;
+}
+.explore-card:hover .explore-card-rim {
+  opacity: 1;
+  box-shadow: 0 24px 70px -24px rgba(49, 0, 255, 0.45);
+}
+.dark .explore-card:hover .explore-card-rim {
+  box-shadow: 0 24px 70px -24px rgba(104, 77, 255, 0.55);
+}
+
+.explore-card-core {
+  position: absolute;
+  inset: 1.5px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+}
+.dark .explore-card-core {
+  background: rgba(13, 9, 28, 0.96);
+}
+
+/* Interior accent wash behind the icon — colour comes from the card's
+   --tint custom property. Clipped by the core's organic radius. */
+.explore-card-tint {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(75% 55% at 50% 0%, var(--tint, rgba(104, 77, 255, 0.14)), transparent 70%);
+}
+
+/* Six distinct organic silhouettes (rim / core / tint share them).
+   Mixed pixel ratios: organic without swallowing corner content. */
+.explore-card--a .explore-card-rim { border-radius: 44px 72px 60px 52px / 56px 48px 68px 50px; }
+.explore-card--a .explore-card-core,
+.explore-card--a .explore-card-tint { border-radius: 43px 71px 59px 51px / 55px 47px 67px 49px; }
+.explore-card--b .explore-card-rim { border-radius: 64px 48px 52px 68px / 48px 64px 50px 56px; }
+.explore-card--b .explore-card-core,
+.explore-card--b .explore-card-tint { border-radius: 63px 47px 51px 67px / 47px 63px 49px 55px; }
+.explore-card--c .explore-card-rim { border-radius: 52px 60px 68px 44px / 60px 50px 48px 66px; }
+.explore-card--c .explore-card-core,
+.explore-card--c .explore-card-tint { border-radius: 51px 59px 67px 43px / 59px 49px 47px 65px; }
+.explore-card--d .explore-card-rim { border-radius: 68px 52px 46px 60px / 50px 62px 56px 46px; }
+.explore-card--d .explore-card-core,
+.explore-card--d .explore-card-tint { border-radius: 67px 51px 45px 59px / 49px 61px 55px 45px; }
+.explore-card--e .explore-card-rim { border-radius: 46px 64px 58px 50px / 56px 46px 62px 52px; }
+.explore-card--e .explore-card-core,
+.explore-card--e .explore-card-tint { border-radius: 45px 63px 57px 49px / 55px 45px 61px 51px; }
+.explore-card--f .explore-card-rim { border-radius: 56px 46px 64px 50px / 48px 58px 46px 62px; }
+.explore-card--f .explore-card-core,
+.explore-card--f .explore-card-tint { border-radius: 55px 45px 63px 49px / 47px 57px 45px 61px; }
+/* ------------------------------------------------------------------ */
+/* TOUCH & SMALL-SCREEN FIXES (Android / iOS)                          */
+/* ------------------------------------------------------------------ */
+
+/* Phones and tablets have no real hover: a tap "sticks" the :hover state,
+   leaving cards and buttons frozen mid-lift until the next tap elsewhere.
+   Tailwind's own hover: utilities already skip touch screens; these
+   neutralise the hand-written lift effects above the same way. */
+@media (hover: none) {
+  .card-premium:hover,
+  .card-hover:hover,
+  .showcase-hover:hover,
+  .btn-lift:hover,
+  .explore-card:hover,
+  [class*="bg-uk-card"][class*="rounded-"]:hover,
+  [class*="dark:bg-white/[0.04]"]:hover {
+    transform: none;
+  }
+  .btn-sheen:hover::after {
+    left: -120%;
+  }
+}
+
+/* Small screens: the big blurred glow layers keep their look but stop
+   drifting. Continuously animating large blur filters is the main cause
+   of scroll jank, heat and "page reloaded" crashes on mid-range Android
+   phones and iOS Safari. */
+@media (max-width: 1023px) {
+  .aurora-blob,
+  .glow-drift {
+    animation: none;
+  }
 }

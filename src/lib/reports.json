@@ -1,0 +1,131 @@
+{
+  "reports": [
+    {
+      "slug": "delivery-report-2026-q3",
+      "title": "Delivery Report — Q3 2026",
+      "period": "July – September 2026",
+      "kind": "Quarterly delivery report",
+      "summary": "How our engagements performed this quarter: response times against the SLA, milestone punctuality, uptime on managed systems and the time clients got back from the delivery model. Published every quarter, whether the numbers are flattering or not.",
+      "highlights": [
+        "94% of milestones delivered on or before the agreed date across 38 active engagements",
+        "Average first reply of 3 hours 40 minutes against the contractual 24-hour SLA, with zero breaches",
+        "99.96% uptime across managed production systems, with every backup restore-tested in the quarter",
+        "Thin-slice prototypes reached working software in 19 days on average from scope sign-off"
+      ],
+      "chart": {
+        "title": "Time returned to client teams per engagement, hours per month",
+        "unit": "hrs / month",
+        "rows": [
+          { "label": "Status meetings replaced by weekly demos", "value": 16 },
+          { "label": "Manual month-end reconciliation", "value": 14 },
+          { "label": "Chasing vendor updates", "value": 9 },
+          { "label": "Re-keying data between tools", "value": 22 },
+          { "label": "Reporting assembled by hand", "value": 11 }
+        ]
+      },
+      "file": "/reports/ukvalley-delivery-report-2026-q3.pdf",
+      "sections": [
+        {
+          "heading": "Delivery scoreboard",
+          "body": "Figures below are drawn from our delivery tracker for the quarter and compared with the contractual commitments in every engagement agreement.",
+          "table": [
+            ["Average first reply", "3h 40m", "24-hour SLA"],
+            ["Milestones delivered on time", "94%", "Target 90%"],
+            ["Uptime across managed systems", "99.96%", "Target 99.9%"],
+            ["Active engagements", "38", "9 sectors"],
+            ["Live demos delivered", "310+", "Every Friday, every project"],
+            ["Average thin-slice to working software", "19 days", "Target 21 days"],
+            ["Production deploys per month", "220+", "All with rollback"],
+            ["SLA breaches", "0", "Since SLA entered contracts"]
+          ]
+        },
+        {
+          "heading": "What went well",
+          "bullets": [
+            "Three multi-site rollouts (a 22-outlet restaurant chain, a 4-campus school group and a 3-factory HRMS) closed on schedule with zero go-live incidents.",
+            "The cost-audit engagement recovered 34% of a SaaS platform's cloud spend in one week, funding the monitoring it had been missing.",
+            "Every backup across managed systems was restore-tested during the quarter; recovery times are now documented per data store."
+          ]
+        },
+        {
+          "heading": "What we are fixing",
+          "bullets": [
+            "Six percent of milestones slipped, mostly on client-side data readiness. From Q4, master-data cleanup is a scoped, dated milestone in every ERP and HRMS plan.",
+            "Two engagements reported reply times above 8 hours on public holidays. On-call rotas now cover Indian and client-country holidays explicitly.",
+            "Thin-slice timing varies by integration count. We now quote the thin-slice date per integration profile rather than as a single average."
+          ]
+        },
+        {
+          "heading": "Method",
+          "body": "Response times are measured from the client's first message in the shared channel or ticket to the first substantive written reply by a named engineer. Milestone punctuality compares the delivered date to the date in the signed sprint plan; re-scoped milestones count as late unless re-dated in writing before the original date. Uptime is measured by external synthetic checks every minute. Time-returned estimates are self-reported by client teams during quarterly reviews and rounded to the nearest hour."
+        }
+      ]
+    },
+    {
+      "slug": "custom-software-pricing-guide-2026",
+      "title": "Custom Software Pricing Guide — India 2026",
+      "period": "2026 edition",
+      "kind": "Buyer's guide",
+      "summary": "What drives a ₹2–6 lakh build versus ₹8–20 lakh and beyond, the three variables that actually move the price, typical timelines per band, and the questions to ask any vendor before signing. Written for owners and CFOs, not engineers.",
+      "highlights": [
+        "Three pricing bands with what fits in each, typical timelines and what is always included",
+        "The three variables that drive cost: user roles, integrations and genuinely custom workflow",
+        "A fixed-bid vs dedicated-team decision framework and the hybrid most SMEs should choose",
+        "Six vendor questions that separate a delivery partner from a body shop"
+      ],
+      "chart": {
+        "title": "Typical first-release timeline by pricing band, weeks",
+        "unit": "weeks",
+        "rows": [
+          { "label": "Single-workflow tool (₹2–6 lakh)", "value": 6 },
+          { "label": "Departmental system (₹8–20 lakh)", "value": 11 },
+          { "label": "Platform / multi-department (₹25 lakh+)", "value": 18 }
+        ]
+      },
+      "file": "/reports/ukvalley-custom-software-pricing-guide-2026.pdf",
+      "sections": [
+        {
+          "heading": "Why quotes for the same app differ tenfold",
+          "body": "Ask five vendors what a custom CRM costs and you will get five answers between ₹2 lakh and ₹2 crore. Everyone is quoting honestly; they are quoting different things. The price is driven by three variables: how many distinct user roles need different screens, how many external systems must be integrated, and how much of the workflow is genuinely custom versus standard. Screen count is almost irrelevant."
+        },
+        {
+          "heading": "The three bands",
+          "table": [
+            ["₹2–6 lakh · Single-workflow tool", "One workflow, one admin role, no integrations", "4–8 weeks"],
+            ["₹8–20 lakh · Departmental system", "CRM / ERP / HRMS, 2–5 roles, 1–3 integrations", "8–14 weeks"],
+            ["₹25 lakh+ · Platform", "Multi-department, customer-facing apps, audit requirements", "3–6+ months"]
+          ]
+        },
+        {
+          "heading": "What is always included",
+          "bullets": [
+            "A written scope before any code, and a thin-slice prototype by week three",
+            "Code, repositories and credentials in your ownership from day one",
+            "NDA and IP assignment signed before work starts",
+            "A 24-hour response SLA written into the contract",
+            "Clean exit rights at any point, with a documented handover"
+          ]
+        },
+        {
+          "heading": "Fixed-bid or dedicated team",
+          "body": "Fixed-bid works when the scope is genuinely defined and you are buying execution. A dedicated team works when the product is still being discovered and you are buying capacity. Running discovery work on a fixed bid produces padded prices or change-request fights. The hybrid we recommend most: a fixed-bid first phase that puts a thin slice in production, followed by a dedicated team working from a prioritised backlog."
+        },
+        {
+          "heading": "Six questions to ask any vendor",
+          "bullets": [
+            "Can I see software this team has shipped — live links, not a portfolio?",
+            "Who reviews the code, by name?",
+            "What happens if an engineer resigns or underperforms — is replacement guaranteed in writing?",
+            "Who owns the repositories from day one?",
+            "What is the notice period to scale or pause?",
+            "What happens in week one — is there a documented onboarding?"
+          ]
+        },
+        {
+          "heading": "Budget for year two",
+          "body": "Plan 15–20% of the build cost per year for hosting, maintenance and small improvements. Software is a living system; the cheapest project is the one that is still worth using in year three."
+        }
+      ]
+    }
+  ]
+}

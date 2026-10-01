@@ -1,0 +1,145 @@
+"use server";
+
+import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/admin-session";
+import { hasDatabaseUrl } from "@/lib/db/client";
+import {
+  LOCATIONS_TAG, createLocation, deleteLocation, importBuiltInLocations, reorderLocations, setLocationPublished, updateLocation,
+} from "@/lib/locations-store";
+import {
+  readLocationValues, validateLocation, type LocationValues, type FieldErrors,
+} from "@/lib/locations-validation";
+
+export type LocationFormState = {
+  status?: "saved" | "error";
+  message?: string;
+  errors?: FieldErrors;
+  /** Echoed back so the form keeps what the user typed after a failed save. */
+  values?: LocationValues;
+  /** Bumps on every result so the form can re-key and show fresh values. */
+  nonce?: number;
+};
+
+export type ActionResult = { ok: boolean; message?: string };
+
+const NO_DB = "Database is not connected (MONGODB_URI missing).";
+const dbMessage = (e: unknown) => (e instanceof Error ? e.message : "database error");
+
+function refreshPublicSite() {
+  revalidateTag(LOCATIONS_TAG, { expire: 0 });
+  revalidatePath("/", "layout");
+  revalidatePath("/admin/locations");
+}
+
+export async function createLocationAction(_prev: LocationFormState, formData: FormData): Promise<LocationFormState> {
+  await requireAdmin();
+  const values = readLocationValues(formData);
+  const nonce = Date.now();
+
+  const result = validateLocation(values, { requireSlug: true });
+  if (!result.ok) {
+    return { status: "error", message: "Please fix the highlighted fields.", errors: result.errors, values, nonce };
+  }
+  if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, values, nonce };
+
+  try {
+    const created = await createLocation(result.value);
+    if (!created) {
+      return {
+        status: "error",
+        message: "Please fix the highlighted fields.",
+        errors: { slug: "A location with this slug already exists." },
+        values,
+        nonce,
+      };
+    }
+  } catch (e) {
+    return { status: "error", message: `Could not save: ${dbMessage(e)}`, values, nonce };
+  }
+  refreshPublicSite();
+  redirect("/admin/locations?saved=created");
+}
+
+export async function updateLocationAction(
+  slug: string,
+  _prev: LocationFormState,
+  formData: FormData
+): Promise<LocationFormState> {
+  slug = String(slug);
+  await requireAdmin();
+  // The slug is the record id and cannot be changed, so never trust the form's copy.
+  const values = { ...readLocationValues(formData), slug };
+  const nonce = Date.now();
+
+  const result = validateLocation(values, { requireSlug: false });
+  if (!result.ok) {
+    return { status: "error", message: "Please fix the highlighted fields.", errors: result.errors, values, nonce };
+  }
+  if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, values, nonce };
+
+  try {
+    const found = await updateLocation(result.value);
+    if (!found) return { status: "error", message: "This location no longer exists.", values, nonce };
+  } catch (e) {
+    return { status: "error", message: `Could not save: ${dbMessage(e)}`, values, nonce };
+  }
+  refreshPublicSite();
+  return { status: "saved", message: "Location saved. The live site is updating.", values, nonce };
+}
+
+export async function importLocationsAction(): Promise<ActionResult> {
+  await requireAdmin();
+  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
+  try {
+    const n = await importBuiltInLocations();
+    if (n === 0) return { ok: false, message: "Locations already exist in the database." };
+    refreshPublicSite();
+    return { ok: true, message: `Imported ${n} locations.` };
+  } catch (e) {
+    return { ok: false, message: `Could not import: ${dbMessage(e)}` };
+  }
+}
+
+export async function setLocationPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
+  slug = String(slug);
+  published = published === true;
+  await requireAdmin();
+  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
+  try {
+    await setLocationPublished(String(slug), Boolean(published));
+  } catch (e) {
+    return { ok: false, message: `Could not update: ${dbMessage(e)}` };
+  }
+  refreshPublicSite();
+  return { ok: true };
+}
+
+export async function reorderLocationsAction(slugs: string[]): Promise<ActionResult> {
+  await requireAdmin();
+  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
+  if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
+    return { ok: false, message: "Invalid order." };
+  }
+  try {
+    const ok = await reorderLocations(slugs);
+    if (!ok) return { ok: false, message: "The list changed in another tab. Reload and try again." };
+  } catch (e) {
+    return { ok: false, message: `Could not reorder: ${dbMessage(e)}` };
+  }
+  refreshPublicSite();
+  return { ok: true };
+}
+
+export async function deleteLocationAction(slug: string): Promise<ActionResult> {
+  slug = String(slug);
+  await requireAdmin();
+  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
+  try {
+    await deleteLocation(String(slug));
+  } catch (e) {
+    return { ok: false, message: `Could not delete: ${dbMessage(e)}` };
+  }
+  refreshPublicSite();
+  return { ok: true };
+}

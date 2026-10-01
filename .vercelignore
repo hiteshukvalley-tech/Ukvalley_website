@@ -1,0 +1,16 @@
+# Files the Vercel CLI must not upload (Git-based deploys already skip
+# everything in .gitignore). Vercel installs dependencies and builds itself.
+.git.zip
+*.zip
+.shots
+.next
+.next-test
+node_modules
+certificates
+*.pem
+.env*
+!.env.example
+tsconfig.tsbuildinfo
+.claude
+.mcp.json
+ADMIN_PANEL_PLAN.md

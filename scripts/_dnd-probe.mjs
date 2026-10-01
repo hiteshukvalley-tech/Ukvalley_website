@@ -1,0 +1,12 @@
+import puppeteer from "puppeteer-core";
+const base = "http://localhost:3000";
+const b = await puppeteer.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: true });
+const p = await b.newPage();
+p.on("console", (m) => console.log("console."+m.type()+":", m.text().slice(0,300)));
+p.on("pageerror", (e) => console.log("pageerror:", e.message.slice(0,300)));
+await p.goto(base + "/admin/login", { waitUntil: "domcontentloaded" });
+await p.type("#email", process.env.ADMIN_EMAIL); await p.type("#password", process.env.ADMIN_PASSWORD);
+await p.click("button[type=submit]"); await new Promise(r=>setTimeout(r,4000));
+await p.goto(base + "/admin/services", { waitUntil: "domcontentloaded" }); await new Promise(r=>setTimeout(r,4000));
+console.log(await p.evaluate(() => { const li=document.querySelector("ul.divide-y > li"); return { html: li?.outerHTML.slice(0,400), hint: document.body.innerText.includes("Drag any row") }; }));
+await b.close();

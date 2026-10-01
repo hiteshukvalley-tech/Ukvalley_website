@@ -1,0 +1,109 @@
+import Link from "@/components/site/intent-link";
+import { ArrowUpRight, Check, MonitorSmartphone, Users } from "lucide-react";
+import { SectionHeading } from "./section-heading";
+import { Reveal } from "./reveal";
+import { FlagshipProductCard } from "./flagship-product-card";
+import { flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+
+export async function Products() {
+  const { flagship, rest } = splitFlagship(await getProducts());
+  return (
+    <section id="products" className="relative overflow-hidden bg-uk-surface-3 section-py">
+      <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-uk-blue/12 blur-[120px]" aria-hidden />
+      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="flex flex-col items-center">
+          <SectionHeading
+            align="center"
+            eyebrow="Our products"
+            title={
+              <>
+                We don&apos;t just bill hours —{" "}
+                <span className="text-uk-blue">we build &amp; run our own IP.</span>
+              </>
+            }
+            description="A product portfolio in production is proof most service firms can't offer. Here's what we've shipped and maintain ourselves."
+          />
+        </div>
+
+        <div className={flagship ? "mt-14 grid grid-cols-1 gap-5 lg:grid-cols-[1.6fr_1fr]" : "mt-14"}>
+          {/* Featured */}
+          {flagship && (
+            <Reveal>
+              <FlagshipProductCard featured={flagship} />
+            </Reveal>
+          )}
+
+          {/* Rest grid — 4 cards stacked on the right, rows stretched to
+              fill the flagship card's height so both sides stay even */}
+          <Reveal
+            staggerChildren
+            className={
+              flagship
+                ? `grid h-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1 ${flagshipRowsClass[rest.length] ?? ""}`
+                : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            }
+          >
+            {rest.map((p) => (
+              <article
+                key={p.name}
+                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-uk-line card-premium card-spotlight bg-uk-card"
+              >
+                {/* colored top accent */}
+                <div className="h-1 w-full bg-gradient-to-r from-uk-blue/40 to-uk-yellow/40 opacity-60 transition-opacity group-hover:opacity-100" aria-hidden />
+
+                <div className="flex flex-1 flex-col gap-2.5 p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-col gap-1">
+                      <h4 className="font-heading text-xl font-bold text-uk-heading">{p.name}</h4>
+                      <p className="text-sm text-uk-blue">{p.tagline}</p>
+                    </div>
+                    <Link
+                      href={`/products/${p.slug}`}
+                      className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-uk-surface-blue text-uk-blue transition-all group-hover:bg-uk-blue group-hover:text-uk-white"
+                      aria-label={`Explore ${p.name}`}
+                    >
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </div>
+                  <p className="text-sm leading-relaxed text-uk-gray">{p.description}</p>
+
+                  {/* highlights with checks */}
+                  <ul className="flex flex-wrap gap-2">
+                    {p.highlights.map((h) => (
+                      <li key={h} className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-uk-surface-blue px-2.5 py-1 text-xs font-medium text-uk-body">
+                        <Check className="h-3 w-3 text-uk-blue" />
+                        {h}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* platform + audience footer */}
+                  <div className="mt-auto flex items-center gap-4 border-t border-uk-line pt-3">
+                    <span className="inline-flex items-center gap-1.5 text-xs text-uk-muted">
+                      <MonitorSmartphone className="h-3.5 w-3.5" />
+                      {p.platform}
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-uk-muted">
+                      <Users className="h-3.5 w-3.5" />
+                      {p.audience}
+                    </span>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </Reveal>
+        </div>
+
+        <Reveal className="mt-10 flex justify-center">
+          <Link
+            href="/products"
+            className="group inline-flex items-center gap-2 rounded-full border border-uk-line bg-white dark:bg-uk-card px-5 py-2.5 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue-bright"
+          >
+            View all products
+            <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </Link>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
