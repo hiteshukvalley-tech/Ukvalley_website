@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Space_Grotesk, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
 import { PageLoader } from "@/components/site/page-loader";
@@ -10,28 +10,33 @@ import { getSiteSettings } from "@/lib/settings";
 import { AuroraBackground } from "@/components/site/aurora-background";
 import { SiteOnly } from "@/components/site/site-only";
 
+// Fonts are self-hosted (latin variable-weight files from Fontsource, OFL) in
+// ./fonts. next/font/google fetches from Google at build time, and an odd
+// reply from Google fails the Turbopack build (vercel/next.js#99114).
+
 // Body face — Plus Jakarta Sans: modern, slightly geometric, reads as
 // premium-professional while staying highly legible at small sizes.
-const jakarta = Plus_Jakarta_Sans({
+const jakarta = localFont({
+  src: "./fonts/plus-jakarta-sans.woff2",
   variable: "--font-sans",
-  subsets: ["latin"],
+  weight: "200 800",
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
+const spaceGrotesk = localFont({
+  src: "./fonts/space-grotesk.woff2",
   variable: "--font-heading",
-  subsets: ["latin"],
+  weight: "300 700",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 });
 
 // Display face for inner-page hero headings only (font-heading-display) —
 // the home hero and every other heading stay on Space Grotesk.
-const sora = Sora({
+const sora = localFont({
+  src: "./fonts/sora.woff2",
   variable: "--font-heading-display",
-  subsets: ["latin"],
+  weight: "100 800",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
 });
 
 // Mobile browser chrome (Android Chrome address bar, iOS Safari status
