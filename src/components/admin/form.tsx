@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/admin/password-input";
 import { cn } from "@/lib/utils";
 
 /** Titled card that groups related fields. Used on every admin form. */
@@ -58,20 +59,34 @@ export function FormField({
         {label}
         {required && <span className="text-destructive" aria-hidden> *</span>}
       </Label>
-      <Input
-        id={id}
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        placeholder={placeholder}
-        required={required}
-        readOnly={readOnly}
-        inputMode={inputMode}
-        autoComplete={autoComplete ?? "off"}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
-        className="h-10"
-      />
+      {type === "password" ? (
+        <PasswordInput
+          id={id}
+          name={name}
+          defaultValue={defaultValue}
+          placeholder={placeholder}
+          required={required}
+          readOnly={readOnly}
+          autoComplete={autoComplete ?? "off"}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
+        />
+      ) : (
+        <Input
+          id={id}
+          name={name}
+          type={type}
+          defaultValue={defaultValue}
+          placeholder={placeholder}
+          required={required}
+          readOnly={readOnly}
+          inputMode={inputMode}
+          autoComplete={autoComplete ?? "off"}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
+          className="h-10"
+        />
+      )}
       {error ? (
         <p id={`${id}-err`} role="alert" className="text-xs font-medium text-destructive">
           {error}

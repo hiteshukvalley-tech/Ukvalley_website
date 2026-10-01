@@ -1,14 +1,14 @@
 "use client";
 
-import { useActionState, useState } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useActionState } from "react";
+import { Loader2 } from "lucide-react";
 import { loginAction, type LoginState } from "../actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/admin/password-input";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState<LoginState, FormData>(loginAction, {});
-  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <form action={action} className="space-y-5">
@@ -24,26 +24,7 @@ export function LoginForm() {
           Password
           <span className="text-destructive" aria-hidden> *</span>
         </Label>
-        <div className="relative">
-          <Input
-            id="password"
-            name="password"
-            type={showPassword ? "text" : "password"}
-            autoComplete="current-password"
-            required
-            className="h-10 pr-10"
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword((v) => !v)}
-            aria-label={showPassword ? "Hide password" : "Show password"}
-            aria-pressed={showPassword}
-            aria-controls="password"
-            className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-uk-muted transition-colors hover:text-uk-heading focus-visible:text-uk-heading focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </button>
-        </div>
+        <PasswordInput id="password" name="password" autoComplete="current-password" required />
       </div>
       <p className="text-xs text-uk-muted">
         <span className="text-destructive" aria-hidden>*</span> Required fields
