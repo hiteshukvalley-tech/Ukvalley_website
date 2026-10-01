@@ -14,7 +14,7 @@ export function LoginForm() {
     <form action={action} className="space-y-5">
       <div className="space-y-2">
         <Label htmlFor="email" className="text-uk-heading">
-          Email
+          Email ID
           <span className="text-destructive" aria-hidden> *</span>
         </Label>
         <Input id="email" name="email" type="email" defaultValue={state.email} autoComplete="username" required autoFocus className="h-10" />
