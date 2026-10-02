@@ -8,9 +8,21 @@ import { SplitHeading } from "./split-heading";
 import { DashboardShowcase } from "./dashboard-showcase";
 import { DeliveryMesh } from "./delivery-mesh";
 import { ScopingButton } from "./scoping-modal";
-import { heroStats, company } from "@/lib/site-core";
+import { Marked } from "./marked";
+import { company } from "@/lib/site-core";
+import { markedWords } from "@/lib/home-schema";
+import type { HomeContent } from "@/lib/home-defaults";
 
-export function Hero() {
+/** Chip dot colours, by position. */
+const chipDots = [
+  "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)] dark:shadow-[0_0_6px_rgba(52,211,153,0.6)]",
+  "bg-uk-yellow shadow-glow-yellow",
+  "bg-uk-blue shadow-[0_0_6px_rgba(49,0,255,0.5)] dark:shadow-[0_0_6px_rgba(104,77,255,0.6)]",
+];
+
+/** Home page hero. Text comes from Admin → Home page → Hero. */
+export function Hero({ content: c }: { content: HomeContent["hero"] }) {
+  const headline = markedWords(c.headline);
   return (
     <section className="relative overflow-hidden bg-uk-surface-blue">
       {/* ── Background layers ── */}
@@ -32,7 +44,7 @@ export function Hero() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-uk-heading/30" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-uk-heading" />
             </span>
-            Engineering systems in production · Since 2017
+            {c.badge}
           </div>
         </div>
 
@@ -42,23 +54,20 @@ export function Hero() {
             as="h1"
             immediate
             className="font-heading-display text-balance text-4xl font-bold leading-[1.05] tracking-tight text-uk-heading-strong sm:text-5xl lg:text-[4.5rem] lg:leading-[1.04]"
-            highlight={[3]}
+            highlight={headline.highlight}
           >
-            {"We build technology that helps businesses scale.".trim()}
+            {headline.text}
           </SplitHeading>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-uk-muted sm:text-xl">
-            Web, mobile, CRM, ERP and cloud systems for Indian SMEs and global
-            startups — engineered to scale, with{" "}
-            <span className="font-semibold text-uk-heading">code you own from day one</span>{" "}
-            and a 24-hour response SLA.
+            <Marked text={c.description} className="font-semibold text-uk-heading" />
           </p>
         </div>
 
         {/* CTAs */}
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <ScopingButton className="group inline-flex h-14 w-full max-w-sm items-center justify-center gap-2 rounded-full sm:w-auto btn-sheen btn-glow bg-uk-blue px-8 text-base font-semibold text-white transition-all hover:bg-uk-blue-bright">
-            Book a free scoping call
+            {c.primaryCta}
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </ScopingButton>
           <Button
@@ -66,27 +75,29 @@ export function Hero() {
             variant="outline"
             nativeButton={false}
             className="h-14 w-full max-w-sm sm:w-auto border-uk-blue/25 bg-white/80 dark:bg-uk-card/80 px-8 text-base font-semibold text-uk-blue shadow-float backdrop-blur-sm hover:border-uk-blue hover:bg-white dark:hover:bg-uk-card hover:text-uk-blue-bright"
-            render={<Link href="#work" />}
+            render={<Link href={c.secondaryHref} />}
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
-            See our work
+            {c.secondaryCta}
           </Button>
         </div>
 
         {/* Trust row */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm text-uk-muted">
-          <span className="inline-flex items-center gap-2">
-            <ShieldCheck className="h-4 w-4 text-uk-blue" />
-            NDA &amp; IP assignment before day one
-          </span>
-          <span className="inline-flex items-center gap-2">
+          {c.trustNote && (
+            <span className="inline-flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-uk-blue" />
+              {c.trustNote}
+            </span>
+          )}
+          {c.ratingNote && <span className="inline-flex items-center gap-2">
             <span className="flex" aria-hidden>
               {Array.from({ length: 5 }).map((_, i) => (
                 <Star key={i} className="h-4 w-4 fill-uk-yellow text-uk-yellow drop-shadow-[0_1px_0_rgba(31,41,55,0.15)] dark:drop-shadow-[0_1px_0_rgba(0,0,0,0.4)]" />
               ))}
             </span>
-            150+ clients served
-          </span>
+            {c.ratingNote}
+          </span>}
         </div>
 
         {/* ── Dashboard showcase ── */}
@@ -103,7 +114,7 @@ export function Hero() {
                 <span className="h-3 w-3 rounded-full bg-emerald-400/80 dark:bg-emerald-400/70" />
               </div>
               <span className="font-heading text-xs font-semibold uppercase tracking-[0.2em] text-uk-muted">
-                What we build for you
+                {c.panelTitle}
               </span>
               <div className="flex items-center gap-1.5 text-uk-muted">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)] dark:shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
@@ -118,28 +129,24 @@ export function Hero() {
           </div>
 
           {/* Floating accent cards below panel */}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3 lg:mt-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-uk-line bg-white/90 dark:bg-uk-card/90 px-4 py-2 text-sm font-medium text-uk-heading shadow-float backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/50 hover:shadow-glow-blue-sm">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)] dark:shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
-              CRM &amp; ERP dashboards
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-uk-line bg-white/90 dark:bg-uk-card/90 px-4 py-2 text-sm font-medium text-uk-heading shadow-float backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/50 hover:shadow-glow-blue-sm">
-              <span className="h-2 w-2 rounded-full bg-uk-yellow shadow-glow-yellow" />
-              Custom software platforms
-            </span>
-            <span className="inline-flex items-center gap-2 rounded-full border border-uk-line bg-white/90 dark:bg-uk-card/90 px-4 py-2 text-sm font-medium text-uk-heading shadow-float backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/50 hover:shadow-glow-blue-sm">
-              <span className="h-2 w-2 rounded-full bg-uk-blue shadow-[0_0_6px_rgba(49,0,255,0.5)] dark:shadow-[0_0_6px_rgba(104,77,255,0.6)]" />
-              Mobile &amp; web apps
-            </span>
-          </div>
+          {c.chips.length > 0 && (
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 lg:mt-6">
+              {c.chips.map((chip, i) => (
+                <span key={`${chip}-${i}`} className="inline-flex items-center gap-2 rounded-full border border-uk-line bg-white/90 dark:bg-uk-card/90 px-4 py-2 text-sm font-medium text-uk-heading shadow-float backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/50 hover:shadow-glow-blue-sm">
+                  <span className={`h-2 w-2 rounded-full ${chipDots[i % chipDots.length]}`} />
+                  {chip}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* ── Stat strip ── */}
       <div className="relative border-t border-uk-line dark:border-uk-line bg-white dark:bg-uk-card shadow-premium-lg">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 px-5 lg:grid-cols-4 lg:px-8">
-          {heroStats.map((s) => (
-            <div key={s.label} className="flex flex-col items-center gap-1.5 border-uk-line px-4 py-6 text-center even:border-l max-lg:nth-[n+3]:border-t sm:py-7 lg:border-l lg:first:border-l-0">
+        <div className={`mx-auto grid max-w-7xl grid-cols-2 px-5 lg:px-8 ${["lg:grid-cols-1", "lg:grid-cols-2", "lg:grid-cols-3", "lg:grid-cols-4"][c.stats.length - 1] ?? "lg:grid-cols-4"}`}>
+          {c.stats.map((s, i) => (
+            <div key={`${s.label}-${i}`} className="flex flex-col items-center gap-1.5 border-uk-line px-4 py-6 text-center even:border-l max-lg:nth-[n+3]:border-t sm:py-7 lg:border-l lg:first:border-l-0">
               <StatCounter
                 value={s.value}
                 className="font-heading text-3xl font-bold text-uk-blue sm:text-4xl"
@@ -157,12 +164,12 @@ export function Hero() {
       <div className="relative bg-white dark:bg-uk-card pb-16 pt-12 lg:pb-20">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="flex flex-col gap-2 text-center">
-            <span className="text-xs font-semibold uppercase tracking-[0.28em] text-uk-blue">
-              Global delivery mesh
-            </span>
-            <p className="text-sm text-uk-muted">
-              Engineering from Maharashtra, India · clients and delivery partners across four geographies
-            </p>
+            {c.meshEyebrow && (
+              <span className="text-xs font-semibold uppercase tracking-[0.28em] text-uk-blue">
+                {c.meshEyebrow}
+              </span>
+            )}
+            {c.meshText && <p className="text-sm text-uk-muted">{c.meshText}</p>}
           </div>
           <DeliveryMesh className="mx-auto mt-8 max-w-4xl" />
         </div>

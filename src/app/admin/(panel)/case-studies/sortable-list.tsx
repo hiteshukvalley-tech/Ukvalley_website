@@ -7,6 +7,7 @@ import { SortableRows } from "@/components/admin/sortable-rows";
 import {
   deleteCaseAction, reorderCasesAction, setCasePublishedAction, type ActionResult,
 } from "./actions";
+import { toast } from "@/components/admin/toast";
 
 export type CaseItem = {
   slug: string;
@@ -23,10 +24,11 @@ function RowActions({ slug, title, published }: { slug: string; title: string; p
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
 
-  const run = (fn: () => Promise<ActionResult>) =>
+  const run = (fn: () => Promise<ActionResult>, success: string) =>
     start(async () => {
       const r = await fn();
       setError(r.ok ? undefined : r.message);
+      toast.result(r, success);
     });
 
   return (
@@ -44,7 +46,7 @@ function RowActions({ slug, title, published }: { slug: string; title: string; p
           disabled={pending}
           aria-label={published ? `Unpublish ${title}` : `Publish ${title}`}
           title={published ? "Unpublish (make draft)" : "Publish"}
-          onClick={() => run(() => setCasePublishedAction(slug, !published))}
+          onClick={() => run(() => setCasePublishedAction(slug, !published), published ? `“${title}” moved to drafts.` : `“${title}” published.`)}
         >
           {published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
         </button>
@@ -58,7 +60,7 @@ function RowActions({ slug, title, published }: { slug: string; title: string; p
           aria-label={`Delete ${title}`}
           onClick={() => {
             if (window.confirm(`Delete “${title}”? This removes it from the live site and can't be undone.`)) {
-              run(() => deleteCaseAction(slug));
+              run(() => deleteCaseAction(slug), `“${title}” deleted.`);
             }
           }}
         >

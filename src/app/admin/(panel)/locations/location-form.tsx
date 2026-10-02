@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { locationIcons, locationTypes, type LocationValues } from "@/lib/locations-validation";
 import { createLocationAction, updateLocationAction, type LocationFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 const iconOptions = locationIcons.map((i) => ({ value: i, label: i }));
 const typeOptions = locationTypes.map((t) => ({ value: t, label: t }));
@@ -23,6 +24,7 @@ export function LocationForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
   const pipe = (ex: string) => `One per line, two parts separated by |. Example: ${ex}`;
 
   return (

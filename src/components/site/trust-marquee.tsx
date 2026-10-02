@@ -1,7 +1,9 @@
-import { trustedBy } from "@/lib/site-data";
+import type { HomeContent } from "@/lib/home-defaults";
 
-export function TrustMarquee() {
-  const items = [...trustedBy, ...trustedBy];
+/** Text comes from Admin → Home page → Trusted-by strip. */
+export function TrustMarquee({ content: c }: { content: HomeContent["trust"] }) {
+  // Listed twice so the scrolling track loops seamlessly.
+  const items = [...c.brands, ...c.brands];
   return (
     <section className="relative overflow-hidden border-y border-uk-line bg-white dark:bg-uk-card py-10">
       {/* edge node dots — circuit motif */}
@@ -13,7 +15,7 @@ export function TrustMarquee() {
       </div>
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.28em] text-uk-heading">
-          Trusted by 150+ businesses · Products &amp; platforms in production
+          {c.label}
         </p>
         <div className="relative overflow-hidden mask-fade-x">
           <div className="marquee-track flex w-max items-center gap-12">

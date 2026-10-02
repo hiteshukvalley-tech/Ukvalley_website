@@ -5,6 +5,7 @@ import { useRef, useState, useTransition } from "react";
 import { GripVertical, Loader2 } from "lucide-react";
 import { reorderServicesAction } from "./actions";
 import { RowActions } from "./row-actions";
+import { toast } from "@/components/admin/toast";
 
 export type SortableItem = {
   slug: string;
@@ -102,6 +103,7 @@ export function SortableList({
         setItems(previous);
         setError(r.message);
       }
+      toast.result(r, "Order saved.");
     });
   };
 

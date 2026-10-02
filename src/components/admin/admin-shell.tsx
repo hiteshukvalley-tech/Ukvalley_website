@@ -3,10 +3,11 @@
 import { useState } from "react";
 import Link from "@/components/site/intent-link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu, X, ExternalLink, UserRound } from "lucide-react";
+import { ChevronDown, LogOut, Menu, X, ExternalLink, UserRound } from "lucide-react";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import { logoutAction } from "@/app/admin/actions";
-import { adminNav } from "./nav";
+import { adminNav, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
+import { Toaster } from "./toast";
 import type { AdminRole } from "@/lib/admin-auth";
 import { cn } from "@/lib/utils";
 
@@ -27,11 +28,69 @@ function Brand() {
   );
 }
 
+const linkBase = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors";
+const linkActive = "bg-uk-blue text-uk-white shadow-glow-blue-sm";
+const linkIdle = "text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading";
+
+/** A main section that opens into its sub-sections. */
+function NavSection({
+  entry, pathname, onNavigate,
+}: { entry: AdminNavEntry & { children: AdminNavLink[] }; pathname: string; onNavigate?: () => void }) {
+  const holdsActive = entry.children.some((c) => isActive(c, pathname));
+  // null = follow the current page (open while inside this section).
+  const [toggled, setToggled] = useState<boolean | null>(null);
+  const open = toggled ?? holdsActive;
+  const Icon = entry.icon;
+  const listId = `nav-${entry.label.toLowerCase().replace(/\s+/g, "-")}`;
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={() => setToggled(!open)}
+        aria-expanded={open}
+        aria-controls={listId}
+        className={cn(linkBase, "w-full", holdsActive ? "text-uk-heading" : linkIdle)}
+      >
+        <Icon className={cn("h-4 w-4", holdsActive && "text-uk-blue")} />
+        <span className="flex-1 text-left">{entry.label}</span>
+        <ChevronDown className={cn("h-4 w-4 text-uk-muted transition-transform", open && "rotate-180")} />
+      </button>
+      {open && (
+        <ul id={listId} className="mb-1 ml-5 mt-0.5 space-y-0.5 border-l border-uk-line pl-2">
+          {entry.children.map((child) => {
+            const active = isActive(child, pathname);
+            const ChildIcon = child.icon;
+            return (
+              <li key={child.href + child.label}>
+                <Link
+                  href={child.href}
+                  onClick={onNavigate}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(linkBase, "py-1.5 text-[13px]", active ? linkActive : linkIdle)}
+                >
+                  {ChildIcon && <ChildIcon className="h-3.5 w-3.5" />}
+                  {child.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </li>
+  );
+}
+
 function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => void }) {
   const pathname = usePathname();
   // Editors never see admin-only pages (the pages themselves refuse them too).
+  const allowed = (l: AdminNavLink) => !l.adminOnly || role === "admin";
   const groups = adminNav
-    .map((g) => ({ ...g, items: g.items.filter((i) => !i.adminOnly || role === "admin") }))
+    .map((g) => ({
+      ...g,
+      items: g.items
+        .filter(allowed)
+        .map((i) => (i.children ? { ...i, children: i.children.filter(allowed) } : i)),
+    }))
     .filter((g) => g.items.length > 0);
   return (
     <nav aria-label="Admin" className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
@@ -42,41 +101,28 @@ function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => voi
           </p>
           <ul className="space-y-0.5">
             {g.items.map((item) => {
-              const active =
-                item.href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname.startsWith(item.href);
-              const Icon = item.icon;
-              const base =
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors";
-              if (!item.ready) {
+              if (item.children?.length) {
+                // Keyed on "holds the current page", so a section re-opens
+                // whenever you navigate into it, even if you closed it earlier.
+                const inside = item.children.some((c) => isActive(c, pathname));
                 return (
-                  <li key={item.href}>
-                    <span
-                      aria-disabled
-                      className={cn(base, "cursor-not-allowed text-uk-muted/60")}
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="flex-1">{item.label}</span>
-                      <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-[10px] font-semibold text-uk-muted">
-                        Soon
-                      </span>
-                    </span>
-                  </li>
+                  <NavSection
+                    key={`${item.label}-${inside}`}
+                    entry={{ ...item, children: item.children }}
+                    pathname={pathname}
+                    onNavigate={onNavigate}
+                  />
                 );
               }
+              const active = isActive(item, pathname);
+              const Icon = item.icon;
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     onClick={onNavigate}
                     aria-current={active ? "page" : undefined}
-                    className={cn(
-                      base,
-                      active
-                        ? "bg-uk-blue text-uk-white shadow-glow-blue-sm"
-                        : "text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading"
-                    )}
+                    className={cn(linkBase, active ? linkActive : linkIdle)}
                   >
                     <Icon className="h-4 w-4" />
                     {item.label}
@@ -175,6 +221,7 @@ export function AdminShell({
           {children}
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

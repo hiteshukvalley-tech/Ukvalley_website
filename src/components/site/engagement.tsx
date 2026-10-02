@@ -2,29 +2,29 @@ import Link from "@/components/site/intent-link";
 import { ArrowRight, Check, Handshake, Users, RefreshCw, UserPlus } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
+import { Marked } from "./marked";
 import { getEngagementModels } from "@/lib/engagement-store";
+import { countVars, fill } from "@/lib/home-schema";
+import { defaultHome, type HomeContent } from "@/lib/home-defaults";
 
 const icons = [Handshake, Users, RefreshCw, UserPlus];
 
-const countWords = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight"];
-
-export async function Engagement() {
+/**
+ * Models come from Admin → Engagement; text from Admin → Home page →
+ * Engagement models (the /engagement page uses the defaults).
+ */
+export async function Engagement({ content: c = defaultHome.engagement }: { content?: HomeContent["engagement"] }) {
   const engagementModels = await getEngagementModels();
-  const count = countWords[engagementModels.length] ?? String(engagementModels.length);
+  const vars = countVars(engagementModels.length);
   return (
     <section id="engagement" className="relative bg-uk-surface-2 section-py">
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow="Engagement models"
-            title={
-              <>
-                {count} {engagementModels.length === 1 ? "way" : "ways"} to work with us —{" "}
-                <span className="text-uk-blue">pick what fits.</span>
-              </>
-            }
-            description="Not sure which you need? Book a free scoping call and we'll tell you — even if the answer is none of them yet."
+            eyebrow={c.eyebrow}
+            title={<Marked text={fill(c.title, vars)} />}
+            description={fill(c.description, vars) || undefined}
           />
         </div>
 
@@ -45,7 +45,7 @@ export async function Engagement() {
                     <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-uk-blue/12 text-uk-blue transition-colors group-hover:bg-uk-blue group-hover:text-uk-white">
                       <Icon className="h-5 w-5" strokeWidth={2.2} />
                     </span>
-                    <span className="font-heading text-5xl font-bold text-uk-blue/8 transition-color group-hover:text-uk-blue/20">
+                    <span className="font-heading text-5xl font-bold text-uk-blue/8 transition-colors group-hover:text-uk-blue/20">
                       0{i + 1}
                     </span>
                   </div>
@@ -83,7 +83,7 @@ export async function Engagement() {
             href="/contact"
             className="btn-sheen btn-lift group inline-flex items-center gap-2 rounded-full bg-uk-blue px-6 py-3 text-sm font-semibold text-uk-white shadow-glow-blue-sm hover:bg-uk-blue-bright"
           >
-            Not sure which you need? Talk to us
+            {c.ctaLabel}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </Reveal>

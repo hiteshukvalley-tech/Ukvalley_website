@@ -6,23 +6,21 @@ import {
 } from "@/components/ui/accordion";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
+import { Marked } from "./marked";
 import { getFaqs } from "@/lib/faqs-store";
+import type { HomeContent } from "@/lib/home-defaults";
 
-export async function Faq() {
+/** Questions come from Admin → FAQs; heading from Admin → Home page → FAQ. */
+export async function Faq({ content: c }: { content: HomeContent["faq"] }) {
   const faqs = await getFaqs();
   return (
     <section id="faq" className="relative bg-uk-surface section-py">
       <div className="relative mx-auto max-w-5xl px-5 lg:px-8">
         <SectionHeading
           align="center"
-          eyebrow="FAQ"
-          title={
-            <>
-              Questions buyers{" "}
-              <span className="text-uk-blue">actually ask.</span>
-            </>
-          }
-          description="Straight answers on IP, pricing, speed and what happens when things go wrong."
+          eyebrow={c.eyebrow}
+          title={<Marked text={c.title} />}
+          description={c.description || undefined}
         />
 
         <Reveal className="mt-12">

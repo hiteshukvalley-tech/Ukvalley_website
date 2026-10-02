@@ -1,10 +1,11 @@
 import Link from "@/components/site/intent-link";
-import { CircleAlert, CircleCheck, Plus, Search } from "lucide-react";
+import { CircleAlert, Plus, Search } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { listProductsForAdmin } from "@/lib/products-store";
 import { FLAGSHIP_SLUG } from "@/lib/products-store";
 import { ImportButton } from "./import-button";
 import { ProductList } from "./sortable-list";
+import { FlashToast } from "@/components/admin/toast";
 
 export const metadata = { title: "Products" };
 export const dynamic = "force-dynamic";
@@ -41,11 +42,7 @@ export default async function ProductsAdminPage({ searchParams }: Props) {
         }
       />
 
-      {saved === "created" && (
-        <div role="status" className="mb-6 flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-          <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" /> Product created. The live site is updating.
-        </div>
-      )}
+      {saved === "created" && <FlashToast message="Product created. The live site is updating." />}
       {dbError && (
         <div role="alert" className="mb-6 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />

@@ -6,6 +6,8 @@ import { loginAction, type LoginState } from "../actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/admin/password-input";
+import { CharCounter } from "@/components/admin/char-counter";
+import { EMAIL_MAX, PASSWORD_MAX } from "@/lib/users-validation";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState<LoginState, FormData>(loginAction, {});
@@ -17,18 +19,21 @@ export function LoginForm() {
           Email ID
           <span className="text-destructive" aria-hidden> *</span>
         </Label>
-        <Input id="email" name="email" type="email" defaultValue={state.email} autoComplete="username" required autoFocus className="h-10" />
+        <Input id="email" name="email" type="email" defaultValue={state.email} autoComplete="username" required autoFocus maxLength={EMAIL_MAX} aria-describedby="email-count" className="h-10" />
+        <div className="flex">
+          <CharCounter htmlFor="email" max={EMAIL_MAX} />
+        </div>
       </div>
       <div className="space-y-2">
         <Label htmlFor="password" className="text-uk-heading">
           Password
           <span className="text-destructive" aria-hidden> *</span>
         </Label>
-        <PasswordInput id="password" name="password" autoComplete="current-password" required />
+        <PasswordInput id="password" name="password" autoComplete="current-password" required maxLength={PASSWORD_MAX} aria-describedby="password-count" />
+        <div className="flex">
+          <CharCounter htmlFor="password" max={PASSWORD_MAX} />
+        </div>
       </div>
-      <p className="text-xs text-uk-muted">
-        <span className="text-destructive" aria-hidden>*</span> Required fields
-      </p>
       {state.error && (
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {state.error}

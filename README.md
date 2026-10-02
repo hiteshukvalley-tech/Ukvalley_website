@@ -63,5 +63,5 @@ Run the suites against a production build that uses a scratch database:
 ```bash
 NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa npx next build
 NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa npx next start -p 3100
-node scripts/qa/01-access-and-pages.mjs   # …02, 03, 04
+node scripts/qa/01-access-and-pages.mjs   # …02, 03, 04, 05 (home page editor)
 ```

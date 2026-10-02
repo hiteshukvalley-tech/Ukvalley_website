@@ -2,12 +2,13 @@ import Link from "@/components/site/intent-link";
 import {
   Wrench, Newspaper, Trophy, Boxes, Puzzle, Building2, UserPlus, MapPin,
   Users, Briefcase, MessageSquareQuote, HelpCircle, ExternalLink, CircleCheck,
-  CircleAlert, Info, ArrowUpRight, Inbox, Image as ImageIcon,
+  CircleAlert, Info, ArrowUpRight, Inbox, Image as ImageIcon, House, EyeOff,
 } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatCard } from "@/components/admin/stat-card";
-import { adminNav } from "@/components/admin/nav";
 import { checkDatabase } from "@/lib/db/client";
+import { HOME_SECTIONS } from "@/lib/home-schema";
+import { getHomeForAdmin } from "@/lib/home-store";
 import { getServices } from "@/lib/services-store";
 import { getPosts } from "@/lib/blog-store";
 import { getCaseStudies } from "@/lib/cases-store";
@@ -79,14 +80,14 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   // database instead of ~15 in a row.
   const [
     statusChecks, posts, services, cases, products, solutions, industries,
-    hireRoles, locations, team, careers, testimonials, faqs, newLeads, mediaCount,
+    hireRoles, locations, team, careers, testimonials, faqs, newLeads, mediaCount, home,
   ] = await Promise.all([
     getStatusChecks(), getPosts(), getServices(), getCaseStudies(), getProducts(), getSolutions(),
     getIndustries(), getHireRoles(), getLocations(), getTeam(), getCareers(), getTestimonials(),
-    getFaqs(), countNewLeads(), countMedia(),
+    getFaqs(), countNewLeads(), countMedia(), getHomeForAdmin(),
   ]);
   const cards = content(services.length, posts.length, cases.length, products.length, solutions.length, industries.length, hireRoles.length, locations.length, team.length, careers.length, testimonials.length, faqs.length);
-  const nextUp = adminNav.flatMap((g) => g.items).filter((i) => !i.ready);
+  const editedHome = HOME_SECTIONS.filter((s) => home.updated[s.key]).length;
   const recentPosts = posts.slice(0, 5);
   const total = cards.reduce((n, c) => n + c.value, 0);
 
@@ -199,26 +200,38 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
         </section>
       </div>
 
-      <section className="mt-8 rounded-2xl border border-uk-line bg-uk-card p-6">
-        <h2 className="font-heading text-lg font-semibold text-uk-heading">Admin roadmap</h2>
-        <p className="mt-1 text-sm text-uk-muted">
-          Pages are built one at a time. {nextUp.length} planned pages are still to come.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-uk-blue px-3 py-1 text-xs font-semibold text-uk-white">
-            <CircleCheck className="h-3.5 w-3.5" /> Foundation
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-uk-blue px-3 py-1 text-xs font-semibold text-uk-white">
-            <CircleCheck className="h-3.5 w-3.5" /> Dashboard
-          </span>
-          {nextUp.map((i) => (
-            <span
-              key={i.href}
-              className="rounded-full bg-uk-surface-3 px-3 py-1 text-xs font-medium text-uk-muted"
-            >
-              {i.label}
-            </span>
-          ))}
+      <section aria-labelledby="home-heading" className="mt-8 rounded-2xl border border-uk-line bg-uk-card p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 id="home-heading" className="flex items-center gap-2 font-heading text-lg font-semibold text-uk-heading">
+              <House className="h-5 w-5 text-uk-blue" /> Home page
+            </h2>
+            <p className="mt-1 text-sm text-uk-muted">
+              {HOME_SECTIONS.length} sections, {editedHome} edited. Open one to change its text.
+            </p>
+          </div>
+          <Link href="/admin/home" className="text-xs font-medium text-uk-blue hover:text-uk-blue-bright">All sections</Link>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {HOME_SECTIONS.map((s, i) => {
+            const shown = home.page.visible[s.key];
+            return (
+              <Link
+                key={s.key}
+                href={`/admin/home/${s.key}`}
+                className={
+                  shown
+                    ? "inline-flex items-center gap-1.5 rounded-full border border-uk-line px-3 py-1 text-xs font-medium text-uk-body transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
+                    : "inline-flex items-center gap-1.5 rounded-full border border-dashed border-uk-line px-3 py-1 text-xs font-medium text-uk-muted transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
+                }
+                title={shown ? undefined : "Hidden on the home page"}
+              >
+                <span className="font-semibold text-uk-muted">{i + 1}.</span>
+                {s.label}
+                {!shown && <EyeOff className="h-3 w-3" />}
+              </Link>
+            );
+          })}
         </div>
       </section>
     </>

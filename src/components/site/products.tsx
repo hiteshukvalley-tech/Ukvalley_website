@@ -3,9 +3,12 @@ import { ArrowUpRight, Check, MonitorSmartphone, Users } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { FlagshipProductCard } from "./flagship-product-card";
+import { Marked } from "./marked";
 import { flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+import type { HomeContent } from "@/lib/home-defaults";
 
-export async function Products() {
+/** Cards come from Admin → Products; heading from Admin → Home page → Products. */
+export async function Products({ content: c }: { content: HomeContent["products"] }) {
   const { flagship, rest } = splitFlagship(await getProducts());
   return (
     <section id="products" className="relative overflow-hidden bg-uk-surface-3 section-py">
@@ -14,14 +17,9 @@ export async function Products() {
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow="Our products"
-            title={
-              <>
-                We don&apos;t just bill hours —{" "}
-                <span className="text-uk-blue">we build &amp; run our own IP.</span>
-              </>
-            }
-            description="A product portfolio in production is proof most service firms can't offer. Here's what we've shipped and maintain ourselves."
+            eyebrow={c.eyebrow}
+            title={<Marked text={c.title} />}
+            description={c.description || undefined}
           />
         </div>
 
@@ -99,7 +97,7 @@ export async function Products() {
             href="/products"
             className="group inline-flex items-center gap-2 rounded-full border border-uk-line bg-white dark:bg-uk-card px-5 py-2.5 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue-bright"
           >
-            View all products
+            {c.linkLabel}
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         </Reveal>

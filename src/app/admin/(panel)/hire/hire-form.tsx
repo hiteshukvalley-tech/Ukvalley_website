@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { hireIcons, type HireValues } from "@/lib/hire-validation";
 import { createHireAction, updateHireAction, type HireFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 const iconOptions = hireIcons.map((i) => ({ value: i, label: i }));
 
@@ -22,6 +23,7 @@ export function HireForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
   const pipe = (ex: string) => `One per line, two parts separated by |. Example: ${ex}`;
 
   return (

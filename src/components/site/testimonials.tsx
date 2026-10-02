@@ -2,7 +2,9 @@ import { Quote, Star } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Marked } from "./marked";
 import { getTestimonials } from "@/lib/testimonials-store";
+import type { HomeContent } from "@/lib/home-defaults";
 
 function initials(name: string) {
   return name
@@ -12,7 +14,8 @@ function initials(name: string) {
     .join("");
 }
 
-export async function Testimonials() {
+/** Quotes come from Admin → Testimonials; heading from Admin → Home page → Testimonials. */
+export async function Testimonials({ content: c }: { content: HomeContent["testimonials"] }) {
   const testimonials = await getTestimonials();
   return (
     <section id="testimonials" className="relative overflow-hidden bg-uk-surface-2 section-py">
@@ -21,14 +24,9 @@ export async function Testimonials() {
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow="Testimonials"
-            title={
-              <>
-                What clients say after{" "}
-                <span className="text-gradient-blue">the first sprint.</span>
-              </>
-            }
-            description="Collected at project milestones — launch, first quarter and year one. Client names are anonymised at their request; the numbers behind each quote live in the case studies."
+            eyebrow={c.eyebrow}
+            title={<Marked text={c.title} className="text-gradient-blue" />}
+            description={c.description || undefined}
           />
         </div>
 

@@ -15,6 +15,7 @@ export const roleHelp: Record<AdminRole, string> = {
 
 export const PASSWORD_MIN = 10;
 export const PASSWORD_MAX = 128;
+export const EMAIL_MAX = 200;
 
 /** Returns a message when the password is not acceptable, otherwise undefined. */
 export function passwordError(password: string, email = ""): string | undefined {
@@ -70,7 +71,7 @@ export function validateUser(
   else if (v.name.length > 80) e.name = "Name must be 80 characters or fewer.";
 
   if (isNew) {
-    if (!EMAIL.test(v.email) || v.email.length > 200) e.email = "Enter a valid email address.";
+    if (!EMAIL.test(v.email) || v.email.length > EMAIL_MAX) e.email = "Enter a valid email address.";
   }
   if (!(ADMIN_ROLES as readonly string[]).includes(v.role)) e.role = "Choose one of the listed roles.";
 

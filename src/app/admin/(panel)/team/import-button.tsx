@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { importTeamAction } from "./actions";
+import { toast } from "@/components/admin/toast";
 
 export function ImportButton() {
   const [pending, start] = useTransition();
@@ -17,6 +18,7 @@ export function ImportButton() {
           start(async () => {
             const r = await importTeamAction();
             setError(r.ok ? undefined : r.message);
+            toast.result(r, "Imported.");
           })
         }
         className="btn-sheen inline-flex h-10 items-center gap-2 rounded-lg bg-uk-blue px-5 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright disabled:opacity-60"

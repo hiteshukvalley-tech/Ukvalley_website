@@ -298,9 +298,14 @@ export const heroExtras = {
   },
 } satisfies Record<string, HeroExtras>;
 
-/** Shared placement for the decorative canvas on the right side. */
+/**
+ * Shared placement for the decorative canvas on the right side. From 2xl the
+ * offset is measured from the 80rem content column, not the viewport edge,
+ * so on wide screens (or a zoomed-out browser) the artwork stays beside the
+ * copy instead of drifting off to the far right.
+ */
 const CANVAS =
-  "pointer-events-none absolute -right-16 top-1/2 hidden aspect-square h-[min(40rem,100%)] -translate-y-1/2 lg:block xl:-right-24 2xl:-right-8";
+  "pointer-events-none absolute -right-16 top-1/2 hidden aspect-square h-[min(40rem,100%)] -translate-y-1/2 lg:block xl:-right-24 2xl:right-[calc((100%-80rem)/2-10rem)]";
 
 /**
  * The area the decorative artwork may draw in: the hero minus a band at
@@ -358,16 +363,11 @@ function Sparkle({ x, y, size, className }: { x: number; y: number; size: number
 /* ── Image canvas: artwork in a glowing circular frame ──────────────────
    Per-image CSS grade (see `heroArtwork`) + a shared indigo→blue colour
    wash pull the artwork onto the site palette. Pure CSS, so the original
-   files stay untouched. */
-function ImageCanvas({ art }: { art: HeroArtwork }) {
+   files stay untouched. `className` places the frame: beside the copy on
+   wide screens, centred under it on narrower ones. */
+function ImageCanvas({ art, className, preload }: { art: HeroArtwork; className: string; preload?: boolean }) {
   return (
-    <div
-      // Circle size is capped by the art zone's height minus 8rem, which
-      // leaves room for the outer orbit ring (3.5rem each side) plus a
-      // small margin — so the rings never get clipped at the top.
-      className="pointer-events-none absolute right-8 top-1/2 hidden aspect-square h-[min(20rem,calc(100%-8rem))] -translate-y-1/2 lg:block xl:right-16 xl:h-[min(28rem,calc(100%-8rem))]"
-      aria-hidden
-    >
+    <div className={cn("pointer-events-none aspect-square", className)} aria-hidden>
       {/* soft brand glow behind the frame — indigo core, yellow edge */}
       <div className="absolute -inset-12 rounded-full bg-[radial-gradient(circle_at_40%_40%,rgba(49,0,255,0.35),rgba(104,77,255,0.18)_45%,rgba(255,245,0,0.12)_70%,transparent_78%)] blur-2xl dark:bg-[radial-gradient(circle_at_40%_40%,rgba(104,77,255,0.45),rgba(40,123,255,0.22)_45%,rgba(255,245,0,0.14)_70%,transparent_78%)]" />
 
@@ -394,7 +394,7 @@ function ImageCanvas({ art }: { art: HeroArtwork }) {
             sizes="(min-width: 1280px) 64rem, 48rem"
             quality={95}
             className={`hero-image-drift object-cover ${art.focus} ${art.grade}`}
-            preload
+            preload={preload}
           />
           {/* brand tint — soft-light keeps the artwork's own contrast and
               detail while nudging its colours toward indigo/blue (a
@@ -1449,7 +1449,21 @@ export async function PageHero({
           and travelling applicants (hire) or story stream (insights), each
           orbiting its glowing chip core */}
       <div className={ART_ZONE} aria-hidden>
-        {art && <ImageCanvas art={art} />}
+        {art && (
+          <ImageCanvas
+            art={art}
+            preload
+            // Beside the copy only from xl: narrower, the circle would crowd
+            // the heading and its orbit rings would be cut off at the right
+            // edge (the in-flow copy below the content takes over there).
+            // Size is capped by the art zone's height minus 8rem, leaving room
+            // for the outer orbit ring (3.5rem each side) plus a margin.
+            // Right offset is measured from the 80rem content column (4rem in
+            // from its edge), so on wide screens or a zoomed-out browser the
+            // circle stays beside the copy instead of at the viewport edge.
+            className="absolute right-[max(4rem,calc((100%-80rem)/2+4rem))] top-1/2 hidden h-[min(28rem,calc(100%-8rem))] -translate-y-1/2 xl:block"
+          />
+        )}
         {!art && variant === "services" && <NeuralCanvas />}
         {!art && variant === "work" && <CircuitCanvas />}
         {!art && variant === "solutions" && <SolutionsCanvas />}
@@ -1542,6 +1556,15 @@ export async function PageHero({
             </>
           )}
         </Reveal>
+
+        {/* Below xl the artwork sits centred under the copy. Width leaves
+            room for the outer orbit ring (3.5rem each side) on phones. */}
+        {art && (
+          <ImageCanvas
+            art={art}
+            className="relative mx-auto mb-10 mt-20 w-[min(20rem,calc(100vw-9rem))] xl:hidden"
+          />
+        )}
       </div>
 
       {/* glow hairline along the bottom edge — hands off to the body */}

@@ -7,6 +7,7 @@ import { SortableRows } from "@/components/admin/sortable-rows";
 import {
   deleteLocationAction, reorderLocationsAction, setLocationPublishedAction, type ActionResult,
 } from "./actions";
+import { toast } from "@/components/admin/toast";
 
 export type LocationItem = {
   slug: string;
@@ -24,10 +25,11 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
 
-  const run = (fn: () => Promise<ActionResult>) =>
+  const run = (fn: () => Promise<ActionResult>, success: string) =>
     start(async () => {
       const r = await fn();
       setError(r.ok ? undefined : r.message);
+      toast.result(r, success);
     });
 
   return (
@@ -45,7 +47,7 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
           disabled={pending}
           aria-label={published ? `Unpublish ${name}` : `Publish ${name}`}
           title={published ? "Unpublish (make draft)" : "Publish"}
-          onClick={() => run(() => setLocationPublishedAction(slug, !published))}
+          onClick={() => run(() => setLocationPublishedAction(slug, !published), published ? `“${name}” moved to drafts.` : `“${name}” published.`)}
         >
           {published ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
         </button>
@@ -59,7 +61,7 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
           aria-label={`Delete ${name}`}
           onClick={() => {
             if (window.confirm(`Delete “${name}”? This removes it from the live site and can't be undone.`)) {
-              run(() => deleteLocationAction(slug));
+              run(() => deleteLocationAction(slug), `“${name}” deleted.`);
             }
           }}
         >

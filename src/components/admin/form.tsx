@@ -2,6 +2,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/admin/password-input";
+import { CharCounter } from "@/components/admin/char-counter";
 import { cn } from "@/lib/utils";
 
 /** Titled card that groups related fields. Used on every admin form. */
@@ -37,6 +38,7 @@ export function FormField({
   inputMode,
   autoComplete,
   readOnly,
+  maxLength,
 }: {
   label: string;
   name: string;
@@ -51,8 +53,13 @@ export function FormField({
   inputMode?: "text" | "tel" | "email" | "url" | "numeric";
   autoComplete?: string;
   readOnly?: boolean;
+  /** caps the length and shows a "12 / 200" counter under the box */
+  maxLength?: number;
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
+  const describedBy =
+    [error ? `${id}-err` : hint ? `${id}-hint` : "", maxLength ? `${id}-count` : ""].filter(Boolean).join(" ") ||
+    undefined;
   return (
     <div className={cn("space-y-2", full && "sm:col-span-2")}>
       <Label htmlFor={id} className="text-uk-heading">
@@ -67,9 +74,10 @@ export function FormField({
           placeholder={placeholder}
           required={required}
           readOnly={readOnly}
+          maxLength={maxLength}
           autoComplete={autoComplete ?? "off"}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
+          aria-describedby={describedBy}
         />
       ) : (
         <Input
@@ -80,20 +88,22 @@ export function FormField({
           placeholder={placeholder}
           required={required}
           readOnly={readOnly}
+          maxLength={maxLength}
           inputMode={inputMode}
           autoComplete={autoComplete ?? "off"}
           aria-invalid={error ? true : undefined}
-          aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
+          aria-describedby={describedBy}
           className="h-10"
         />
       )}
-      {error ? (
-        <p id={`${id}-err`} role="alert" className="text-xs font-medium text-destructive">
-          {error}
-        </p>
-      ) : hint ? (
-        <p id={`${id}-hint`} className="text-xs text-uk-muted">{hint}</p>
-      ) : null}
+      {maxLength ? (
+        <div className="flex items-start gap-3">
+          <FieldMessage id={id} error={error} hint={hint} />
+          <CharCounter htmlFor={id} max={maxLength} />
+        </div>
+      ) : (
+        <FieldMessage id={id} error={error} hint={hint} />
+      )}
     </div>
   );
 }

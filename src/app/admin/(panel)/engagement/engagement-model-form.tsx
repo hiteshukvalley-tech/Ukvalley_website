@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
 import type { EngagementModelValues } from "@/lib/engagement-validation";
 import { createEngagementModelAction, updateEngagementModelAction, type EngagementModelFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 
 export function EngagementModelForm({
@@ -24,6 +25,7 @@ export function EngagementModelForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result

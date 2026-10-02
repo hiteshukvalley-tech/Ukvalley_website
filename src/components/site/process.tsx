@@ -6,7 +6,9 @@ import { Reveal } from "./reveal";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Check } from "lucide-react";
+import { Marked } from "./marked";
 import type { ProcessStep } from "@/lib/process-validation";
+import type { HomeContent } from "@/lib/home-defaults";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -16,8 +18,16 @@ if (typeof window !== "undefined") {
  * Delivery pipeline — a vertical progress spine that draws itself as you
  * scroll (scrubbed SVG line + activating step nodes). Reads like a CI
  * pipeline, not a feature grid. Reduced-motion: renders fully drawn.
+ * Steps come from Admin → Process; `content` (heading + badge) from Admin →
+ * Home page → Process, or the defaults on the /process page.
  */
-export function Process({ steps: processSteps }: { steps: ProcessStep[] }) {
+export function Process({
+  steps: processSteps,
+  content: c,
+}: {
+  steps: ProcessStep[];
+  content: HomeContent["process"];
+}) {
   const spineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -84,26 +94,21 @@ export function Process({ steps: processSteps }: { steps: ProcessStep[] }) {
         <div>
           <SectionHeading
             align="center"
-            eyebrow="How we work"
-            title={
-              <>
-                A process built to remove{" "}
-                <span className="text-uk-blue">delivery anxiety.</span>
-              </>
-            }
-            description="No black boxes. You get shared Jira access, a Slack channel, and a working demo every single week."
+            eyebrow={c.eyebrow}
+            title={<Marked text={c.title} />}
+            description={c.description || undefined}
           />
-          <Reveal className="mt-8 flex justify-center">
+          {c.badge && <Reveal className="mt-8 flex justify-center">
             <div className="glass inline-flex items-center gap-3 rounded-2xl p-4 shadow-premium">
               <span className="relative flex h-2.5 w-2.5" aria-hidden>
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-uk-blue/40" />
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-uk-blue" />
               </span>
               <span className="text-sm font-medium text-uk-heading">
-                Pipeline live — average kickoff in 5 business days
+                {c.badge}
               </span>
             </div>
-          </Reveal>
+          </Reveal>}
         </div>
 
         {/* scroll-drawn pipeline — centered as a column so the whole

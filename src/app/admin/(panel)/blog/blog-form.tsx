@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
 import type { BlogValues } from "@/lib/blog-validation";
 import { createPostAction, updatePostAction, type BlogFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 export function BlogForm({
   mode,
@@ -20,6 +21,7 @@ export function BlogForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result

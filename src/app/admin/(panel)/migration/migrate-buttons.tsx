@@ -3,6 +3,22 @@
 import { useState, useTransition } from "react";
 import { CircleAlert, CircleCheck, Download, Loader2 } from "lucide-react";
 import { runMigrationAction, type MigrationResult } from "./actions";
+import { toast } from "@/components/admin/toast";
+
+/** One-line summary of a migration run, for the pop-up. */
+function announce(r: MigrationResult) {
+  if (!r.ok && !r.outcomes) {
+    toast.error(r.message ?? "Could not run the import.");
+    return;
+  }
+  const outcomes = r.outcomes ?? [];
+  const items = outcomes.reduce((n, o) => n + (o.status === "imported" ? (o.imported ?? 0) : 0), 0);
+  const sections = outcomes.filter((o) => o.status === "imported").length;
+  const failed = outcomes.filter((o) => o.status === "failed");
+  if (sections) toast.success(`Imported ${items} item${items === 1 ? "" : "s"} into ${sections} section${sections === 1 ? "" : "s"}.`);
+  else if (!failed.length) toast.info("Nothing to import — already in the database.");
+  if (failed.length) toast.error(`${failed.length} section${failed.length === 1 ? "" : "s"} failed: ${failed.map((o) => o.label).join(", ")}.`);
+}
 
 /** Shared by the "import all" button and each row's own button. */
 function useMigration() {
@@ -11,7 +27,9 @@ function useMigration() {
   const run = (keys?: string[]) =>
     start(async () => {
       setResult(undefined);
-      setResult(await runMigrationAction(keys));
+      const r = await runMigrationAction(keys);
+      setResult(r);
+      announce(r);
     });
   return { pending, result, run };
 }

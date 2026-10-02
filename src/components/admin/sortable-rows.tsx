@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition, type ReactNode } from "react";
 import { GripVertical, Loader2 } from "lucide-react";
+import { toast } from "@/components/admin/toast";
 
 // Start scrolling the page when the pointer is this close to the viewport edge.
 const EDGE = 90;
@@ -100,6 +101,7 @@ export function SortableRows<T extends { slug: string }>({
         setItems(previous);
         setError(r.message);
       }
+      toast.result(r, "Order saved.");
     });
   };
 

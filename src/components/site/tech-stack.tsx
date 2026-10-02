@@ -2,7 +2,9 @@
 
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
+import { Marked } from "./marked";
 import type { TechCategory } from "@/lib/tech-stack-validation";
+import type { HomeContent } from "@/lib/home-defaults";
 import type { LucideIcon } from "lucide-react";
 import {
   Monitor,
@@ -110,13 +112,17 @@ const pillDarkColorMap: Record<string, string> = {
 /**
  * `heading` — the /tech-stack page renders its own PageHero, so it opts
  * out; the homepage keeps the section heading.
+ * `content` — heading and closing note, from Admin → Home page → Tech stack
+ * (the /tech-stack page passes the defaults).
  */
 export function TechStack({
   categories: techStack,
   heading = true,
+  content: c,
 }: {
   categories: TechCategory[];
   heading?: boolean;
+  content: HomeContent["tech"];
 }) {
   return (
     <section id="tech" className="relative overflow-hidden bg-uk-surface section-py">
@@ -127,14 +133,9 @@ export function TechStack({
         {heading && (
           <SectionHeading
             align="center"
-            eyebrow="Technology stack"
-            title={
-              <>
-                The tools we reach for —{" "}
-                <span className="text-uk-blue">and why.</span>
-              </>
-            }
-            description="We recommend the stack that fits your team and constraints, not the one we happen to prefer."
+            eyebrow={c.eyebrow}
+            title={<Marked text={c.title} />}
+            description={c.description || undefined}
           />
         )}
 
@@ -218,11 +219,11 @@ export function TechStack({
         </Reveal>
 
         {/* Bottom note */}
-        <Reveal className="mt-10 text-center">
-          <p className="mx-auto max-w-xl text-sm leading-relaxed text-uk-body/70">
-            We evaluate every project on its own merits — team skills, scalability needs, timeline, and budget — and pick the right tool for the job.
-          </p>
-        </Reveal>
+        {c.footnote && (
+          <Reveal className="mt-10 text-center">
+            <p className="mx-auto max-w-xl text-sm leading-relaxed text-uk-body/70">{c.footnote}</p>
+          </Reveal>
+        )}
       </div>
     </section>
   );

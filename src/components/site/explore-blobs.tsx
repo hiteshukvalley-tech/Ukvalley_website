@@ -14,25 +14,19 @@ import type { CSSProperties } from "react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { AuroraBlobs } from "./aurora-blobs";
+import { Marked } from "./marked";
 import { cn } from "@/lib/utils";
 import { getServices } from "@/lib/services-store";
-import { company, stats } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/settings";
 import { getCaseStudies } from "@/lib/cases-store";
 import { getPosts } from "@/lib/blog-store";
 import { getSolutions } from "@/lib/solutions-store";
 import { getHireRoles } from "@/lib/hire-store";
+import { fill } from "@/lib/home-schema";
+import type { HomeContent } from "@/lib/home-defaults";
 
-type ExploreCard = {
-  label: string;
-  href: string;
-  description: string;
-  /** Headline proof figure shown top-right of the card */
-  stat: { value: string; label: string };
-  /** Three concrete highlights — what the visitor will find behind the door */
-  highlights: string[];
-  /** Footer call-to-action text */
-  cta: string;
+/** Card look — icon, gradients and silhouette — by position. Text is admin-edited. */
+type CardStyle = {
   icon: LucideIcon;
   /** Icon-tile gradient — Dark Aurora ramp */
   tile: string;
@@ -46,125 +40,44 @@ type ExploreCard = {
 
 const INDIGO_RIM = "linear-gradient(140deg, #3100FF, #684DFF 52%, #287BFF)";
 const BLUE_RIM = "linear-gradient(140deg, #287BFF, #684DFF 50%, #fff500)";
-const CYAN_RIM = "linear-gradient(140deg, #fff500, #287BFF 55%, #684DFF)";
+const YELLOW_RIM = "linear-gradient(140deg, #fff500, #287BFF 55%, #684DFF)";
 
-// Figures are derived from the site's data files so the cards never drift
-// out of sync with the pages they link to.
-const clientsStat = stats.find((s) => s.label === "Satisfied clients")?.value ?? "150+";
-const projectsStat = stats.find((s) => s.label === "Projects delivered")?.value ?? "1,550+";
-
-const staticCards: ExploreCard[] = [
-  {
-    label: "Services",
-    href: "/services",
-    description:
-      "Web, mobile, custom software, cloud, marketing and security — one accountable team from scoping call to long-term support.",
-    stat: { value: "", label: "Service lines" },
-    highlights: ["Web & mobile apps", "CRM · ERP · HRMS", "Cloud, DevOps & security"],
-    cta: "Explore services",
-    icon: Blocks,
-    tile: "from-[#3100FF] to-[#684DFF]",
-    rim: INDIGO_RIM,
-    tint: "rgba(104, 77, 255, 0.16)",
-    shape: "a",
-  },
-  {
-    label: "Solutions",
-    href: "/solutions",
-    description:
-      "Production-proven systems we customise to your workflow — not templates you have to bend your business around.",
-    stat: { value: "0", label: "Ready-to-build systems" }, // count filled in from the database below
-    highlights: ["CRM & ERP platforms", "POS & e-commerce", "Loan origination & LMS"],
-    cta: "Browse solutions",
-    icon: Lightbulb,
-    tile: "from-[#3100FF] to-[#287BFF]",
-    rim: BLUE_RIM,
-    tint: "rgba(104, 77, 255, 0.14)",
-    shape: "b",
-  },
-  {
-    label: "Work",
-    href: "/case-studies",
-    description:
-      "Anonymised engagements that name the constraint, the approach, the stack and the measured result — numbers, not adjectives.",
-    stat: { value: "0", label: "Case studies" }, // count filled in from the database below
-    highlights: ["65% faster loan processing", "−34% monthly cloud spend", "200 stores on one POS"],
-    cta: "See the results",
-    icon: Laptop,
-    tile: "from-[#684DFF] to-[#3100FF]",
-    rim: CYAN_RIM,
-    tint: "rgba(40, 123, 255, 0.14)",
-    shape: "c",
-  },
-  {
-    label: "Company",
-    href: "/about",
-    description:
-      "An engineer-led, unfunded team based in Maharashtra, India. The architects who scope your project are the ones who build it.",
-    stat: { value: String(company.foundedYear), label: "Building since" },
-    highlights: [`${clientsStat} clients served`, `${projectsStat} projects delivered`, "24-hour response SLA"],
-    cta: "Meet the team",
-    icon: Building2,
-    tile: "from-[#684DFF] to-[#287BFF]",
-    rim: INDIGO_RIM,
-    tint: "rgba(49, 0, 255, 0.12)",
-    shape: "d",
-  },
-  {
-    label: "Hire",
-    href: "/hire",
-    description:
-      "Dedicated engineers verified on live production work — embedded in your tools, with code and repos in your ownership.",
-    stat: { value: "48h", label: "Typical time to start" },
-    highlights: ["0 specialisations", "Paid trial slice first", "Replace-anytime guarantee"], // count filled in below
-    cta: "Hire engineers",
-    icon: Users,
-    tile: "from-[#287BFF] to-[#684DFF]",
-    rim: BLUE_RIM,
-    tint: "rgba(104, 77, 255, 0.14)",
-    shape: "e",
-  },
-  {
-    label: "Insights",
-    href: "/blog",
-    description:
-      "Plain-English buyer's guides and engineering notes from the team doing the work — practical frames, no SEO filler.",
-    stat: { value: "0", label: "Guides & articles" }, // count filled in from the database below
-    highlights: ["Buyer's guides & pricing", "Engineering playbooks", "Growth & operations"],
-    cta: "Read insights",
-    icon: TrendingUp,
-    tile: "from-[#2400C7] to-[#287BFF]",
-    rim: CYAN_RIM,
-    tint: "rgba(40, 123, 255, 0.12)",
-    shape: "f",
-  },
+const cardStyles: CardStyle[] = [
+  { icon: Blocks, tile: "from-[#3100FF] to-[#684DFF]", rim: INDIGO_RIM, tint: "rgba(104, 77, 255, 0.16)", shape: "a" },
+  { icon: Lightbulb, tile: "from-[#3100FF] to-[#287BFF]", rim: BLUE_RIM, tint: "rgba(104, 77, 255, 0.14)", shape: "b" },
+  { icon: Laptop, tile: "from-[#684DFF] to-[#3100FF]", rim: YELLOW_RIM, tint: "rgba(40, 123, 255, 0.14)", shape: "c" },
+  { icon: Building2, tile: "from-[#684DFF] to-[#287BFF]", rim: INDIGO_RIM, tint: "rgba(49, 0, 255, 0.12)", shape: "d" },
+  { icon: Users, tile: "from-[#287BFF] to-[#684DFF]", rim: BLUE_RIM, tint: "rgba(104, 77, 255, 0.14)", shape: "e" },
+  { icon: TrendingUp, tile: "from-[#2400C7] to-[#287BFF]", rim: YELLOW_RIM, tint: "rgba(40, 123, 255, 0.12)", shape: "f" },
 ];
 
 /**
- * Explore blob cards — six organic glowing-rim navigation cards. Each
- * card carries a proof figure, a short overview and three concrete
- * highlights so visitors know exactly what sits behind each door.
+ * Explore blob cards — organic glowing-rim navigation cards. Each card
+ * carries a proof figure, a short overview and three concrete highlights
+ * so visitors know exactly what sits behind each door. Text comes from
+ * Admin → Home page → Explore cards; {tokens} become live counts.
  */
-export async function ExploreBlobs() {
+export async function ExploreBlobs({ content: c }: { content: HomeContent["explore"] }) {
   const [services, caseStudies, insights, solutions, hireRoles, settings] = await Promise.all([
     getServices(), getCaseStudies(), getPosts(), getSolutions(), getHireRoles(), getSiteSettings(),
   ]);
-  // Proof figures that come from admin-managed content.
-  const counts: Record<string, number> = {
-    "/services": services.length,
-    "/case-studies": caseStudies.length,
-    "/blog": insights.length,
-    "/solutions": solutions.length,
+  const vars = {
+    services: services.length,
+    solutions: solutions.length,
+    caseStudies: caseStudies.length,
+    articles: insights.length,
+    hireRoles: hireRoles.length,
+    foundedYear: settings.foundedYear,
   };
-  const cards = staticCards.map((c) => {
-    if (c.href === "/about") {
-      return { ...c, stat: { ...c.stat, value: String(settings.foundedYear) } };
-    }
-    if (c.href === "/hire") {
-      return { ...c, highlights: [`${hireRoles.length} specialisations`, ...c.highlights.slice(1)] };
-    }
-    return c.href in counts ? { ...c, stat: { ...c.stat, value: String(counts[c.href]) } } : c;
-  });
+  const cards = c.cards.map((card, i) => ({
+    ...cardStyles[i % cardStyles.length],
+    label: fill(card.label, vars),
+    href: card.href,
+    description: fill(card.description, vars),
+    stat: { value: fill(card.statValue, vars), label: fill(card.statLabel, vars) },
+    highlights: [card.highlight1, card.highlight2, card.highlight3].filter(Boolean).map((h) => fill(h, vars)),
+    cta: fill(card.cta, vars),
+  }));
   return (
     <section className="relative overflow-hidden bg-uk-surface section-py">
       {/* Drifting aurora blobs behind the cards */}
@@ -180,24 +93,20 @@ export async function ExploreBlobs() {
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeading
           align="center"
-          eyebrow="Explore"
-          title={
-            <>
-              Where would you like to <span className="text-uk-blue">go next</span>?
-            </>
-          }
-          description="Six quick paths through everything we build, ship and support — each with the numbers behind it. Pick a door."
+          eyebrow={c.eyebrow}
+          title={<Marked text={c.title} />}
+          description={c.description || undefined}
         />
 
         <Reveal
           staggerChildren
           className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {cards.map((card) => {
+          {cards.map((card, i) => {
             const Icon = card.icon;
             return (
               <Link
-                key={card.label}
+                key={`${card.label}-${i}`}
                 href={card.href}
                 className={cn(
                   "explore-card group p-8 sm:p-9",
@@ -227,14 +136,16 @@ export async function ExploreBlobs() {
                   >
                     <Icon className="h-7 w-7" strokeWidth={2} />
                   </span>
-                  <span className="flex flex-col items-end text-right">
-                    <span className="font-heading text-3xl font-bold leading-none text-uk-blue">
-                      {card.stat.value}
+                  {(card.stat.value || card.stat.label) && (
+                    <span className="flex flex-col items-end text-right">
+                      <span className="font-heading text-3xl font-bold leading-none text-uk-blue">
+                        {card.stat.value}
+                      </span>
+                      <span className="mt-1.5 max-w-[8rem] text-[0.7rem] font-semibold uppercase leading-tight tracking-wider text-uk-muted">
+                        {card.stat.label}
+                      </span>
                     </span>
-                    <span className="mt-1.5 max-w-[8rem] text-[0.7rem] font-semibold uppercase leading-tight tracking-wider text-uk-muted">
-                      {card.stat.label}
-                    </span>
-                  </span>
+                  )}
                 </span>
 
                 {/* Title + overview */}
@@ -246,16 +157,18 @@ export async function ExploreBlobs() {
                 </span>
 
                 {/* What's behind the door */}
-                <span className="relative z-10 mt-5 flex flex-col gap-2 border-t border-uk-line pt-5">
-                  {card.highlights.map((h) => (
-                    <span key={h} className="flex items-center gap-2 text-sm font-medium text-uk-body">
-                      <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/10 text-uk-blue">
-                        <Check className="h-3 w-3" strokeWidth={3} />
+                {card.highlights.length > 0 && (
+                  <span className="relative z-10 mt-5 flex flex-col gap-2 border-t border-uk-line pt-5">
+                    {card.highlights.map((h, hi) => (
+                      <span key={`${h}-${hi}`} className="flex items-center gap-2 text-sm font-medium text-uk-body">
+                        <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/10 text-uk-blue">
+                          <Check className="h-3 w-3" strokeWidth={3} />
+                        </span>
+                        {h}
                       </span>
-                      {h}
-                    </span>
-                  ))}
-                </span>
+                    ))}
+                  </span>
+                )}
 
                 {/* CTA */}
                 <span className="relative z-10 mt-auto flex items-center gap-2 pt-6 text-sm font-semibold text-uk-blue">

@@ -6,6 +6,7 @@ import { ScrollProgress } from "@/components/site/scroll-progress";
 import { PageHero, heroExtras } from "@/components/site/page-hero";
 import { Process } from "@/components/site/process";
 import { getProcessSteps } from "@/lib/process-store";
+import { defaultHome } from "@/lib/home-defaults";
 import { TimeSavers } from "@/components/site/time-savers";
 import { PhotoPanel, photos } from "@/components/site/photo-panel";
 import { CtaBand } from "@/components/site/cta";
@@ -112,7 +113,7 @@ export default async function ProcessPage() {
           </Container>
         </section>
 
-        <Process steps={steps} />
+        <Process steps={steps} content={defaultHome.process} />
 
         <PhotoPanel
           photo={photos.work}

@@ -4,11 +4,13 @@ import { useActionState, useState, useTransition } from "react";
 import { CircleAlert, CircleCheck, Loader2, RotateCcw, Save } from "lucide-react";
 import { FormField, FormSection } from "@/components/admin/form";
 import type { SettingsValues } from "@/lib/settings-validation";
+import { EMAIL_MAX } from "@/lib/users-validation";
 import {
   resetSettingsAction,
   saveSettingsAction,
   type SettingsState,
 } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 export function SettingsForm({ initial }: { initial: SettingsValues }) {
   const [state, action, saving] = useActionState<SettingsState, FormData>(
@@ -23,6 +25,7 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
     (resetState.nonce ?? 0) > (state.nonce ?? 0) ? resetState : state;
   const values = latest.values ?? initial;
   const errors = latest.status === "error" ? (latest.errors ?? {}) : {};
+  useResultToast(latest);
   const v = (k: keyof SettingsValues) => values[k];
   const e = (k: string) => errors[k];
   const busy = saving || resetting;
@@ -57,18 +60,18 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
       </FormSection>
 
       <FormSection title="Contact" description="Main enquiry details used on the Contact page.">
-        <FormField label="Email" name="email" type="email" required inputMode="email" defaultValue={v("email")} error={e("email")} />
+        <FormField label="Email" name="email" type="email" required inputMode="email" maxLength={EMAIL_MAX} defaultValue={v("email")} error={e("email")} />
         <FormField label="Primary phone" name="phonePrimary" type="tel" required inputMode="tel" defaultValue={v("phonePrimary")} error={e("phonePrimary")} />
         <FormField label="Secondary phone" name="phoneSecondary" type="tel" inputMode="tel" defaultValue={v("phoneSecondary")} error={e("phoneSecondary")} hint="Optional" />
       </FormSection>
 
       <FormSection title="Sales team">
-        <FormField label="Sales email" name="sales.email" type="email" required inputMode="email" defaultValue={v("sales.email")} error={e("sales.email")} />
+        <FormField label="Sales email" name="sales.email" type="email" required inputMode="email" maxLength={EMAIL_MAX} defaultValue={v("sales.email")} error={e("sales.email")} />
         <FormField label="Sales phone" name="sales.phone" type="tel" required inputMode="tel" defaultValue={v("sales.phone")} error={e("sales.phone")} />
       </FormSection>
 
       <FormSection title="HR team">
-        <FormField label="HR email" name="hr.email" type="email" required inputMode="email" defaultValue={v("hr.email")} error={e("hr.email")} />
+        <FormField label="HR email" name="hr.email" type="email" required inputMode="email" maxLength={EMAIL_MAX} defaultValue={v("hr.email")} error={e("hr.email")} />
         <FormField label="HR phone" name="hr.phone" type="tel" required inputMode="tel" defaultValue={v("hr.phone")} error={e("hr.phone")} />
       </FormSection>
 

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CircleAlert, CircleCheck, Loader2, UploadCloud } from "lucide-react";
 import type { UploadResult } from "@/lib/media-store";
+import { toast } from "@/components/admin/toast";
 
 export function UploadForm({ maxMb, maxFiles }: { maxMb: number; maxFiles: number }) {
   const router = useRouter();
@@ -21,6 +22,7 @@ export function UploadForm({ maxMb, maxFiles }: { maxMb: number; maxFiles: numbe
 
     if (picked.length > maxFiles) {
       setError(`Choose ${maxFiles} files or fewer at a time.`);
+      toast.error(`Choose ${maxFiles} files or fewer at a time.`);
       return;
     }
 
@@ -41,9 +43,16 @@ export function UploadForm({ maxMb, maxFiles }: { maxMb: number; maxFiles: numbe
         }
         setResults([...all]);
       }
-      if (all.some((r) => r.ok)) router.refresh();
+      const ok = all.filter((r) => r.ok).length;
+      const failed = all.length - ok;
+      if (ok) {
+        router.refresh();
+        toast.success(`${ok} image${ok === 1 ? "" : "s"} uploaded.`);
+      }
+      if (failed) toast.error(`${failed} file${failed === 1 ? "" : "s"} could not be uploaded — see the list below.`);
     } catch {
       setError("Upload failed — check your connection and try again.");
+      toast.error("Upload failed — check your connection and try again.");
     } finally {
       setBusy(false);
       if (input.current) input.current.value = "";

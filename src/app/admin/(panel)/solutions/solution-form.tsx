@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { solutionIcons, type SolutionValues } from "@/lib/solutions-validation";
 import { createSolutionAction, updateSolutionAction, type SolutionFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 type Option = { value: string; label: string };
 
@@ -67,6 +68,7 @@ export function SolutionForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
   const pipe = (n: number, ex: string) => `One per line, ${n} parts separated by |. Example: ${ex}`;
 
   return (

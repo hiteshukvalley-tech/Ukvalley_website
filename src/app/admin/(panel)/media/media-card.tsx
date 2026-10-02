@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Check, Copy, ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { deleteMediaAction } from "./actions";
+import { toast } from "@/components/admin/toast";
 
 export type MediaCardItem = {
   id: string;
@@ -30,6 +31,7 @@ export function MediaCard({ item }: { item: MediaCardItem }) {
       return;
     }
     setCopied(true);
+    toast.info("Image URL copied.");
     window.setTimeout(() => setCopied(false), 1500);
   }
 
@@ -63,6 +65,7 @@ export function MediaCard({ item }: { item: MediaCardItem }) {
                 start(async () => {
                   const r = await deleteMediaAction(item.id);
                   setError(r.ok ? undefined : r.message);
+                  toast.result(r, `“${item.name}” deleted.`);
                 });
               }
             }}

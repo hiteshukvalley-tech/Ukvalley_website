@@ -6,6 +6,7 @@ import { SESSION_COOKIE, checkCredentials, envUser, type SessionUser } from "@/l
 import { setSessionCookie } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { authenticateUser } from "@/lib/users-store";
+import { EMAIL_MAX, PASSWORD_MAX } from "@/lib/users-validation";
 
 export type LoginState = { error?: string; email?: string };
 
@@ -50,6 +51,11 @@ export async function loginAction(
 ): Promise<LoginState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  // Same limits as the inputs' maxLength (a request can skip the browser).
+  // No account has longer values, and this keeps huge inputs away from scrypt.
+  if (email.length > EMAIL_MAX || password.length > PASSWORD_MAX) {
+    return { error: "Incorrect email ID or password.", email: email.slice(0, EMAIL_MAX) };
+  }
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim() || "local";
   const ipKey = `ip:${ip}`;
   const accountKey = `acct:${email.trim().toLowerCase()}`;

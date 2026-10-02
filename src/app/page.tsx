@@ -24,6 +24,8 @@ import { getProcessSteps } from "@/lib/process-store";
 import { getTechStack } from "@/lib/tech-stack-store";
 import { getSiteSettings } from "@/lib/settings";
 import { getIndustries } from "@/lib/industries-store";
+import { getHomePage } from "@/lib/home-store";
+import { Marked } from "@/components/site/marked";
 import { jsonLd } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -56,40 +58,65 @@ const buildFaqSchema = (faqs: Awaited<ReturnType<typeof getFaqs>>) => ({
   })),
 });
 
+// Every section's text is edited in Admin → Home page; a section switched
+// off there is left out here. The cards inside sections (services, products,
+// case studies…) come from their own admin areas.
 export default async function Home() {
-  const organizationSchema = buildOrganizationSchema(await getSiteSettings());
-  const faqSchema = buildFaqSchema(await getFaqs());
+  const [settings, faqs, { content: c, visible: show }] = await Promise.all([
+    getSiteSettings(),
+    getFaqs(),
+    getHomePage(),
+  ]);
+  const organizationSchema = buildOrganizationSchema(settings);
+  const faqSchema = buildFaqSchema(faqs);
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(organizationSchema) }}
       />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
-      />
+      {show.faq && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
+        />
+      )}
       <ScrollProgress />
       <Header />
       <main id="main">
-        <Hero />
-        <TrustMarquee />
-        <ExploreBlobs />
-        <SectionDivider variant="circuit" className="bg-white dark:bg-uk-card py-6" />
-        <Services />
-        <WhyChoose />
-        <ByTheNumbers limit={4} />
-        <Products />
-        <SectionDivider variant="circuit" className="bg-uk-surface-2 py-6" />
-        <CaseStudies />
-        <Industries industries={await getIndustries()} />
-        <Process steps={await getProcessSteps()} />
-        <Engagement />
-        <TechStack categories={await getTechStack()} />
-        <Testimonials />
-        <Insights />
-        <Faq />
-        <CtaBand />
+        <Hero content={c.hero} />
+        {show.trust && <TrustMarquee content={c.trust} />}
+        {show.explore && (
+          <>
+            <ExploreBlobs content={c.explore} />
+            <SectionDivider variant="circuit" className="bg-white dark:bg-uk-card py-6" />
+          </>
+        )}
+        {show.services && <Services content={c.services} />}
+        {show.why && <WhyChoose content={c.why} />}
+        {show.numbers && <ByTheNumbers content={c.numbers} />}
+        {show.products && (
+          <>
+            <Products content={c.products} />
+            <SectionDivider variant="circuit" className="bg-uk-surface-2 py-6" />
+          </>
+        )}
+        {show.caseStudies && <CaseStudies content={c.caseStudies} />}
+        {show.industries && (
+          <Industries
+            industries={await getIndustries()}
+            eyebrow={c.industries.eyebrow}
+            title={<Marked text={c.industries.title} />}
+            description={c.industries.description}
+          />
+        )}
+        {show.process && <Process steps={await getProcessSteps()} content={c.process} />}
+        {show.engagement && <Engagement content={c.engagement} />}
+        {show.tech && <TechStack categories={await getTechStack()} content={c.tech} />}
+        {show.testimonials && <Testimonials content={c.testimonials} />}
+        {show.insights && <Insights content={c.insights} />}
+        {show.faq && <Faq content={c.faq} />}
+        {show.cta && <CtaBand content={c.cta} />}
       </main>
       <Footer />
     </>

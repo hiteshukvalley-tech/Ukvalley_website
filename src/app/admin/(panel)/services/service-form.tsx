@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { serviceIcons, type ServiceValues } from "@/lib/services-validation";
 import { createServiceAction, updateServiceAction, type ServiceFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 const iconOptions = serviceIcons.map((i) => ({ value: i, label: i }));
 
@@ -22,6 +23,7 @@ export function ServiceForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result

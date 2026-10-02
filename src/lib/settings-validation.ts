@@ -1,4 +1,5 @@
 import type { SiteSettings } from "./settings";
+import { EMAIL_MAX } from "./users-validation";
 
 export type FieldErrors = Record<string, string>;
 
@@ -58,7 +59,8 @@ export function validateSettings(
   const email = (k: SettingsFieldName, label: string, isRequired = true) => {
     if (!v[k]) {
       if (isRequired) e[k] = `${label} is required.`;
-    } else if (!EMAIL.test(v[k])) e[k] = "Enter a valid email address.";
+    } else if (v[k].length > EMAIL_MAX) e[k] = `${label} must be ${EMAIL_MAX} characters or fewer.`;
+    else if (!EMAIL.test(v[k])) e[k] = "Enter a valid email address.";
   };
   const phone = (k: SettingsFieldName, label: string, isRequired = true) => {
     if (!v[k]) {

@@ -4,7 +4,7 @@ import { ENV_USER_ID } from "@/lib/admin-auth";
 import { requireAdmin, setSessionCookie } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { changePassword, checkUserPassword } from "@/lib/users-store";
-import { passwordError } from "@/lib/users-validation";
+import { PASSWORD_MAX, passwordError } from "@/lib/users-validation";
 
 export type PasswordFormState = {
   status?: "saved" | "error";
@@ -33,6 +33,8 @@ export async function changePasswordAction(
 
   const errors: Record<string, string> = {};
   if (!current) errors.current = "Enter your current password.";
+  // Same cap as the input's maxLength (a request can skip the browser); keeps huge values away from scrypt.
+  else if (current.length > PASSWORD_MAX) errors.current = `Use ${PASSWORD_MAX} characters or fewer.`;
   const policy = passwordError(next, session.email);
   if (policy) errors.next = policy;
   else if (next === current) errors.next = "Choose a password different from the current one.";

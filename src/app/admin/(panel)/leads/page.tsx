@@ -1,8 +1,9 @@
 import Link from "@/components/site/intent-link";
-import { ChevronLeft, ChevronRight, CircleAlert, CircleCheck, Download, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, CircleAlert, Download, Search } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { isLeadStatus, leadStatusLabel, listLeads, type LeadStatus } from "@/lib/leads-store";
 import { formatLeadDate, sourceLabel, StatusBadge } from "./lead-ui";
+import { FlashToast } from "@/components/admin/toast";
 
 export const metadata = { title: "Leads" };
 export const dynamic = "force-dynamic";
@@ -59,11 +60,7 @@ export default async function LeadsAdminPage({ searchParams }: Props) {
         }
       />
 
-      {saved === "deleted" && (
-        <div role="status" className="mb-6 flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300">
-          <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" /> Lead deleted.
-        </div>
-      )}
+      {saved === "deleted" && <FlashToast message="Lead deleted." />}
       {dbError && (
         <div role="alert" className="mb-6 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />

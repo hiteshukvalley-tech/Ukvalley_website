@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
 import type { TestimonialValues } from "@/lib/testimonials-validation";
 import { createTestimonialAction, updateTestimonialAction, type TestimonialFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 
 export function TestimonialForm({
@@ -24,6 +25,7 @@ export function TestimonialForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result

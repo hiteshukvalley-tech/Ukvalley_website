@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
 import type { ProcessStepValues } from "@/lib/process-validation";
 import { createProcessStepAction, updateProcessStepAction, type ProcessStepFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 
 export function ProcessStepForm({
@@ -24,6 +25,7 @@ export function ProcessStepForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result

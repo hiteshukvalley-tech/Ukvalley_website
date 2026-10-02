@@ -5,8 +5,10 @@ import { useActionState, useState, useTransition } from "react";
 import { CircleAlert, CircleCheck, Loader2, Save, Trash2 } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect } from "@/components/admin/form";
 import { ADMIN_ROLES } from "@/lib/admin-auth";
-import { roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
+import { EMAIL_MAX, PASSWORD_MAX, PASSWORD_MIN, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
 import { createUserAction, deleteUserAction, updateUserAction, type UserFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
+import { toast } from "@/components/admin/toast";
 
 const roleOptions = ADMIN_ROLES.map((r) => ({ value: r, label: `${roleLabel[r]} — ${roleHelp[r]}` }));
 
@@ -29,6 +31,7 @@ export function UserForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   const [deleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string>();
@@ -64,6 +67,7 @@ export function UserForm({
             required
             readOnly={mode === "edit"}
             defaultValue={values.email}
+            maxLength={EMAIL_MAX}
             error={errors.email}
             autoComplete="off"
             hint={mode === "edit" ? "The email can't be changed after creation." : "They sign in with this address."}
@@ -104,9 +108,10 @@ export function UserForm({
             required={mode === "create"}
             full
             defaultValue=""
+            maxLength={PASSWORD_MAX}
             error={errors.password}
             autoComplete="new-password"
-            hint="At least 10 characters."
+            hint={`At least ${PASSWORD_MIN} characters.`}
           />
         </FormSection>
 
@@ -145,7 +150,10 @@ export function UserForm({
                 startDelete(async () => {
                   const r = await deleteUserAction(id);
                   // On success the action redirects; a result only comes back on failure.
-                  if (r && !r.ok) setDeleteError(r.message);
+                  if (r && !r.ok) {
+                  setDeleteError(r.message);
+                  toast.error(r.message ?? "Could not delete.");
+                }
                 });
               }
             }}

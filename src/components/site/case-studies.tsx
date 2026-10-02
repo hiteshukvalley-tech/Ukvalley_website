@@ -3,15 +3,18 @@ import { ArrowRight, TrendingUp } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { GrowBar } from "./grow-bar";
+import { Marked } from "./marked";
 import { getCaseStudies } from "@/lib/cases-store";
-
+import { fill } from "@/lib/home-schema";
+import type { HomeContent } from "@/lib/home-defaults";
 
 // The homepage previews a few engagements ("A few anonymized engagements");
 // the full set lives on /case-studies. Showing all of them made the home
 // page dozens of screens long on phones.
 const PREVIEW_COUNT = 4;
 
-export async function CaseStudies() {
+/** Cards come from Admin → Case studies; text from Admin → Home page → Case studies. */
+export async function CaseStudies({ content: c }: { content: HomeContent["caseStudies"] }) {
   const caseStudies = await getCaseStudies();
   return (
     <section id="work" className="relative bg-uk-surface section-py">
@@ -19,21 +22,16 @@ export async function CaseStudies() {
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow="Case studies"
-            title={
-              <>
-                Results we&apos;re{" "} <span className="text-uk-blue">accountable for</span> — with the
-                numbers to prove it.
-              </>
-            }
-            description="A few anonymized engagements. Named clients and detailed write-ups live on the full case-study pages."
+            eyebrow={c.eyebrow}
+            title={<Marked text={c.title} />}
+            description={c.description || undefined}
           />
           <Reveal className="mt-6 self-end">
             <Link
               href="/case-studies"
               className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
             >
-              All {caseStudies.length} case studies
+              {fill(c.linkLabel, { count: caseStudies.length })}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Reveal>
@@ -107,10 +105,12 @@ export async function CaseStudies() {
           ))}
         </Reveal>
 
-        <Reveal className="mt-10 flex items-center justify-center gap-2 text-sm text-uk-gray">
-          <TrendingUp className="h-4 w-4 text-uk-blue" />
-          Every case study includes the constraint, the approach and the measured result.
-        </Reveal>
+        {c.footnote && (
+          <Reveal className="mt-10 flex items-center justify-center gap-2 text-sm text-uk-gray">
+            <TrendingUp className="h-4 w-4 text-uk-blue" />
+            {c.footnote}
+          </Reveal>
+        )}
       </div>
     </section>
   );

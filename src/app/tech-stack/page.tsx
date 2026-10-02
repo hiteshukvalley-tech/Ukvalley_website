@@ -9,6 +9,7 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { Users, Gauge, Wallet, ShieldCheck, Target, Check } from "lucide-react";
 import { getTechStack } from "@/lib/tech-stack-store";
+import { defaultHome } from "@/lib/home-defaults";
 
 const criteria = [
   {
@@ -164,7 +165,7 @@ export default async function TechStackPage() {
 
         {/* The page hero above already introduces the stack, so the section
             renders without its own heading on this page only. */}
-        <TechStack categories={categories} heading={false} />
+        <TechStack categories={categories} heading={false} content={defaultHome.tech} />
 
         <section className="relative bg-uk-surface-2 section-py">
           <Container>

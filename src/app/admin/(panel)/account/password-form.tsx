@@ -3,11 +3,14 @@
 import { useActionState } from "react";
 import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormField, FormSection } from "@/components/admin/form";
+import { PASSWORD_MAX, PASSWORD_MIN } from "@/lib/users-validation";
 import { changePasswordAction, type PasswordFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 export function PasswordForm() {
   const [state, action, saving] = useActionState<PasswordFormState, FormData>(changePasswordAction, {});
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so the password fields clear after each result
@@ -31,9 +34,9 @@ export function PasswordForm() {
       )}
 
       <FormSection title="Change password" description="Changing it signs you out of other browsers and devices.">
-        <FormField label="Current password" name="current" type="password" required full autoComplete="current-password" error={errors.current} />
-        <FormField label="New password" name="next" type="password" required autoComplete="new-password" error={errors.next} hint="At least 10 characters." />
-        <FormField label="Confirm new password" name="confirm" type="password" required autoComplete="new-password" error={errors.confirm} />
+        <FormField label="Current password" name="current" type="password" required full autoComplete="current-password" maxLength={PASSWORD_MAX} error={errors.current} />
+        <FormField label="New password" name="next" type="password" required autoComplete="new-password" maxLength={PASSWORD_MAX} error={errors.next} hint={`At least ${PASSWORD_MIN} characters.`} />
+        <FormField label="Confirm new password" name="confirm" type="password" required autoComplete="new-password" maxLength={PASSWORD_MAX} error={errors.confirm} />
       </FormSection>
 
       <div className="flex justify-end">

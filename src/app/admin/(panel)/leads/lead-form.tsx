@@ -4,6 +4,8 @@ import { useActionState, useState, useTransition } from "react";
 import { CircleAlert, CircleCheck, Loader2, Save, Trash2 } from "lucide-react";
 import { FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { deleteLeadAction, updateLeadAction, type LeadFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
+import { toast } from "@/components/admin/toast";
 
 const statusOptions = [
   { value: "new", label: "New" },
@@ -23,6 +25,7 @@ export function LeadForm({
   const [state, action, saving] = useActionState<LeadFormState, FormData>(updateLeadAction.bind(null, id), {});
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   const [deleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string>();
@@ -77,7 +80,10 @@ export function LeadForm({
               startDelete(async () => {
                 const r = await deleteLeadAction(id);
                 // On success the action redirects; a result only comes back on failure.
-                if (r && !r.ok) setDeleteError(r.message);
+                if (r && !r.ok) {
+                  setDeleteError(r.message);
+                  toast.error(r.message ?? "Could not delete.");
+                }
               });
             }
           }}

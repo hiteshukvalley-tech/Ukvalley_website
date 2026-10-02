@@ -7,9 +7,10 @@ import {
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { Tilt } from "./tilt";
-import { heroStats } from "@/lib/site-data";
+import { Marked } from "./marked";
 import { getServices } from "@/lib/services-store";
-import { capitalize, countWord } from "@/lib/services-validation";
+import { countVars, fill } from "@/lib/home-schema";
+import { defaultHome, type HomeContent } from "@/lib/home-defaults";
 
 const icons: Record<string, LucideIcon> = {
   code: Code,
@@ -22,14 +23,8 @@ const icons: Record<string, LucideIcon> = {
   cloud: Cloud,
 };
 
-/* Web-build guarantees shown on the flagship tile — each one is a stated
-   deliverable on the web-development service page, not a new claim. */
-const buildStandards: { icon: LucideIcon; title: string; sub: string }[] = [
-  { icon: Gauge, title: "LCP < 2.5s", sub: "Core Web Vitals" },
-  { icon: Search, title: "SEO foundation", sub: "Sitemap & schema" },
-  { icon: Layers, title: "SSR / SSG", sub: "Crawlable pages" },
-  { icon: FileCode2, title: "Code you own", sub: "Docs + handover" },
-];
+/* Icons for the web-build standards on the flagship tile, by position. */
+const standardIcons: LucideIcon[] = [Gauge, Search, Layers, FileCode2];
 
 /**
  * Service constellation — the "one accountable core" diagram at the
@@ -63,10 +58,15 @@ function CoreConstellation({ count }: { count: number }) {
   );
 }
 
-export async function Services() {
+/**
+ * Services bento. Cards come from Admin → Services; the surrounding text
+ * from Admin → Home page → Services (the /services page uses the defaults).
+ */
+export async function Services({ content: c = defaultHome.services }: { content?: HomeContent["services"] }) {
   const services = await getServices();
   const [first, ...rest] = services;
   const FirstIcon = icons[first.icon];
+  const vars = countVars(services.length);
 
   return (
     <section id="services" className="relative bg-uk-surface section-py">
@@ -75,13 +75,9 @@ export async function Services() {
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow="System architecture"
-            title={
-              <>
-                {capitalize(countWord(services.length))} disciplines, <span className="text-uk-blue">one accountable core</span>.
-              </>
-            }
-            description={`${capitalize(countWord(services.length))} service lines, one team that owns the outcome. No freelance brokers, no hand-offs to a faceless offshoring pool — the engineers who scope it build it.`}
+            eyebrow={c.eyebrow}
+            title={<Marked text={fill(c.title, vars)} />}
+            description={fill(c.description, vars) || undefined}
           />
         </div>
 
@@ -93,9 +89,11 @@ export async function Services() {
           <Tilt className="sm:col-span-2 lg:row-span-2" max={3}>
             <div className="group relative flex h-full flex-col overflow-hidden rounded-3xl border border-uk-blue/25 bg-gradient-to-br from-white dark:from-uk-card via-uk-surface-premium to-uk-surface-blue p-7 shadow-premium-lg sm:p-8">
               <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-uk-blue/15 blur-[90px] transition-all duration-700 group-hover:bg-uk-blue/30" aria-hidden />
-              <span className="badge-yellow inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs uppercase tracking-widest">
-                Engineering core
-              </span>
+              {c.coreBadge && (
+                <span className="badge-yellow inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs uppercase tracking-widest">
+                  {c.coreBadge}
+                </span>
+              )}
 
               {/* Header block — text starts directly under the badge */}
               <div className="mt-5 flex items-start gap-5">
@@ -112,71 +110,78 @@ export async function Services() {
                     </h3>
                   </div>
                   <p className="text-sm leading-relaxed text-uk-muted">{first.blurb}</p>
-                  <p className="text-sm leading-relaxed text-uk-gray">
-                    From SPA dashboards and e-commerce storefronts to complex workflow engines — we ship production-grade code with shared Jira boards, weekly demos and a 24-hour SLA.
-                  </p>
+                  {c.coreText && <p className="text-sm leading-relaxed text-uk-gray">{c.coreText}</p>}
                 </div>
               </div>
 
               {/* Delivery workflow — how every engagement runs */}
-              <div className="mt-5 flex flex-wrap items-center gap-x-1 gap-y-2">
-                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
-                  How we run it
-                </span>
-                <span className="mx-1 hidden h-3 w-px bg-uk-line sm:block" aria-hidden />
-                {["Discovery", "Design", "Build", "Ship", "Support"].map((step, i) => (
-                  <span key={step} className="inline-flex items-center gap-1">
+              {c.workflowSteps.length > 0 && <div className="mt-5 flex flex-wrap items-center gap-x-1 gap-y-2">
+                {c.workflowLabel && (
+                  <>
+                    <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
+                      {c.workflowLabel}
+                    </span>
+                    <span className="mx-1 hidden h-3 w-px bg-uk-line sm:block" aria-hidden />
+                  </>
+                )}
+                {c.workflowSteps.map((step, i) => (
+                  <span key={`${step}-${i}`} className="inline-flex items-center gap-1">
                     {i > 0 && <ArrowRight className="h-3 w-3 text-uk-blue/50" aria-hidden />}
                     <span className="rounded-md border border-uk-line bg-white/70 px-2.5 py-1 font-heading text-xs font-medium text-uk-heading dark:bg-uk-card/70">
                       {step}
                     </span>
                   </span>
                 ))}
-              </div>
+              </div>}
 
               {/* Technology highlights */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {["React & Next.js", "Angular & Vue", "TypeScript", "SEO-ready", "Design system included", "24h SLA"].map((chip) => (
-                  <span key={chip} className="inline-flex items-center gap-1.5 rounded-full bg-uk-blue/10 px-3 py-1 text-xs font-medium text-uk-blue">
+              {c.chips.length > 0 && <div className="mt-4 flex flex-wrap gap-2">
+                {c.chips.map((chip, i) => (
+                  <span key={`${chip}-${i}`} className="inline-flex items-center gap-1.5 rounded-full bg-uk-blue/10 px-3 py-1 text-xs font-medium text-uk-blue">
                     <span className="h-1.5 w-1.5 rounded-full bg-uk-blue" />
                     {chip}
                   </span>
                 ))}
-              </div>
+              </div>}
 
               {/* Proof metrics — real delivery numbers */}
-              <div className="mb-6 mt-5 grid grid-cols-3 gap-3 rounded-2xl border border-uk-blue/15 bg-uk-blue/[0.06] p-4">
-                {heroStats.slice(1, 4).map((m) => (
-                  <div key={m.label} className="flex flex-col gap-0.5">
+              {c.proof.length > 0 && <div className="mb-6 mt-5 grid grid-cols-3 gap-3 rounded-2xl border border-uk-blue/15 bg-uk-blue/[0.06] p-4">
+                {c.proof.map((m, i) => (
+                  <div key={`${m.label}-${i}`} className="flex flex-col gap-0.5">
                     <span className="font-heading text-lg font-bold text-uk-blue sm:text-xl">{m.value}</span>
                     <span className="text-[0.7rem] leading-tight text-uk-muted">{m.label}</span>
                   </div>
                 ))}
-              </div>
+              </div>}
 
               {/* Build standards — the guarantees every web build ships with
                   (mirrors the /services/web-development deliverables) */}
-              <div className="mb-5">
-                <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
-                  Every web build ships with
-                </span>
+              {c.standards.length > 0 && <div className="mb-5">
+                {c.standardsLabel && (
+                  <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
+                    {c.standardsLabel}
+                  </span>
+                )}
                 <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {buildStandards.map((s) => (
-                    <div
-                      key={s.title}
-                      className="flex min-w-0 items-center gap-2 rounded-lg border border-uk-line bg-white/70 px-2.5 py-1.5 dark:bg-uk-card/70"
-                    >
-                      <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue">
-                        <s.icon className="h-3.5 w-3.5" />
-                      </span>
-                      <span className="truncate text-xs">
-                        <span className="font-heading font-bold text-uk-heading">{s.title}</span>
-                        <span className="text-uk-muted"> · {s.sub}</span>
-                      </span>
-                    </div>
-                  ))}
+                  {c.standards.map((s, i) => {
+                    const Icon = standardIcons[i % standardIcons.length];
+                    return (
+                      <div
+                        key={`${s.title}-${i}`}
+                        className="flex min-w-0 items-center gap-2 rounded-lg border border-uk-line bg-white/70 px-2.5 py-1.5 dark:bg-uk-card/70"
+                      >
+                        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue">
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <span className="truncate text-xs">
+                          <span className="font-heading font-bold text-uk-heading">{s.title}</span>
+                          {s.sub && <span className="text-uk-muted"> · {s.sub}</span>}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
-              </div>
+              </div>}
 
               <ul className="mt-auto grid grid-cols-2 gap-x-6 gap-y-2 border-t border-uk-line pt-4">
                 {first.bullets.map((b) => (
@@ -242,34 +247,32 @@ export async function Services() {
             <div className="absolute -right-16 -top-16 h-40 w-40 rounded-full bg-uk-white/10 blur-[80px] transition-all duration-700 group-hover:bg-uk-white/20" aria-hidden />
 
             {/* Header block — text starts directly at the top */}
-            <span className="relative inline-flex w-fit items-center rounded-full border border-uk-white/30 bg-uk-white/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-white">
-              Free · 30 minutes · No obligation
+            {c.ctaBadge && (
+              <span className="relative inline-flex w-fit items-center rounded-full border border-uk-white/30 bg-uk-white/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-white">
+                {c.ctaBadge}
+              </span>
+            )}
+            <span className="relative mt-4 max-w-[12rem] font-heading text-lg font-bold leading-snug text-uk-white">
+              {c.ctaTitle}
             </span>
-            <span className="relative mt-4 font-heading text-lg font-bold leading-snug text-uk-white">
-              Not sure which
-              <br />
-              service fits?
-            </span>
-            <p className="relative mt-2 text-sm leading-relaxed text-uk-white/85">
-              In one short call we map your goals to the right build path — no sales pitch.
-            </p>
+            {c.ctaText && (
+              <p className="relative mt-2 text-sm leading-relaxed text-uk-white/85">{c.ctaText}</p>
+            )}
 
             {/* What you get in the call */}
-            <ul className="relative mt-4 flex flex-col gap-2 border-t border-uk-white/20 pt-4">
-              {[
-                "Architecture recommendation from a senior engineer",
-                "Rough estimate within 3 days",
-                "Fixed proposal within 7 days",
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-2 text-xs font-medium text-uk-white/90">
-                  <Check className="h-3.5 w-3.5 flex-none text-uk-yellow" />
-                  {item}
-                </li>
-              ))}
-            </ul>
+            {c.ctaPoints.length > 0 && (
+              <ul className="relative mt-4 flex flex-col gap-2 border-t border-uk-white/20 pt-4">
+                {c.ctaPoints.map((item, i) => (
+                  <li key={`${item}-${i}`} className="flex items-center gap-2 text-xs font-medium text-uk-white/90">
+                    <Check className="h-3.5 w-3.5 flex-none text-uk-yellow" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             <span className="relative mt-auto inline-flex items-center gap-2 pt-4 text-sm font-semibold text-uk-white">
-              Talk to an architect
+              {c.ctaLink}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </span>
           </Link>

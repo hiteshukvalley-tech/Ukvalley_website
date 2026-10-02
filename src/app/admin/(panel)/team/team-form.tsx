@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
 import type { TeamValues } from "@/lib/team-validation";
 import { createTeamAction, updateTeamAction, type TeamFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 
 export function TeamForm({
@@ -24,6 +25,7 @@ export function TeamForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result

@@ -6,6 +6,7 @@ import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { techIcons, type TechCategoryValues } from "@/lib/tech-stack-validation";
 import { createTechCategoryAction, updateTechCategoryAction, type TechCategoryFormState } from "./actions";
+import { useResultToast } from "@/components/admin/toast";
 
 
 const iconOptions = techIcons.map((o) => ({ value: o, label: o }));
@@ -26,6 +27,7 @@ export function TechCategoryForm({
   );
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
+  useResultToast(state);
 
   return (
     // key remounts the inputs so defaultValues refresh after each result
