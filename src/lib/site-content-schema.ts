@@ -99,7 +99,7 @@ export const HEADER_DEF: SectionDef = {
   ],
 };
 
-export type NavItem = { label: string; href: string };
+export type NavItem = { label: string; href: string; /** optional menu icon key */ icon?: string };
 
 export type HeaderContent = {
   logoMark: string; logoName: string; logoSub: string;
@@ -118,9 +118,9 @@ export const defaultWorkLinks: NavItem[] = [
 export const defaultCompanyLinks: NavItem[] = [
   { label: "About Us", href: "/about" },
   { label: "Our Team", href: "/team" },
+  { label: "Our Social Impact", href: "/social-impact" },
   { label: "Process", href: "/process" },
   { label: "Engagement Model", href: "/engagement" },
-  { label: "Careers", href: "/careers" },
   { label: "Pricing", href: "/pricing" },
   { label: "Why Ukvalley", href: "/why-ukvalley" },
   { label: "Support & SLA", href: "/support-maintenance" },
@@ -182,6 +182,7 @@ export const defaultFooter: FooterContent = {
   companyLinks: [
     { label: "About Us", href: "/about" },
     { label: "Our Team", href: "/team" },
+    { label: "Our Social Impact", href: "/social-impact" },
     { label: "Pricing", href: "/pricing" },
     { label: "Case Studies", href: "/case-studies" },
     { label: "Client Success", href: "/clients" },

@@ -9,10 +9,11 @@ import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { SectionHeading } from "@/components/site/section-heading";
-import { PhotoPanel, photos } from "@/components/site/photo-panel";
+import { PhotoPanel } from "@/components/site/photo-panel";
 import { CtaBand } from "@/components/site/cta";
 import { values } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/settings";
+import { getPageContent } from "@/lib/pages-store";
 import { getTeam } from "@/lib/team-store";
 import { getCareers } from "@/lib/careers-store";
 import { ukText } from "@/lib/texts";
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
 
 export default async function TeamPage() {
   const company = await getSiteSettings();
-  const [team, careers] = await Promise.all([getTeam(), getCareers()]);
+  const [team, careers, page] = await Promise.all([getTeam(), getCareers(), getPageContent("team")]);
   return (
     <>
       <ScrollProgress />
@@ -118,13 +119,19 @@ export default async function TeamPage() {
                   className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-uk-line bg-uk-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40"
                 >
                   <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-uk-blue/0 blur-3xl transition-all duration-500 group-hover:bg-uk-blue/15" aria-hidden />
-                  <div className="flex items-center gap-4">
-                    <span
-                      className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"
-                      aria-hidden
-                    >
-                      {ukText(m.name.split(" ").map((n) => n[0]).join("").slice(0, 2))}
-                    </span>
+                  <div className={m.image ? "flex flex-col gap-4" : "flex items-center gap-4"}>
+                    {m.image ? (
+                      // plain <img>: the admin can point this at /media/<id> or any https address
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={m.image} alt={m.name} loading="lazy" className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl bg-white object-cover object-top ring-1 ring-uk-line" />
+                    ) : (
+                      <span
+                        className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"
+                        aria-hidden
+                      >
+                        {ukText(m.name.split(" ").filter((n) => /^[A-Za-z]/.test(n) && !n.endsWith(".")).map((n) => n[0]).join("").slice(0, 2))}
+                      </span>
+                    )}
                     <div>
                       <h2 className="font-heading text-lg font-bold text-uk-heading">
                         {ukText(m.name)}
@@ -144,7 +151,13 @@ export default async function TeamPage() {
         </section>
 
         <PhotoPanel
-          photo={photos.hire}
+          photo={{
+            src: page.workImage || "/team-pool.svg",
+            alt:
+              page.workImageAlt ||
+              "Architects, full-stack, mobile and QA engineers working as one pool across the Pune and Nagpur offices",
+            custom: true,
+          }}
           eyebrow={ukText("How the team is built")}
           title={ukText("Senior engineers stay on the project — juniors learn beside them, not instead of them.")}
           facts={[

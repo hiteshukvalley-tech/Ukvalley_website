@@ -1,6 +1,9 @@
 import Link from "@/components/site/intent-link";
 import { CircleAlert, Plus, Search } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
+import { Pagination } from "@/components/admin/pagination";
+import { ReorderScope } from "@/components/admin/sortable-rows";
+import { paginate } from "@/lib/pagination";
 import { listPostsForAdmin } from "@/lib/blog-store";
 import { ImportButton } from "./import-button";
 import { SortableList } from "./sortable-list";
@@ -9,13 +12,13 @@ import { FlashToast } from "@/components/admin/toast";
 export const metadata = { title: "Blog" };
 export const dynamic = "force-dynamic";
 
-type Props = { searchParams: Promise<{ q?: string; status?: string; saved?: string }> };
+type Props = { searchParams: Promise<{ page?: string; per?: string; q?: string; status?: string; saved?: string }> };
 
 const fmtDate = (d: string) =>
   new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 
 export default async function BlogAdminPage({ searchParams }: Props) {
-  const { q = "", status = "all", saved } = await searchParams;
+  const { page: pageParam, per, q = "", status = "all", saved } = await searchParams;
   const { items, dbError } = await listPostsForAdmin();
 
   const needle = q.trim().toLowerCase();
@@ -26,6 +29,8 @@ export default async function BlogAdminPage({ searchParams }: Props) {
   });
   const filtering = Boolean(needle) || status !== "all";
   const drafts = items.filter((p) => !p.published).length;
+
+  const view = paginate(filtered, pageParam, per);
 
   return (
     <>
@@ -62,6 +67,7 @@ export default async function BlogAdminPage({ searchParams }: Props) {
       ) : (
         <section className="rounded-2xl border border-uk-line bg-uk-card">
           <form method="get" className="flex flex-wrap items-center gap-3 border-b border-uk-line p-4">
+          <input type="hidden" name="per" value={String(view.pageSize)} />
             <label className="relative min-w-52 flex-1">
               <span className="sr-only">Search posts</span>
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-uk-muted" />
@@ -100,11 +106,13 @@ export default async function BlogAdminPage({ searchParams }: Props) {
           {filtered.length === 0 ? (
             <p className="p-8 text-center text-sm text-uk-muted">No posts match your search.</p>
           ) : (
+            <>
+            <ReorderScope all={items.map((x) => x.slug)} start={view.start}>
             <SortableList
               // Re-mount from fresh server data after any save/refresh.
-              key={filtered.map((p) => `${p.slug}:${p.published}:${p.title}:${p.date}`).join("|")}
+              key={view.slice.map((p) => `${p.slug}:${p.published}:${p.title}:${p.date}`).join("|")}
               locked={filtering}
-              initial={filtered.map((p) => ({
+              initial={view.slice.map((p) => ({
                 slug: p.slug,
                 title: p.title,
                 category: p.category,
@@ -113,6 +121,9 @@ export default async function BlogAdminPage({ searchParams }: Props) {
                 published: p.published,
               }))}
             />
+            </ReorderScope>
+            <Pagination total={view.total} page={view.page} pageSize={view.pageSize} noun="posts" />
+            </>
           )}
         </section>
       )}

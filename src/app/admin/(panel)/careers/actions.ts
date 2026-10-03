@@ -10,6 +10,7 @@ import {
 import {
   readCareerValues, validateCareer, type CareerValues, type FieldErrors,
 } from "@/lib/careers-validation";
+import { slugifyRole } from "@/lib/careers-shared";
 
 export type CareerFormState = {
   status?: "saved" | "error";
@@ -35,6 +36,9 @@ function refreshPublicSite() {
 export async function createCareerAction(_prev: CareerFormState, formData: FormData): Promise<CareerFormState> {
   await requireAdmin();
   const values = readCareerValues(formData);
+  // Slug left blank: make it from the role name (a taken one gets -2, -3 … in createCareer).
+  const derivedSlug = !values.slug && Boolean(values.role);
+  if (derivedSlug) values.slug = slugifyRole(values.role);
   const nonce = Date.now();
 
   const result = validateCareer(values, { requireSlug: true });
@@ -44,7 +48,7 @@ export async function createCareerAction(_prev: CareerFormState, formData: FormD
   if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, values, nonce };
 
   try {
-    const created = await createCareer(result.value);
+    const created = await createCareer(result.value, { autoSuffix: derivedSlug });
     if (!created) {
       return {
         status: "error",

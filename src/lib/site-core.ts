@@ -158,6 +158,7 @@ export const nav: {
   company: [
     { label: "About Us", href: "/about" },
     { label: "Our Team", href: "/team" },
+    { label: "Our Social Impact", href: "/social-impact" },
     { label: "Process", href: "/process" },
     { label: "Engagement Model", href: "/engagement" },
     { label: "Careers", href: "/careers" },

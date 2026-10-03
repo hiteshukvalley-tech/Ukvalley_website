@@ -1,6 +1,9 @@
 import Link from "@/components/site/intent-link";
-import { ChevronLeft, ChevronRight, CircleAlert, FileText, Search, X } from "lucide-react";
+import { CircleAlert, FileText, Search, X } from "lucide-react";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
+import { Pagination } from "@/components/admin/pagination";
+import { readPaging } from "@/lib/pagination";
 import { FlashToast } from "@/components/admin/toast";
 import { listApplications } from "@/lib/applications-store";
 import { getCareers } from "@/lib/careers-store";
@@ -10,17 +13,15 @@ import { ApplicationStatusBadge, formatApplicationDate } from "./application-ui"
 export const metadata = { title: "Job applications" };
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 25;
-
-type Props = { searchParams: Promise<{ q?: string; status?: string; role?: string; page?: string; saved?: string }> };
+type Props = { searchParams: Promise<{ q?: string; status?: string; role?: string; page?: string; per?: string; saved?: string }> };
 
 export default async function ApplicationsAdminPage({ searchParams }: Props) {
-  const { q = "", status = "all", role = "", page: pageParam, saved } = await searchParams;
-  const page = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const { q = "", status = "all", role = "", page: pageParam, per, saved } = await searchParams;
+  const { page, pageSize } = readPaging(pageParam, per, 25);
   const activeStatus = isApplicationStatus(status) ? status : "all";
 
   const [{ items, total, counts, roles, dbError }, careers] = await Promise.all([
-    listApplications({ status: activeStatus, position: role, q, page, pageSize: PAGE_SIZE }),
+    listApplications({ status: activeStatus, position: role, q, page, pageSize }),
     // The roles the Careers page shows (built-in ones until roles are imported).
     getCareers(),
   ]);
@@ -40,7 +41,7 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
   ];
   const grandTotal = roles.reduce((n, r) => n + r.total, 0);
 
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = Math.max(1, Math.ceil(total / pageSize));
   /** Link to this page with some filters changed; `null` clears one. */
   const href = (over: { status?: string; role?: string | null; q?: string | null; page?: number }) => {
     const p = new URLSearchParams();
@@ -51,9 +52,13 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
     if (s !== "all") p.set("status", s);
     if (search) p.set("q", search);
     if (over.page && over.page > 1) p.set("page", String(over.page));
+    if (pageSize !== 25) p.set("per", String(pageSize));
     const qs = p.toString();
     return qs ? `/admin/applications?${qs}` : "/admin/applications";
   };
+
+  // A page number past the end (e.g. after deleting rows) goes to the last page.
+  if (total > 0 && page > pages) redirect(href({ page: pages }));
 
   const tabs = [{ key: "all", label: "All" }, ...APPLICATION_STATUSES.map((s) => ({ key: s, label: applicationStatusLabel[s] }))] as const;
 
@@ -156,6 +161,7 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
         </div>
 
         <form method="get" className="flex flex-wrap items-center gap-3 border-b border-uk-line p-4">
+          {pageSize !== 25 && <input type="hidden" name="per" value={String(pageSize)} />}
           {role && <input type="hidden" name="role" value={role} />}
           {activeStatus !== "all" && <input type="hidden" name="status" value={activeStatus} />}
           <label className="relative min-w-52 flex-1">
@@ -190,9 +196,6 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
           <p className="p-8 text-center text-sm text-uk-muted">{dbError ? "No data." : "No applications match these filters."}</p>
         ) : (
           <>
-            <p className="border-b border-uk-line px-4 py-2 text-xs text-uk-muted">
-              Showing {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + items.length} of {total}
-            </p>
             <ul className="divide-y divide-uk-line">
               {items.map((a) => (
                 <li key={a.id}>
@@ -219,21 +222,7 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
               ))}
             </ul>
 
-            {pages > 1 && (
-              <nav aria-label="Pagination" className="flex items-center justify-between gap-3 border-t border-uk-line p-4 text-sm">
-                {page > 1 ? (
-                  <Link href={href({ page: page - 1 })} className="inline-flex h-9 items-center gap-1 rounded-lg border border-uk-line px-3 text-uk-body hover:bg-uk-surface-2">
-                    <ChevronLeft className="h-4 w-4" /> Newer
-                  </Link>
-                ) : <span />}
-                <span className="text-uk-muted">Page {page} of {pages}</span>
-                {page < pages ? (
-                  <Link href={href({ page: page + 1 })} className="inline-flex h-9 items-center gap-1 rounded-lg border border-uk-line px-3 text-uk-body hover:bg-uk-surface-2">
-                    Older <ChevronRight className="h-4 w-4" />
-                  </Link>
-                ) : <span />}
-              </nav>
-            )}
+            <Pagination total={total} page={page} pageSize={pageSize} defaultSize={25} noun="applications" />
           </>
         )}
       </section>

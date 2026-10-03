@@ -8,6 +8,7 @@ import {
   deleteSolutionAction, reorderSolutionsAction, setSolutionPublishedAction, type ActionResult,
 } from "./actions";
 import { toast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 export type SolutionItem = {
   slug: string;
@@ -58,8 +59,8 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
           className={`${btn} hover:!text-destructive`}
           disabled={pending}
           aria-label={`Delete ${name}`}
-          onClick={() => {
-            if (window.confirm(`Delete “${name}”? This removes it from the live site and can't be undone.`)) {
+          onClick={async () => {
+            if (await confirmDialog(`Delete “${name}”? This removes it from the live site and can't be undone.`)) {
               run(() => deleteSolutionAction(slug), `“${name}” deleted.`);
             }
           }}

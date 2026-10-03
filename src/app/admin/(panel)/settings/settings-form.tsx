@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { CircleAlert, CircleCheck, Loader2, RotateCcw, Save } from "lucide-react";
+import { Loader2, RotateCcw, Save } from "lucide-react";
 import { FormField, FormSection } from "@/components/admin/form";
 import type { SettingsValues } from "@/lib/settings-validation";
 import { EMAIL_MAX } from "@/lib/users-validation";
@@ -11,6 +11,7 @@ import {
   type SettingsState,
 } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 export function SettingsForm({ initial }: { initial: SettingsValues }) {
   const [state, action, saving] = useActionState<SettingsState, FormData>(
@@ -33,23 +34,6 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
   return (
     // key remounts the inputs so defaultValues refresh after save / reset
     <form action={action} key={latest.nonce ?? "initial"} className="space-y-6" noValidate>
-      {latest.message && (
-        <div
-          role={latest.status === "error" ? "alert" : "status"}
-          className={
-            latest.status === "error"
-              ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-          }
-        >
-          {latest.status === "error" ? (
-            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          ) : (
-            <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />
-          )}
-          {latest.message}
-        </div>
-      )}
 
       <FormSection title="Company" description="Shown in the footer, structured data and page titles.">
         <FormField label="Company name" name="name" required defaultValue={v("name")} error={e("name")} />
@@ -94,8 +78,8 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
         <button
           type="button"
           disabled={busy}
-          onClick={() => {
-            if (window.confirm("Restore all site settings to the original defaults? Your saved changes will be removed.")) {
+          onClick={async () => {
+            if (await confirmDialog("Restore all site settings to the original defaults? Your saved changes will be removed.")) {
               startReset(async () => setResetState(await resetSettingsAction()));
             }
           }}

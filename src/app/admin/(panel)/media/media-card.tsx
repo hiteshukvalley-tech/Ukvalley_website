@@ -4,6 +4,8 @@ import { useState, useTransition } from "react";
 import { Check, Copy, ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { deleteMediaAction } from "./actions";
 import { toast } from "@/components/admin/toast";
+import { MESSAGE_MS } from "@/lib/message-timing";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 export type MediaCardItem = {
   id: string;
@@ -32,7 +34,7 @@ export function MediaCard({ item }: { item: MediaCardItem }) {
     }
     setCopied(true);
     toast.info("Image URL copied.");
-    window.setTimeout(() => setCopied(false), 1500);
+    window.setTimeout(() => setCopied(false), MESSAGE_MS);
   }
 
   return (
@@ -60,8 +62,8 @@ export function MediaCard({ item }: { item: MediaCardItem }) {
             className={`${btn} ml-auto hover:!text-destructive`}
             disabled={pending}
             aria-label={`Delete ${item.name}`}
-            onClick={() => {
-              if (window.confirm(`Delete “${item.name}”? Any page using this URL will show a broken image. This can't be undone.`)) {
+            onClick={async () => {
+              if (await confirmDialog(`Delete “${item.name}”? Any page using this URL will show a broken image. This can't be undone.`)) {
                 start(async () => {
                   const r = await deleteMediaAction(item.id);
                   setError(r.ok ? undefined : r.message);

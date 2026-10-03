@@ -1,8 +1,9 @@
-// The main menu (Services, Solutions, Work, Company, Hire, Insights + any
+// The main menu (Services, Solutions, Work, Company, Hire, Careers, Insights + any
 // section the admin adds): which items exist, their order, labels and links.
 // Client-safe — the admin editor imports it. Reads/writes are in menu-store.ts.
 import { defaultCompanyLinks, defaultWorkLinks, type NavItem } from "@/lib/site-content-schema";
 import type { SectionDef } from "@/lib/home-schema";
+import { isMenuIcon } from "@/lib/menu-icon-keys";
 
 /**
  * services / solutions / hire: a dropdown filled from that admin section.
@@ -19,9 +20,11 @@ export type MenuItem = {
   /** dropdown items only */
   links: NavItem[];
   visible: boolean;
+  /** optional icon key (menu-icon-keys.ts) shown beside the name; empty = default */
+  icon?: string;
 };
 
-export const BUILT_IN_MENU_IDS = ["services", "solutions", "work", "company", "hire", "insights"] as const;
+export const BUILT_IN_MENU_IDS = ["services", "solutions", "work", "company", "hire", "careers", "insights"] as const;
 export const isBuiltInMenuId = (id: string) => (BUILT_IN_MENU_IDS as readonly string[]).includes(id);
 export const isCustomMenuId = (id: string) => /^m-[a-z0-9]{6,20}$/.test(id);
 
@@ -34,23 +37,26 @@ export const defaultMenu: MenuItem[] = [
   { id: "work", label: "Work", type: "dropdown", href: "", links: defaultWorkLinks, visible: true },
   { id: "company", label: "Company", type: "dropdown", href: "", links: defaultCompanyLinks, visible: true },
   { id: "hire", label: "Hire", type: "hire", href: "", links: [], visible: true },
+  { id: "careers", label: "Careers", type: "link", href: "/careers", visible: true, links: [] },
   { id: "insights", label: "Insights", type: "link", href: "/blog", visible: true, links: [] },
 ];
 
-/** "Label | /path" per line  ⇄  NavItem[] */
-export const linksToText = (links: NavItem[]) => links.map((l) => `${l.label} | ${l.href}`).join("\n");
+/** "Label | /path | icon" per line (icon optional)  ⇄  NavItem[] */
+export const linksToText = (links: NavItem[]) =>
+  links.map((l) => `${l.label} | ${l.href}${l.icon ? ` | ${l.icon}` : ""}`).join("\n");
 
 export function parseLinks(text: string): { links: NavItem[]; error?: string } {
   const links: NavItem[] = [];
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   for (const [i, line] of lines.entries()) {
-    const at = line.lastIndexOf("|");
-    const label = (at < 0 ? line : line.slice(0, at)).trim();
-    const href = at < 0 ? "" : line.slice(at + 1).trim();
+    const parts = line.split("|").map((p) => p.trim());
+    const icon = parts.length > 2 && isMenuIcon(parts[parts.length - 1]) ? (parts.pop() as string) : "";
+    const href = parts.length < 2 ? "" : (parts.pop() as string);
+    const label = parts.join("|").trim();
     if (!label || !href) return { links, error: `Line ${i + 1}: write it as  Label | /link` };
     if (label.length > 60) return { links, error: `Line ${i + 1}: the label is longer than 60 characters.` };
     if (!LINK.test(href)) return { links, error: `Line ${i + 1}: the link must start with / or https://` };
-    links.push({ label, href });
+    links.push(icon ? { label, href, icon } : { label, href });
   }
   return { links };
 }
@@ -98,7 +104,8 @@ export function validateMenu(
       else if (parsed.links.length === 0) errors[`${id}.links`] = "Add at least one link, or hide this item.";
       links = parsed.links;
     }
-    items.push({ id, label, type, href, links, visible: row.visible !== false });
+    const icon = isMenuIcon(row.icon) ? row.icon : "";
+    items.push({ id, label, type, href, links, visible: row.visible !== false, ...(icon && { icon }) });
   }
 
   // Built-in items missing from the submission come back (hidden items stay in the list).

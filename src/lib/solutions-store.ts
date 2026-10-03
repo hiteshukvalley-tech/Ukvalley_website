@@ -56,9 +56,9 @@ export async function getSolutions(): Promise<Solution[]> {
   if (!hasDatabaseUrl()) return builtInSolutions;
   try {
     if (!(await cachedHasAny())) return builtInSolutions;
-    // The public pages need at least one, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInSolutions;
+    return published;
   } catch {
     return builtInSolutions;
   }

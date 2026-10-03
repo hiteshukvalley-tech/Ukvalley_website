@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition, type ReactNode } from "react";
+import { createContext, useContext, useRef, useState, useTransition, type ReactNode } from "react";
 import { GripVertical, Loader2 } from "lucide-react";
 import { toast } from "@/components/admin/toast";
 
@@ -9,6 +9,18 @@ const EDGE = 90;
 const MAX_SPEED = 22;
 
 type Result = { ok: boolean; message?: string };
+
+const ReorderContext = createContext<{ all: string[]; start: number } | null>(null);
+
+/**
+ * Wrap a paginated sortable list in this: `all` is every row's slug in the full
+ * order and `start` the index of this page's first row. A drag reorders the rows
+ * of the page, and the full order saved is the whole list with that page's slots
+ * rewritten, so the other pages keep their places.
+ */
+export function ReorderScope({ all, start, children }: { all: string[]; start: number; children: ReactNode }) {
+  return <ReorderContext.Provider value={{ all, start }}>{children}</ReorderContext.Provider>;
+}
 
 /**
  * A list of rows you can drag anywhere (to the very top or bottom too). The new
@@ -31,6 +43,7 @@ export function SortableRows<T extends { slug: string }>({
   renderRow: (item: T, index: number) => ReactNode;
   hint?: string;
 }) {
+  const scope = useContext(ReorderContext);
   const [items, setItems] = useState(initial);
   const [dragging, setDragging] = useState<string | null>(null);
   // Index the dragged row would land at (0..n), shown as a line between rows.
@@ -96,7 +109,10 @@ export function SortableRows<T extends { slug: string }>({
     setItems(next);
     setError(undefined);
     start(async () => {
-      const r = await onReorder(next.map((s) => s.slug));
+      const slugs = next.map((s) => s.slug);
+      const r = await onReorder(
+        scope ? [...scope.all.slice(0, scope.start), ...slugs, ...scope.all.slice(scope.start + slugs.length)] : slugs
+      );
       if (!r.ok) {
         setItems(previous);
         setError(r.message);

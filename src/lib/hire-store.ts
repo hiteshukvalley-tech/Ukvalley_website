@@ -56,9 +56,9 @@ export async function getHireRoles(): Promise<HireRole[]> {
   if (!hasDatabaseUrl()) return builtInRoles;
   try {
     if (!(await cachedHasAny())) return builtInRoles;
-    // The public pages need at least one, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInRoles;
+    return published;
   } catch {
     return builtInRoles;
   }

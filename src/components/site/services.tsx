@@ -65,6 +65,8 @@ function CoreConstellation({ count }: { count: number }) {
  */
 export async function Services({ content: c = defaultHome.services }: { content?: HomeContent["services"] }) {
   const services = await getServices();
+  // Nothing published (every service is a draft): show no section at all.
+  if (services.length === 0) return null;
   const [first, ...rest] = services;
   const FirstIcon = icons[first.icon];
   const vars = countVars(services.length);

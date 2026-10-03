@@ -103,6 +103,9 @@ export function Industries({
     return () => ctx.revert();
   }, [active]);
 
+  // Nothing published (every industry is a draft): show no section at all.
+  if (!current) return null;
+
   return (
     <section id="industries" className="relative overflow-hidden bg-uk-surface-2 section-py">
       <div className="absolute inset-0 bg-blueprint opacity-40" aria-hidden />

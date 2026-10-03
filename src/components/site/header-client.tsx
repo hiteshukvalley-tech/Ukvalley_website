@@ -52,6 +52,7 @@ import {
   Trophy,
   Wrench,
   Headset,
+  HeartHandshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -65,11 +66,13 @@ import type { NavLink } from "@/lib/site-core";
 import { defaultHeader, type HeaderContent } from "@/lib/site-content-schema";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
+import { MenuIcon } from "./menu-icon";
 
 /* Icons for the top-level bar items, keyed by menu (not by label, so the
    admin can rename a menu without losing its icon). */
-const menuIcon = (id: string) =>
-  id === "insights" ? <Newspaper className="h-4 w-4" /> : (topLevelIcons[id] ?? <Layers className="h-4 w-4" />);
+const menuIcon = (m: { id: string; icon?: string }) =>
+  (m.icon && <MenuIcon name={m.icon} />) ||
+  (m.id === "insights" ? <Newspaper className="h-4 w-4" /> : (topLevelIcons[m.id] ?? <Layers className="h-4 w-4" />));
 
 const topLevelIcons: Record<string, React.ReactNode> = {
   services: <Layers className="h-4 w-4" />,
@@ -77,6 +80,7 @@ const topLevelIcons: Record<string, React.ReactNode> = {
   work: <Briefcase className="h-4 w-4" />,
   company: <Building2 className="h-4 w-4" />,
   hire: <Users className="h-4 w-4" />,
+  careers: <GraduationCap className="h-4 w-4" />,
 };
 
 /* Dropdown item icons keyed by nav label — used in the desktop dropdowns and
@@ -99,6 +103,7 @@ const itemIcons: Record<string, React.ReactNode> = {
   // Company
   "About Us": <Users className="h-4 w-4" />,
   "Our Team": <UsersRound className="h-4 w-4" />,
+  "Our Social Impact": <HeartHandshake className="h-4 w-4" />,
   "Process": <Workflow className="h-4 w-4" />,
   "Engagement Model": <Handshake className="h-4 w-4" />,
   "Careers": <GraduationCap className="h-4 w-4" />,
@@ -140,18 +145,6 @@ const itemIcons: Record<string, React.ReactNode> = {
   "Hire Sales Executives": <Headset className="h-4 w-4" />,
 };
 
-/* Service icon keys (from the admin's Services page) -> nav icon. */
-const serviceIconNodes: Record<string, React.ReactNode> = {
-  code: <Code className="h-4 w-4" />,
-  smartphone: <Smartphone className="h-4 w-4" />,
-  layoutDashboard: <LayoutDashboard className="h-4 w-4" />,
-  cloud: <Cloud className="h-4 w-4" />,
-  megaphone: <Megaphone className="h-4 w-4" />,
-  shieldCheck: <ShieldCheck className="h-4 w-4" />,
-  blocks: <Blocks className="h-4 w-4" />,
-  palette: <Palette className="h-4 w-4" />,
-};
-
 export type ServiceNavLink = NavLink & { icon: string };
 
 /** One top-level menu entry, already resolved on the server (Admin → Main menu). */
@@ -160,6 +153,8 @@ export type ResolvedMenu = {
   label: string;
   type: "dropdown" | "link";
   href: string;
+  /** icon key picked in Admin → Main menu */
+  icon?: string;
   items: (NavLink & { icon?: string })[];
   /** two-column dropdown for long lists */
   wide: boolean;
@@ -176,7 +171,7 @@ export function HeaderClient({
   const pathname = usePathname();
   // Services come from the database, so their icons are keyed by label at render time.
   const icons: Record<string, React.ReactNode> = { ...itemIcons };
-  for (const m of menus) for (const it of m.items) if (it.icon) icons[it.label] = serviceIconNodes[it.icon] ?? serviceIconNodes.code;
+  for (const m of menus) for (const it of m.items) if (it.icon) icons[it.label] = <MenuIcon name={it.icon} /> ;
   // The last dropdown opens leftwards so it never runs off the screen.
   const lastDropdown = [...menus].reverse().find((m) => m.type === "dropdown")?.id;
   const i_isLast = (id: string) => id === lastDropdown;
@@ -303,7 +298,7 @@ export function HeaderClient({
                     )}
                     aria-hidden
                   >
-                    {menuIcon(m.id)}
+                    {menuIcon(m)}
                   </span>
                   {m.label}
                   <span
@@ -396,7 +391,7 @@ export function HeaderClient({
                         className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading"
                       >
                         <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue" aria-hidden>
-                          {menuIcon(m.id)}
+                          {menuIcon(m)}
                         </span>
                         {m.label}
                       </Link>

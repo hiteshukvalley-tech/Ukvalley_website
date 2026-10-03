@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "@/components/admin/toast";
 import { deleteCustomSectionAction } from "./actions";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 /** Deletes a custom section after a confirmation, then returns to the list. */
 export function DeleteSectionButton({ id, name }: { id: string; name: string }) {
@@ -14,8 +15,8 @@ export function DeleteSectionButton({ id, name }: { id: string; name: string }) 
     <button
       type="button"
       disabled={pending}
-      onClick={() => {
-        if (!window.confirm(`Delete the section "${name}"? It disappears from the home page and cannot be restored.`)) return;
+      onClick={async () => {
+        if (!await confirmDialog(`Delete the section "${name}"? It disappears from the home page and cannot be restored.`)) return;
         start(async () => {
           const r = await deleteCustomSectionAction(id);
           if (r.status === "saved") {

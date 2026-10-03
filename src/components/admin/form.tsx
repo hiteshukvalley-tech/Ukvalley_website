@@ -39,6 +39,7 @@ export function FormField({
   autoComplete,
   readOnly,
   maxLength,
+  suggestions,
 }: {
   label: string;
   name: string;
@@ -55,6 +56,8 @@ export function FormField({
   readOnly?: boolean;
   /** caps the length and shows a "12 / 200" counter under the box */
   maxLength?: number;
+  /** suggestions offered while typing; any value is still accepted */
+  suggestions?: readonly string[];
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
   const describedBy =
@@ -64,7 +67,7 @@ export function FormField({
     <div className={cn("space-y-2", full && "sm:col-span-2")}>
       <Label htmlFor={id} className="text-uk-heading">
         {label}
-        {required && <span className="text-destructive" aria-hidden> *</span>}
+        {required && <span className="-ml-1 text-destructive" aria-hidden>*</span>}
       </Label>
       {type === "password" ? (
         <PasswordInput
@@ -91,10 +94,16 @@ export function FormField({
           maxLength={maxLength}
           inputMode={inputMode}
           autoComplete={autoComplete ?? "off"}
+          list={suggestions ? `${id}-list` : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
           className="h-10"
         />
+      )}
+      {suggestions && (
+        <datalist id={`${id}-list`}>
+          {suggestions.map((s) => <option key={s} value={s} />)}
+        </datalist>
       )}
       {maxLength ? (
         <div className="flex items-start gap-3">
@@ -138,7 +147,7 @@ export function FormTextarea({
     <div className={cn("space-y-2", full && "sm:col-span-2")}>
       <Label htmlFor={id} className="text-uk-heading">
         {label}
-        {required && <span className="text-destructive" aria-hidden> *</span>}
+        {required && <span className="-ml-1 text-destructive" aria-hidden>*</span>}
       </Label>
       <Textarea
         id={id}
@@ -173,7 +182,7 @@ export function FormSelect({
     <div className={cn("space-y-2", full && "sm:col-span-2")}>
       <Label htmlFor={id} className="text-uk-heading">
         {label}
-        {required && <span className="text-destructive" aria-hidden> *</span>}
+        {required && <span className="-ml-1 text-destructive" aria-hidden>*</span>}
       </Label>
       <select
         id={id}

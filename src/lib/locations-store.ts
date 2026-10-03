@@ -56,9 +56,9 @@ export async function getLocations(): Promise<Location[]> {
   if (!hasDatabaseUrl()) return builtInLocations;
   try {
     if (!(await cachedHasAny())) return builtInLocations;
-    // The public pages need at least one, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInLocations;
+    return published;
   } catch {
     return builtInLocations;
   }

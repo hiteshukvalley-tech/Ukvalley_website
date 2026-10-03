@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
+import { AutoDismiss } from "@/components/admin/auto-dismiss";
 import { forgotPasswordAction, type ForgotState } from "./actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +16,7 @@ const submitClass =
   "btn-sheen inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-uk-blue text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright disabled:opacity-60";
 
 function Required() {
-  return <span className="text-destructive" aria-hidden> *</span>;
+  return <span className="-ml-1 text-destructive" aria-hidden>*</span>;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -35,15 +36,19 @@ export function ForgotForm() {
       {step === "password" && <input type="hidden" name="token" value={state.token ?? ""} />}
 
       {state.notice && (
+        <AutoDismiss watch={state}>
         <p role="status" className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
           {state.notice}
         </p>
+        </AutoDismiss>
       )}
       {state.error && (
+        <AutoDismiss watch={state}>
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {state.error}
         </p>
+        </AutoDismiss>
       )}
 
       {step === "email" && (

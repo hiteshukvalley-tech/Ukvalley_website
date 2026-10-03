@@ -64,15 +64,14 @@ const cachedHasAny = unstable_cache(
 /**
  * Items for the public site, in the order set in the admin. Uses the built-in
  * list until the admin has imported/created some, and whenever the database
- * can't be read. All-draft shows the defaults, since the public section needs
- * at least one item.
+ * can't be read. Drafts are never shown, even when all of them are drafts.
  */
 export async function getProcessSteps(): Promise<ProcessStep[]> {
   if (!hasDatabaseUrl()) return builtIn;
   try {
     if (!(await cachedHasAny())) return builtIn;
     const published = await cachedPublished();
-    return published.length ? published : builtIn;
+    return published;
   } catch {
     return builtIn;
   }

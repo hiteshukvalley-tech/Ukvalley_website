@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { CircleAlert, CircleCheck, Info, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MESSAGE_MS } from "@/lib/message-timing";
 
 /*
  * Admin pop-up notifications ("toasts"). Call `toast.success(…)` /
@@ -102,12 +103,11 @@ const styles: Record<Kind, { icon: typeof CircleCheck; box: string; iconClass: s
 
 function ToastItem({ t }: { t: Toast }) {
   const [paused, setPaused] = useState(false);
-  // Errors stay up longer — they usually need reading.
   useEffect(() => {
     if (paused) return;
-    const timer = window.setTimeout(() => dismiss(t.id), t.kind === "error" ? 8000 : 4500);
+    const timer = window.setTimeout(() => dismiss(t.id), MESSAGE_MS);
     return () => window.clearTimeout(timer);
-  }, [t.id, t.kind, paused]);
+  }, [t.id, paused]);
 
   const s = styles[t.kind];
   const Icon = s.icon;

@@ -1,6 +1,7 @@
 import { unstable_cache } from "next/cache";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import { industries as builtInIndustries, type Industry } from "@/lib/site-data";
+import { getCaseStudies } from "@/lib/cases-store";
 import type { IndustryInput, IndustryRecord } from "@/lib/industries-validation";
 
 export const INDUSTRIES_TAG = "industries";
@@ -52,16 +53,30 @@ const cachedHasAny = unstable_cache(
  * built-in list until the admin has imported/created some, and whenever the
  * database can't be read.
  */
-export async function getIndustries(): Promise<Industry[]> {
+async function readIndustries(): Promise<Industry[]> {
   if (!hasDatabaseUrl()) return builtInIndustries;
   try {
     if (!(await cachedHasAny())) return builtInIndustries;
-    // The public pages need at least one, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInIndustries;
+    return published;
   } catch {
     return builtInIndustries;
   }
+}
+
+/**
+ * Industries for the public site. An industry's featured case study is dropped
+ * when that case study is a draft or deleted, so the page never links to a 404.
+ */
+export async function getIndustries(): Promise<Industry[]> {
+  const list = await readIndustries();
+  const CASE = "/case-studies/";
+  if (!list.some((i) => i.featuredCase?.href.startsWith(CASE))) return list;
+  const live = new Set((await getCaseStudies()).map((c) => `${CASE}${c.slug}`));
+  return list.map(({ featuredCase, ...rest }) =>
+    featuredCase && featuredCase.href.startsWith(CASE) && !live.has(featuredCase.href) ? rest : { ...rest, featuredCase }
+  );
 }
 
 /** Uncached list for the admin (drafts included), in display order. */

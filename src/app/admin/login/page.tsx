@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { getSession } from "@/lib/admin-session";
+import { AutoDismiss } from "@/components/admin/auto-dismiss";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
@@ -28,10 +29,12 @@ export default async function LoginPage({ searchParams }: Props) {
         </div>
         <div className="rounded-2xl border border-uk-line bg-uk-card p-6 shadow-sm sm:p-8">
           {reset === "1" && (
+            <AutoDismiss>
             <p role="status" className="mb-5 flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
               Password changed. Sign in with your new password.
             </p>
+            </AutoDismiss>
           )}
           <LoginForm />
         </div>

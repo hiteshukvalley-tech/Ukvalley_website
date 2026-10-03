@@ -119,5 +119,8 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
 
 /** Whether `pathname` is this link's page (or one of its sub-pages). */
 export function isActive(link: AdminNavLink, pathname: string): boolean {
-  return link.exact ? pathname === link.href : pathname === link.href || pathname.startsWith(`${link.href}/`);
+  // The admin proxy lowercases addresses (/admin/home/caseStudies -> /casestudies), so compare ignoring case.
+  const here = pathname.toLowerCase();
+  const href = link.href.toLowerCase();
+  return link.exact ? here === href : here === href || here.startsWith(`${href}/`);
 }

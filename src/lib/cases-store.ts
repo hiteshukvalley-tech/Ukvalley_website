@@ -56,9 +56,9 @@ export async function getCaseStudies(): Promise<CaseStudy[]> {
   if (!hasDatabaseUrl()) return builtInCases;
   try {
     if (!(await cachedHasAny())) return builtInCases;
-    // The public pages need at least one, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInCases;
+    return published;
   } catch {
     return builtInCases;
   }

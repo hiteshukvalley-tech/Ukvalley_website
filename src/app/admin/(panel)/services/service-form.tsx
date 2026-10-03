@@ -2,7 +2,7 @@
 
 import Link from "@/components/site/intent-link";
 import { useActionState } from "react";
-import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { serviceIcons, type ServiceValues } from "@/lib/services-validation";
 import { createServiceAction, updateServiceAction, type ServiceFormState } from "./actions";
@@ -28,23 +28,6 @@ export function ServiceForm({
   return (
     // key remounts the inputs so defaultValues refresh after each result
     <form action={action} key={state.nonce ?? "initial"} className="space-y-6" noValidate>
-      {state.message && (
-        <div
-          role={state.status === "error" ? "alert" : "status"}
-          className={
-            state.status === "error"
-              ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-          }
-        >
-          {state.status === "error" ? (
-            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          ) : (
-            <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />
-          )}
-          {state.message}
-        </div>
-      )}
 
       <FormSection title="Card content" description="What visitors see on the Services section and the /services page.">
         <FormField label="Title" name="title" required full defaultValue={values.title} error={errors.title} />

@@ -56,15 +56,14 @@ const cachedHasAny = unstable_cache(
 /**
  * Team members for the public site, in the order set in the admin. Uses the
  * built-in list until the admin has imported/created some, and whenever the
- * database can't be read. All-draft shows the defaults, since the About and
- * Team pages need at least one person.
+ * database can't be read. Drafts are never shown, even when all of them are drafts.
  */
 export async function getTeam(): Promise<TeamMember[]> {
   if (!hasDatabaseUrl()) return builtInTeam;
   try {
     if (!(await cachedHasAny())) return builtInTeam;
     const published = await cachedPublished();
-    return published.length ? published : builtInTeam;
+    return published;
   } catch {
     return builtInTeam;
   }

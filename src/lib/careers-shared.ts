@@ -91,3 +91,31 @@ export function postedLabel(iso: string, today: string): string {
 
 /** Roles posted within this many days get a "New" badge. */
 export const NEW_ROLE_DAYS = 7;
+
+/** Offered as suggestions in the admin's Location box (it still accepts anything). */
+export const LOCATION_SUGGESTIONS = ["Pune, Maharashtra", "Nagpur, Maharashtra", "Pune / Nagpur", "Remote (India)", "India"];
+
+/** URL-safe id from a role title, e.g. "Senior React / Next.js Engineer" -> "senior-react-next-js-engineer". */
+export function slugifyRole(role: string): string {
+  const s = role
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 70)
+    .replace(/-+$/, "");
+  return s || "role";
+}
+
+/** Does a role belong to a hiring place ("Pune", "Remote")? Looks at its location text and job mode. */
+export function roleInPlace(place: string, location: string, mode: string): boolean {
+  const p = place.trim().toLowerCase();
+  if (!p) return true;
+  return `${location} ${mode}`.toLowerCase().includes(p);
+}
+
+/** Every word typed must appear somewhere in the haystack (case-insensitive). */
+export function hasWords(haystack: string, query: string): boolean {
+  const text = haystack.toLowerCase();
+  return query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => text.includes(w));
+}

@@ -2918,15 +2918,19 @@ export type TeamMember = {
   role: string;
   bio: string;
   focus: string;
+  /** Photo: a /public path, a /media/<id> upload or an https address. Empty shows initials. */
+  image?: string;
 };
 
 export const team: TeamMember[] = [
-  { name: "Dr. Mahendra J", role: "Director", bio: "Sets the company's technical and strategic direction, with a research-led approach to product and delivery.", focus: "Strategy & R&D" },
-  { name: "Umesh K", role: "Chief Executive Officer", bio: "Owns growth, client relationships and the operating model that keeps delivery accountable.", focus: "Growth & Operations" },
-  { name: "Shital Jain", role: "COO / Managing Director", bio: "Runs day-to-day operations and the processes that keep projects on scope, on budget and on time.", focus: "Delivery & Process" },
-  { name: "Ashish Shinde", role: "CTO / Technical Head", bio: "Leads architecture decisions across the stack and owns code quality and engineering standards.", focus: "Architecture & Engineering" },
-  { name: "Mohit Dhadiwal", role: "Chief Marketing Officer", bio: "Drives brand, demand and the market positioning that turns capability into pipeline.", focus: "Brand & Demand" },
-  { name: "Saish B", role: "Lead Frontend / Jr. SDE", bio: "Owns frontend quality and the design-system practice across our web and product work.", focus: "Frontend & Design Systems" },
+  { name: "Mrs. Shital K", role: "COO & HR", bio: "Runs day-to-day operations and people, and the processes that keep projects on scope, on budget and on time.", focus: "Operations & People", image: "/team/shital-k.webp" },
+  { name: "Mr. Mohit D", role: "CMO", bio: "Drives brand, demand and the market positioning that turns capability into pipeline.", focus: "Brand & Demand", image: "/team/mohit-d.webp" },
+  { name: "Mr. Sagar K", role: "Project Manager", bio: "Keeps every project on track — scope, timelines and weekly demos — and is the client's day-to-day point of contact.", focus: "Delivery & Planning", image: "/team/sagar-k.webp" },
+  { name: "Mr. Ashish S", role: "Technical Head", bio: "Leads architecture decisions across the stack and owns code quality and engineering standards.", focus: "Architecture & Engineering", image: "/team/ashish-s.webp" },
+  { name: "Mr. Saish B", role: "Lead Frontend Developer", bio: "Owns frontend quality and the design-system practice across our web and product work.", focus: "Frontend & Design Systems", image: "/team/saish-b.webp" },
+  { name: "Ms. Khudaija P", role: "Full Stack Developer", bio: "Builds features end to end, from database and API to the interface the customer sees.", focus: "Full-stack Engineering", image: "/team/khudaija-p.webp" },
+  { name: "Mr. Tejas K", role: "Jr. MERN Stack Developer", bio: "Builds and maintains MongoDB, Express, React and Node.js applications across client projects.", focus: "MERN Stack", image: "/team/tejas-k.webp" },
+  { name: "Mr. Rohit S", role: "Software Tester", bio: "Tests every release end to end — manual and automated — so bugs are caught before they reach your users.", focus: "Testing & QA", image: "/team/rohit-s.webp" },
 ];
 
 export const principles = [

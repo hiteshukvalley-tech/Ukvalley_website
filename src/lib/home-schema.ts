@@ -317,6 +317,13 @@ export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
 export const homeSectionDef = (key: string) => HOME_SECTIONS.find((s) => s.key === key);
 export const isHomeSectionKey = (key: string): key is HomeSectionKey => HOME_SECTIONS.some((s) => s.key === key);
 
+/**
+ * The real section key for an address segment. The admin proxy lowercases every
+ * URL, so "/admin/home/caseStudies" arrives as "casestudies"; matching ignores case.
+ */
+export const canonicalSectionKey = (raw: string): string =>
+  HOME_SECTIONS.find((s) => s.key.toLowerCase() === raw.toLowerCase())?.key ?? raw;
+
 /** One section's editable values, in the shape the editor and database use. */
 export type SectionValues = Record<string, string | string[] | Record<string, string>[]>;
 

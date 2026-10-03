@@ -52,9 +52,9 @@ export async function getPosts(): Promise<Insight[]> {
   if (!hasDatabaseUrl()) return fallback;
   try {
     if (!(await cachedHasAny())) return fallback;
-    // The public pages need at least one post, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : fallback;
+    return published;
   } catch {
     return fallback;
   }

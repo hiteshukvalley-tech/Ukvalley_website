@@ -82,7 +82,12 @@ export async function TextsView({ group, path, q }: { group?: string; path?: str
     for (const x of overrides) if (x.r !== x.o && !byR.has(x.r)) byR.set(x.r, x.o);
     const byO = new Map(overrides.map((x) => [x.o, x.r]));
 
-    const rows: TextRow[] = items.map((it, i) => {
+    // Header (menu bar) and footer repeat on every page and are edited once, under
+    // Site layout; text outside every section ("Top of the page", e.g. the
+    // skip-to-content link) is not page content. This editor lists only what
+    // belongs to this page's sections.
+    const pageItems = items.filter((it) => it.region === "Page" && it.sectionId !== 0);
+    const rows: TextRow[] = pageItems.map((it, i) => {
       const edited = byR.has(it.value);
       const original = edited ? byR.get(it.value)! : it.value;
       const stuck = !edited && byO.has(it.value) && byO.get(it.value) !== it.value;
@@ -104,7 +109,7 @@ export async function TextsView({ group, path, q }: { group?: string; path?: str
             ...(section ? [{ label: section.name, href: listHref }] : [{ label: "All pages", href: "/admin/texts" }]),
             { label: pageName === section?.name ? `${pageName} page` : pageName },
           ]}
-          description="Everything on this page, organised by section: open a section to edit its text, buttons and images (cards are grouped inside their section). Save, and the page is checked to confirm each change is really showing."
+          description="Only what is on this page, organised by section: open a section to edit its text, buttons and images (cards are grouped inside their section). The header menu and footer are shared by every page and have their own editors under Site layout. Save, and the page is checked to confirm each change is really showing."
           action={
             <div className="flex flex-wrap items-center gap-2">
               {blocksKey && (

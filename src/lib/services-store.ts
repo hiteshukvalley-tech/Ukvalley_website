@@ -51,9 +51,9 @@ export async function getServices(): Promise<Service[]> {
   try {
     const hasAny = await cachedHasAny();
     if (!hasAny) return builtInServices;
-    // The public sections need at least one card, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInServices;
+    return published;
   } catch {
     return builtInServices;
   }

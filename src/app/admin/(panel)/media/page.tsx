@@ -1,6 +1,9 @@
 import Link from "@/components/site/intent-link";
-import { ChevronLeft, ChevronRight, CircleAlert, Search } from "lucide-react";
+import { CircleAlert, Search } from "lucide-react";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
+import { Pagination } from "@/components/admin/pagination";
+import { readPaging } from "@/lib/pagination";
 import { MAX_FILES_PER_UPLOAD, MAX_FILE_BYTES, listMedia } from "@/lib/media-store";
 import { MediaCard } from "./media-card";
 import { UploadForm } from "./upload-form";
@@ -8,26 +11,31 @@ import { UploadForm } from "./upload-form";
 export const metadata = { title: "Media" };
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 24;
+const SIZES = [12, 24, 48, 96] as const;
+const DEFAULT_SIZE = 24;
 
-type Props = { searchParams: Promise<{ q?: string; page?: string }> };
+type Props = { searchParams: Promise<{ q?: string; page?: string; per?: string }> };
 
 const formatSize = (bytes: number) =>
   bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 
 export default async function MediaAdminPage({ searchParams }: Props) {
-  const { q = "", page: pageParam } = await searchParams;
-  const page = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
-  const { items, total, totalBytes, dbError } = await listMedia({ q, page, pageSize: PAGE_SIZE });
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const { q = "", page: pageParam, per } = await searchParams;
+  const { page, pageSize } = readPaging(pageParam, per, DEFAULT_SIZE, SIZES);
+  const { items, total, totalBytes, dbError } = await listMedia({ q, page, pageSize });
+  const pages = Math.max(1, Math.ceil(total / pageSize));
 
   const href = (p: number) => {
     const sp = new URLSearchParams();
     if (q.trim()) sp.set("q", q.trim());
     if (p > 1) sp.set("page", String(p));
+    if (pageSize !== DEFAULT_SIZE) sp.set("per", String(pageSize));
     const qs = sp.toString();
     return qs ? `/admin/media?${qs}` : "/admin/media";
   };
+
+  // A page number past the end (e.g. after deleting files) goes to the last page.
+  if (total > 0 && page > pages) redirect(href(pages));
 
   return (
     <>
@@ -48,6 +56,7 @@ export default async function MediaAdminPage({ searchParams }: Props) {
 
       <section className="mt-8 rounded-2xl border border-uk-line bg-uk-card">
         <form method="get" className="flex flex-wrap items-center gap-3 border-b border-uk-line p-4">
+          {pageSize !== DEFAULT_SIZE && <input type="hidden" name="per" value={String(pageSize)} />}
           <label className="relative min-w-52 flex-1">
             <span className="sr-only">Search files</span>
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-uk-muted" />
@@ -88,21 +97,7 @@ export default async function MediaAdminPage({ searchParams }: Props) {
                 />
               ))}
             </ul>
-            {pages > 1 && (
-              <nav aria-label="Pagination" className="flex items-center justify-between gap-3 border-t border-uk-line p-4 text-sm">
-                {page > 1 ? (
-                  <Link href={href(page - 1)} className="inline-flex h-9 items-center gap-1 rounded-lg border border-uk-line px-3 text-uk-body hover:bg-uk-surface-2">
-                    <ChevronLeft className="h-4 w-4" /> Newer
-                  </Link>
-                ) : <span />}
-                <span className="text-uk-muted">Page {page} of {pages}</span>
-                {page < pages ? (
-                  <Link href={href(page + 1)} className="inline-flex h-9 items-center gap-1 rounded-lg border border-uk-line px-3 text-uk-body hover:bg-uk-surface-2">
-                    Older <ChevronRight className="h-4 w-4" />
-                  </Link>
-                ) : <span />}
-              </nav>
-            )}
+            <Pagination total={total} page={page} pageSize={pageSize} sizes={SIZES} defaultSize={DEFAULT_SIZE} noun="files" />
           </>
         )}
       </section>

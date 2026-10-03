@@ -4,7 +4,7 @@ import Link from "@/components/site/intent-link";
 import { requireAdmin } from "@/lib/admin-session";
 import { PageHeader } from "@/components/admin/page-header";
 import type { SectionValues } from "@/lib/home-schema";
-import { PAGE_DEF, emptyPageContent, isPageKey, pageInfo } from "@/lib/pages-schema";
+import { pageDef, emptyPageContent, isPageKey, pageInfo } from "@/lib/pages-schema";
 import { getPagesForAdmin } from "@/lib/pages-store";
 import { SectionEditor } from "../../home/section-editor";
 import { resetPageAction, savePageAction } from "../actions";
@@ -47,7 +47,7 @@ export default async function PageTextEditor({ params }: PageProps<"/admin/pages
         </div>
       )}
       <SectionEditor
-        def={PAGE_DEF}
+        def={pageDef(key)}
         initial={(saved?.content ?? emptyPageContent) as unknown as SectionValues}
         visible
         version={saved?.updatedAt ?? "default"}

@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import { mergeValues } from "@/lib/home-store";
 import type { SectionValues } from "@/lib/home-schema";
-import { PAGE_DEF, emptyPageContent, emptyPageValues, isPageKey, type PageContent } from "@/lib/pages-schema";
+import { emptyPageContent, emptyPageValues, isPageKey, pageDef, type PageContent } from "@/lib/pages-schema";
 
 export const PAGES_TAG = "page-content";
 const COLLECTION = "pages";
@@ -11,14 +11,14 @@ const COLLECTION = "pages";
 type PageDoc = { _id: string; values: SectionValues; updatedAt: Date };
 const col = () => getDb().collection<PageDoc>(COLLECTION);
 
-const toContent = (saved?: SectionValues): PageContent =>
-  mergeValues(PAGE_DEF, emptyPageValues, saved) as unknown as PageContent;
+const toContent = (key: string, saved?: SectionValues): PageContent =>
+  mergeValues(pageDef(key), emptyPageValues, saved) as unknown as PageContent;
 
 // Throws on DB errors so a failure is never cached; the getter falls back.
 const cachedAll = unstable_cache(
   async () => {
     const docs = await col().find({}).toArray();
-    return Object.fromEntries(docs.map((d) => [d._id, toContent(d.values)])) as Record<string, PageContent>;
+    return Object.fromEntries(docs.map((d) => [d._id, toContent(d._id, d.values)])) as Record<string, PageContent>;
   },
   ["page-content-v1"],
   { tags: [PAGES_TAG], revalidate: 60 }
@@ -44,7 +44,7 @@ export async function getPagesForAdmin(): Promise<{
     const docs = await col().find({}).toArray();
     return {
       byKey: Object.fromEntries(
-        docs.map((d) => [d._id, { content: toContent(d.values), updatedAt: d.updatedAt?.toISOString() ?? null }])
+        docs.map((d) => [d._id, { content: toContent(d._id, d.values), updatedAt: d.updatedAt?.toISOString() ?? null }])
       ),
     };
   } catch (e) {

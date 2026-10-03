@@ -1,6 +1,9 @@
 import Link from "@/components/site/intent-link";
-import { ChevronLeft, ChevronRight, CircleAlert, Download, Search } from "lucide-react";
+import { CircleAlert, Download, Search } from "lucide-react";
+import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
+import { Pagination } from "@/components/admin/pagination";
+import { readPaging } from "@/lib/pagination";
 import { isLeadStatus, leadStatusLabel, listLeads, type LeadStatus } from "@/lib/leads-store";
 import { formatLeadDate, sourceLabel, StatusBadge } from "./lead-ui";
 import { FlashToast } from "@/components/admin/toast";
@@ -8,32 +11,34 @@ import { FlashToast } from "@/components/admin/toast";
 export const metadata = { title: "Leads" };
 export const dynamic = "force-dynamic";
 
-const PAGE_SIZE = 25;
-
-type Props = { searchParams: Promise<{ q?: string; status?: string; page?: string; saved?: string }> };
+type Props = { searchParams: Promise<{ q?: string; status?: string; page?: string; per?: string; saved?: string }> };
 
 export default async function LeadsAdminPage({ searchParams }: Props) {
-  const { q = "", status = "all", page: pageParam, saved } = await searchParams;
-  const page = Math.max(1, Number.parseInt(pageParam ?? "1", 10) || 1);
+  const { q = "", status = "all", page: pageParam, per, saved } = await searchParams;
+  const { page, pageSize } = readPaging(pageParam, per, 25);
   const activeStatus = isLeadStatus(status) ? status : "all";
 
   const { items, total, counts, dbError } = await listLeads({
     status: activeStatus,
     q,
     page,
-    pageSize: PAGE_SIZE,
+    pageSize,
   });
 
-  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pages = Math.max(1, Math.ceil(total / pageSize));
   const href = (over: { status?: string; page?: number }) => {
     const p = new URLSearchParams();
     const s = over.status ?? activeStatus;
     if (s !== "all") p.set("status", s);
     if (q.trim()) p.set("q", q.trim());
     if (over.page && over.page > 1) p.set("page", String(over.page));
+    if (pageSize !== 25) p.set("per", String(pageSize));
     const qs = p.toString();
     return qs ? `/admin/leads?${qs}` : "/admin/leads";
   };
+
+  // A page number past the end (e.g. after deleting rows) goes to the last page.
+  if (total > 0 && page > pages) redirect(href({ page: pages }));
 
   const tabs: { key: "all" | LeadStatus; label: string }[] = [
     { key: "all", label: "All" },
@@ -92,6 +97,7 @@ export default async function LeadsAdminPage({ searchParams }: Props) {
         </div>
 
         <form method="get" className="flex flex-wrap items-center gap-3 border-b border-uk-line p-4">
+          {pageSize !== 25 && <input type="hidden" name="per" value={String(pageSize)} />}
           {activeStatus !== "all" && <input type="hidden" name="status" value={activeStatus} />}
           <label className="relative min-w-52 flex-1">
             <span className="sr-only">Search leads</span>
@@ -125,9 +131,6 @@ export default async function LeadsAdminPage({ searchParams }: Props) {
           <p className="p-8 text-center text-sm text-uk-muted">{dbError ? "No data." : "No leads match your search."}</p>
         ) : (
           <>
-            <p className="border-b border-uk-line px-4 py-2 text-xs text-uk-muted">
-              Showing {(page - 1) * PAGE_SIZE + 1}–{(page - 1) * PAGE_SIZE + items.length} of {total}
-            </p>
             <ul className="divide-y divide-uk-line">
               {items.map((l) => (
                 <li key={l.id}>
@@ -157,21 +160,7 @@ export default async function LeadsAdminPage({ searchParams }: Props) {
               ))}
             </ul>
 
-            {pages > 1 && (
-              <nav aria-label="Pagination" className="flex items-center justify-between gap-3 border-t border-uk-line p-4 text-sm">
-                {page > 1 ? (
-                  <Link href={href({ page: page - 1 })} className="inline-flex h-9 items-center gap-1 rounded-lg border border-uk-line px-3 text-uk-body hover:bg-uk-surface-2">
-                    <ChevronLeft className="h-4 w-4" /> Newer
-                  </Link>
-                ) : <span />}
-                <span className="text-uk-muted">Page {page} of {pages}</span>
-                {page < pages ? (
-                  <Link href={href({ page: page + 1 })} className="inline-flex h-9 items-center gap-1 rounded-lg border border-uk-line px-3 text-uk-body hover:bg-uk-surface-2">
-                    Older <ChevronRight className="h-4 w-4" />
-                  </Link>
-                ) : <span />}
-              </nav>
-            )}
+            <Pagination total={total} page={page} pageSize={pageSize} defaultSize={25} noun="leads" />
           </>
         )}
       </section>

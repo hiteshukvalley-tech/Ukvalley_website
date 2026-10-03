@@ -28,7 +28,7 @@ export default async function BlogPage() {
   const [featured, ...rest] = insights;
   const categoryCount = new Set(insights.map((p) => p.category)).size;
   const avgReadTime = Math.round(
-    insights.reduce((n, p) => n + (parseInt(p.readTime, 10) || 0), 0) / insights.length
+    insights.reduce((n, p) => n + (parseInt(p.readTime, 10) || 0), 0) / Math.max(1, insights.length)
   );
   return (
     <>
@@ -109,7 +109,12 @@ export default async function BlogPage() {
 
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
+            {insights.length === 0 && (
+              <p className="rounded-3xl border border-uk-line bg-uk-card p-10 text-center text-uk-gray">{ukText("No articles are published right now. Please check back soon.")}</p>
+            )}
+
             {/* Featured — same card colour as the posts below (white card) */}
+            {featured && (
             <Reveal>
               <Link
                 href={ukText(`/blog/${featured.slug}`)}
@@ -140,6 +145,7 @@ export default async function BlogPage() {
                 </div>
               </Link>
             </Reveal>
+            )}
 
             {/* Rest — same size and layout as the featured card */}
             <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-6">

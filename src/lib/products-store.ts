@@ -59,9 +59,9 @@ export async function getProducts(): Promise<Product[]> {
   if (!hasDatabaseUrl()) return builtInProducts;
   try {
     if (!(await cachedHasAny())) return builtInProducts;
-    // The public pages need at least one, so all-draft shows the defaults.
+    // Drafts are never shown, even when every item is a draft.
     const published = await cachedPublished();
-    return published.length ? published : builtInProducts;
+    return published;
   } catch {
     return builtInProducts;
   }

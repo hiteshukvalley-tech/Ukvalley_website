@@ -82,7 +82,7 @@ const slugify = (s: string) =>
 export type NewSectionKind = "page" | "dropdown" | "link";
 
 /** Adds a main-menu section at the end (next to Insights). Returns where to edit it. */
-export async function createMainSection(name: string, kind: NewSectionKind): Promise<{ slug?: string }> {
+export async function createMainSection(name: string, kind: NewSectionKind, icon = ""): Promise<{ slug?: string }> {
   const { items } = await readItems();
   let item: MenuItem = { id: `m-${rand(8)}`, label: name.slice(0, 24), type: "link", href: "/", links: [], visible: true };
   let slug: string | undefined;
@@ -98,6 +98,7 @@ export async function createMainSection(name: string, kind: NewSectionKind): Pro
   } else if (kind === "dropdown") {
     item = { ...item, type: "dropdown", href: "", links: [{ label: "Home", href: "/" }] };
   }
+  if (icon) item = { ...item, icon };
   await writeMenu([...items, item]);
   return { slug };
 }

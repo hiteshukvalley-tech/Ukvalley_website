@@ -2,10 +2,10 @@
 
 import Link from "@/components/site/intent-link";
 import { useActionState } from "react";
-import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import type { CareerValues } from "@/lib/careers-validation";
-import { HIRING_STEPS_MAX, JOB_MODES } from "@/lib/careers-shared";
+import { HIRING_STEPS_MAX, JOB_MODES, LOCATION_SUGGESTIONS } from "@/lib/careers-shared";
 import { createCareerAction, updateCareerAction, type CareerFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 
@@ -28,36 +28,18 @@ export function CareerForm({
   return (
     // key remounts the inputs so defaultValues refresh after each result
     <form action={action} key={state.nonce ?? "initial"} className="space-y-6" noValidate>
-      {state.message && (
-        <div
-          role={state.status === "error" ? "alert" : "status"}
-          className={
-            state.status === "error"
-              ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-          }
-        >
-          {state.status === "error" ? (
-            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          ) : (
-            <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />
-          )}
-          {state.message}
-        </div>
-      )}
 
       <FormSection title="Role" description="Shown in the open-roles list on /careers and the Team page.">
         <FormField label="Role" name="role" required full defaultValue={values.role} error={errors.role} hint="e.g. Senior React / Next.js Engineer" />
         <FormField
           label="Slug"
           name="slug"
-          required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. senior-react-engineer. Used as the role's id."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Optional — leave blank and it is made from the role name. It becomes the job's web address."}
         />
-        <FormField label="Location" name="location" required defaultValue={values.location} error={errors.location} hint="City or region, e.g. Pune, Maharashtra or India. Candidates search by this." />
+        <FormField label="Location" name="location" required defaultValue={values.location} error={errors.location} suggestions={LOCATION_SUGGESTIONS} hint="Pick a suggestion or type your own, e.g. Pune, Maharashtra. Candidates search and filter by this." />
         <FormSelect
           label="Job mode"
           name="mode"

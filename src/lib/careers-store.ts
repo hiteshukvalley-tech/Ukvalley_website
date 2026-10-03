@@ -119,18 +119,25 @@ export async function importBuiltInCareers(): Promise<number> {
   return builtInRecords.length;
 }
 
-/** Returns false when the slug is already taken. New roles go to the end. */
-export async function createCareer(value: CareerInput): Promise<boolean> {
-  const { slug, ...rest } = value;
+/**
+ * Returns false when the slug is already taken. New roles go to the end.
+ * With `autoSuffix` (the slug was made from the role name) a taken slug gets
+ * -2, -3 … instead of failing.
+ */
+export async function createCareer(value: CareerInput, { autoSuffix = false } = {}): Promise<boolean> {
+  const { slug: base, ...rest } = value;
   const last = await col().find({}, { projection: { order: 1 } }).sort({ order: -1 }).limit(1).toArray();
   const order = (last[0]?.order ?? -1) + 1;
-  try {
-    await col().insertOne({ _id: slug, ...rest, order, updatedAt: new Date() });
-    return true;
-  } catch (e) {
-    if ((e as { code?: number }).code === 11000) return false;
-    throw e;
+  for (let i = 1; i <= (autoSuffix ? 20 : 1); i++) {
+    const slug = i === 1 ? base : `${base}-${i}`;
+    try {
+      await col().insertOne({ _id: slug, ...rest, order, updatedAt: new Date() });
+      return true;
+    } catch (e) {
+      if ((e as { code?: number }).code !== 11000) throw e;
+    }
   }
+  return false;
 }
 
 /** Returns false when the role no longer exists. */

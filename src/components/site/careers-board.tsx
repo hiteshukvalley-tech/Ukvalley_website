@@ -6,7 +6,7 @@ import { ArrowRight, Award, Briefcase, Building2, CalendarDays, Laptop, MapPin, 
 import { Input } from "@/components/ui/input";
 import { ApplyButton } from "@/components/site/career-apply";
 import {
-  NEW_ROLE_DAYS, daysSincePosted, formatExperience, formatPostedDate, matchesExperience, postedLabel, todayInIndia,
+  NEW_ROLE_DAYS, daysSincePosted, formatExperience, formatPostedDate, hasWords, matchesExperience, postedLabel, todayInIndia,
   type JobMode,
 } from "@/lib/careers-shared";
 
@@ -26,12 +26,6 @@ export type JobListing = {
 type Filters = { position: string; location: string; experience: string };
 const EMPTY: Filters = { position: "", location: "", experience: "" };
 const KEYS = Object.keys(EMPTY) as (keyof Filters)[];
-
-/** Every word typed must appear somewhere in the haystack. */
-const hasWords = (haystack: string, query: string) => {
-  const text = haystack.toLowerCase();
-  return query.toLowerCase().split(/\s+/).filter(Boolean).every((w) => text.includes(w));
-};
 
 export function ModeBadge({ mode }: { mode: JobMode }) {
   const Icon = mode === "Remote" ? Laptop : mode === "Hybrid" ? Users : Building2;

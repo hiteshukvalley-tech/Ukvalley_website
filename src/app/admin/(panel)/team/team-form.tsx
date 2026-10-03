@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "@/components/site/intent-link";
-import { useActionState } from "react";
-import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
+import { useActionState, useState } from "react";
+import { Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
 import type { TeamValues } from "@/lib/team-validation";
 import { createTeamAction, updateTeamAction, type TeamFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
+import { ImageInput } from "../home/section-editor";
 
 
 export function TeamForm({
@@ -26,32 +27,20 @@ export function TeamForm({
   const values = state.values ?? initial;
   const errors = state.status === "error" ? (state.errors ?? {}) : {};
   useResultToast(state);
+  const [image, setImage] = useState(values.image ?? "");
 
   return (
     // key remounts the inputs so defaultValues refresh after each result
     <form action={action} key={state.nonce ?? "initial"} className="space-y-6" noValidate>
-      {state.message && (
-        <div
-          role={state.status === "error" ? "alert" : "status"}
-          className={
-            state.status === "error"
-              ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-          }
-        >
-          {state.status === "error" ? (
-            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          ) : (
-            <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />
-          )}
-          {state.message}
-        </div>
-      )}
 
       <FormSection title="Member" description="Shown on /about and /team.">
         <FormField label="Name" name="name" required defaultValue={values.name} error={errors.name} hint={mode === "edit" ? undefined : "e.g. Shital Jain"} />
         <FormField label="Role" name="role" required defaultValue={values.role} error={errors.role} hint="e.g. COO / Managing Director" />
         <FormField label="Focus" name="focus" required full defaultValue={values.focus} error={errors.focus} hint="Short tag, e.g. Delivery & Process" />
+        <div className="sm:col-span-2">
+          <ImageInput id="team-image" label="Photo" value={image} onChange={setImage} error={errors.image} hint="Upload a photo or paste a link. A square-ish head-and-shoulders photo works best. Leave empty to show initials." />
+          <input type="hidden" name="image" value={image} />
+        </div>
         <FormTextarea label="Bio" name="bio" required full rows={4} defaultValue={values.bio} error={errors.bio} hint="Up to 400 characters." />
       </FormSection>
 

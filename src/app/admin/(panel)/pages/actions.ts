@@ -5,7 +5,7 @@ import { requireAdmin } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { validateSection } from "@/lib/home-schema";
 import { PAGES_TAG, resetPageContent, writePageContent } from "@/lib/pages-store";
-import { PAGE_DEF, checkPagePairs, isPageKey, pageInfo } from "@/lib/pages-schema";
+import { pageDef, checkPagePairs, isPageKey, pageInfo } from "@/lib/pages-schema";
 import type { HomeSectionState } from "../home/actions";
 
 function refresh(key: string) {
@@ -29,7 +29,7 @@ export async function savePageAction(key: string, _prev: HomeSectionState, formD
   } catch {
     return { status: "error", message: "Could not read the form. Reload the page and try again.", nonce };
   }
-  const result = validateSection(PAGE_DEF, parsed.values);
+  const result = validateSection(pageDef(key), parsed.values);
   const errors = result.ok ? checkPagePairs(result.value) : result.errors;
   if (!result.ok || Object.keys(errors).length) {
     return { status: "error", message: "Please fix the highlighted fields.", errors, nonce };

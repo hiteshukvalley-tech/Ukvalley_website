@@ -1,6 +1,8 @@
 import Link from "@/components/site/intent-link";
 import { CircleAlert, Plus, ShieldCheck } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
+import { Pagination } from "@/components/admin/pagination";
+import { paginate } from "@/lib/pagination";
 import { envUser } from "@/lib/admin-auth";
 import { requireRole } from "@/lib/admin-session";
 import { listUsers } from "@/lib/users-store";
@@ -10,16 +12,17 @@ import { FlashToast } from "@/components/admin/toast";
 export const metadata = { title: "Users" };
 export const dynamic = "force-dynamic";
 
-type Props = { searchParams: Promise<{ saved?: string }> };
+type Props = { searchParams: Promise<{ saved?: string; page?: string; per?: string }> };
 
 const when = (d?: Date) =>
   d ? d.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" }) : "Never";
 
 export default async function UsersAdminPage({ searchParams }: Props) {
   const me = await requireRole("admin");
-  const { saved } = await searchParams;
+  const { saved, page: pageParam, per } = await searchParams;
   const { items, dbError } = await listUsers();
   const owner = envUser();
+  const view = paginate(items, pageParam, per);
 
   return (
     <>
@@ -65,7 +68,7 @@ export default async function UsersAdminPage({ searchParams }: Props) {
             </li>
           )}
 
-          {items.map((u) => (
+          {view.slice.map((u) => (
             <li key={u.id}>
               <Link
                 href={`/admin/users/${u.id}`}
@@ -101,6 +104,7 @@ export default async function UsersAdminPage({ searchParams }: Props) {
             </li>
           )}
         </ul>
+        <Pagination total={view.total} page={view.page} pageSize={view.pageSize} noun="users" />
       </section>
     </>
   );

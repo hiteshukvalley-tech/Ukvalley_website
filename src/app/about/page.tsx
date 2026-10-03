@@ -7,15 +7,16 @@ import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
 import { heroExtras } from "@/components/site/page-hero";
-import { EditableHero, PageBlocks } from "@/components/site/page-extras";
+import { EditableHero, FounderSection, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
-import { PhotoPanel, photos } from "@/components/site/photo-panel";
+import { PhotoPanel } from "@/components/site/photo-panel";
 import { ByTheNumbers } from "@/components/site/by-the-numbers";
 import { stats, principles, values } from "@/lib/site-data";
 import { isRealIdentifier } from "@/lib/site-core";
 import { getSiteSettings } from "@/lib/settings";
+import { getPageContent } from "@/lib/pages-store";
 import { getTeam } from "@/lib/team-store";
 import { ukText } from "@/lib/texts";
 
@@ -33,6 +34,7 @@ const principleIcons = [ShieldCheck, Clock, Rocket, Users];
 
 export default async function AboutPage() {
   const team = await getTeam();
+  const page = await getPageContent("about");
   const company = await getSiteSettings();
   const serviceCount = (await getServices()).length;
   return (
@@ -145,8 +147,16 @@ export default async function AboutPage() {
           </Container>
         </section>
 
+        <FounderSection pageKey="about" />
+
         <PhotoPanel
-          photo={photos.company}
+          photo={{
+            src: page.workImage || "/global-delivery.svg",
+            alt:
+              page.workImageAlt ||
+              "Map linking delivery hubs in India, Dubai, Toronto and New York across overlapping working hours",
+            custom: true,
+          }}
           flip
           className="bg-uk-surface-2"
           eyebrow={ukText("Where the work happens")}
@@ -231,13 +241,19 @@ export default async function AboutPage() {
                   key={m.name}
                   className="group flex flex-col gap-3 rounded-2xl border border-uk-line bg-uk-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40"
                 >
-                  <div className="flex items-center gap-4">
-                    <span
-                      className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"
-                      aria-hidden
-                    >
-                      {ukText(m.name.split(" ").map((n) => n[0]).join("").slice(0, 2))}
-                    </span>
+                  <div className={m.image ? "flex flex-col gap-4" : "flex items-center gap-4"}>
+                    {m.image ? (
+                      // plain <img>: the admin can point this at /media/<id> or any https address
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={m.image} alt={m.name} loading="lazy" className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl bg-white object-cover object-top ring-1 ring-uk-line" />
+                    ) : (
+                      <span
+                        className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"
+                        aria-hidden
+                      >
+                        {ukText(m.name.split(" ").filter((n) => /^[A-Za-z]/.test(n) && !n.endsWith(".")).map((n) => n[0]).join("").slice(0, 2))}
+                      </span>
+                    )}
                     <div>
                       <h3 className="font-heading text-lg font-bold text-uk-heading">
                         {ukText(m.name)}

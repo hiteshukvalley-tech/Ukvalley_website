@@ -8,6 +8,7 @@ import {
   deleteCaseAction, reorderCasesAction, setCasePublishedAction, type ActionResult,
 } from "./actions";
 import { toast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 export type CaseItem = {
   slug: string;
@@ -58,8 +59,8 @@ function RowActions({ slug, title, published }: { slug: string; title: string; p
           className={`${btn} hover:!text-destructive`}
           disabled={pending}
           aria-label={`Delete ${title}`}
-          onClick={() => {
-            if (window.confirm(`Delete “${title}”? This removes it from the live site and can't be undone.`)) {
+          onClick={async () => {
+            if (await confirmDialog(`Delete “${title}”? This removes it from the live site and can't be undone.`)) {
               run(() => deleteCaseAction(slug), `“${title}” deleted.`);
             }
           }}

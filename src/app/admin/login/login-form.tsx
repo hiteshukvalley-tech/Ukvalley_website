@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { loginAction, type LoginState } from "../actions";
+import { AutoDismiss } from "@/components/admin/auto-dismiss";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/admin/password-input";
@@ -37,7 +38,7 @@ export function LoginForm() {
       <div className="space-y-2">
         <Label htmlFor="email" className="text-uk-heading">
           Email ID
-          <span className="text-destructive" aria-hidden> *</span>
+          <span className="-ml-1 text-destructive" aria-hidden>*</span>
         </Label>
         {/* Keyed so a failed sign-in re-creates the field with the typed email
             (Base UI warns when an uncontrolled field's defaultValue changes). */}
@@ -47,15 +48,10 @@ export function LoginForm() {
         </div>
       </div>
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label htmlFor="password" className="text-uk-heading">
-            Password
-            <span className="text-destructive" aria-hidden> *</span>
-          </Label>
-          <Link href="/admin/forgot-password" className="text-sm font-medium text-uk-blue hover:underline">
-            Forgot password?
-          </Link>
-        </div>
+        <Label htmlFor="password" className="text-uk-heading">
+          Password
+          <span className="-ml-1 text-destructive" aria-hidden>*</span>
+        </Label>
         <PasswordInput
           id="password" name="password" autoComplete="current-password" placeholder="Enter your password" required maxLength={PASSWORD_MAX}
           onInput={() => setPasswordIssue(undefined)}
@@ -72,9 +68,11 @@ export function LoginForm() {
         </div>
       </div>
       {state.error && (
+        <AutoDismiss watch={state}>
         <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           {state.error}
         </p>
+        </AutoDismiss>
       )}
       <button
         type="submit"
@@ -84,6 +82,11 @@ export function LoginForm() {
         {pending && <Loader2 className="h-4 w-4 animate-spin" />}
         {pending ? "Signing in…" : "Sign in"}
       </button>
+      <div className="text-center">
+        <Link href="/admin/forgot-password" className="text-sm font-medium text-uk-blue hover:underline">
+          Forgot password?
+        </Link>
+      </div>
     </form>
   );
 }

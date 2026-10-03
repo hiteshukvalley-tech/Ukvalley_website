@@ -2,13 +2,14 @@
 
 import Link from "@/components/site/intent-link";
 import { useActionState, useState, useTransition } from "react";
-import { CircleAlert, CircleCheck, Loader2, Save, Trash2 } from "lucide-react";
+import { Loader2, Save, Trash2 } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect } from "@/components/admin/form";
 import { ADMIN_ROLES } from "@/lib/admin-auth";
 import { EMAIL_MAX, PASSWORD_HINT, PASSWORD_MAX, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
 import { createUserAction, deleteUserAction, updateUserAction, type UserFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 import { toast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 const roleOptions = ADMIN_ROLES.map((r) => ({ value: r, label: `${roleLabel[r]} — ${roleHelp[r]}` }));
 
@@ -40,23 +41,6 @@ export function UserForm({
     <div className="space-y-6">
       {/* key remounts the inputs so defaultValues refresh after each result */}
       <form action={action} key={state.nonce ?? "initial"} className="space-y-6" noValidate>
-        {state.message && (
-          <div
-            role={state.status === "error" ? "alert" : "status"}
-            className={
-              state.status === "error"
-                ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-                : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-            }
-          >
-            {state.status === "error" ? (
-              <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-            ) : (
-              <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />
-            )}
-            {state.message}
-          </div>
-        )}
 
         <FormSection title="Account" description="Who this person is and what they can do.">
           <FormField label="Name" name="name" required defaultValue={values.name} error={errors.name} autoComplete="off" />
@@ -145,8 +129,8 @@ export function UserForm({
           <button
             type="button"
             disabled={deleting}
-            onClick={() => {
-              if (window.confirm(`Delete “${initial.name}”? This can't be undone.`)) {
+            onClick={async () => {
+              if (await confirmDialog(`Delete “${initial.name}”? This can't be undone.`)) {
                 startDelete(async () => {
                   const r = await deleteUserAction(id);
                   // On success the action redirects; a result only comes back on failure.

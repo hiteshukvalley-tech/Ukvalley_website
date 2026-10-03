@@ -115,7 +115,7 @@ export default async function CareerPage({ params }: Props) {
         <main id="main">
           <PageHero
             variant="company"
-            eyebrow={ukText("Open role")}
+            eyebrow={ukText("Open role · Join our team")}
             crumbs={[{ label: "Home", href: "/" }, { label: "Careers", href: "/careers" }, { label: c.role }]}
             title={ukText(c.role)}
             description={ukText(c.summary)}
@@ -126,16 +126,16 @@ export default async function CareerPage({ params }: Props) {
               <div className="flex flex-col gap-6">
                 <Reveal className="rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
                   <h2 className="flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
-                    <Target className="h-5 w-5 text-uk-blue" />{ukText("About the role")}</h2>
+                    <Target className="h-5 w-5 text-uk-blue" />{ukText("About this role")}</h2>
                   <p className="mt-4 text-base leading-relaxed text-uk-body sm:text-lg">{ukText(c.summary)}</p>
                 </Reveal>
-                <ListCard icon={ListChecks} title={ukText("What you'll do")} items={c.responsibilities} />
-                <ListCard icon={Briefcase} title={ukText("What we're looking for")} items={c.requirements} />
-                <ListCard icon={Gift} title={ukText("What you get")} items={c.perks} />
+                <ListCard icon={ListChecks} title={ukText("What you'll do here")} items={c.responsibilities} />
+                <ListCard icon={Briefcase} title={ukText("What you'll bring")} items={c.requirements} />
+                <ListCard icon={Gift} title={ukText("What you'll get")} items={c.perks} />
 
                 <Reveal className="rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
                   <h2 id="hiring-process" className="scroll-mt-28 flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
-                    <Workflow className="h-5 w-5 text-uk-blue" />{ukText("Hiring process")}</h2>
+                    <Workflow className="h-5 w-5 text-uk-blue" />{ukText("Your hiring journey")}</h2>
                   <p className="mt-2 text-sm text-uk-gray">
                     {c.hiringProcess.length}{ukText("stage")}{ukText(c.hiringProcess.length === 1 ? "" : "s")}{ukText("from application to offer. We keep you posted by email at every step.")}</p>
                   <ol className="relative mt-6 flex flex-col gap-6" aria-labelledby="hiring-process">
@@ -176,13 +176,13 @@ export default async function CareerPage({ params }: Props) {
                   <ApplyButton
                     position={c.role}
                     className="btn-sheen mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-uk-blue px-6 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright"
-                  >{ukText("Apply for this role")}<ArrowRight className="h-4 w-4" />
+                  >{ukText("Apply now")}<ArrowRight className="h-4 w-4" />
                   </ApplyButton>
                   <a
                     href={ukText("#hiring-process")}
                     className="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-sm font-medium text-uk-blue hover:text-uk-blue-bright"
                   >
-                    <Workflow className="h-4 w-4" aria-hidden />{ukText("See the ")}{c.hiringProcess.length}{ukText("-stage hiring process")}</a>
+                    <Workflow className="h-4 w-4" aria-hidden />{ukText("See the ")}{c.hiringProcess.length}{ukText("-stage hiring journey")}</a>
                   <p className="mt-4 text-xs text-uk-muted">{ukText("Questions about this role? Write to")}{" "}
                     <a href={ukText(`mailto:${settings.hr.email}`)} className="font-semibold text-uk-blue hover:text-uk-blue-bright">
                       {ukText(settings.hr.email)}
@@ -191,7 +191,7 @@ export default async function CareerPage({ params }: Props) {
                   </p>
                 </div>
                 <Link href={ukText("/careers#open-roles")} className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-uk-muted hover:text-uk-heading">
-                  <ArrowLeft className="h-4 w-4" />{ukText("All open roles")}</Link>
+                  <ArrowLeft className="h-4 w-4" />{ukText("Back to all jobs")}</Link>
               </aside>
             </Container>
           </section>
@@ -199,7 +199,7 @@ export default async function CareerPage({ params }: Props) {
           {others.length > 0 && (
             <section className="relative border-t border-uk-line bg-uk-surface-2 section-py">
               <Container>
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Other open roles")}</h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("More roles you may like")}</h2>
                 <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
                   {others.map((o) => (
                     <Link

@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState, useState, useTransition } from "react";
-import { CircleAlert, CircleCheck, Loader2, Save, Trash2 } from "lucide-react";
+import { Loader2, Save, Trash2 } from "lucide-react";
 import { FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import { deleteLeadAction, updateLeadAction, type LeadFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 import { toast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 const statusOptions = [
   { value: "new", label: "New" },
@@ -34,23 +35,6 @@ export function LeadForm({
     <div className="space-y-6">
       {/* key remounts the inputs so defaultValues refresh after each result */}
       <form action={action} key={state.nonce ?? "initial"} className="space-y-6" noValidate>
-        {state.message && (
-          <div
-            role={state.status === "error" ? "alert" : "status"}
-            className={
-              state.status === "error"
-                ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-                : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-            }
-          >
-            {state.status === "error" ? (
-              <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-            ) : (
-              <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />
-            )}
-            {state.message}
-          </div>
-        )}
 
         <FormSection title="Follow-up" description="Only visible here — never shown to the visitor.">
           <FormSelect label="Status" name="status" required defaultValue={values.status} error={errors.status} options={statusOptions} />
@@ -75,8 +59,8 @@ export function LeadForm({
         <button
           type="button"
           disabled={deleting}
-          onClick={() => {
-            if (window.confirm(`Delete the enquiry from “${name}”? This can't be undone.`)) {
+          onClick={async () => {
+            if (await confirmDialog(`Delete the enquiry from “${name}”? This can't be undone.`)) {
               startDelete(async () => {
                 const r = await deleteLeadAction(id);
                 // On success the action redirects; a result only comes back on failure.

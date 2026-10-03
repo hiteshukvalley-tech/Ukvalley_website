@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "@/components/admin/toast";
 import { deleteMainPageAction } from "./actions";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 /** Deletes an added main section's page and its menu item, after a confirmation. */
 export function DeleteMainPageButton({ slug, name }: { slug: string; name: string }) {
@@ -14,8 +15,8 @@ export function DeleteMainPageButton({ slug, name }: { slug: string; name: strin
     <button
       type="button"
       disabled={pending}
-      onClick={() => {
-        if (!window.confirm(`Delete "${name}"? The page and its menu item disappear and cannot be restored.`)) return;
+      onClick={async () => {
+        if (!await confirmDialog(`Delete "${name}"? The page and its menu item disappear and cannot be restored.`)) return;
         start(async () => {
           const r = await deleteMainPageAction(slug);
           if (r.status === "saved") {

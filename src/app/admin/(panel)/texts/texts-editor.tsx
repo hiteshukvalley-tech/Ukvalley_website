@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 import { ImageInput } from "../home/section-editor";
 import { resetAllTextsAction, saveTextsAction, verifyTextsAction, type TextChange } from "./actions";
 
@@ -278,8 +279,8 @@ export function ResetAllButton() {
     <button
       type="button"
       disabled={pending}
-      onClick={() => {
-        if (!window.confirm("Remove every text, link and image edit made here, on all pages? The pages go back to their original text.")) return;
+      onClick={async () => {
+        if (!(await confirmDialog("Remove every text, link and image edit made here, on all pages? The pages go back to their original text."))) return;
         start(async () => {
           const r = await resetAllTextsAction();
           if (r.status === "saved") {

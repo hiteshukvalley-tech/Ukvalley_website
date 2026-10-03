@@ -7,6 +7,7 @@ import {
   deleteServiceAction, setPublishedAction, type ActionResult,
 } from "./actions";
 import { toast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 const btn =
   "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-uk-line text-uk-muted transition-colors hover:bg-uk-surface-2 hover:text-uk-heading disabled:opacity-40";
@@ -52,8 +53,8 @@ export function RowActions({
           className={`${btn} hover:!text-destructive`}
           disabled={pending}
           aria-label={`Delete ${title}`}
-          onClick={() => {
-            if (window.confirm(`Delete “${title}”? This removes it from the live site and can't be undone.`)) {
+          onClick={async () => {
+            if (await confirmDialog(`Delete “${title}”? This removes it from the live site and can't be undone.`)) {
               run(() => deleteServiceAction(slug), `“${title}” deleted.`);
             }
           }}

@@ -3,7 +3,7 @@ import Link from "@/components/site/intent-link";
 import { ArrowLeft, ArrowRight, CircleAlert, Info } from "lucide-react";
 import { requireAdmin } from "@/lib/admin-session";
 import { PageHeader } from "@/components/admin/page-header";
-import { homeSectionDef, isHomeSectionKey, type SectionValues } from "@/lib/home-schema";
+import { canonicalSectionKey, homeSectionDef, isHomeSectionKey, type SectionValues } from "@/lib/home-schema";
 import { CUSTOM_SECTION_DEF, isCustomKey } from "@/lib/site-content-schema";
 import { getHomeForAdmin } from "@/lib/home-store";
 import { SectionEditor } from "../section-editor";
@@ -13,14 +13,14 @@ import { resetHomeSectionAction, saveHomeSectionAction } from "../actions";
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: PageProps<"/admin/home/[section]">) {
-  const key = (await params).section;
+  const key = canonicalSectionKey((await params).section);
   const def = homeSectionDef(key);
   return { title: def ? `${def.label} · Home page` : "Home page" };
 }
 
 export default async function HomeSectionPage({ params }: PageProps<"/admin/home/[section]">) {
   await requireAdmin();
-  const key = (await params).section;
+  const key = canonicalSectionKey((await params).section);
   const { page, updated, dbError } = await getHomeForAdmin();
 
   const customSection = isCustomKey(key) ? page.custom.find((c) => c.id === key) : undefined;

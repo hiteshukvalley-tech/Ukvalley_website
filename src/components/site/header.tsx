@@ -20,7 +20,7 @@ export async function Header() {
   const menus: ResolvedMenu[] = menu
     .filter((m) => m.visible)
     .map((m): ResolvedMenu => {
-      const base = { id: m.id, label: m.label, href: m.href, wide: false };
+      const base = { id: m.id, label: m.label, href: m.href, wide: false, icon: m.icon };
       switch (m.type) {
         case "services":
           return { ...base, type: "dropdown", items: services.map((s) => ({ label: s.title, href: s.href, icon: s.icon })) };

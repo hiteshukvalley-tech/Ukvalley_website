@@ -9,6 +9,7 @@ import { logoutAction } from "@/app/admin/actions";
 import { GlobalSearch } from "./global-search";
 import { adminNav, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
 import { Toaster } from "./toast";
+import { ConfirmHost } from "./confirm-dialog";
 import type { AdminRole } from "@/lib/admin-auth";
 import { cn } from "@/lib/utils";
 
@@ -224,6 +225,7 @@ export function AdminShell({
         </main>
       </div>
       <Toaster />
+      <ConfirmHost />
     </div>
   );
 }

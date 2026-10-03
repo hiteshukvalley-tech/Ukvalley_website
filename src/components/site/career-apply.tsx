@@ -120,10 +120,10 @@ export function CareerApplyProvider({
                       Careers at Ukvalley
                     </span>
                     <h2 id="apply-title" className="font-heading text-2xl font-bold leading-tight text-uk-heading">
-                      Ukvalley Career Application Form
+                      Apply to join Ukvalley
                     </h2>
                     <p className="text-sm text-uk-muted">
-                      Fields marked <span className="text-red-600 dark:text-red-400">*</span> are required. Our HR team reviews every application.
+                      Fields marked <span className="text-red-600 dark:text-red-400">*</span> are required. Our HR team reads every application and replies by email.
                     </p>
                   </div>
                 </div>

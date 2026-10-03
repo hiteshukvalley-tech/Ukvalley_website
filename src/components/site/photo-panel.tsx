@@ -18,6 +18,8 @@ export type PhotoSpec = {
   grade?: string;
   /** Tailwind object-position, e.g. "object-[50%_40%]" */
   focus?: string;
+  /** An image the admin chose (/media/<id> or any https address): shown as-is, not graded or optimised. */
+  custom?: boolean;
 };
 
 export const photos = {
@@ -101,7 +103,8 @@ export function PhotoPanel({
                   fill
                   sizes="(min-width: 1024px) 40rem, 100vw"
                   quality={95}
-                  className={cn("object-cover", photo.focus, photo.grade)}
+                  unoptimized={photo.custom}
+                  className={cn("object-cover", !photo.custom && photo.focus, !photo.custom && photo.grade)}
                 />
                 <div className="absolute inset-0 bg-gradient-to-br from-[#3100FF]/35 via-[#684DFF]/10 to-[#287BFF]/25 mix-blend-soft-light" aria-hidden />
                 <div className="absolute inset-0 rounded-[calc(2rem-3px)] shadow-[inset_0_0_40px_10px_rgba(7,5,17,0.45)]" aria-hidden />

@@ -6,16 +6,19 @@ import { ArrowDown, ArrowUp, Eye, EyeOff, Loader2, Pencil, Plus, RotateCcw, Save
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { MENU_ICONS, isMenuIcon } from "@/lib/menu-icon-keys";
+import { MenuIcon } from "@/components/site/menu-icon";
 import { toast, useResultToast } from "@/components/admin/toast";
 import {
   MAX_DROPDOWN_LINKS, isBuiltInMenuId, linksToText, type MenuItem,
 } from "@/lib/menu-schema";
 import { createMainSectionAction, resetMenuAction, saveMenuAction, type MenuState } from "./actions";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
-type Row = { id: string; label: string; type: MenuItem["type"]; href: string; linksText: string; visible: boolean };
+type Row = { id: string; label: string; type: MenuItem["type"]; href: string; linksText: string; visible: boolean; icon: string };
 
 const toRow = (i: MenuItem): Row => ({
-  id: i.id, label: i.label, type: i.type, href: i.href, linksText: linksToText(i.links), visible: i.visible,
+  id: i.id, label: i.label, type: i.type, href: i.href, linksText: linksToText(i.links), visible: i.visible, icon: i.icon ?? "",
 });
 
 const SOURCE: Record<string, { text: string; href: string }> = {
@@ -23,6 +26,34 @@ const SOURCE: Record<string, { text: string; href: string }> = {
   solutions: { text: "Dropdown filled from your solutions.", href: "/admin/solutions" },
   hire: { text: "Dropdown filled from your hire roles.", href: "/admin/hire" },
 };
+
+const selectClass =
+  "h-9 rounded-lg border border-uk-line bg-uk-card px-2 text-sm text-uk-heading outline-none [&>option]:bg-uk-card [&>option]:text-uk-heading focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+
+/** Icon dropdown with a live preview. Empty value = the site's default icon. */
+function IconSelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-uk-line bg-uk-surface-3 text-uk-blue">
+        <MenuIcon name={value} />
+      </span>
+      <select value={value} onChange={(e) => onChange(e.target.value)} aria-label={label} className={selectClass}>
+        <option value="">Default icon</option>
+        {MENU_ICONS.map((i) => <option key={i.key} value={i.key}>{i.label}</option>)}
+      </select>
+    </span>
+  );
+}
+
+/** Sets (or clears) the icon on one "Name | /link | icon" line. */
+function setLineIcon(text: string, index: number, icon: string) {
+  const lines = text.split(/\r?\n/);
+  const parts = lines[index].split("|").map((p) => p.trim());
+  if (parts.length > 2 && isMenuIcon(parts[parts.length - 1])) parts.pop();
+  if (icon) parts.push(icon);
+  lines[index] = parts.join(" | ");
+  return lines.join("\n");
+}
 
 const arrowBtn =
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-uk-line text-uk-muted transition-colors hover:bg-uk-surface-2 hover:text-uk-heading disabled:pointer-events-none disabled:opacity-30";
@@ -59,8 +90,8 @@ export function MenuEditor({ initial, pageNames }: { initial: MenuItem[]; pageNa
     });
   }
 
-  function restore() {
-    if (!window.confirm("Restore the original menu (Services, Solutions, Work, Company, Hire, Insights)? Your menu changes are removed; pages you added are kept.")) return;
+  async function restore() {
+    if (!await confirmDialog("Restore the original menu (Services, Solutions, Work, Company, Hire, Insights)? Your menu changes are removed; pages you added are kept.")) return;
     start(async () => {
       const res = await resetMenuAction();
       if (res.status === "saved") {
@@ -106,6 +137,7 @@ export function MenuEditor({ initial, pageNames }: { initial: MenuItem[]; pageNa
                     {r.type === "link" ? "Single link" : "Dropdown"}
                     {!builtIn && " · added by you"}
                   </span>
+                  <IconSelect value={r.icon} onChange={(v) => patch(r.id, { icon: v })} label={`Icon for ${r.label || "menu item " + (i + 1)}`} />
                   <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs font-medium text-uk-heading">
                     <input type="checkbox" checked={r.visible} onChange={(e) => patch(r.id, { visible: e.target.checked })} className="h-4 w-4 accent-[var(--uk-blue)]" />
                     {r.visible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
@@ -156,7 +188,7 @@ export function MenuEditor({ initial, pageNames }: { initial: MenuItem[]; pageNa
                 {r.type === "dropdown" && (
                   <div className="mt-3 space-y-1">
                     <label className="text-xs font-medium text-uk-heading" htmlFor={`links-${r.id}`}>
-                      Dropdown links — one per line, written as <code className="rounded bg-uk-surface-3 px-1">Name | /link</code> (up to {MAX_DROPDOWN_LINKS}); the line order is the menu order
+                      Dropdown links — one per line, written as <code className="rounded bg-uk-surface-3 px-1">Name | /link</code> (pick each link's icon below the box) (up to {MAX_DROPDOWN_LINKS}); the line order is the menu order
                     </label>
                     <Textarea
                       id={`links-${r.id}`}
@@ -167,6 +199,19 @@ export function MenuEditor({ initial, pageNames }: { initial: MenuItem[]; pageNa
                       className="font-mono text-xs"
                     />
                     {errors[`${r.id}.links`] && <p role="alert" className="text-xs font-medium text-destructive">{errors[`${r.id}.links`]}</p>}
+                    <ul className="space-y-2 pt-2" aria-label="Icons for the dropdown links">
+                      {r.linksText.split(/\r?\n/).map((line, li) => {
+                        const parts = line.split("|").map((p) => p.trim());
+                        if (parts.length < 2 || !parts[0]) return null;
+                        const cur = parts.length > 2 && isMenuIcon(parts[parts.length - 1]) ? parts[parts.length - 1] : "";
+                        return (
+                          <li key={li} className="flex flex-wrap items-center gap-3 text-xs text-uk-body">
+                            <IconSelect value={cur} onChange={(v) => patch(r.id, { linksText: setLineIcon(r.linksText, li, v) })} label={`Icon for ${parts[0]}`} />
+                            <span className="font-medium text-uk-heading">{parts[0]}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
                 )}
               </div>
@@ -217,11 +262,15 @@ export function AddSectionForm() {
           name="kind"
           defaultValue="page"
           aria-label="What the new section is"
-          className="h-10 rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 rounded-lg border border-uk-line bg-uk-card px-3 text-sm text-uk-heading outline-none [&>option]:bg-uk-card [&>option]:text-uk-heading focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="page">A page of its own (hero, cards, blocks)</option>
           <option value="dropdown">A dropdown of links</option>
           <option value="link">A single link</option>
+        </select>
+        <select name="icon" defaultValue="" aria-label="Icon for the new section" className={cn(selectClass, "h-10 px-3")}>
+          <option value="">Default icon</option>
+          {MENU_ICONS.map((i) => <option key={i.key} value={i.key}>{i.label}</option>)}
         </select>
         <button
           type="submit"

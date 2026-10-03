@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import {
-  ArrowDown, ArrowUp, CircleAlert, CircleCheck, Eye, EyeOff, ImageIcon, Loader2, Plus, RotateCcw, Save, Trash2, Upload,
+  ArrowDown, ArrowUp, Eye, EyeOff, ImageIcon, Loader2, Plus, RotateCcw, Save, Trash2, Upload,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import type { FieldDef, SectionDef, SectionValues } from "@/lib/home-schema";
 import type { HomeSectionState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
+import { confirmDialog } from "@/components/admin/confirm-dialog";
 
 type Errors = Record<string, string>;
 type Row = Record<string, string>;
@@ -64,7 +65,7 @@ function TextInput({
     <div className="space-y-2">
       <Label htmlFor={id} className="text-uk-heading">
         {label}
-        {required && <span className="text-destructive" aria-hidden> *</span>}
+        {required && <span className="-ml-1 text-destructive" aria-hidden>*</span>}
       </Label>
       {multiline ? <Textarea {...props} rows={rows} /> : <Input {...props} className="h-10" />}
       <Footer id={id} error={error} hint={hint} length={value.length} max={max} />
@@ -448,19 +449,6 @@ export function SectionEditor({
 
   return (
     <form action={action} className="space-y-6" noValidate>
-      {latest.message && (
-        <div
-          role={latest.status === "error" ? "alert" : "status"}
-          className={
-            latest.status === "error"
-              ? "flex items-start gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-              : "flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300"
-          }
-        >
-          {latest.status === "error" ? <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" /> : <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" />}
-          {latest.message}
-        </div>
-      )}
 
       <EditorBody
         key={version}
@@ -477,8 +465,8 @@ export function SectionEditor({
           <button
             type="button"
             disabled={busy}
-            onClick={() => {
-              if (window.confirm(`Restore "${def.label}" to its original text? Your saved changes to this section will be removed.`)) {
+            onClick={async () => {
+              if (await confirmDialog(`Restore "${def.label}" to its original text? Your saved changes to this section will be removed.`)) {
                 startReset(async () => setResetState(await reset()));
               }
             }}

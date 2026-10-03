@@ -4,6 +4,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
+import { isMenuIcon } from "@/lib/menu-icon-keys";
 import { validateSection } from "@/lib/home-schema";
 import {
   MAIN_PAGE_DEF, MAX_MENU_ITEMS, checkMainPagePairs, isMainPageSlug, validateMenu,
@@ -73,6 +74,8 @@ export async function createMainSectionAction(_prev: MenuState, formData: FormDa
   const nonce = Date.now();
   const name = String(formData.get("name") ?? "").trim();
   const kind = String(formData.get("kind") ?? "page") as NewSectionKind;
+  const iconRaw = String(formData.get("icon") ?? "");
+  const icon = isMenuIcon(iconRaw) ? iconRaw : "";
   if (!name) return { status: "error", message: "Give the new section a name.", nonce };
   if (name.length > 24) return { status: "error", message: "Use 24 characters or fewer for the menu name.", nonce };
   if (!["page", "dropdown", "link"].includes(kind)) return { status: "error", message: "Choose what the section is.", nonce };
@@ -83,7 +86,7 @@ export async function createMainSectionAction(_prev: MenuState, formData: FormDa
     if (items.length >= MAX_MENU_ITEMS) {
       return { status: "error", message: `The menu is full (${MAX_MENU_ITEMS} items). Remove one first.`, nonce };
     }
-    ({ slug } = await createMainSection(name, kind));
+    ({ slug } = await createMainSection(name, kind, icon));
   } catch (e) {
     return { status: "error", message: `Could not add the section: ${dbMsg(e)}`, nonce };
   }
