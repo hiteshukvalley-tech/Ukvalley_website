@@ -11,6 +11,7 @@ import { Marked } from "./marked";
 import { getServices } from "@/lib/services-store";
 import { countVars, fill } from "@/lib/home-schema";
 import { defaultHome, type HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 const icons: Record<string, LucideIcon> = {
   code: Code,
@@ -53,7 +54,7 @@ function CoreConstellation({ count }: { count: number }) {
       ))}
       <circle cx="50" cy="50" r="7" className="fill-uk-yellow" />
       <circle cx="50" cy="50" r="11" fill="none" className="stroke-uk-yellow/50" strokeWidth="0.6" />
-      <text x="50" y="52.4" textAnchor="middle" className="fill-uk-heading font-heading text-[3.6px] font-bold dark:fill-[#070511]">UKV</text>
+      <text x="50" y="52.4" textAnchor="middle" className="fill-uk-heading font-heading text-[3.6px] font-bold dark:fill-[#070511]">{ukText("UKV")}</text>
     </svg>
   );
 }
@@ -75,9 +76,9 @@ export async function Services({ content: c = defaultHome.services }: { content?
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow={c.eyebrow}
-            title={<Marked text={fill(c.title, vars)} />}
-            description={fill(c.description, vars) || undefined}
+            eyebrow={ukText(c.eyebrow)}
+            title={<Marked text={ukText(fill(c.title, vars))} />}
+            description={ukText(fill(c.description, vars) || undefined)}
           />
         </div>
 
@@ -91,7 +92,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
               <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full bg-uk-blue/15 blur-[90px] transition-all duration-700 group-hover:bg-uk-blue/30" aria-hidden />
               {c.coreBadge && (
                 <span className="badge-yellow inline-flex w-fit items-center gap-2 rounded-full px-3 py-1 text-xs uppercase tracking-widest">
-                  {c.coreBadge}
+                  {ukText(c.coreBadge)}
                 </span>
               )}
 
@@ -106,11 +107,11 @@ export async function Services({ content: c = defaultHome.services }: { content?
                       {FirstIcon && <FirstIcon className="h-6 w-6" />}
                     </span>
                     <h3 className="font-heading text-xl font-bold leading-snug text-uk-heading sm:text-2xl">
-                      {first.title}
+                      {ukText(first.title)}
                     </h3>
                   </div>
-                  <p className="text-sm leading-relaxed text-uk-muted">{first.blurb}</p>
-                  {c.coreText && <p className="text-sm leading-relaxed text-uk-gray">{c.coreText}</p>}
+                  <p className="text-sm leading-relaxed text-uk-muted">{ukText(first.blurb)}</p>
+                  {c.coreText && <p className="text-sm leading-relaxed text-uk-gray">{ukText(c.coreText)}</p>}
                 </div>
               </div>
 
@@ -119,7 +120,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
                 {c.workflowLabel && (
                   <>
                     <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
-                      {c.workflowLabel}
+                      {ukText(c.workflowLabel)}
                     </span>
                     <span className="mx-1 hidden h-3 w-px bg-uk-line sm:block" aria-hidden />
                   </>
@@ -128,7 +129,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
                   <span key={`${step}-${i}`} className="inline-flex items-center gap-1">
                     {i > 0 && <ArrowRight className="h-3 w-3 text-uk-blue/50" aria-hidden />}
                     <span className="rounded-md border border-uk-line bg-white/70 px-2.5 py-1 font-heading text-xs font-medium text-uk-heading dark:bg-uk-card/70">
-                      {step}
+                      {ukText(step)}
                     </span>
                   </span>
                 ))}
@@ -139,7 +140,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
                 {c.chips.map((chip, i) => (
                   <span key={`${chip}-${i}`} className="inline-flex items-center gap-1.5 rounded-full bg-uk-blue/10 px-3 py-1 text-xs font-medium text-uk-blue">
                     <span className="h-1.5 w-1.5 rounded-full bg-uk-blue" />
-                    {chip}
+                    {ukText(chip)}
                   </span>
                 ))}
               </div>}
@@ -148,8 +149,8 @@ export async function Services({ content: c = defaultHome.services }: { content?
               {c.proof.length > 0 && <div className="mb-6 mt-5 grid grid-cols-3 gap-3 rounded-2xl border border-uk-blue/15 bg-uk-blue/[0.06] p-4">
                 {c.proof.map((m, i) => (
                   <div key={`${m.label}-${i}`} className="flex flex-col gap-0.5">
-                    <span className="font-heading text-lg font-bold text-uk-blue sm:text-xl">{m.value}</span>
-                    <span className="text-[0.7rem] leading-tight text-uk-muted">{m.label}</span>
+                    <span className="font-heading text-lg font-bold text-uk-blue sm:text-xl">{ukText(m.value)}</span>
+                    <span className="text-[0.7rem] leading-tight text-uk-muted">{ukText(m.label)}</span>
                   </div>
                 ))}
               </div>}
@@ -159,7 +160,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
               {c.standards.length > 0 && <div className="mb-5">
                 {c.standardsLabel && (
                   <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
-                    {c.standardsLabel}
+                    {ukText(c.standardsLabel)}
                   </span>
                 )}
                 <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -174,8 +175,8 @@ export async function Services({ content: c = defaultHome.services }: { content?
                           <Icon className="h-3.5 w-3.5" />
                         </span>
                         <span className="truncate text-xs">
-                          <span className="font-heading font-bold text-uk-heading">{s.title}</span>
-                          {s.sub && <span className="text-uk-muted"> · {s.sub}</span>}
+                          <span className="font-heading font-bold text-uk-heading">{ukText(s.title)}</span>
+                          {s.sub && <span className="text-uk-muted"> · {ukText(s.sub)}</span>}
                         </span>
                       </div>
                     );
@@ -187,13 +188,13 @@ export async function Services({ content: c = defaultHome.services }: { content?
                 {first.bullets.map((b) => (
                   <li key={b} className="flex items-center gap-2 text-xs font-medium text-uk-body">
                     <span className="h-1.5 w-1.5 flex-none rounded-full bg-uk-yellow" />
-                    {b}
+                    {ukText(b)}
                   </li>
                 ))}
               </ul>
 
               <Link
-                href={first.href}
+                href={ukText(first.href)}
                 className="absolute bottom-6 right-6 inline-flex h-9 w-9 items-center justify-center rounded-full bg-uk-blue text-uk-white opacity-0 shadow-glow-blue-sm transition-all duration-300 group-hover:opacity-100"
                 aria-label={`Explore ${first.title}`}
               >
@@ -207,27 +208,27 @@ export async function Services({ content: c = defaultHome.services }: { content?
             return (
               <Link
                 key={s.title}
-                href={s.href}
+                href={ukText(s.href)}
                 className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-uk-line card-premium card-spotlight bg-uk-card p-6"
               >
                 <span className="pointer-events-none absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 bg-gradient-to-r from-uk-blue to-uk-yellow transition-transform duration-500 group-hover:scale-x-100" aria-hidden />
                 <span className="absolute right-5 top-5 font-heading text-4xl font-bold text-uk-blue/8 transition-colors group-hover:text-uk-blue/20">
-                  {String(i + 2).padStart(2, "0")}
+                  {ukText(String(i + 2).padStart(2, "0"))}
                 </span>
                 <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-uk-blue/12 text-uk-blue transition-colors duration-300 group-hover:bg-uk-blue group-hover:text-uk-white">
                   {Icon && <Icon className="h-6 w-6" />}
                 </span>
                 <div className="flex flex-col gap-2">
                   <h3 className="font-heading text-lg font-bold leading-snug text-uk-heading">
-                    {s.title}
+                    {ukText(s.title)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-muted">{s.blurb}</p>
+                  <p className="text-sm leading-relaxed text-uk-muted">{ukText(s.blurb)}</p>
                 </div>
                 <ul className="mt-auto flex flex-col gap-2 border-t border-uk-line pt-4">
                   {s.bullets.slice(0, 3).map((b) => (
                     <li key={b} className="flex items-center gap-2 text-xs font-medium text-uk-body">
                       <span className="h-1.5 w-1.5 flex-none rounded-full bg-uk-yellow" />
-                      {b}
+                      {ukText(b)}
                     </li>
                   ))}
                 </ul>
@@ -240,7 +241,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
 
           {/* CTA tile completes the bento row */}
           <Link
-            href="/services"
+            href={ukText("/services")}
             className="group relative flex h-full flex-col overflow-hidden rounded-2xl bg-uk-blue p-6 shadow-glow-blue-sm transition-all duration-300 hover:-translate-y-1 hover:bg-uk-blue-bright"
           >
             <div className="absolute inset-0 bg-blueprint opacity-30" aria-hidden />
@@ -249,14 +250,14 @@ export async function Services({ content: c = defaultHome.services }: { content?
             {/* Header block — text starts directly at the top */}
             {c.ctaBadge && (
               <span className="relative inline-flex w-fit items-center rounded-full border border-uk-white/30 bg-uk-white/10 px-3 py-1 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-white">
-                {c.ctaBadge}
+                {ukText(c.ctaBadge)}
               </span>
             )}
             <span className="relative mt-4 max-w-[12rem] font-heading text-lg font-bold leading-snug text-uk-white">
-              {c.ctaTitle}
+              {ukText(c.ctaTitle)}
             </span>
             {c.ctaText && (
-              <p className="relative mt-2 text-sm leading-relaxed text-uk-white/85">{c.ctaText}</p>
+              <p className="relative mt-2 text-sm leading-relaxed text-uk-white/85">{ukText(c.ctaText)}</p>
             )}
 
             {/* What you get in the call */}
@@ -265,14 +266,14 @@ export async function Services({ content: c = defaultHome.services }: { content?
                 {c.ctaPoints.map((item, i) => (
                   <li key={`${item}-${i}`} className="flex items-center gap-2 text-xs font-medium text-uk-white/90">
                     <Check className="h-3.5 w-3.5 flex-none text-uk-yellow" />
-                    {item}
+                    {ukText(item)}
                   </li>
                 ))}
               </ul>
             )}
 
             <span className="relative mt-auto inline-flex items-center gap-2 pt-4 text-sm font-semibold text-uk-white">
-              {c.ctaLink}
+              {ukText(c.ctaLink)}
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </span>
           </Link>

@@ -12,6 +12,10 @@ import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
 import { getPosts } from "@/lib/blog-store";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -72,26 +76,26 @@ export default async function BlogArticlePage({ params }: Props) {
       <main id="main">
         <PageHero variant="insights"
           extras={heroExtras.insights}
-          eyebrow={post.category}
+          eyebrow={ukText(post.category)}
           crumbs={[
             { label: "Home", href: "/" },
             { label: "Insights", href: "/blog" },
             { label: post.title },
           ]}
-          title={post.title}
-          description={post.excerpt}
+          title={ukText(post.title)}
+          description={ukText(post.excerpt)}
         >
           <div className="mt-3 flex items-center gap-4 text-sm text-uk-gray">
             <span className="inline-flex items-center gap-1.5">
               <Clock className="h-3.5 w-3.5" />
-              {post.readTime}
+              {ukText(post.readTime)}
             </span>
             <time dateTime={post.date}>
-              {new Date(post.date).toLocaleDateString("en-IN", {
+              {ukText(new Date(post.date).toLocaleDateString("en-IN", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
-              })}
+              }))}
             </time>
           </div>
         </PageHero>
@@ -103,28 +107,24 @@ export default async function BlogArticlePage({ params }: Props) {
                 <Reveal className="flex flex-col gap-6">
                   {post.body.map((para, i) => (
                     <p key={i} className="text-justify-prose text-lg leading-relaxed text-uk-body">
-                      {para}
+                      {ukText(para)}
                     </p>
                   ))}
                 </Reveal>
 
                 <Reveal className="mt-10 border-t border-uk-line pt-8">
                   <Link
-                    href="/blog"
+                    href={ukText("/blog")}
                     className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
                   >
-                    <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                    All insights
-                  </Link>
+                    <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />{ukText("All insights")}</Link>
                 </Reveal>
               </div>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <BookOpen className="h-4 w-4 text-uk-blue" />
-                    About this guide
-                  </h3>
+                    <BookOpen className="h-4 w-4 text-uk-blue" />{ukText("About this guide")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {[
                       { label: "Category", value: post.category },
@@ -135,25 +135,23 @@ export default async function BlogArticlePage({ params }: Props) {
                       },
                     ].map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
-                        <dt className="text-sm text-uk-gray">{f.label}</dt>
-                        <dd className="text-right font-medium text-uk-body">{f.value}</dd>
+                        <dt className="text-sm text-uk-gray">{ukText(f.label)}</dt>
+                        <dd className="text-right font-medium text-uk-body">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
                   {related.length > 0 && (
                     <>
                       <p className="mt-4 flex items-center gap-2 border-t border-uk-line pt-3 text-xs font-semibold uppercase tracking-[0.18em] text-uk-muted">
-                        <Layers className="h-3.5 w-3.5 text-uk-blue" />
-                        More on this
-                      </p>
+                        <Layers className="h-3.5 w-3.5 text-uk-blue" />{ukText("More on this")}</p>
                       <ul className="mt-3 flex flex-col gap-2.5">
                         {related.map((r) => (
                           <li key={r.slug}>
                             <Link
-                              href={`/blog/${r.slug}`}
+                              href={ukText(`/blog/${r.slug}`)}
                               className="text-sm font-medium leading-snug text-uk-body transition-colors hover:text-uk-blue"
                             >
-                              {r.title}
+                              {ukText(r.title)}
                             </Link>
                           </li>
                         ))}
@@ -163,15 +161,9 @@ export default async function BlogArticlePage({ params }: Props) {
                 </div>
 
                 <div className="flex flex-col gap-3 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">
-                    Want this for your business?
-                  </h3>
-                  <p className="text-sm text-uk-gray">
-                    Book a free 30-minute scoping call with a software architect.
-                  </p>
-                  <ScopingButton className="btn-sheen btn-lift group inline-flex w-fit cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">
-                    Book a scoping call
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want this for your business?")}</h3>
+                  <p className="text-sm text-uk-gray">{ukText("Book a free 30-minute scoping call with a software architect.")}</p>
+                  <ScopingButton className="btn-sheen btn-lift group inline-flex w-fit cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </ScopingButton>
                 </div>
               </Reveal>

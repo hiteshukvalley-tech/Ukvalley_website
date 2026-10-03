@@ -33,7 +33,7 @@ export const locations: Location[] = [
     paragraphs: [
       "Maharashtra is where Ukvalley is built. Our headquarters here houses the engineering core — architects, full-stack teams, mobile and QA — alongside delivery management and leadership. The registered entity, CIN and GSTIN all trace to Maharashtra, and this is where the scoping calls happen before any code is written.",
       "Choosing a base outside the metros was deliberate: an India-tier-2 cost structure lets us charge 30–40% below metro agencies without the overhead showing up as compromise. The engineers who scope your project in a call from our head office are the engineers who build it — no brokers, no offshoring pools between you and the work.",
-      "The office also anchors our product portfolio — TeleValley, Finvalley, BBNPlay, Dream Loans and Turf Booking are all built and run from here, which means the same engineers who maintain production systems for ourselves are the ones maintaining yours.",
+      "The office also anchors our product portfolio — TeleValley, Script Magix, Mediline Website, the HR Agency Management System and Emailz.ca are all built and run from here, which means the same engineers who maintain production systems for ourselves are the ones maintaining yours.",
     ],
     services: ["Custom software & ERP", "Mobile app development", "Web & web app development", "Cloud & DevOps", "QA & support (24-hour SLA)"],
     proof: [
@@ -175,7 +175,7 @@ export const locations: Location[] = [
       "Delivery coverage for Bengaluru — SaaS products, startups and product engineering engagements with startup-speed delivery discipline.",
     paragraphs: [
       "Bengaluru builds products — and product engineering is a different discipline from project delivery: short loops, honest estimates, thin slices in production early, and the humility to let user feedback change the roadmap. Our delivery process was built for exactly that rhythm.",
-      "We serve Bengaluru startups and SaaS teams with dedicated engineers (React, Next.js, Node, Flutter), MVP builds that reach real users in weeks, and the product-engineering partnership of a team that ships and runs its own products — TeleValley and Finvalley are live software, not case studies.",
+      "We serve Bengaluru startups and SaaS teams with dedicated engineers (React, Next.js, Node, Flutter), MVP builds that reach real users in weeks, and the product-engineering partnership of a team that ships and runs its own products — TeleValley and Script Magix are live software, not case studies.",
       "The engagement models are startup-shaped too: dedicated engineers who slot into your standups, MVP fixed-bids with a defined first release, and fractional CTO-style architecture guidance when the founding team needs a senior second opinion without a senior salary line.",
     ],
     services: ["Dedicated engineers", "MVP & product builds", "SaaS platform engineering", "Cloud & DevOps", "QA automation"],

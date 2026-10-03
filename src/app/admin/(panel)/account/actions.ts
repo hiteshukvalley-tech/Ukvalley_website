@@ -22,7 +22,7 @@ export async function changePasswordAction(
   const nonce = Date.now();
 
   if (session.id === ENV_USER_ID) {
-    return { status: "error", message: "The owner password is set by ADMIN_PASSWORD in the environment.", nonce };
+    return { status: "error", message: "The owner password is changed with \"Forgot password?\" on the sign-in page, or by ADMIN_PASSWORD in the environment.", nonce };
   }
   if (!hasDatabaseUrl()) return { status: "error", message: "Database is not connected (MONGODB_URI missing).", nonce };
 

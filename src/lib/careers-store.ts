@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import { careers as builtInCareers, type Career } from "@/lib/site-data";
 import type { CareerInput, CareerRecord } from "@/lib/careers-validation";
+import { DEFAULT_HIRING_PROCESS, inferJobMode, isIsoDate, isJobMode } from "@/lib/careers-shared";
 
 export const CAREERS_TAG = "careers";
 const COLLECTION = "careers";
@@ -11,16 +12,41 @@ type CareerDoc = Omit<CareerRecord, "slug"> & { _id: string; updatedAt?: Date };
 
 const col = () => getDb().collection<CareerDoc>(COLLECTION);
 
+/** First "N+ years" / "N years" in the requirements, for roles saved before experience existed. */
+function inferExperienceMin(requirements: string[] = []): number {
+  for (const r of requirements) {
+    const m = r.match(/(\d{1,2})\s*\+?\s*(?:years|yrs)/i);
+    if (m) return Number(m[1]);
+  }
+  return 0;
+}
+
+/**
+ * Roles saved before job mode, experience, published date and hiring process
+ * were added lack those fields; fill them so every page can rely on them.
+ */
 function toRecord({ _id, updatedAt, ...rest }: CareerDoc): CareerRecord {
-  void updatedAt;
-  return { ...rest, slug: _id };
+  const doc = rest as Partial<CareerDoc>;
+  const dateFallback = updatedAt instanceof Date ? updatedAt.toISOString().slice(0, 10) : "2026-01-01";
+  const max = doc.experienceMax;
+  return {
+    ...rest,
+    slug: _id,
+    mode: isJobMode(doc.mode) ? doc.mode : inferJobMode(rest.location ?? ""),
+    experienceMin: typeof doc.experienceMin === "number" ? doc.experienceMin : inferExperienceMin(rest.requirements),
+    experienceMax: typeof max === "number" ? max : undefined,
+    postedAt: typeof doc.postedAt === "string" && isIsoDate(doc.postedAt) ? doc.postedAt : dateFallback,
+    hiringProcess: Array.isArray(doc.hiringProcess) && doc.hiringProcess.length ? doc.hiringProcess : DEFAULT_HIRING_PROCESS,
+  };
 }
 
 /** Strips the admin-only fields, leaving what the public pages use. */
-function toPublic({ published, order, ...career }: CareerRecord): Career {
+function toPublic({ published, order, experienceMax, ...career }: CareerRecord): Career {
   void published;
   void order;
-  return career;
+  // Leave "no maximum" out entirely rather than as undefined, so the role
+  // survives the cache's JSON round trip unchanged.
+  return experienceMax === undefined ? career : { ...career, experienceMax };
 }
 
 /** The built-in careers, in the record shape the admin works with. */
@@ -36,15 +62,16 @@ async function readPublished(): Promise<Career[]> {
 }
 
 // Throws on DB errors so a failure is never cached; callers fall back.
-const cachedPublished = unstable_cache(readPublished, ["careers-published-v1"], {
+// v2: roles gained mode, experience, published date and hiring process.
+const cachedPublished = unstable_cache(readPublished, ["careers-published-v2"], {
   tags: [CAREERS_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 const cachedHasAny = unstable_cache(
   async () => (await col().estimatedDocumentCount()) > 0,
   ["careers-has-any-v1"],
-  { tags: [CAREERS_TAG], revalidate: 3600 }
+  { tags: [CAREERS_TAG], revalidate: 60 }
 );
 
 /**
@@ -108,8 +135,13 @@ export async function createCareer(value: CareerInput): Promise<boolean> {
 
 /** Returns false when the role no longer exists. */
 export async function updateCareer(value: CareerInput): Promise<boolean> {
-  const { slug, ...rest } = value;
-  const res = await col().updateOne({ _id: slug }, { $set: { ...rest, updatedAt: new Date() } });
+  const { slug, experienceMax, ...rest } = value;
+  const res = await col().updateOne(
+    { _id: slug },
+    experienceMax === undefined
+      ? { $set: { ...rest, updatedAt: new Date() }, $unset: { experienceMax: "" } }
+      : { $set: { ...rest, experienceMax, updatedAt: new Date() } }
+  );
   return res.matchedCount > 0;
 }
 

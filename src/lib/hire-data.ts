@@ -166,7 +166,7 @@ export const hireRoles: HireRole[] = [
     description:
       "Hire dedicated Flutter developers — iOS & Android from one codebase, store submission handled, offline-first sync and pixel-perfect UI on low-end devices.",
     longDescription: [
-      "Flutter apps live or die on details your users notice instantly: launch time on a ₹10,000 Android, list scrolling without jank, forms that survive flaky networks, and state that survives a background kill. Our Flutter engineers sweat exactly those details — it's why our own products (TeleValley, Finvalley) are Flutter.",
+      "Flutter apps live or die on details your users notice instantly: launch time on a ₹10,000 Android, list scrolling without jank, forms that survive flaky networks, and state that survives a background kill. Our Flutter engineers sweat exactly those details — it's why our own product TeleValley is Flutter.",
       "They cover the full lifecycle: architecture (Bloc/Riverpod), API and offline-sync layers, push and analytics integration, native modules via platform channels when needed, and the unglamorous release craft — signing, store listings, review responses and phased rollouts.",
       "You get an engineer verified on real shipped apps, backed by our review culture and device lab. Full-time, part-time or hourly — with code and signing keys in your hands from day one.",
     ],
@@ -346,7 +346,7 @@ export const hireRoles: HireRole[] = [
     description:
       "Hire dedicated Laravel developers — APIs, admin systems, payments and Tally integrations built fast without skipping the engineering rigour.",
     longDescription: [
-      "Laravel is the fastest route from requirement to working business system in PHP — and our own products (BBNPlay, Dream Loans) run Laravel APIs in production. Our Laravel engineers build the classic SME stack: admin panels, APIs, billing, queues and reports, delivered quickly without sacrificing structure.",
+      "Laravel is the fastest route from requirement to working business system in PHP — and our own HR Agency Management System runs on Laravel in production. Our Laravel engineers build the classic SME stack: admin panels, APIs, billing, queues and reports, delivered quickly without sacrificing structure.",
       "They cover the full surface: Eloquent schema design and migrations, queue workers and schedulers, payment gateways (Razorpay, Cashfree), Tally and GST integrations, role-based permissions with spatie, and test suites that keep refactors safe.",
       "They also rescue legacy PHP: CodeIgniter and raw-PHP systems moved onto modern Laravel with data migration and staged cutover — turning 'nobody wants to touch that codebase' into a maintainable asset.",
     ],

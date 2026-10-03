@@ -9,6 +9,7 @@ import { Reveal } from "./reveal";
 import { Marked } from "./marked";
 import { getFaqs } from "@/lib/faqs-store";
 import type { HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 /** Questions come from Admin → FAQs; heading from Admin → Home page → FAQ. */
 export async function Faq({ content: c }: { content: HomeContent["faq"] }) {
@@ -18,9 +19,9 @@ export async function Faq({ content: c }: { content: HomeContent["faq"] }) {
       <div className="relative mx-auto max-w-5xl px-5 lg:px-8">
         <SectionHeading
           align="center"
-          eyebrow={c.eyebrow}
-          title={<Marked text={c.title} />}
-          description={c.description || undefined}
+          eyebrow={ukText(c.eyebrow)}
+          title={<Marked text={ukText(c.title)} />}
+          description={ukText(c.description || undefined)}
         />
 
         <Reveal className="mt-12">
@@ -36,10 +37,10 @@ export async function Faq({ content: c }: { content: HomeContent["faq"] }) {
                 className="overflow-hidden rounded-2xl border border-uk-line bg-uk-card px-5 transition-colors hover:border-uk-blue/40 data-[state=open]:border-uk-blue/40"
               >
                 <AccordionTrigger className="py-5 text-left font-heading text-base font-semibold text-uk-heading hover:no-underline">
-                  {f.q}
+                  {ukText(f.q)}
                 </AccordionTrigger>
                 <AccordionContent className="pb-5 text-sm leading-relaxed text-uk-gray">
-                  {f.a}
+                  {ukText(f.a)}
                 </AccordionContent>
               </AccordionItem>
             ))}

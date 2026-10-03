@@ -7,12 +7,17 @@ import {
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
-import { PageHero, heroExtras } from "@/components/site/page-hero";
+import { heroExtras } from "@/components/site/page-hero";
+import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { SectionHeading } from "@/components/site/section-heading";
 import { CtaBand } from "@/components/site/cta";
 import { getLocations } from "@/lib/locations-store";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Locations — where Ukvalley engineers and engages",
@@ -53,18 +58,17 @@ export default async function LocationsPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <PageHero
+        <EditableHero pageKey="locations"
           variant="company"
           extras={heroExtras.company}
-          eyebrow="Locations"
+          eyebrow={ukText("Locations")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Locations" }]}
           title={
-            <>
-              Engineering in Maharashtra —{" "}
-              <span className="text-gradient-blue">clients on three continents.</span>
+            <>{ukText("Engineering in Maharashtra —")}{" "}
+              <span className="text-gradient-blue">{ukText("clients on three continents.")}</span>
             </>
           }
-          description="One engineering core, many front doors. A Maharashtra headquarters plus offices in Pune and Nagpur, delivery coverage across India's business hubs, and international presence for clients in the Gulf and North America."
+          description={ukText("One engineering core, many front doors. A Maharashtra headquarters plus offices in Pune and Nagpur, delivery coverage across India's business hubs, and international presence for clients in the Gulf and North America.")}
         />
 
         {/* The problem it solves */}
@@ -72,29 +76,19 @@ export default async function LocationsPage() {
           <Container>
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem it solves
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem it solves")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why "remote delivery" is where most vendors quietly cut corners
-                </h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  Distance is where vendors get sloppy first: the weekly demo becomes biweekly, then monthly; the named architect from the sales call becomes "the team" in every email; and a time-zone gap becomes the excuse for every missed deadline. Clients a plane ride away get the attention; clients a time zone away get the leftovers.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  That erosion is easy to miss until it's already cost you: a decision that should have taken a day takes a week because nobody was awake to make the call, and a status update that reads fine in an email would have raised obvious questions on a video call nobody scheduled.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  We run one delivery system everywhere — Maharashtra, Mumbai or Toronto — because the discipline that makes a project succeed has nothing to do with how far away the client sits.
-                </p>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why \"remote delivery\" is where most vendors quietly cut corners")}</h2>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Distance is where vendors get sloppy first: the weekly demo becomes biweekly, then monthly; the named architect from the sales call becomes \"the team\" in every email; and a time-zone gap becomes the excuse for every missed deadline. Clients a plane ride away get the attention; clients a time zone away get the leftovers.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That erosion is easy to miss until it's already cost you: a decision that should have taken a day takes a week because nobody was awake to make the call, and a status update that reads fine in an email would have raised obvious questions on a video call nobody scheduled.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We run one delivery system everywhere — Maharashtra, Mumbai or Toronto — because the discipline that makes a project succeed has nothing to do with how far away the client sits.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">What doesn't change by distance</h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("What doesn't change by distance")}</h3>
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {[
                       "A named architect on the call, wherever you're calling from",
@@ -106,7 +100,7 @@ export default async function LocationsPage() {
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                           <Check className="h-3.5 w-3.5" strokeWidth={3} />
                         </span>
-                        <p className="text-sm leading-relaxed text-uk-body">{item}</p>
+                        <p className="text-sm leading-relaxed text-uk-body">{ukText(item)}</p>
                       </li>
                     ))}
                   </ul>
@@ -114,9 +108,7 @@ export default async function LocationsPage() {
 
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {[
                       { label: "Locations listed", value: String(locations.length), sub: "Offices, delivery and presence" },
@@ -126,10 +118,10 @@ export default async function LocationsPage() {
                     ].map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
                         <dt className="text-sm text-uk-gray">
-                          {f.label}
-                          <span className="block text-xs text-uk-muted">{f.sub}</span>
+                          {ukText(f.label)}
+                          <span className="block text-xs text-uk-muted">{ukText(f.sub)}</span>
                         </dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{f.value}</dd>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -144,7 +136,7 @@ export default async function LocationsPage() {
             <Container>
               <Reveal>
                 <h2 className="font-heading text-xl font-bold text-uk-heading sm:text-2xl">
-                  {g.label}
+                  {ukText(g.label)}
                 </h2>
               </Reveal>
               <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -153,7 +145,7 @@ export default async function LocationsPage() {
                   return (
                     <Link
                       key={l.slug}
-                      href={`/locations/${l.slug}`}
+                      href={ukText(`/locations/${l.slug}`)}
                       className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-uk-line bg-uk-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40"
                     >
                       <div className="absolute -right-12 -top-12 h-36 w-36 rounded-full bg-uk-blue/0 blur-3xl transition-all duration-500 group-hover:bg-uk-blue/15" aria-hidden />
@@ -162,22 +154,22 @@ export default async function LocationsPage() {
                           <Icon className="h-5 w-5" />
                         </span>
                         <span className={`rounded-full px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${typeStyles[l.type]}`}>
-                          {l.type}
+                          {ukText(l.type)}
                         </span>
                       </div>
                       <h3 className="font-heading text-lg font-bold text-uk-heading">
-                        {l.city}
+                        {ukText(l.city)}
                         <span className="ml-2 text-sm font-medium text-uk-muted">
-                          {l.region}, {l.country}
+                          {ukText(l.region)}, {ukText(l.country)}
                         </span>
                       </h3>
                       <p className="text-sm leading-relaxed text-uk-gray line-clamp-3">
-                        {l.blurb}
+                        {ukText(l.blurb)}
                       </p>
                       <div className="mt-auto flex items-center justify-between pt-3 text-xs text-uk-muted">
                         <span className="inline-flex items-center gap-1.5">
                           <MapPin className="h-3.5 w-3.5 text-uk-blue" />
-                          {l.timezone}
+                          {ukText(l.timezone)}
                         </span>
                         <ArrowRight className="h-4 w-4 text-uk-blue opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
@@ -194,14 +186,15 @@ export default async function LocationsPage() {
           <Container>
             <SectionHeading
               align="center"
-              eyebrow="Remote-first"
-              title={<>Your project isn&apos;t limited by our pin code.</>}
-              description="Wherever you are, delivery runs the same way: a named architect, shared Jira and Slack, weekly demos and a 24-hour response SLA. Distance never changes the discipline."
+              eyebrow={ukText("Remote-first")}
+              title={<>{ukText("Your project isn't limited by our pin code.")}</>}
+              description={ukText("Wherever you are, delivery runs the same way: a named architect, shared Jira and Slack, weekly demos and a 24-hour response SLA. Distance never changes the discipline.")}
             />
           </Container>
         </section>
 
         <CtaBand />
+        <PageBlocks pageKey="locations" />
       </main>
       <Footer />
     </>

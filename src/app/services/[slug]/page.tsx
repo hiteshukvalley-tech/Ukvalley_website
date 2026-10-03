@@ -21,6 +21,10 @@ import { capitalize, countWord } from "@/lib/services-validation";
 import { getCaseStudies } from "@/lib/cases-store";
 import { getIndustries } from "@/lib/industries-store";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -137,14 +141,14 @@ export default async function ServicePage({ params }: Props) {
         <PageHero
           image={{ ...heroArtwork.services, stat: { ...heroArtwork.services.stat, value: String(liveServices.length) } }}
           titleClassName={oneLineTitle.services}
-          eyebrow="Service"
+          eyebrow={ukText("Service")}
           crumbs={[
             { label: "Home", href: "/" },
             { label: "Services", href: "/services" },
             { label: service.title },
           ]}
-          title={service.title}
-          description={detail.longDescription}
+          title={ukText(service.title)}
+          description={ukText(detail.longDescription)}
         />
 
         {/* Proof band */}
@@ -153,8 +157,8 @@ export default async function ServicePage({ params }: Props) {
           <Container className="grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3">
             {detail.metrics.map((m) => (
               <div key={m.label} className="flex flex-col gap-1 px-4 py-8 text-center">
-                <span className="font-heading text-4xl font-bold text-uk-blue">{m.value}</span>
-                <span className="text-xs font-medium uppercase tracking-wider text-uk-gray">{m.label}</span>
+                <span className="font-heading text-4xl font-bold text-uk-blue">{ukText(m.value)}</span>
+                <span className="text-xs font-medium uppercase tracking-wider text-uk-gray">{ukText(m.label)}</span>
               </div>
             ))}
           </Container>
@@ -168,18 +172,14 @@ export default async function ServicePage({ params }: Props) {
                 it start on exactly the same line */}
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem we solve
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem we solve")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why {service.title} goes wrong — and how we do it differently
-                </h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(service.title)}{ukText("goes wrong — and how we do it differently")}</h2>
                 {detail.overview.map((para, i) => (
                   <p key={i} className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                    {para}
+                    {ukText(para)}
                   </p>
                 ))}
               </Reveal>
@@ -187,8 +187,8 @@ export default async function ServicePage({ params }: Props) {
               <Reveal className="flex flex-col gap-5">
                 {detail.painPoints.length > 0 && (
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">Sound familiar?</h3>
-                  <p className="mt-1 text-sm text-uk-gray">The situations clients bring to this service line.</p>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Sound familiar?")}</h3>
+                  <p className="mt-1 text-sm text-uk-gray">{ukText("The situations clients bring to this service line.")}</p>
                   <ul className="mt-5 flex flex-col gap-4">
                     {detail.painPoints.map((p) => (
                       <li key={p.title} className="flex items-start gap-3">
@@ -196,8 +196,8 @@ export default async function ServicePage({ params }: Props) {
                           <CircleAlert className="h-4 w-4" />
                         </span>
                         <div>
-                          <p className="text-sm font-semibold text-uk-heading">{p.title}</p>
-                          <p className="mt-0.5 text-sm leading-relaxed text-uk-gray">{p.desc}</p>
+                          <p className="text-sm font-semibold text-uk-heading">{ukText(p.title)}</p>
+                          <p className="mt-0.5 text-sm leading-relaxed text-uk-gray">{ukText(p.desc)}</p>
                         </div>
                       </li>
                     ))}
@@ -209,23 +209,19 @@ export default async function ServicePage({ params }: Props) {
                 {detail.quickFacts.length > 0 && (
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {detail.quickFacts.map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
                         <dt className="text-sm text-uk-gray">
-                          {f.label}
-                          {f.sub && <span className="block text-xs text-uk-muted">{f.sub}</span>}
+                          {ukText(f.label)}
+                          {f.sub && <span className="block text-xs text-uk-muted">{ukText(f.sub)}</span>}
                         </dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{f.value}</dd>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="mt-4 border-t border-uk-line pt-3 text-xs text-uk-muted">
-                    Figures are typical ranges from past engagements. Your written estimate arrives within 3 business days of the scoping call.
-                  </p>
+                  <p className="mt-4 border-t border-uk-line pt-3 text-xs text-uk-muted">{ukText("Figures are typical ranges from past engagements. Your written estimate arrives within 3 business days of the scoping call.")}</p>
                 </div>
                 )}
               </Reveal>
@@ -237,12 +233,8 @@ export default async function ServicePage({ params }: Props) {
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                Capabilities
-              </span>
-              <h2 className="mt-5 font-heading text-3xl font-bold text-uk-heading sm:text-4xl">
-                What we build
-              </h2>
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Capabilities")}</span>
+              <h2 className="mt-5 font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("What we build")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {detail.capabilities.map((c) => (
@@ -254,8 +246,8 @@ export default async function ServicePage({ params }: Props) {
                     <Check className="h-5 w-5" />
                   </span>
                   <div className="flex flex-col gap-1.5">
-                    <h3 className="font-heading text-lg font-bold text-uk-heading">{c.title}</h3>
-                    {c.desc && <p className="text-sm leading-relaxed text-uk-gray">{c.desc}</p>}
+                    <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText(c.title)}</h3>
+                    {c.desc && <p className="text-sm leading-relaxed text-uk-gray">{ukText(c.desc)}</p>}
                   </div>
                 </div>
               ))}
@@ -264,16 +256,14 @@ export default async function ServicePage({ params }: Props) {
             {detail.techs.length > 0 && (
             <Reveal className="mt-10 flex flex-col gap-3">
               <h3 className="flex items-center gap-2 font-heading text-base font-bold text-uk-heading">
-                <Layers className="h-4 w-4 text-uk-blue" />
-                Tools &amp; stack we use on this work
-              </h3>
+                <Layers className="h-4 w-4 text-uk-blue" />{ukText("Tools & stack we use on this work")}</h3>
               <div className="flex flex-wrap gap-2">
                 {detail.techs.map((t) => (
                   <span
                     key={t}
                     className="rounded-md bg-uk-surface-blue px-2.5 py-1 text-[0.78rem] font-medium text-uk-body"
                   >
-                    {t}
+                    {ukText(t)}
                   </span>
                 ))}
               </div>
@@ -289,12 +279,8 @@ export default async function ServicePage({ params }: Props) {
           <Container className="relative">
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Briefcase className="h-3.5 w-3.5" />
-                Typical engagements
-              </span>
-              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                What clients usually ask us for
-              </h2>
+                <Briefcase className="h-3.5 w-3.5" />{ukText("Typical engagements")}</span>
+              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What clients usually ask us for")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {detail.useCases.map((u, i) => (
@@ -303,10 +289,10 @@ export default async function ServicePage({ params }: Props) {
                   className="flex flex-col gap-3 rounded-2xl border border-uk-line bg-uk-card p-6 card-hover"
                 >
                   <span className="font-heading text-3xl font-bold text-uk-blue/25">
-                    {String(i + 1).padStart(2, "0")}
+                    {ukText(String(i + 1).padStart(2, "0"))}
                   </span>
-                  <h3 className="font-heading text-base font-bold text-uk-heading">{u.title}</h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{u.desc}</p>
+                  <h3 className="font-heading text-base font-bold text-uk-heading">{ukText(u.title)}</h3>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(u.desc)}</p>
                 </div>
               ))}
             </Reveal>
@@ -319,36 +305,28 @@ export default async function ServicePage({ params }: Props) {
           <Container>
             <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
               <Reveal className="flex flex-col gap-5">
-                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                  Deliverables
-                </span>
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  What you walk away with
-                </h2>
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Deliverables")}</span>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What you walk away with")}</h2>
                 <ul className="flex flex-col gap-3">
                   {detail.deliverables.map((d) => (
                     <li key={d} className="flex items-start gap-3 text-uk-body">
                       <Check className="mt-0.5 h-5 w-5 flex-none text-uk-blue" />
-                      <span className="text-sm leading-relaxed">{d}</span>
+                      <span className="text-sm leading-relaxed">{ukText(d)}</span>
                     </li>
                   ))}
                 </ul>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
-                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                  How we engage
-                </span>
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  The process
-                </h2>
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("How we engage")}</span>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("The process")}</h2>
                 <ol className="flex flex-col gap-4">
                   {detail.process.map((p, i) => (
                     <li key={i} className="flex items-start gap-4">
                       <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-uk-blue/15 font-heading text-sm font-bold text-uk-blue">
-                        {String(i + 1).padStart(2, "0")}
+                        {ukText(String(i + 1).padStart(2, "0"))}
                       </span>
-                      <p className="text-sm leading-relaxed text-uk-body">{p}</p>
+                      <p className="text-sm leading-relaxed text-uk-body">{ukText(p)}</p>
                     </li>
                   ))}
                 </ol>
@@ -361,16 +339,10 @@ export default async function ServicePage({ params }: Props) {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                    <Handshake className="h-4 w-4" />
-                    What we need from you
-                  </span>
-                  <h3 className="mt-2 font-heading text-lg font-bold text-uk-heading">
-                    Four things that make week one productive
-                  </h3>
+                    <Handshake className="h-4 w-4" />{ukText("What we need from you")}</span>
+                  <h3 className="mt-2 font-heading text-lg font-bold text-uk-heading">{ukText("Four things that make week one productive")}</h3>
                 </div>
-                <p className="max-w-md text-sm text-uk-gray">
-                  None of these are hard; all of them are the difference between a thin slice in week three and a thin slice in week six.
-                </p>
+                <p className="max-w-md text-sm text-uk-gray">{ukText("None of these are hard; all of them are the difference between a thin slice in week three and a thin slice in week six.")}</p>
               </div>
               <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {detail.youProvide.map((y, i) => (
@@ -378,7 +350,7 @@ export default async function ServicePage({ params }: Props) {
                     <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 font-heading text-xs font-bold text-uk-blue">
                       {i + 1}
                     </span>
-                    {y}
+                    {ukText(y)}
                   </li>
                 ))}
               </ul>
@@ -394,28 +366,19 @@ export default async function ServicePage({ params }: Props) {
             <Reveal className="rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-10">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
                 <div>
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                    Outcomes
-                  </span>
-                  <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                    What changes after we ship
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">
-                    Every item here is a measurable state, not an adjective — the things you can
-                    check on your own system a month after launch.
-                  </p>
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Outcomes")}</span>
+                  <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What changes after we ship")}</h2>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Every item here is a measurable state, not an adjective — the things you can check on your own system a month after launch.")}</p>
                   <div className="mt-6 rounded-2xl border border-uk-line bg-uk-card p-5">
                     <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-uk-muted">
-                      <ShieldCheck className="h-4 w-4 text-uk-blue" />
-                      Guaranteed in the contract
-                    </p>
+                      <ShieldCheck className="h-4 w-4 text-uk-blue" />{ukText("Guaranteed in the contract")}</p>
                     <ul className="mt-3 flex flex-col gap-2.5">
                       {principles.map((p) => (
                         <li key={p.title} className="flex items-start gap-2.5 text-sm font-medium text-uk-heading">
                           <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                             <Check className="h-3 w-3" strokeWidth={3} />
                           </span>
-                          {p.title}
+                          {ukText(p.title)}
                         </li>
                       ))}
                     </ul>
@@ -427,7 +390,7 @@ export default async function ServicePage({ params }: Props) {
                       <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                         <Check className="h-3 w-3" strokeWidth={3} />
                       </span>
-                      {o}
+                      {ukText(o)}
                     </li>
                   ))}
                 </ul>
@@ -444,11 +407,8 @@ export default async function ServicePage({ params }: Props) {
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                Why Ukvalley
-              </span>
-              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Why clients pick us for {service.title}
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Why Ukvalley")}</span>
+              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why clients pick us for ")}{ukText(service.title)}
               </h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -460,8 +420,8 @@ export default async function ServicePage({ params }: Props) {
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-uk-blue/12 text-uk-blue">
                     <Check className="h-5 w-5" />
                   </span>
-                  <h3 className="font-heading text-base font-bold text-uk-heading">{w.title}</h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{w.desc}</p>
+                  <h3 className="font-heading text-base font-bold text-uk-heading">{ukText(w.title)}</h3>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(w.desc)}</p>
                 </div>
               ))}
             </Reveal>
@@ -474,37 +434,31 @@ export default async function ServicePage({ params }: Props) {
             <Container>
               <Reveal className="flex flex-wrap items-end justify-between gap-4">
                 <div className="max-w-2xl">
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                    Proof
-                  </span>
-                  <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                    Engagements with the numbers attached
-                  </h2>
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Proof")}</span>
+                  <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Engagements with the numbers attached")}</h2>
                 </div>
                 <Link
-                  href="/case-studies"
+                  href={ukText("/case-studies")}
                   className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
-                >
-                  All case studies
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                >{ukText("All case studies")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Reveal>
               <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 {proof.map((c) => (
                   <Link
                     key={c.slug}
-                    href={`/case-studies/${c.slug}`}
+                    href={ukText(`/case-studies/${c.slug}`)}
                     className="group flex flex-col gap-3 rounded-2xl border border-uk-line bg-uk-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40"
                   >
                     <span className="inline-flex w-fit items-center rounded-full bg-uk-blue/12 px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider text-uk-blue">
-                      {c.sector}
+                      {ukText(c.sector)}
                     </span>
-                    <span className="font-heading text-base font-bold leading-snug text-uk-heading">{c.title}</span>
+                    <span className="font-heading text-base font-bold leading-snug text-uk-heading">{ukText(c.title)}</span>
                     <div className="mt-auto grid grid-cols-3 gap-2 border-t border-uk-line pt-3">
                       {c.metrics.map((m) => (
                         <div key={m.label} className="flex flex-col">
-                          <span className="font-heading text-sm font-bold text-uk-blue">{m.value}</span>
-                          <span className="text-[0.65rem] leading-tight text-uk-muted">{m.label}</span>
+                          <span className="font-heading text-sm font-bold text-uk-blue">{ukText(m.value)}</span>
+                          <span className="text-[0.65rem] leading-tight text-uk-muted">{ukText(m.label)}</span>
                         </div>
                       ))}
                     </div>
@@ -520,23 +474,19 @@ export default async function ServicePage({ params }: Props) {
           <section className="relative bg-uk-surface-2 section-py">
             <Container>
               <Reveal className="max-w-2xl">
-                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                  Where it applies
-                </span>
-                <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Industries we serve with this
-                </h2>
+                <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Where it applies")}</span>
+                <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Industries we serve with this")}</h2>
               </Reveal>
               <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {related.map((ind) => (
                   <Link
                     key={ind!.slug}
-                    href={`/industries/${ind!.slug}`}
+                    href={ukText(`/industries/${ind!.slug}`)}
                     className="group flex items-center justify-between gap-3 rounded-xl border border-uk-line bg-uk-card p-5 transition-colors hover:border-uk-blue/40"
                   >
                     <span className="flex flex-col gap-0.5">
-                      <span className="font-heading text-base font-bold text-uk-heading">{ind!.name}</span>
-                      <span className="text-xs text-uk-muted line-clamp-1">{ind!.outcomes.join(" · ")}</span>
+                      <span className="font-heading text-base font-bold text-uk-heading">{ukText(ind!.name)}</span>
+                      <span className="text-xs text-uk-muted line-clamp-1">{ukText(ind!.outcomes.join(" · "))}</span>
                     </span>
                     <ArrowRight className="h-4 w-4 flex-none text-uk-blue transition-transform group-hover:translate-x-1" />
                   </Link>
@@ -552,11 +502,8 @@ export default async function ServicePage({ params }: Props) {
             {detail.serviceFaqs.length > 0 && (
             <>
             <Reveal className="max-w-2xl">
-              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                FAQ
-              </span>
-              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Common questions about {service.title}
+              <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("FAQ")}</span>
+              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Common questions about ")}{ukText(service.title)}
               </h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -566,10 +513,10 @@ export default async function ServicePage({ params }: Props) {
                   className="group h-fit rounded-2xl border border-uk-line bg-uk-card px-5 py-4 transition-colors hover:border-uk-blue/40 open:border-uk-blue/40"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading text-base font-semibold text-uk-heading [&::-webkit-details-marker]:hidden">
-                    {f.q}
+                    {ukText(f.q)}
                     <ChevronRight className="h-4 w-4 flex-none text-uk-muted transition-transform group-open:rotate-90" />
                   </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray">{f.a}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText(f.a)}</p>
                 </details>
               ))}
             </Reveal>
@@ -578,16 +525,10 @@ export default async function ServicePage({ params }: Props) {
 
             <Reveal className={`${detail.serviceFaqs.length > 0 ? "mt-10 " : ""}flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6`}>
               <div>
-                <h3 className="font-heading text-lg font-bold text-uk-heading">
-                  Have a {service.title} project in mind?
-                </h3>
-                <p className="mt-1 text-sm text-uk-gray">
-                  A free 30-minute call with an architect — a written estimate in 3 days, a fixed proposal in 7.
-                </p>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Have a ")}{ukText(service.title)}{ukText("project in mind?")}</h3>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A free 30-minute call with an architect — a written estimate in 3 days, a fixed proposal in 7.")}</p>
               </div>
-              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">
-                Book a scoping call
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
             </Reveal>
           </Container>
@@ -598,12 +539,9 @@ export default async function ServicePage({ params }: Props) {
           <Container>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <h2 className="font-heading text-xl font-bold text-uk-heading">
-                  Explore other services
-                </h2>
+                <h2 className="font-heading text-xl font-bold text-uk-heading">{ukText("Explore other services")}</h2>
                 <p className="mt-1 text-sm text-uk-gray">
-                  {capitalize(countWord(liveServices.length))} service lines, one accountable team.
-                </p>
+                  {ukText(capitalize(countWord(liveServices.length)))}{ukText("service lines, one accountable team.")}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {liveServices
@@ -611,22 +549,20 @@ export default async function ServicePage({ params }: Props) {
                   .map((s) => (
                     <Link
                       key={s.href}
-                      href={s.href}
+                      href={ukText(s.href)}
                       className="rounded-full border border-uk-line bg-uk-surface-blue px-4 py-2 text-sm font-medium text-uk-body transition-colors hover:border-uk-blue/50 hover:text-uk-blue-bright"
                     >
-                      {s.title}
+                      {ukText(s.title)}
                     </Link>
                   ))}
               </div>
             </div>
             <div className="mt-8">
               <Link
-                href="/services"
+                href={ukText("/services")}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
               >
-                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                All services
-              </Link>
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />{ukText("All services")}</Link>
             </div>
           </Container>
         </section>

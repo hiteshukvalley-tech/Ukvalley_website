@@ -12,7 +12,11 @@ function getClient(): MongoClient {
   if (!uri) throw new Error("MONGODB_URI is not set (see .env.example).");
   if (!g._mongoClient) {
     g._mongoClient = new MongoClient(uri, {
-      serverSelectionTimeoutMS: 5000,
+      // The first connection after a start is a cold TLS handshake to Atlas
+      // and can take longer than 5s on a slow link; failing it showed as a
+      // 503 on /media and as "could not reach the database" on login.
+      serverSelectionTimeoutMS: 15000,
+      connectTimeoutMS: 15000,
       // Keep a few warm connections: a new TLS connection to Atlas costs
       // several hundred ms. On Vercel every function instance has its own
       // pool, so keep it small there to stay inside Atlas's connection limit

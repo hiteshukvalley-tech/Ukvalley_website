@@ -3,6 +3,7 @@ import { Reveal } from "./reveal";
 import { SectionHeading } from "./section-heading";
 import reportsJson from "@/lib/reports.json";
 import { cn } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
 
 export type Report = (typeof reportsJson.reports)[number];
 export const reports: Report[] = reportsJson.reports;
@@ -26,7 +27,7 @@ function BarChart({ chart, id }: { chart: Report["chart"]; id: string }) {
   return (
     <figure aria-labelledby={`${id}-title`} className="w-full">
       <figcaption id={`${id}-title`} className="text-sm font-semibold text-uk-heading">
-        {chart.title}
+        {ukText(chart.title)}
       </figcaption>
       <svg
         viewBox={`0 0 ${w} ${h}`}
@@ -54,14 +55,14 @@ function BarChart({ chart, id }: { chart: Report["chart"]; id: string }) {
           const bw = Math.max(8, (r.value / max) * plotW);
           return (
             <g key={r.label} className="group/bar">
-              <title>{`${r.label}: ${r.value} ${chart.unit}`}</title>
+              <title>{ukText(`${r.label}: ${r.value} ${chart.unit}`)}</title>
               <text
                 x={plotX - 10}
                 y={y + barH / 2 + 4}
                 textAnchor="end"
                 className="fill-uk-body text-[12px]"
               >
-                {r.label.length > 34 ? `${r.label.slice(0, 33)}…` : r.label}
+                {ukText(r.label.length > 34 ? `${r.label.slice(0, 33)}…` : r.label)}
               </text>
               {/* hit target wider than the mark */}
               <rect x={plotX} y={y - 6} width={plotW + 56} height={barH + 12} fill="transparent" />
@@ -83,20 +84,18 @@ function BarChart({ chart, id }: { chart: Report["chart"]; id: string }) {
       </svg>
       <details className="mt-2 text-xs text-uk-muted">
         <summary className="inline-flex cursor-pointer items-center gap-1.5 font-medium hover:text-uk-heading">
-          <Table2 className="h-3.5 w-3.5" />
-          View as table
-        </summary>
+          <Table2 className="h-3.5 w-3.5" />{ukText("View as table")}</summary>
         <table className="mt-2 w-full border-separate border-spacing-0 text-left">
           <thead>
             <tr>
-              <th className="border-b border-uk-line py-1.5 pr-3 font-semibold text-uk-heading">Item</th>
-              <th className="border-b border-uk-line py-1.5 text-right font-semibold text-uk-heading">{chart.unit}</th>
+              <th className="border-b border-uk-line py-1.5 pr-3 font-semibold text-uk-heading">{ukText("Item")}</th>
+              <th className="border-b border-uk-line py-1.5 text-right font-semibold text-uk-heading">{ukText(chart.unit)}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.label}>
-                <td className="border-b border-uk-line py-1.5 pr-3 text-uk-body">{r.label}</td>
+                <td className="border-b border-uk-line py-1.5 pr-3 text-uk-body">{ukText(r.label)}</td>
                 <td className="border-b border-uk-line py-1.5 text-right tabular-nums text-uk-body">{r.value}</td>
               </tr>
             ))}
@@ -119,26 +118,23 @@ export function ReportCard({ report, className }: { report: Report; className?: 
         <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-uk-blue/12 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-wider text-uk-blue">
             <FileBarChart className="h-3.5 w-3.5" />
-            {report.kind}
+            {ukText(report.kind)}
           </span>
           <h3 className="mt-3 font-heading text-xl font-bold leading-snug text-uk-heading sm:text-2xl">
-            {report.title}
+            {ukText(report.title)}
           </h3>
           <p className="mt-1 text-xs text-uk-muted">
-            {report.period} · PDF · A4
-          </p>
+            {ukText(report.period)}{ukText("· PDF · A4")}</p>
         </div>
         <a
-          href={report.file}
+          href={ukText(report.file)}
           download
           className="btn-sheen btn-lift group inline-flex items-center gap-2 rounded-full bg-uk-blue px-4 py-2 text-sm font-semibold text-uk-white shadow-glow-blue-sm hover:bg-uk-blue-bright"
         >
-          <Download className="h-4 w-4" />
-          Download PDF
-        </a>
+          <Download className="h-4 w-4" />{ukText("Download PDF")}</a>
       </div>
 
-      <p className="text-sm leading-relaxed text-uk-gray sm:text-base">{report.summary}</p>
+      <p className="text-sm leading-relaxed text-uk-gray sm:text-base">{ukText(report.summary)}</p>
 
       <ul className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
         {report.highlights.map((hl) => (
@@ -146,7 +142,7 @@ export function ReportCard({ report, className }: { report: Report; className?: 
             <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
               <Check className="h-3 w-3" strokeWidth={3} />
             </span>
-            {hl}
+            {ukText(hl)}
           </li>
         ))}
       </ul>
@@ -162,8 +158,7 @@ export function ReportCard({ report, className }: { report: Report; className?: 
 export function ReportsSection({
   eyebrow = "Reports",
   title = (
-    <>
-      Published numbers, <span className="text-uk-blue">not marketing claims.</span>
+    <>{ukText("Published numbers, ")}<span className="text-uk-blue">{ukText("not marketing claims.")}</span>
     </>
   ),
   description = "Downloadable reports we refresh on a schedule: how delivery is performing, and what custom software actually costs in India. Read them before you talk to us.",
@@ -177,7 +172,7 @@ export function ReportsSection({
   return (
     <section id="reports" className={cn("relative bg-uk-surface-2 section-py scroll-mt-24", className)}>
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-        <SectionHeading align="center" eyebrow={eyebrow} title={title} description={description} />
+        <SectionHeading align="center" eyebrow={ukText(eyebrow)} title={ukText(title)} description={ukText(description)} />
         <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {reports.map((r) => (
             <ReportCard key={r.slug} report={r} />

@@ -36,7 +36,7 @@ export default async function AccountPage() {
         <div className="flex items-start gap-2 rounded-xl border border-uk-line bg-uk-card px-4 py-3 text-sm text-uk-body">
           <Info className="mt-0.5 h-4 w-4 shrink-0 text-uk-blue" />
           <span>
-            This is the owner account. Its password is set by <code>ADMIN_PASSWORD</code> in the server environment, so it is changed there rather than here.
+            This is the owner account. Its password is set by <code>ADMIN_PASSWORD</code> in the server environment. To change it, use <strong>Forgot password?</strong> on the sign-in page (a code is emailed to you), or change <code>ADMIN_PASSWORD</code>, which also cancels a password set that way.
           </span>
         </div>
       ) : (

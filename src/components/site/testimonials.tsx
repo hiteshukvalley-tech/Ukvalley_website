@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Marked } from "./marked";
 import { getTestimonials } from "@/lib/testimonials-store";
 import type { HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 function initials(name: string) {
   return name
@@ -24,9 +25,9 @@ export async function Testimonials({ content: c }: { content: HomeContent["testi
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow={c.eyebrow}
-            title={<Marked text={c.title} className="text-gradient-blue" />}
-            description={c.description || undefined}
+            eyebrow={ukText(c.eyebrow)}
+            title={<Marked text={ukText(c.title)} className="text-gradient-blue" />}
+            description={ukText(c.description || undefined)}
           />
         </div>
 
@@ -45,18 +46,18 @@ export async function Testimonials({ content: c }: { content: HomeContent["testi
                 </div>
               </div>
               <blockquote className="text-base leading-relaxed text-uk-body">
-                &ldquo;{t.quote}&rdquo;
+                &ldquo;{ukText(t.quote)}&rdquo;
               </blockquote>
               <figcaption className="mt-auto flex items-center gap-3 border-t border-uk-line pt-5">
                 <Avatar className="h-11 w-11 border border-uk-blue/30">
                   <AvatarFallback className="bg-uk-blue/12 font-heading text-sm font-bold text-uk-blue">
-                    {initials(t.name)}
+                    {ukText(initials(t.name))}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
-                  <span className="font-heading text-sm font-bold text-uk-heading">{t.name}</span>
-                  <span className="text-xs text-uk-muted">{t.title}</span>
-                  <span className="text-xs text-uk-blue">{t.company}</span>
+                  <span className="font-heading text-sm font-bold text-uk-heading">{ukText(t.name)}</span>
+                  <span className="text-xs text-uk-muted">{ukText(t.title)}</span>
+                  <span className="text-xs text-uk-blue">{ukText(t.company)}</span>
                 </div>
               </figcaption>
             </figure>

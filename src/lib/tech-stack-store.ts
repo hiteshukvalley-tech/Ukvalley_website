@@ -49,13 +49,13 @@ async function readPublished(): Promise<TechCategory[]> {
 // Throws on DB errors so a failure is never cached; callers fall back.
 const cachedPublished = unstable_cache(readPublished, ["techCategories-published-v1"], {
   tags: [TECH_STACK_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 const cachedHasAny = unstable_cache(
   async () => (await col().estimatedDocumentCount()) > 0,
   ["techCategories-has-any-v1"],
-  { tags: [TECH_STACK_TAG], revalidate: 3600 }
+  { tags: [TECH_STACK_TAG], revalidate: 60 }
 );
 
 /**

@@ -26,11 +26,11 @@ const page = await newPage(browser);
 {
   await go(page, "/admin/login");
   await page.type("#email", OWNER.email);
-  await page.type("#password", "definitely-wrong-password");
+  await page.type("#password", "Definitely-Wrong-Pass1"); // meets the password rules, so the server checks it
   await page.click("button[type=submit]");
   await page.waitForSelector("[role=alert]", { timeout: 15000 }).catch(() => {});
   const t = await text(page);
-  check("wrong password shows an error", /incorrect email or password/i.test(t));
+  check("wrong password shows an error", /incorrect email (id )?or password/i.test(t));
   check("wrong password stays on login", page.url().endsWith("/admin/login"));
   check("email kept after failed login", (await page.$eval("#email", (e) => e.value)) === OWNER.email);
 

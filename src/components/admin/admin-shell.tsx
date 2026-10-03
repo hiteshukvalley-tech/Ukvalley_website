@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, LogOut, Menu, X, ExternalLink, UserRound } from "lucide-react";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import { logoutAction } from "@/app/admin/actions";
+import { GlobalSearch } from "./global-search";
 import { adminNav, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
 import { Toaster } from "./toast";
 import type { AdminRole } from "@/lib/admin-auth";
@@ -189,6 +190,7 @@ export function AdminShell({
           >
             <Menu className="h-4 w-4" />
           </button>
+          <GlobalSearch />
           <div className="flex-1" />
           <Link
             href="/"

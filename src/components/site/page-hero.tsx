@@ -18,6 +18,7 @@ import { getHireRoles } from "@/lib/hire-store";
 import { getPosts } from "@/lib/blog-store";
 import { getLocations } from "@/lib/locations-store";
 import { getSiteSettings } from "@/lib/settings";
+import { ukText } from "@/lib/texts";
 
 /**
  * Each main nav section gets its own decorative hero backdrop with its
@@ -77,10 +78,10 @@ type PageHeroProps = {
  */
 export const oneLineTitle = {
   services:
-    "sm:whitespace-nowrap text-[1.75rem] sm:text-[clamp(1.5rem,4.4vw,2.1rem)] lg:text-[1.85rem] xl:text-[2.1rem] 2xl:text-[2.5rem]",
-  hire: "sm:whitespace-nowrap text-[1.9rem] sm:text-[clamp(1.75rem,5.4vw,3.2rem)] lg:text-[2.3rem] xl:text-[2.6rem] 2xl:text-[2.8rem]",
+    "sm:whitespace-nowrap xl:whitespace-normal text-[1.75rem] sm:text-[clamp(1.5rem,4.4vw,2.1rem)] lg:text-[1.85rem] xl:text-[2.1rem] 2xl:text-[2.3rem]",
+  hire: "sm:whitespace-nowrap xl:whitespace-normal text-[1.9rem] sm:text-[clamp(1.75rem,5.4vw,3.2rem)] lg:text-[2.3rem] xl:text-[2.6rem] 2xl:text-[2.8rem]",
   solutions:
-    "sm:whitespace-nowrap text-[1.9rem] sm:text-[clamp(1.75rem,6.2vw,2.6rem)] lg:text-[2.6rem] xl:text-[3rem] 2xl:text-[3.5rem]",
+    "sm:whitespace-nowrap xl:whitespace-normal text-[1.9rem] sm:text-[clamp(1.75rem,6.2vw,2.6rem)] lg:text-[2.6rem] xl:text-[3rem] 2xl:text-[3.25rem]",
 };
 
 /**
@@ -388,7 +389,7 @@ function ImageCanvas({ art, className, preload }: { art: HeroArtwork; className:
               full-resolution file (no upscaling blur on Retina screens),
               and quality 95 keeps fine lines and text crisp. */}
           <Image
-            src={art.src}
+            src={ukText(art.src)}
             alt=""
             fill
             sizes="(min-width: 1280px) 64rem, 48rem"
@@ -412,11 +413,11 @@ function ImageCanvas({ art, className, preload }: { art: HeroArtwork; className:
       {/* floating glass stat chips — tie the artwork to the page's message */}
       <div className="glass absolute -left-10 top-[18%] hidden items-center xl:flex gap-2.5 rounded-2xl px-3.5 py-2.5 shadow-float xl:-left-14">
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#3100FF] to-[#684DFF] font-heading text-sm font-bold text-white">
-          {art.stat.value}
+          {ukText(art.stat.value)}
         </span>
         <span className="flex flex-col leading-tight">
-          <span className="text-xs font-bold text-uk-heading">{art.stat.label}</span>
-          <span className="text-[0.65rem] text-uk-muted">{art.stat.sub}</span>
+          <span className="text-xs font-bold text-uk-heading">{ukText(art.stat.label)}</span>
+          <span className="text-[0.65rem] text-uk-muted">{ukText(art.stat.sub)}</span>
         </span>
       </div>
       <div className="glass absolute -right-4 bottom-[12%] hidden items-center xl:flex gap-2.5 rounded-2xl px-3.5 py-2.5 shadow-float xl:-right-8">
@@ -425,8 +426,8 @@ function ImageCanvas({ art, className, preload }: { art: HeroArtwork; className:
           <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-uk-yellow shadow-glow-yellow" />
         </span>
         <span className="flex flex-col leading-tight">
-          <span className="text-xs font-bold text-uk-heading">{art.badge.label}</span>
-          <span className="text-[0.65rem] text-uk-muted">{art.badge.sub}</span>
+          <span className="text-xs font-bold text-uk-heading">{ukText(art.badge.label)}</span>
+          <span className="text-[0.65rem] text-uk-muted">{ukText(art.badge.sub)}</span>
         </span>
       </div>
     </div>
@@ -1507,7 +1508,7 @@ export async function PageHero({
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-uk-yellow/60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-uk-yellow shadow-glow-yellow" />
             </span>
-            {eyebrow}
+            {ukText(eyebrow)}
           </span>
           <h1
             className={cn(
@@ -1518,11 +1519,11 @@ export async function PageHero({
               titleClassName
             )}
           >
-            {title}
+            {ukText(title)}
           </h1>
           {description && (
             <p className={`text-justify-prose max-w-2xl ${art ? "lg:max-w-[36rem] xl:max-w-[40rem]" : ""} text-lg leading-relaxed text-uk-muted sm:text-xl`}>
-              {description}
+              {ukText(description)}
             </p>
           )}
           {children}
@@ -1532,15 +1533,13 @@ export async function PageHero({
           {strip && (
             <>
               <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-                <ScopingButton className="btn-sheen btn-lift group inline-flex h-12 w-full items-center justify-center gap-2 sm:w-auto rounded-full bg-uk-blue px-6 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">
-                  Book a free scoping call
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <ScopingButton className="btn-sheen btn-lift group inline-flex h-12 w-full items-center justify-center gap-2 sm:w-auto rounded-full bg-uk-blue px-6 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a free scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </ScopingButton>
                 <Link
-                  href={strip.secondary.href}
+                  href={ukText(strip.secondary.href)}
                   className="btn-lift group inline-flex h-12 w-full items-center justify-center gap-2 sm:w-auto rounded-full border border-uk-line bg-white/80 px-6 text-sm font-semibold text-uk-heading backdrop-blur hover:border-uk-blue/50 hover:text-uk-blue-bright dark:bg-uk-card/80"
                 >
-                  {strip.secondary.label}
+                  {ukText(strip.secondary.label)}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </div>
@@ -1548,8 +1547,8 @@ export async function PageHero({
               <dl className="mt-2 grid max-w-2xl grid-cols-2 gap-x-6 gap-y-4 border-t border-uk-line pt-5 sm:grid-cols-4 lg:max-w-[40rem]">
                 {strip.facts.map((f) => (
                   <div key={f.label} className="flex flex-col gap-1">
-                    <dt className="order-2 text-xs font-medium leading-tight text-uk-muted">{f.label}</dt>
-                    <dd className="order-1 font-heading text-2xl font-bold leading-none text-uk-blue">{f.value}</dd>
+                    <dt className="order-2 text-xs font-medium leading-tight text-uk-muted">{ukText(f.label)}</dt>
+                    <dd className="order-1 font-heading text-2xl font-bold leading-none text-uk-blue">{ukText(f.value)}</dd>
                   </div>
                 ))}
               </dl>

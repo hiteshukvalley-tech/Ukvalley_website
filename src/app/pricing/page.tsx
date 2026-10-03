@@ -4,12 +4,17 @@ import { Header } from "@/components/site/header";
 import { ScopingButton } from "@/components/site/scoping-modal";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
-import { PageHero, heroExtras } from "@/components/site/page-hero";
+import { heroExtras } from "@/components/site/page-hero";
+import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { SectionHeading } from "@/components/site/section-heading";
 import { CtaBand } from "@/components/site/cta";
 import { getEngagementModels } from "@/lib/engagement-store";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Pricing — how Ukvalley quotes, honestly",
@@ -71,18 +76,17 @@ export default async function PricingPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <PageHero
+        <EditableHero pageKey="pricing"
           variant="company"
           extras={heroExtras.company}
-          eyebrow="Pricing"
+          eyebrow={ukText("Pricing")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Pricing" }]}
           title={
-            <>
-              Honest pricing logic —{" "}
-              <span className="text-gradient-blue">before you ever talk to us.</span>
+            <>{ukText("Honest pricing logic —")}{" "}
+              <span className="text-gradient-blue">{ukText("before you ever talk to us.")}</span>
             </>
           }
-          description="Custom software quotes for 'the same app' can differ by ten times or more. Here's why, and which tier your project actually falls in — published openly, because informed buyers make better clients."
+          description={ukText("Custom software quotes for 'the same app' can differ by ten times or more. Here's why, and which tier your project actually falls in — published openly, because informed buyers make better clients.")}
         />
 
         {/* The problem it solves */}
@@ -90,29 +94,19 @@ export default async function PricingPage() {
           <Container>
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem it solves
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem it solves")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why quotes for "the same app" differ by ten times
-                </h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  Ask five vendors what a custom CRM costs and you'll get five wildly different answers. Nobody is lying — they're quoting different things, because most buyers describe the app by its screens, and screen count is almost irrelevant to what actually drives the price.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  The opacity costs buyers at the negotiation table: without knowing which variables actually move the number, it's impossible to tell whether a low quote is a genuine efficiency or a bait price that grows once the contract is signed, or whether a high quote reflects real complexity or just a bigger logo on the invoice.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  We publish the three variables that actually drive cost — distinct user roles, external integrations and how much of the workflow is genuinely custom — so you can sanity-check any quote, including ours, before you sign anything.
-                </p>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why quotes for \"the same app\" differ by ten times")}</h2>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Ask five vendors what a custom CRM costs and you'll get five wildly different answers. Nobody is lying — they're quoting different things, because most buyers describe the app by its screens, and screen count is almost irrelevant to what actually drives the price.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The opacity costs buyers at the negotiation table: without knowing which variables actually move the number, it's impossible to tell whether a low quote is a genuine efficiency or a bait price that grows once the contract is signed, or whether a high quote reflects real complexity or just a bigger logo on the invoice.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We publish the three variables that actually drive cost — distinct user roles, external integrations and how much of the workflow is genuinely custom — so you can sanity-check any quote, including ours, before you sign anything.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">What actually moves the price</h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("What actually moves the price")}</h3>
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {[
                       "Distinct user roles needing different screens",
@@ -124,7 +118,7 @@ export default async function PricingPage() {
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                           <Check className="h-3.5 w-3.5" strokeWidth={3} />
                         </span>
-                        <p className="text-sm leading-relaxed text-uk-body">{item}</p>
+                        <p className="text-sm leading-relaxed text-uk-body">{ukText(item)}</p>
                       </li>
                     ))}
                   </ul>
@@ -132,9 +126,7 @@ export default async function PricingPage() {
 
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {[
                       { label: "Pricing tiers published", value: "3", sub: "Scope-based, not screen count" },
@@ -144,10 +136,10 @@ export default async function PricingPage() {
                     ].map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
                         <dt className="text-sm text-uk-gray">
-                          {f.label}
-                          <span className="block text-xs text-uk-muted">{f.sub}</span>
+                          {ukText(f.label)}
+                          <span className="block text-xs text-uk-muted">{ukText(f.sub)}</span>
                         </dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{f.value}</dd>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -161,14 +153,8 @@ export default async function PricingPage() {
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                The three tiers
-              </h2>
-              <p className="mt-3 text-uk-gray">
-                Three variables, not screen counts: how many distinct user roles
-                need different screens, how many external systems must be
-                integrated, and how much of the workflow is genuinely custom.
-              </p>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("The three tiers")}</h2>
+              <p className="mt-3 text-uk-gray">{ukText("Three variables, not screen counts: how many distinct user roles need different screens, how many external systems must be integrated, and how much of the workflow is genuinely custom.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
               {bands.map((b) => (
@@ -181,36 +167,31 @@ export default async function PricingPage() {
                   }`}
                 >
                   {b.featured && (
-                    <span className="mb-4 w-fit rounded-full bg-uk-blue px-3 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-uk-white">
-                      Most common
-                    </span>
+                    <span className="mb-4 w-fit rounded-full bg-uk-blue px-3 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-uk-white">{ukText("Most common")}</span>
                   )}
                   <span className="font-heading text-3xl font-bold text-uk-blue">
-                    {b.band}
+                    {ukText(b.band)}
                   </span>
                   <h3 className="mt-2 font-heading text-lg font-bold text-uk-heading">
-                    {b.name}
+                    {ukText(b.name)}
                   </h3>
-                  <p className="mt-1 text-xs text-uk-gray">{b.shape}</p>
+                  <p className="mt-1 text-xs text-uk-gray">{ukText(b.shape)}</p>
                   <p className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-uk-muted">
-                    <CalendarClock className="h-3.5 w-3.5 text-uk-blue" />
-                    Typically {b.time}
+                    <CalendarClock className="h-3.5 w-3.5 text-uk-blue" />{ukText("Typically ")}{ukText(b.time)}
                   </p>
                   <ul className="mt-5 flex flex-1 flex-col gap-2.5 border-t border-uk-line pt-4">
                     {b.includes.map((i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm text-uk-body">
                         <Check className="mt-0.5 h-4 w-4 flex-none text-uk-blue" />
-                        {i}
+                        {ukText(i)}
                       </li>
                     ))}
                   </ul>
                   <div className="mt-5 flex flex-col gap-1.5 border-t border-uk-line pt-4">
-                    <span className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-uk-muted">
-                      Fits
-                    </span>
+                    <span className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-uk-muted">{ukText("Fits")}</span>
                     {b.examples?.map((e) => (
                       <span key={e} className="text-xs text-uk-gray">
-                        {e}
+                        {ukText(e)}
                       </span>
                     ))}
                   </div>
@@ -224,8 +205,8 @@ export default async function PricingPage() {
         <section className="relative bg-uk-surface section-py">
           <Container>
             <SectionHeading
-              eyebrow="Billing models"
-              title={<>Pick the model — the inclusions never change.</>}
+              eyebrow={ukText("Billing models")}
+              title={<>{ukText("Pick the model — the inclusions never change.")}</>}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {engagementModels.map((m) => (
@@ -234,26 +215,24 @@ export default async function PricingPage() {
                   className="flex flex-col gap-3 rounded-2xl border border-uk-line bg-uk-card p-6 card-hover"
                 >
                   <h3 className="font-heading text-base font-bold text-uk-blue">
-                    {m.name}
+                    {ukText(m.name)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{m.desc}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(m.desc)}</p>
                   <span className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-uk-surface-blue px-3 py-1 text-xs font-medium text-uk-body">
                     <Layers className="h-3 w-3" />
-                    {m.best}
+                    {ukText(m.best)}
                   </span>
                 </div>
               ))}
             </Reveal>
 
             <Reveal className="mt-10 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-8">
-              <h3 className="font-heading text-lg font-bold text-uk-heading">
-                Included in every quote — never an upsell
-              </h3>
+              <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Included in every quote — never an upsell")}</h3>
               <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {always.map((a) => (
                   <span key={a} className="flex items-center gap-2.5 text-sm text-uk-heading">
                     <Check className="h-4 w-4 flex-none text-uk-blue" />
-                    {a}
+                    {ukText(a)}
                   </span>
                 ))}
               </div>
@@ -266,38 +245,24 @@ export default async function PricingPage() {
           <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
           <Container className="relative">
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Us vs. agency vs. freelancer
-              </h2>
-              <p className="mt-3 text-uk-gray">
-                All three are legitimate choices. Here&apos;s the honest
-                trade-off table so you can pick the right one for your risk
-                tolerance.
-              </p>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Us vs. agency vs. freelancer")}</h2>
+              <p className="mt-3 text-uk-gray">{ukText("All three are legitimate choices. Here's the honest trade-off table so you can pick the right one for your risk tolerance.")}</p>
             </Reveal>
             <Reveal className="mt-10 overflow-x-auto">
               <table className="w-full min-w-[560px] border-separate border-spacing-0">
                 <thead>
                   <tr>
-                    <th className="rounded-tl-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-left font-heading text-sm font-bold text-uk-heading">
-                      Guarantee
-                    </th>
-                    <th className="border-b border-uk-line bg-uk-blue/10 px-5 py-4 text-center font-heading text-sm font-bold text-uk-blue">
-                      Ukvalley
-                    </th>
-                    <th className="border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">
-                      Metro agency
-                    </th>
-                    <th className="rounded-tr-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">
-                      Freelancer
-                    </th>
+                    <th className="rounded-tl-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-left font-heading text-sm font-bold text-uk-heading">{ukText("Guarantee")}</th>
+                    <th className="border-b border-uk-line bg-uk-blue/10 px-5 py-4 text-center font-heading text-sm font-bold text-uk-blue">{ukText("Ukvalley")}</th>
+                    <th className="border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">{ukText("Metro agency")}</th>
+                    <th className="rounded-tr-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">{ukText("Freelancer")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {compare.map((c, i) => (
                     <tr key={c.label}>
                       <td className={`border-b border-uk-line bg-uk-card px-5 py-4 text-sm font-medium text-uk-heading ${i === compare.length - 1 ? "rounded-bl-2xl" : ""}`}>
-                        {c.label}
+                        {ukText(c.label)}
                       </td>
                       {[c.us, c.agency, c.freelance].map((v, j) => (
                         <td
@@ -319,23 +284,17 @@ export default async function PricingPage() {
 
             <Reveal className="mt-12 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-8">
               <div className="max-w-xl">
-                <h3 className="font-heading text-lg font-bold text-uk-heading">
-                  Get your tier confirmed in 3 days.
-                </h3>
-                <p className="mt-1 text-sm text-uk-gray">
-                  A free scoping call, a written rough estimate in 3 business
-                  days, a fixed proposal in 7 — no charge, no obligation.
-                </p>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Get your tier confirmed in 3 days.")}</h3>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A free scoping call, a written rough estimate in 3 business days, a fixed proposal in 7 — no charge, no obligation.")}</p>
               </div>
-              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">
-                Get an estimate
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Get an estimate")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
             </Reveal>
           </Container>
         </section>
 
         <CtaBand />
+        <PageBlocks pageKey="pricing" />
       </main>
       <Footer />
     </>

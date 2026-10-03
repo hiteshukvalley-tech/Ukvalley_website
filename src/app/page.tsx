@@ -1,3 +1,4 @@
+import { Fragment, type ReactNode } from "react";
 import type { Metadata } from "next";
 import { Header } from "@/components/site/header";
 import { Hero } from "@/components/site/hero";
@@ -26,7 +27,13 @@ import { getSiteSettings } from "@/lib/settings";
 import { getIndustries } from "@/lib/industries-store";
 import { getHomePage } from "@/lib/home-store";
 import { Marked } from "@/components/site/marked";
+import { CustomSection } from "@/components/site/custom-section";
+import { isHomeSectionKey, type HomeSectionKey } from "@/lib/home-schema";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   alternates: { canonical: "https://ukvalley.com" },
@@ -59,16 +66,53 @@ const buildFaqSchema = (faqs: Awaited<ReturnType<typeof getFaqs>>) => ({
 });
 
 // Every section's text is edited in Admin → Home page; a section switched
-// off there is left out here. The cards inside sections (services, products,
-// case studies…) come from their own admin areas.
+// off there is left out here, and the sections show in the order set there
+// (the hero stays on top). The cards inside sections (services, products,
+// case studies…) come from their own admin areas. Sections the admin added
+// ("custom-…") render with <CustomSection>.
 export default async function Home() {
-  const [settings, faqs, { content: c, visible: show }] = await Promise.all([
-    getSiteSettings(),
-    getFaqs(),
-    getHomePage(),
-  ]);
+  const [settings, faqs, { content: c, visible: show, order, custom }, industries, processSteps, techCategories] =
+    await Promise.all([getSiteSettings(), getFaqs(), getHomePage(), getIndustries(), getProcessSteps(), getTechStack()]);
   const organizationSchema = buildOrganizationSchema(settings);
   const faqSchema = buildFaqSchema(faqs);
+
+  const builtIn: Record<HomeSectionKey, ReactNode> = {
+    hero: <Hero content={c.hero} />,
+    trust: <TrustMarquee content={c.trust} />,
+    explore: (
+      <>
+        <ExploreBlobs content={c.explore} />
+        <SectionDivider variant="circuit" className="bg-white dark:bg-uk-card py-6" />
+      </>
+    ),
+    services: <Services content={c.services} />,
+    why: <WhyChoose content={c.why} />,
+    numbers: <ByTheNumbers content={c.numbers} />,
+    products: (
+      <>
+        <Products content={c.products} />
+        <SectionDivider variant="circuit" className="bg-uk-surface-2 py-6" />
+      </>
+    ),
+    caseStudies: <CaseStudies content={c.caseStudies} />,
+    industries: (
+      <Industries
+        industries={industries}
+        eyebrow={ukText(c.industries.eyebrow)}
+        title={<Marked text={ukText(c.industries.title)} />}
+        description={ukText(c.industries.description)}
+        labels={c.industries}
+      />
+    ),
+    process: <Process steps={processSteps} content={c.process} />,
+    engagement: <Engagement content={c.engagement} />,
+    tech: <TechStack categories={techCategories} content={c.tech} />,
+    testimonials: <Testimonials content={c.testimonials} />,
+    insights: <Insights content={c.insights} />,
+    faq: <Faq content={c.faq} />,
+    cta: <CtaBand content={c.cta} />,
+  };
+
   return (
     <>
       <script
@@ -84,39 +128,11 @@ export default async function Home() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <Hero content={c.hero} />
-        {show.trust && <TrustMarquee content={c.trust} />}
-        {show.explore && (
-          <>
-            <ExploreBlobs content={c.explore} />
-            <SectionDivider variant="circuit" className="bg-white dark:bg-uk-card py-6" />
-          </>
-        )}
-        {show.services && <Services content={c.services} />}
-        {show.why && <WhyChoose content={c.why} />}
-        {show.numbers && <ByTheNumbers content={c.numbers} />}
-        {show.products && (
-          <>
-            <Products content={c.products} />
-            <SectionDivider variant="circuit" className="bg-uk-surface-2 py-6" />
-          </>
-        )}
-        {show.caseStudies && <CaseStudies content={c.caseStudies} />}
-        {show.industries && (
-          <Industries
-            industries={await getIndustries()}
-            eyebrow={c.industries.eyebrow}
-            title={<Marked text={c.industries.title} />}
-            description={c.industries.description}
-          />
-        )}
-        {show.process && <Process steps={await getProcessSteps()} content={c.process} />}
-        {show.engagement && <Engagement content={c.engagement} />}
-        {show.tech && <TechStack categories={await getTechStack()} content={c.tech} />}
-        {show.testimonials && <Testimonials content={c.testimonials} />}
-        {show.insights && <Insights content={c.insights} />}
-        {show.faq && <Faq content={c.faq} />}
-        {show.cta && <CtaBand content={c.cta} />}
+        {order.map((id) => {
+          if (isHomeSectionKey(id)) return show[id] ? <Fragment key={id}>{ukText(builtIn[id])}</Fragment> : null;
+          const section = custom.find((x) => x.id === id);
+          return section?.visible ? <CustomSection key={id} id={id} content={section.values} /> : null;
+        })}
       </main>
       <Footer />
     </>

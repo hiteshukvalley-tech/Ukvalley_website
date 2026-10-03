@@ -4,7 +4,8 @@ import { ArrowRight, Users, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
-import { PageHero, heroExtras } from "@/components/site/page-hero";
+import { heroExtras } from "@/components/site/page-hero";
+import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { SectionHeading } from "@/components/site/section-heading";
@@ -14,6 +15,10 @@ import { values } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/settings";
 import { getTeam } from "@/lib/team-store";
 import { getCareers } from "@/lib/careers-store";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Our team — the people accountable for your project",
@@ -30,18 +35,17 @@ export default async function TeamPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <PageHero
+        <EditableHero pageKey="team"
           variant="company"
           extras={heroExtras.company}
-          eyebrow="Our team"
+          eyebrow={ukText("Our team")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Our Team" }]}
           title={
-            <>
-              Named people, not an{" "}
-              <span className="text-gradient-blue">anonymous org chart.</span>
+            <>{ukText("Named people, not an")}{" "}
+              <span className="text-gradient-blue">{ukText("anonymous org chart.")}</span>
             </>
           }
-          description="These are the people who scope, build and stand behind your project — real names, real roles and a founder LinkedIn instead of a generic contact form."
+          description={ukText("These are the people who scope, build and stand behind your project — real names, real roles and a founder LinkedIn instead of a generic contact form.")}
         />
 
         {/* The problem it solves */}
@@ -49,29 +53,19 @@ export default async function TeamPage() {
           <Container>
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem it solves
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem it solves")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why an anonymous team is a risk you're taking on faith
-                </h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  Most agency websites show a generic "our team" stock photo grid, or list a dozen names with no indication of who actually touches your codebase. That anonymity is convenient for the vendor: nobody is personally accountable when a decision goes wrong, and the sales rep who scoped your project is rarely the engineer who builds it.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  The cost shows up mid-project: a question that should take an hour to answer takes three days because it has to route through account management to whichever engineer is free that week. Institutional knowledge lives in one person's head, and if they leave, your project restarts its learning curve from someone else's memory.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  We publish real names and real roles because the alternative — trusting a faceless "team" — is exactly the risk we're asking you not to take. The architect who scoped your project stays accountable for it through build, launch and support, and you can reach them directly.
-                </p>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why an anonymous team is a risk you're taking on faith")}</h2>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency websites show a generic \"our team\" stock photo grid, or list a dozen names with no indication of who actually touches your codebase. That anonymity is convenient for the vendor: nobody is personally accountable when a decision goes wrong, and the sales rep who scoped your project is rarely the engineer who builds it.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The cost shows up mid-project: a question that should take an hour to answer takes three days because it has to route through account management to whichever engineer is free that week. Institutional knowledge lives in one person's head, and if they leave, your project restarts its learning curve from someone else's memory.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We publish real names and real roles because the alternative — trusting a faceless \"team\" — is exactly the risk we're asking you not to take. The architect who scoped your project stays accountable for it through build, launch and support, and you can reach them directly.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">What continuity gets you</h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("What continuity gets you")}</h3>
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {[
                       "One architect accountable from scoping to support, by name",
@@ -83,7 +77,7 @@ export default async function TeamPage() {
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                           <Check className="h-3.5 w-3.5" strokeWidth={3} />
                         </span>
-                        <p className="text-sm leading-relaxed text-uk-body">{item}</p>
+                        <p className="text-sm leading-relaxed text-uk-body">{ukText(item)}</p>
                       </li>
                     ))}
                   </ul>
@@ -91,9 +85,7 @@ export default async function TeamPage() {
 
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {[
                       { label: "Leadership named", value: String(team.length), sub: "Not an anonymous org chart" },
@@ -103,10 +95,10 @@ export default async function TeamPage() {
                     ].map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
                         <dt className="text-sm text-uk-gray">
-                          {f.label}
-                          <span className="block text-xs text-uk-muted">{f.sub}</span>
+                          {ukText(f.label)}
+                          <span className="block text-xs text-uk-muted">{ukText(f.sub)}</span>
                         </dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{f.value}</dd>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -131,19 +123,19 @@ export default async function TeamPage() {
                       className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"
                       aria-hidden
                     >
-                      {m.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                      {ukText(m.name.split(" ").map((n) => n[0]).join("").slice(0, 2))}
                     </span>
                     <div>
                       <h2 className="font-heading text-lg font-bold text-uk-heading">
-                        {m.name}
+                        {ukText(m.name)}
                       </h2>
-                      <p className="text-sm text-uk-blue">{m.role}</p>
+                      <p className="text-sm text-uk-blue">{ukText(m.role)}</p>
                     </div>
                   </div>
-                  <p className="text-sm leading-relaxed text-uk-gray">{m.bio}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(m.bio)}</p>
                   <span className="mt-auto inline-flex w-fit items-center gap-1.5 rounded-full bg-uk-surface-blue px-3 py-1 text-xs font-medium text-uk-body">
                     <span className="h-1.5 w-1.5 rounded-full bg-uk-yellow" />
-                    {m.focus}
+                    {ukText(m.focus)}
                   </span>
                 </article>
               ))}
@@ -153,26 +145,18 @@ export default async function TeamPage() {
 
         <PhotoPanel
           photo={photos.hire}
-          eyebrow="How the team is built"
-          title="Senior engineers stay on the project — juniors learn beside them, not instead of them."
+          eyebrow={ukText("How the team is built")}
+          title={ukText("Senior engineers stay on the project — juniors learn beside them, not instead of them.")}
           facts={[
             "Every project has a named architect from scoping to support",
             "Code review by a senior engineer on every merge",
             "Engineers rotate onto our own products between client work",
             "Replace-anytime guarantee written into every hire",
           ]}
-          caption="Architects, full-stack, mobile and QA engineers work as one pool across both offices."
+          caption={ukText("Architects, full-stack, mobile and QA engineers work as one pool across both offices.")}
         >
-          <p>
-            The classic agency trick is to sell you a senior architect and staff the build with
-            whoever is free. We do the opposite: the person who scoped your system is accountable
-            for it until it is in production and supported, and their name is on every weekly note.
-          </p>
-          <p>
-            That continuity is what saves your time. Nobody has to be re-briefed, decisions do not
-            get re-litigated by a new face, and the handover document is written by the people who
-            actually built the thing.
-          </p>
+          <p>{ukText("The classic agency trick is to sell you a senior architect and staff the build with whoever is free. We do the opposite: the person who scoped your system is accountable for it until it is in production and supported, and their name is on every weekly note.")}</p>
+          <p>{ukText("That continuity is what saves your time. Nobody has to be re-briefed, decisions do not get re-litigated by a new face, and the handover document is written by the people who actually built the thing.")}</p>
         </PhotoPanel>
 
         {/* How we work */}
@@ -180,9 +164,9 @@ export default async function TeamPage() {
           <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
           <Container className="relative">
             <SectionHeading
-              eyebrow="How we work"
-              title={<>Three values that show up in the code.</>}
-              description="Not posters on a wall — operating rules you can verify on any project: the demo cadence, the shared board and the written scope all come from these."
+              eyebrow={ukText("How we work")}
+              title={<>{ukText("Three values that show up in the code.")}</>}
+              description={ukText("Not posters on a wall — operating rules you can verify on any project: the demo cadence, the shared board and the written scope all come from these.")}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
               {values.map((v) => (
@@ -191,9 +175,9 @@ export default async function TeamPage() {
                   className="flex flex-col gap-2 rounded-2xl border border-uk-line bg-uk-card p-6 card-hover"
                 >
                   <h3 className="font-heading text-lg font-bold text-uk-blue">
-                    {v.title}
+                    {ukText(v.title)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{v.desc}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(v.desc)}</p>
                 </div>
               ))}
             </Reveal>
@@ -205,32 +189,25 @@ export default async function TeamPage() {
           <Container>
             <Reveal className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Join them
-                </h2>
-                <p className="mt-3 text-uk-gray">
-                  We&apos;re hiring engineers and designers who want to own
-                  outcomes — {careers.length} roles open now.
-                </p>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Join them")}</h2>
+                <p className="mt-3 text-uk-gray">{ukText("We're hiring engineers and designers who want to own outcomes — ")}{careers.length}{ukText("roles open now.")}</p>
               </div>
               <Link
-                href="/careers"
+                href={ukText("/careers")}
                 className="group inline-flex items-center gap-2 rounded-full border border-uk-line bg-white dark:bg-uk-card px-5 py-2.5 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue-bright"
               >
-                <Users className="h-4 w-4 text-uk-blue" />
-                See open roles
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                <Users className="h-4 w-4 text-uk-blue" />{ukText("See open roles")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Reveal>
             <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {careers.map((c) => (
                 <Link
                   key={c.slug}
-                  href="/careers"
+                  href={ukText(`/careers/${c.slug}`)}
                   className="group flex items-center justify-between gap-3 rounded-xl border border-uk-line bg-uk-card px-4 py-3 transition-colors hover:border-uk-blue/40"
                 >
-                  <span className="text-sm font-medium text-uk-heading">{c.role}</span>
-                  <span className="text-xs text-uk-muted">{c.location}</span>
+                  <span className="text-sm font-medium text-uk-heading">{ukText(c.role)}</span>
+                  <span className="text-xs text-uk-muted">{ukText(c.location)}</span>
                 </Link>
               ))}
             </Reveal>
@@ -238,6 +215,7 @@ export default async function TeamPage() {
         </section>
 
         <CtaBand />
+        <PageBlocks pageKey="team" />
       </main>
       <Footer />
     </>

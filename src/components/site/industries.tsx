@@ -11,6 +11,7 @@ import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { gsap } from "gsap";
 import type { Industry } from "@/lib/site-data";
+import type { HomeContent } from "@/lib/home-defaults";
 
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
   landmark: Landmark,
@@ -40,6 +41,12 @@ const DEFAULT_TITLE = (
   </>
 );
 
+const DEFAULT_LABELS = {
+  buttonSuffix: "products & consulting",
+  slowLabel: "What slows teams down",
+  rulesLabel: "Built for the rules",
+};
+
 /**
  * Industry switchboard — master-detail instead of a card wall. Pick a
  * sector on the left; the right panel morphs with a GSAP crossfade.
@@ -54,6 +61,7 @@ export function Industries({
   eyebrow = "Industry switchboard",
   title = DEFAULT_TITLE,
   description = "We don't claim to serve everyone. These are the sectors where we have live, proven work — and the case studies to match.",
+  labels = DEFAULT_LABELS,
 }: {
   /** Published industries, in display order (from the admin-managed list). */
   industries: Industry[];
@@ -61,6 +69,8 @@ export function Industries({
   eyebrow?: string;
   title?: React.ReactNode;
   description?: string;
+  /** panel button and sub-headings, from Admin → Home page → Industries */
+  labels?: Pick<HomeContent["industries"], "buttonSuffix" | "slowLabel" | "rulesLabel">;
 }) {
   const [active, setActive] = useState(0);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -174,7 +184,7 @@ export function Industries({
                     href={`/industries/${current.slug}`}
                     className="btn-lift inline-flex items-center gap-2 rounded-full bg-uk-blue px-4 py-2 text-sm font-semibold text-uk-white shadow-glow-blue-sm hover:bg-uk-blue-bright"
                   >
-                    {current.name.split(" ")[0]} products &amp; consulting
+                    {current.name.split(" ")[0]} {labels.buttonSuffix}
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
@@ -212,7 +222,7 @@ export function Industries({
                 {current.challenges.length > 0 && (
                   <div className="mt-5 max-w-lg">
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-muted">
-                      What slows teams down
+                      {labels.slowLabel}
                     </p>
                     <ul className="mt-2.5 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
                       {current.challenges.map((c) => (
@@ -230,7 +240,7 @@ export function Industries({
                   <div className="mt-5 max-w-lg">
                     <p className="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-muted">
                       <ShieldCheck className="h-3.5 w-3.5 text-uk-blue" />
-                      Built for the rules
+                      {labels.rulesLabel}
                     </p>
                     <ul className="mt-2.5 flex flex-wrap gap-2">
                       {current.compliance.map((c) => (

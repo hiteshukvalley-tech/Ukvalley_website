@@ -18,6 +18,10 @@ import { getServices } from "@/lib/services-store";
 import { getSolutions } from "@/lib/solutions-store";
 import { getIndustries } from "@/lib/industries-store";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -71,15 +75,15 @@ export default async function SolutionPage({ params }: Props) {
         <PageHero
           image={heroArtwork.solutions}
           variant="solutions"
-          eyebrow={s.category}
+          eyebrow={ukText(s.category)}
           crumbs={[
             { label: "Home", href: "/" },
             { label: "Solutions", href: "/solutions" },
             { label: s.name },
           ]}
           titleClassName={oneLineTitle.solutions}
-          title={s.name}
-          description={s.description}
+          title={ukText(s.name)}
+          description={ukText(s.description)}
         />
 
         {/* Metrics band */}
@@ -87,8 +91,8 @@ export default async function SolutionPage({ params }: Props) {
           <Container className="grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3">
             {s.metrics.map((m) => (
               <div key={m.label} className="flex flex-col gap-1 px-4 py-8 text-center">
-                <span className="font-heading text-4xl font-bold text-uk-blue">{m.value}</span>
-                <span className="text-xs font-medium uppercase tracking-wider text-uk-gray">{m.label}</span>
+                <span className="font-heading text-4xl font-bold text-uk-blue">{ukText(m.value)}</span>
+                <span className="text-xs font-medium uppercase tracking-wider text-uk-gray">{ukText(m.label)}</span>
               </div>
             ))}
           </Container>
@@ -101,26 +105,22 @@ export default async function SolutionPage({ params }: Props) {
                 start on the same line */}
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem it solves
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem it solves")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why {s.name} projects fail — and how we build them differently
-                </h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(s.name)}{ukText("projects fail — and how we build them differently")}</h2>
                 {s.longDescription.map((para, i) => (
                   <p key={i} className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                    {para}
+                    {ukText(para)}
                   </p>
                 ))}
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">Sound familiar?</h3>
-                  <p className="mt-1 text-sm text-uk-gray">The situations clients bring to us before this system.</p>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Sound familiar?")}</h3>
+                  <p className="mt-1 text-sm text-uk-gray">{ukText("The situations clients bring to us before this system.")}</p>
                   <ul className="mt-5 flex flex-col gap-4">
                     {s.painPoints.map((p) => (
                       <li key={p.title} className="flex items-start gap-3">
@@ -128,8 +128,8 @@ export default async function SolutionPage({ params }: Props) {
                           <CircleAlert className="h-4 w-4" />
                         </span>
                         <div>
-                          <p className="text-sm font-semibold text-uk-heading">{p.title}</p>
-                          <p className="mt-0.5 text-sm leading-relaxed text-uk-gray">{p.desc}</p>
+                          <p className="text-sm font-semibold text-uk-heading">{ukText(p.title)}</p>
+                          <p className="mt-0.5 text-sm leading-relaxed text-uk-gray">{ukText(p.desc)}</p>
                         </div>
                       </li>
                     ))}
@@ -138,30 +138,24 @@ export default async function SolutionPage({ params }: Props) {
 
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {s.quickFacts.map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
                         <dt className="text-sm text-uk-gray">
-                          {f.label}
-                          {f.sub && <span className="block text-xs text-uk-muted">{f.sub}</span>}
+                          {ukText(f.label)}
+                          {f.sub && <span className="block text-xs text-uk-muted">{ukText(f.sub)}</span>}
                         </dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{f.value}</dd>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
-                  <p className="mt-4 border-t border-uk-line pt-3 text-xs text-uk-muted">
-                    Typical ranges from past deployments. Your written estimate arrives within 3 business days of the scoping call.
-                  </p>
+                  <p className="mt-4 border-t border-uk-line pt-3 text-xs text-uk-muted">{ukText("Typical ranges from past deployments. Your written estimate arrives within 3 business days of the scoping call.")}</p>
                 </div>
               </Reveal>
             </div>
             <Reveal className="mt-8 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
-              <h3 className="font-heading text-lg font-bold text-uk-heading">
-                Best fit for
-              </h3>
+              <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Best fit for")}</h3>
               <div className="mt-4 flex flex-wrap gap-2">
                 {s.bestFor.map((b) => (
                   <span
@@ -169,7 +163,7 @@ export default async function SolutionPage({ params }: Props) {
                     className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-uk-card px-3.5 py-1.5 text-sm font-medium text-uk-heading shadow-float"
                   >
                     <Check className="h-3.5 w-3.5 text-uk-blue" />
-                    {b}
+                    {ukText(b)}
                   </span>
                 ))}
               </div>
@@ -182,13 +176,8 @@ export default async function SolutionPage({ params }: Props) {
           <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
           <Container className="relative">
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                What it includes
-              </h2>
-              <p className="mt-3 text-uk-gray">
-                Every capability below ships as standard — customised to your
-                workflow in the scoping week, not sold as extra modules.
-              </p>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What it includes")}</h2>
+              <p className="mt-3 text-uk-gray">{ukText("Every capability below ships as standard — customised to your workflow in the scoping week, not sold as extra modules.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {s.features.map((f) => (
@@ -200,24 +189,22 @@ export default async function SolutionPage({ params }: Props) {
                     <Check className="h-5 w-5" />
                   </span>
                   <h3 className="font-heading text-base font-bold text-uk-heading">
-                    {f.title}
+                    {ukText(f.title)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{f.desc}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(f.desc)}</p>
                 </div>
               ))}
             </Reveal>
 
             <Reveal className="mt-10">
-              <h3 className="font-heading text-base font-bold text-uk-heading">
-                Modules at a glance
-              </h3>
+              <h3 className="font-heading text-base font-bold text-uk-heading">{ukText("Modules at a glance")}</h3>
               <div className="mt-4 flex flex-wrap gap-2">
                 {s.modules.map((m) => (
                   <span
                     key={m}
                     className="rounded-full border border-uk-line bg-uk-card px-3.5 py-1.5 text-sm font-medium text-uk-body transition-colors hover:border-uk-blue/40 hover:text-uk-blue"
                   >
-                    {m}
+                    {ukText(m)}
                   </span>
                 ))}
               </div>
@@ -229,9 +216,7 @@ export default async function SolutionPage({ params }: Props) {
         <section className="relative bg-uk-surface section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                How the build runs
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("How the build runs")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {s.workflow.map((w, i) => (
@@ -240,13 +225,13 @@ export default async function SolutionPage({ params }: Props) {
                   className="flex gap-4 rounded-2xl border border-uk-line bg-uk-card p-6 card-hover"
                 >
                   <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-uk-blue/12 font-heading text-sm font-bold text-uk-blue">
-                    {String(i + 1).padStart(2, "0")}
+                    {ukText(String(i + 1).padStart(2, "0"))}
                   </span>
                   <div className="flex flex-col gap-1.5">
                     <h3 className="font-heading text-base font-bold text-uk-heading">
-                      {w.title}
+                      {ukText(w.title)}
                     </h3>
-                    <p className="text-sm leading-relaxed text-uk-gray">{w.desc}</p>
+                    <p className="text-sm leading-relaxed text-uk-gray">{ukText(w.desc)}</p>
                   </div>
                 </div>
               ))}
@@ -254,16 +239,14 @@ export default async function SolutionPage({ params }: Props) {
 
             <Reveal className="mt-10 flex flex-col gap-3">
               <h3 className="flex items-center gap-2 font-heading text-base font-bold text-uk-heading">
-                <Plug className="h-4 w-4 text-uk-blue" />
-                Integrates with
-              </h3>
+                <Plug className="h-4 w-4 text-uk-blue" />{ukText("Integrates with")}</h3>
               <div className="flex flex-wrap gap-2">
                 {s.integrations.map((t) => (
                   <span
                     key={t}
                     className="rounded-md bg-uk-surface-blue px-2.5 py-1 text-[0.78rem] font-medium text-uk-body"
                   >
-                    {t}
+                    {ukText(t)}
                   </span>
                 ))}
               </div>
@@ -277,28 +260,19 @@ export default async function SolutionPage({ params }: Props) {
             <Reveal className="rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-10">
               <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.4fr]">
                 <div>
-                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                    Outcomes
-                  </span>
-                  <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                    What changes after go-live
-                  </h2>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">
-                    Every item here is a measurable state you can check on your own system a month
-                    after launch — not an adjective.
-                  </p>
+                  <span className="inline-flex w-fit items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Outcomes")}</span>
+                  <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What changes after go-live")}</h2>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Every item here is a measurable state you can check on your own system a month after launch — not an adjective.")}</p>
                   <div className="mt-6 rounded-2xl border border-uk-line bg-uk-card p-5">
                     <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-uk-muted">
-                      <ShieldCheck className="h-4 w-4 text-uk-blue" />
-                      Guaranteed in the contract
-                    </p>
+                      <ShieldCheck className="h-4 w-4 text-uk-blue" />{ukText("Guaranteed in the contract")}</p>
                     <ul className="mt-3 flex flex-col gap-2.5">
                       {principles.map((p) => (
                         <li key={p.title} className="flex items-start gap-2.5 text-sm font-medium text-uk-heading">
                           <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                             <Check className="h-3 w-3" strokeWidth={3} />
                           </span>
-                          {p.title}
+                          {ukText(p.title)}
                         </li>
                       ))}
                     </ul>
@@ -310,7 +284,7 @@ export default async function SolutionPage({ params }: Props) {
                       <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                         <Check className="h-3 w-3" strokeWidth={3} />
                       </span>
-                      {o}
+                      {ukText(o)}
                     </li>
                   ))}
                 </ul>
@@ -321,16 +295,10 @@ export default async function SolutionPage({ params }: Props) {
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                    <Handshake className="h-4 w-4" />
-                    What we need from you
-                  </span>
-                  <h3 className="mt-2 font-heading text-lg font-bold text-uk-heading">
-                    Four things that make the scoping week productive
-                  </h3>
+                    <Handshake className="h-4 w-4" />{ukText("What we need from you")}</span>
+                  <h3 className="mt-2 font-heading text-lg font-bold text-uk-heading">{ukText("Four things that make the scoping week productive")}</h3>
                 </div>
-                <p className="max-w-md text-sm text-uk-gray">
-                  None of these are hard; all of them are the difference between a thin slice in week three and one in week six.
-                </p>
+                <p className="max-w-md text-sm text-uk-gray">{ukText("None of these are hard; all of them are the difference between a thin slice in week three and one in week six.")}</p>
               </div>
               <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {s.youProvide.map((y, i) => (
@@ -338,7 +306,7 @@ export default async function SolutionPage({ params }: Props) {
                     <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 font-heading text-xs font-bold text-uk-blue">
                       {i + 1}
                     </span>
-                    {y}
+                    {ukText(y)}
                   </li>
                 ))}
               </ul>
@@ -352,9 +320,7 @@ export default async function SolutionPage({ params }: Props) {
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Common questions
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Common questions")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {s.faqs.map((f) => (
@@ -363,10 +329,10 @@ export default async function SolutionPage({ params }: Props) {
                   className="group h-fit rounded-2xl border border-uk-line bg-uk-card px-5 py-4 transition-colors hover:border-uk-blue/40 open:border-uk-blue/40"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading text-base font-semibold text-uk-heading [&::-webkit-details-marker]:hidden">
-                    {f.q}
+                    {ukText(f.q)}
                     <ChevronRight className="h-4 w-4 flex-none text-uk-muted transition-transform group-open:rotate-90" />
                   </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray">{f.a}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText(f.a)}</p>
                 </details>
               ))}
             </Reveal>
@@ -377,23 +343,19 @@ export default async function SolutionPage({ params }: Props) {
         <section className="relative bg-uk-surface section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Related services &amp; industries
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Related services & industries")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-2">
               <div className="flex flex-col gap-3">
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-uk-muted">
-                  Services that power it
-                </h3>
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-uk-muted">{ukText("Services that power it")}</h3>
                 {related.map((x) => (
                   <Link
                     key={x.href}
-                    href={x.href}
+                    href={ukText(x.href)}
                     className="group flex items-center justify-between gap-4 rounded-2xl border border-uk-line bg-uk-card p-5 card-premium card-spotlight transition-colors hover:border-uk-blue/40"
                   >
                     <span className="font-heading text-sm font-bold text-uk-heading">
-                      {x.title}
+                      {ukText(x.title)}
                     </span>
                     <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-uk-blue/10 text-uk-blue transition-all group-hover:bg-uk-blue group-hover:text-uk-white">
                       <ArrowRight className="h-4 w-4" />
@@ -402,17 +364,15 @@ export default async function SolutionPage({ params }: Props) {
                 ))}
               </div>
               <div className="flex flex-col gap-3">
-                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-uk-muted">
-                  Industries where it runs
-                </h3>
+                <h3 className="text-xs font-bold uppercase tracking-[0.2em] text-uk-muted">{ukText("Industries where it runs")}</h3>
                 {relatedInds.map((x) => (
                   <Link
                     key={x.slug}
-                    href={`/industries/${x.slug}`}
+                    href={ukText(`/industries/${x.slug}`)}
                     className="group flex items-center justify-between gap-4 rounded-2xl border border-uk-line bg-uk-card p-5 card-premium card-spotlight transition-colors hover:border-uk-blue/40"
                   >
                     <span className="font-heading text-sm font-bold text-uk-heading">
-                      {x.name}
+                      {ukText(x.name)}
                     </span>
                     <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-uk-blue/10 text-uk-blue transition-all group-hover:bg-uk-blue group-hover:text-uk-white">
                       <ArrowRight className="h-4 w-4" />
@@ -424,17 +384,15 @@ export default async function SolutionPage({ params }: Props) {
 
             {/* Other solutions */}
             <Reveal className="mt-12 border-t border-uk-line pt-10">
-              <h3 className="font-heading text-base font-bold text-uk-heading">
-                Explore other solutions
-              </h3>
+              <h3 className="font-heading text-base font-bold text-uk-heading">{ukText("Explore other solutions")}</h3>
               <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {others.map((o) => (
                   <Link
                     key={o.slug}
-                    href={`/solutions/${o.slug}`}
+                    href={ukText(`/solutions/${o.slug}`)}
                     className="group flex items-center justify-between gap-3 rounded-xl border border-uk-line bg-uk-card px-4 py-3 transition-colors hover:border-uk-blue/40"
                   >
-                    <span className="text-sm font-medium text-uk-heading">{o.name}</span>
+                    <span className="text-sm font-medium text-uk-heading">{ukText(o.name)}</span>
                     <ArrowRight className="h-4 w-4 flex-none text-uk-blue opacity-0 transition-opacity group-hover:opacity-100" />
                   </Link>
                 ))}
@@ -443,27 +401,19 @@ export default async function SolutionPage({ params }: Props) {
 
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
-                <h3 className="font-heading text-lg font-bold text-uk-heading">
-                  Want {s.name} built around your workflow?
-                </h3>
-                <p className="mt-1 text-sm text-uk-gray">
-                  Book a free scoping call — a written estimate in 3 days.
-                </p>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want ")}{ukText(s.name)}{ukText("built around your workflow?")}</h3>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("Book a free scoping call — a written estimate in 3 days.")}</p>
               </div>
-              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">
-                Book a scoping call
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
             </Reveal>
 
             <Reveal className="mt-10 border-t border-uk-line pt-8">
               <Link
-                href="/solutions"
+                href={ukText("/solutions")}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
               >
-                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                All solutions
-              </Link>
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />{ukText("All solutions")}</Link>
             </Reveal>
           </Container>
         </section>

@@ -3,8 +3,9 @@
 import Link from "@/components/site/intent-link";
 import { useActionState } from "react";
 import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
-import { FormCheckbox, FormField, FormSection, FormTextarea } from "@/components/admin/form";
+import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import type { CareerValues } from "@/lib/careers-validation";
+import { HIRING_STEPS_MAX, JOB_MODES } from "@/lib/careers-shared";
 import { createCareerAction, updateCareerAction, type CareerFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 
@@ -56,8 +57,45 @@ export function CareerForm({
           error={errors.slug}
           hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. senior-react-engineer. Used as the role's id."}
         />
-        <FormField label="Location" name="location" required defaultValue={values.location} error={errors.location} hint="e.g. Remote (India), Hybrid (India)" />
+        <FormField label="Location" name="location" required defaultValue={values.location} error={errors.location} hint="City or region, e.g. Pune, Maharashtra or India. Candidates search by this." />
+        <FormSelect
+          label="Job mode"
+          name="mode"
+          required
+          defaultValue={values.mode}
+          error={errors.mode}
+          options={JOB_MODES.map((m) => ({ value: m, label: m }))}
+          hint="Shown as a badge on the listing and the job page."
+        />
         <FormField label="Type" name="type" required defaultValue={values.type} error={errors.type} hint="e.g. Full-time, Part-time, Contract, Internship" />
+        <FormField
+          label="Published date"
+          name="postedAt"
+          type="date"
+          required
+          defaultValue={values.postedAt}
+          error={errors.postedAt}
+          hint="Shown as “Posted …” on the listing. Roles from the last 7 days get a New badge."
+        />
+        <FormField
+          label="Minimum experience (years)"
+          name="experienceMin"
+          type="number"
+          inputMode="numeric"
+          required
+          defaultValue={values.experienceMin}
+          error={errors.experienceMin}
+          hint="Whole years. 0 for freshers."
+        />
+        <FormField
+          label="Maximum experience (years)"
+          name="experienceMax"
+          type="number"
+          inputMode="numeric"
+          defaultValue={values.experienceMax}
+          error={errors.experienceMax}
+          hint="Leave blank for “minimum+ years”."
+        />
         <FormTextarea label="Summary" name="summary" required full rows={3} defaultValue={values.summary} error={errors.summary} hint="Up to 300 characters. Shown under the role title." />
       </FormSection>
 
@@ -65,6 +103,22 @@ export function CareerForm({
         <FormTextarea label="Responsibilities" name="responsibilities" required full rows={6} defaultValue={values.responsibilities} error={errors.responsibilities} hint="One per line, up to 10." />
         <FormTextarea label="Requirements" name="requirements" required full rows={6} defaultValue={values.requirements} error={errors.requirements} hint="One per line, up to 10." />
         <FormTextarea label="Perks" name="perks" required full rows={5} defaultValue={values.perks} error={errors.perks} hint="One per line, up to 10." />
+      </FormSection>
+
+      <FormSection
+        title="Hiring process"
+        description="The recruitment stages candidates see on this job's page, in order. Tailor them to the role — e.g. a portfolio review for designers."
+      >
+        <FormTextarea
+          label="Stages"
+          name="hiringProcess"
+          required
+          full
+          rows={7}
+          defaultValue={values.hiringProcess}
+          error={errors.hiringProcess}
+          hint={`One stage per line, written as “Title | what happens”. Up to ${HIRING_STEPS_MAX} stages.`}
+        />
       </FormSection>
 
       <FormSection title="Visibility">

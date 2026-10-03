@@ -61,18 +61,22 @@ import {
   SheetClose,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { nav as siteNav, type NavLink } from "@/lib/site-core";
+import type { NavLink } from "@/lib/site-core";
+import { defaultHeader, type HeaderContent } from "@/lib/site-content-schema";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 
-/* Icons for the top-level bar labels (Services / Solutions / Work / Company / Hire / Insights). */
+/* Icons for the top-level bar items, keyed by menu (not by label, so the
+   admin can rename a menu without losing its icon). */
+const menuIcon = (id: string) =>
+  id === "insights" ? <Newspaper className="h-4 w-4" /> : (topLevelIcons[id] ?? <Layers className="h-4 w-4" />);
+
 const topLevelIcons: Record<string, React.ReactNode> = {
-  Services: <Layers className="h-4 w-4" />,
-  Solutions: <Boxes className="h-4 w-4" />,
-  Work: <Briefcase className="h-4 w-4" />,
-  Company: <Building2 className="h-4 w-4" />,
-  Hire: <Users className="h-4 w-4" />,
-  Insights: <Newspaper className="h-4 w-4" />,
+  services: <Layers className="h-4 w-4" />,
+  solutions: <Boxes className="h-4 w-4" />,
+  work: <Briefcase className="h-4 w-4" />,
+  company: <Building2 className="h-4 w-4" />,
+  hire: <Users className="h-4 w-4" />,
 };
 
 /* Dropdown item icons keyed by nav label — used in the desktop dropdowns and
@@ -150,21 +154,32 @@ const serviceIconNodes: Record<string, React.ReactNode> = {
 
 export type ServiceNavLink = NavLink & { icon: string };
 
+/** One top-level menu entry, already resolved on the server (Admin → Main menu). */
+export type ResolvedMenu = {
+  id: string;
+  label: string;
+  type: "dropdown" | "link";
+  href: string;
+  items: (NavLink & { icon?: string })[];
+  /** two-column dropdown for long lists */
+  wide: boolean;
+};
+
 export function HeaderClient({
-  serviceLinks,
-  solutionLinks = siteNav.solutions,
-  hireLinks = siteNav.hire,
+  menus,
+  content: c = defaultHeader,
 }: {
-  serviceLinks: ServiceNavLink[];
-  /** the curated menu, minus any page unpublished or deleted in the admin */
-  solutionLinks?: NavLink[];
-  hireLinks?: NavLink[];
+  /** text and button from Admin → Header */
+  content?: HeaderContent;
+  menus: ResolvedMenu[];
 }) {
   const pathname = usePathname();
   // Services come from the database, so their icons are keyed by label at render time.
   const icons: Record<string, React.ReactNode> = { ...itemIcons };
-  for (const s of serviceLinks) icons[s.label] = serviceIconNodes[s.icon] ?? serviceIconNodes.code;
-  const nav = { ...siteNav, services: serviceLinks as NavLink[], solutions: solutionLinks, hire: hireLinks };
+  for (const m of menus) for (const it of m.items) if (it.icon) icons[it.label] = serviceIconNodes[it.icon] ?? serviceIconNodes.code;
+  // The last dropdown opens leftwards so it never runs off the screen.
+  const lastDropdown = [...menus].reverse().find((m) => m.type === "dropdown")?.id;
+  const i_isLast = (id: string) => id === lastDropdown;
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
@@ -246,18 +261,20 @@ export function HeaderClient({
           )}
         >
           {/* Logo */}
-          <Link href="/" className="group flex items-center gap-2.5" aria-label="Ukvalley Technologies home">
+          <Link href="/" className="group flex items-center gap-2.5" aria-label={`${c.logoName} ${c.logoSub} home`.trim()}>
             <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright shadow-glow-blue-sm transition-transform duration-300 group-hover:scale-105">
-              <span className="font-heading text-lg font-bold text-uk-white">U</span>
+              <span className="font-heading text-lg font-bold text-uk-white">{c.logoMark}</span>
               <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-uk-yellow shadow-glow-yellow animate-pulse" />
             </span>
             <span className="flex flex-col leading-none">
               <span className="font-heading text-base font-bold tracking-tight text-uk-heading transition-colors">
-                Ukvalley
+                {c.logoName}
               </span>
-              <span className="text-[0.62rem] font-medium uppercase tracking-[0.28em] text-uk-muted transition-colors">
-                Technologies
-              </span>
+              {c.logoSub && (
+                <span className="text-[0.62rem] font-medium uppercase tracking-[0.28em] text-uk-muted transition-colors">
+                  {c.logoSub}
+                </span>
+              )}
             </span>
           </Link>
 
@@ -269,79 +286,49 @@ export function HeaderClient({
             aria-label="Primary"
             onMouseLeave={() => setOpenMenu(null)}
           >
-            <NavDropdown
-              menuKey="services"
-              label="Services"
-              items={nav.services}
-              icons={icons}
-              active={nav.services.some((i) => isActive(i.href)) || isActive("/services")}
-              openMenu={openMenu}
-              setOpenMenu={setOpenMenu}
-            />
-            <NavDropdown
-              menuKey="solutions"
-              label="Solutions"
-              items={nav.solutions}
-              icons={icons}
-              wide
-              active={nav.solutions.some((i) => isActive(i.href)) || isActive("/solutions")}
-              openMenu={openMenu}
-              setOpenMenu={setOpenMenu}
-            />
-            <NavDropdown
-              menuKey="work"
-              label="Work"
-              items={nav.work}
-              icons={icons}
-              active={nav.work.some((i) => isActive(i.href))}
-              openMenu={openMenu}
-              setOpenMenu={setOpenMenu}
-            />
-            <NavDropdown
-              menuKey="company"
-              label="Company"
-              items={nav.company}
-              icons={icons}
-              active={nav.company.some((i) => isActive(i.href))}
-              openMenu={openMenu}
-              setOpenMenu={setOpenMenu}
-            />
-            <NavDropdown
-              menuKey="hire"
-              label="Hire"
-              items={nav.hire}
-              icons={icons}
-              wide
-              alignRight
-              active={nav.hire.some((i) => isActive(i.href)) || isActive("/hire")}
-              openMenu={openMenu}
-              setOpenMenu={setOpenMenu}
-            />
-            <Link
-              href="/blog"
-              className={cn(
-                "group relative flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                isActive("/blog") ? "font-semibold text-uk-blue" : "text-uk-body hover:text-uk-heading"
-              )}
-            >
-              <span
-                className={cn(
-                  "flex h-5 w-5 flex-none items-center justify-center transition-colors",
-                  isActive("/blog") ? "text-uk-blue" : "text-uk-muted group-hover:text-uk-blue"
-                )}
-                aria-hidden
-              >
-                <Newspaper className="h-4 w-4" />
-              </span>
-              Insights
-              <span
-                className={cn(
-                  "pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 origin-left rounded-full transition-transform duration-300",
-                  isActive("/blog") || "scale-x-0 group-hover:scale-x-100",
-                  isActive("/blog") ? "scale-x-100 bg-uk-yellow" : "bg-gradient-to-r from-uk-blue to-uk-yellow"
-                )}
-              />
-            </Link>
+            {menus.map((m) =>
+              m.type === "link" ? (
+                <Link
+                  key={m.id}
+                  href={m.href}
+                  className={cn(
+                    "group relative flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium transition-colors",
+                    isActive(m.href) ? "font-semibold text-uk-blue" : "text-uk-body hover:text-uk-heading"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "flex h-5 w-5 flex-none items-center justify-center transition-colors",
+                      isActive(m.href) ? "text-uk-blue" : "text-uk-muted group-hover:text-uk-blue"
+                    )}
+                    aria-hidden
+                  >
+                    {menuIcon(m.id)}
+                  </span>
+                  {m.label}
+                  <span
+                    className={cn(
+                      "pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 origin-left rounded-full transition-transform duration-300",
+                      isActive(m.href) || "scale-x-0 group-hover:scale-x-100",
+                      isActive(m.href) ? "scale-x-100 bg-uk-yellow" : "bg-gradient-to-r from-uk-blue to-uk-yellow"
+                    )}
+                  />
+                </Link>
+              ) : (
+                <NavDropdown
+                  key={m.id}
+                  menuKey={m.id}
+                  label={m.label}
+                  items={m.items}
+                  icons={icons}
+                  wide={m.wide}
+                  alignRight={i_isLast(m.id)}
+                  active={m.items.some((i) => isActive(i.href))}
+                  openMenu={openMenu}
+                  setOpenMenu={setOpenMenu}
+                />
+              )
+            )}
           </nav>
 
           {/* Right actions */}
@@ -351,9 +338,9 @@ export function HeaderClient({
               size="sm"
               nativeButton={false}
               className="hidden h-10 px-5 text-sm font-semibold btn-sheen bg-uk-blue text-white shadow-glow-blue-sm transition-all hover:bg-uk-blue-bright sm:inline-flex"
-              render={<Link href="/contact" />}
+              render={<Link href={c.ctaHref} />}
             >
-              Book a scoping call
+              {c.ctaLabel}
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
 
@@ -384,7 +371,7 @@ export function HeaderClient({
               >
                 <div className="flex items-center justify-between border-b border-uk-line px-5 py-4">
                   <SheetTitle className="font-heading text-lg font-bold text-uk-heading">
-                    Menu
+                    {c.menuTitle}
                   </SheetTitle>
                   <SheetClose
                     render={
@@ -400,38 +387,30 @@ export function HeaderClient({
                 {/* data-lenis-prevent: let the wheel scroll the menu's own
                     list instead of being captured by the page smooth-scroll */}
                 <div className="flex flex-col gap-1 overflow-y-auto overscroll-contain px-3 py-4" data-lenis-prevent>
-                  <MobileGroup
-                    label="Services"
-                    items={nav.services}
-                    icons={icons}
-                    onClose={() => setOpen(false)}
-                  />
-                  <MobileGroup
-                    label="Solutions"
-                    items={nav.solutions}
-                    icons={icons}
-                    onClose={() => setOpen(false)}
-                  />
-                  <MobileGroup label="Work" items={nav.work} icons={icons} onClose={() => setOpen(false)} />
-                  <MobileGroup label="Company" items={nav.company} icons={icons} onClose={() => setOpen(false)} />
-                  <MobileGroup label="Hire" items={nav.hire} icons={icons} onClose={() => setOpen(false)} />
-                  <Link
-                    href="/blog"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading"
-                  >
-                    <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue" aria-hidden>
-                      <Newspaper className="h-4 w-4" />
-                    </span>
-                    Insights
-                  </Link>
+                  {menus.map((m) =>
+                    m.type === "link" ? (
+                      <Link
+                        key={m.id}
+                        href={m.href}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading"
+                      >
+                        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue" aria-hidden>
+                          {menuIcon(m.id)}
+                        </span>
+                        {m.label}
+                      </Link>
+                    ) : (
+                      <MobileGroup key={m.id} menuKey={m.id} label={m.label} items={m.items} icons={icons} onClose={() => setOpen(false)} />
+                    )
+                  )}
                   <div className="mt-3 flex flex-col gap-3 px-2">
                     <Button
                       nativeButton={false}
                       className="bg-uk-blue text-white hover:bg-uk-blue-bright"
-                      render={<Link href="/contact" onClick={() => setOpen(false)} />}
+                      render={<Link href={c.ctaHref} onClick={() => setOpen(false)} />}
                     >
-                      Book a scoping call
+                      {c.ctaLabel}
                       <ArrowRight className="ml-1.5 h-4 w-4" />
                     </Button>
                   </div>
@@ -498,7 +477,7 @@ function NavDropdown({
           )}
           aria-hidden
         >
-          {topLevelIcons[label]}
+          {topLevelIcons[menuKey] ?? <Layers className="h-4 w-4" />}
         </span>
         {label}
         <ChevronDown
@@ -559,11 +538,13 @@ function NavDropdown({
 }
 
 function MobileGroup({
+  menuKey,
   label,
   items,
   icons,
   onClose,
 }: {
+  menuKey: string;
   label: string;
   items: NavLink[];
   icons?: Record<string, React.ReactNode>;
@@ -582,7 +563,7 @@ function MobileGroup({
             className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue"
             aria-hidden
           >
-            {topLevelIcons[label]}
+            {topLevelIcons[menuKey] ?? <Layers className="h-4 w-4" />}
           </span>
           {label}
         </span>

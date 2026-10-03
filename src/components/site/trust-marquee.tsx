@@ -1,4 +1,5 @@
 import type { HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 /** Text comes from Admin → Home page → Trusted-by strip. */
 export function TrustMarquee({ content: c }: { content: HomeContent["trust"] }) {
@@ -15,7 +16,7 @@ export function TrustMarquee({ content: c }: { content: HomeContent["trust"] }) 
       </div>
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.28em] text-uk-heading">
-          {c.label}
+          {ukText(c.label)}
         </p>
         <div className="relative overflow-hidden mask-fade-x">
           <div className="marquee-track flex w-max items-center gap-12">
@@ -24,7 +25,7 @@ export function TrustMarquee({ content: c }: { content: HomeContent["trust"] }) 
                 key={`${name}-${i}`}
                 className="font-heading whitespace-nowrap text-xl font-bold text-uk-heading/75 transition-colors hover:text-uk-blue"
               >
-                {name}
+                {ukText(name)}
               </span>
             ))}
           </div>

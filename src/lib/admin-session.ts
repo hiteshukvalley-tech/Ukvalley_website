@@ -6,12 +6,12 @@ import {
   SESSION_COOKIE,
   SESSION_TTL_MS,
   createSessionToken,
-  envUser,
   verifySessionToken,
   type AdminRole,
   type SessionUser,
 } from "./admin-auth";
 import { hasDatabaseUrl } from "./db/client";
+import { getOwner } from "./owner-password";
 import { getUserDoc } from "./users-store";
 
 /**
@@ -29,8 +29,8 @@ export const getSession = cache(async function getSession(): Promise<SessionUser
 
   if (session.id === ENV_USER_ID) {
     // The owner is valid only while it is still the account in the env vars
-    // and the password has not changed since the cookie was issued.
-    const owner = envUser();
+    // and the password (env or reset) has not changed since the cookie was issued.
+    const owner = await getOwner();
     return owner && owner.email === session.email && owner.sv === session.sv ? owner : null;
   }
 

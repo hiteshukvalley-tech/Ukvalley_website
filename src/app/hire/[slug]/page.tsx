@@ -11,6 +11,10 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
 import { getHireRoles } from "@/lib/hire-store";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -46,14 +50,14 @@ export default async function HireRolePage({ params }: Props) {
           variant="hire"
           extras={heroExtras.hire}
           titleClassName={oneLineTitle.hire}
-          eyebrow={`Hire ${r.shortLabel} ${r.noun ?? "developers"}`}
+          eyebrow={ukText(`Hire ${r.shortLabel} ${r.noun ?? "developers"}`)}
           crumbs={[
             { label: "Home", href: "/" },
             { label: "Hire Developers", href: "/hire" },
             { label: r.title },
           ]}
-          title={`Hire ${r.title}`}
-          description={r.description}
+          title={ukText(`Hire ${r.title}`)}
+          description={ukText(r.description)}
         />
 
         {/* Metrics band */}
@@ -61,8 +65,8 @@ export default async function HireRolePage({ params }: Props) {
           <Container className="grid grid-cols-1 gap-px overflow-hidden sm:grid-cols-3">
             {r.metrics.map((m) => (
               <div key={m.label} className="flex flex-col gap-1 px-4 py-8 text-center">
-                <span className="font-heading text-4xl font-bold text-uk-blue">{m.value}</span>
-                <span className="text-xs font-medium uppercase tracking-wider text-uk-gray">{m.label}</span>
+                <span className="font-heading text-4xl font-bold text-uk-blue">{ukText(m.value)}</span>
+                <span className="text-xs font-medium uppercase tracking-wider text-uk-gray">{ukText(m.label)}</span>
               </div>
             ))}
           </Container>
@@ -73,32 +77,28 @@ export default async function HireRolePage({ params }: Props) {
           <Container>
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem it solves
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem it solves")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why hire {r.shortLabel} {r.noun ?? "engineers"} from us
-                </h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why hire ")}{ukText(r.shortLabel)} {ukText(r.noun ?? "engineers")}{ukText("from us")}</h2>
                 {r.longDescription.map((para, i) => (
                   <p key={i} className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                    {para}
+                    {ukText(para)}
                   </p>
                 ))}
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">What they bring on day one</h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("What they bring on day one")}</h3>
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {r.skills.slice(0, 4).map((sk) => (
                       <li key={sk.title} className="flex items-start gap-3">
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                           <Check className="h-3.5 w-3.5" strokeWidth={3} />
                         </span>
-                        <p className="text-sm leading-relaxed text-uk-body">{sk.title}</p>
+                        <p className="text-sm leading-relaxed text-uk-body">{ukText(sk.title)}</p>
                       </li>
                     ))}
                   </ul>
@@ -106,18 +106,16 @@ export default async function HireRolePage({ params }: Props) {
 
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {r.metrics.map((m) => (
                       <div key={m.label} className="flex items-baseline justify-between gap-4 py-3">
-                        <dt className="text-sm text-uk-gray">{m.label}</dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{m.value}</dd>
+                        <dt className="text-sm text-uk-gray">{ukText(m.label)}</dt>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(m.value)}</dd>
                       </div>
                     ))}
                     <div className="flex items-baseline justify-between gap-4 py-3">
-                      <dt className="text-sm text-uk-gray">Engagement models</dt>
+                      <dt className="text-sm text-uk-gray">{ukText("Engagement models")}</dt>
                       <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{r.engagement.length}</dd>
                     </div>
                   </dl>
@@ -132,9 +130,7 @@ export default async function HireRolePage({ params }: Props) {
           <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
           <Container className="relative">
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                What they bring to your team
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What they bring to your team")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {r.skills.map((sk) => (
@@ -146,24 +142,22 @@ export default async function HireRolePage({ params }: Props) {
                     <Check className="h-5 w-5" />
                   </span>
                   <h3 className="font-heading text-base font-bold text-uk-heading">
-                    {sk.title}
+                    {ukText(sk.title)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{sk.desc}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(sk.desc)}</p>
                 </div>
               ))}
             </Reveal>
 
             <Reveal className="mt-10">
-              <h3 className="font-heading text-base font-bold text-uk-heading">
-                Tools &amp; stack
-              </h3>
+              <h3 className="font-heading text-base font-bold text-uk-heading">{ukText("Tools & stack")}</h3>
               <div className="mt-4 flex flex-wrap gap-2">
                 {r.techs.map((t) => (
                   <span
                     key={t}
                     className="rounded-md bg-uk-surface-blue px-2.5 py-1 text-[0.78rem] font-medium text-uk-body"
                   >
-                    {t}
+                    {ukText(t)}
                   </span>
                 ))}
               </div>
@@ -175,14 +169,8 @@ export default async function HireRolePage({ params }: Props) {
         <section className="relative bg-uk-surface section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Ways to engage
-              </h2>
-              <p className="mt-3 text-uk-gray">
-                Every model includes: NDA &amp; IP assignment before day one,
-                your repositories, code review culture and a one-week
-                scale-or-pause notice period.
-              </p>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Ways to engage")}</h2>
+              <p className="mt-3 text-uk-gray">{ukText("Every model includes: NDA & IP assignment before day one, your repositories, code review culture and a one-week scale-or-pause notice period.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-3">
               {r.engagement.map((e) => (
@@ -191,9 +179,9 @@ export default async function HireRolePage({ params }: Props) {
                   className="flex flex-col gap-2 rounded-2xl border border-uk-line bg-uk-card p-6 card-hover"
                 >
                   <h3 className="font-heading text-base font-bold text-uk-blue">
-                    {e.name}
+                    {ukText(e.name)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{e.desc}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(e.desc)}</p>
                 </div>
               ))}
             </Reveal>
@@ -201,16 +189,9 @@ export default async function HireRolePage({ params }: Props) {
             <Reveal className="mt-10 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div className="flex items-center gap-2.5">
                 <ShieldCheck className="h-5 w-5 flex-none text-uk-blue" />
-                <h3 className="font-heading text-lg font-bold text-uk-heading">
-                  Replace-anytime guarantee
-                </h3>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Replace-anytime guarantee")}</h3>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-uk-gray">
-                If the engineer isn&apos;t the right fit, tell us — we replace
-                them within a week at no extra cost, with a documented handover
-                so context isn&apos;t lost. The guarantee is written into the
-                agreement, not a verbal promise.
-              </p>
+              <p className="mt-2 text-sm leading-relaxed text-uk-gray">{ukText("If the engineer isn't the right fit, tell us — we replace them within a week at no extra cost, with a documented handover so context isn't lost. The guarantee is written into the agreement, not a verbal promise.")}</p>
             </Reveal>
           </Container>
         </section>
@@ -219,13 +200,8 @@ export default async function HireRolePage({ params }: Props) {
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                How hiring works
-              </h2>
-              <p className="mt-3 text-uk-gray">
-                Four steps from enquiry to a working engineer — typically
-                inside a week.
-              </p>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("How hiring works")}</h2>
+              <p className="mt-3 text-uk-gray">{ukText("Four steps from enquiry to a working engineer — typically inside a week.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {r.process.map((p, i) => (
@@ -234,12 +210,12 @@ export default async function HireRolePage({ params }: Props) {
                   className="flex flex-col gap-3 rounded-2xl border border-uk-line bg-uk-card p-6 card-hover"
                 >
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-uk-blue/12 font-heading text-sm font-bold text-uk-blue">
-                    {String(i + 1).padStart(2, "0")}
+                    {ukText(String(i + 1).padStart(2, "0"))}
                   </span>
                   <h3 className="font-heading text-base font-bold text-uk-heading">
-                    {p.title}
+                    {ukText(p.title)}
                   </h3>
-                  <p className="text-sm leading-relaxed text-uk-gray">{p.desc}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(p.desc)}</p>
                 </div>
               ))}
             </Reveal>
@@ -250,9 +226,7 @@ export default async function HireRolePage({ params }: Props) {
         <section className="relative bg-uk-surface section-py">
           <Container className="max-w-5xl">
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Common questions
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Common questions")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-8 flex flex-col gap-4">
               {r.faqs.map((f) => (
@@ -261,10 +235,10 @@ export default async function HireRolePage({ params }: Props) {
                   className="group rounded-2xl border border-uk-line bg-uk-card px-5 py-4 transition-colors hover:border-uk-blue/40 open:border-uk-blue/40"
                 >
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading text-base font-semibold text-uk-heading [&::-webkit-details-marker]:hidden">
-                    {f.q}
+                    {ukText(f.q)}
                     <ChevronRight className="h-4 w-4 flex-none text-uk-muted transition-transform group-open:rotate-90" />
                   </summary>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray">{f.a}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText(f.a)}</p>
                 </details>
               ))}
             </Reveal>
@@ -275,26 +249,21 @@ export default async function HireRolePage({ params }: Props) {
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
             <Reveal className="flex flex-wrap items-end justify-between gap-4">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                Hire other specialisations
-              </h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Hire other specialisations")}</h2>
               <Link
-                href="/hire"
+                href={ukText("/hire")}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
-              >
-                All developers
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              >{ukText("All developers")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Reveal>
             <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {others.map((o) => (
                 <Link
                   key={o.slug}
-                  href={`/hire/${o.slug}`}
+                  href={ukText(`/hire/${o.slug}`)}
                   className="group flex items-center justify-between gap-3 rounded-xl border border-uk-line bg-uk-card px-4 py-3 transition-colors hover:border-uk-blue/40"
                 >
-                  <span className="text-sm font-medium text-uk-heading">
-                    Hire {o.title}
+                  <span className="text-sm font-medium text-uk-heading">{ukText("Hire ")}{ukText(o.title)}
                   </span>
                   <ArrowRight className="h-4 w-4 flex-none text-uk-blue opacity-0 transition-opacity group-hover:opacity-100" />
                 </Link>
@@ -303,28 +272,19 @@ export default async function HireRolePage({ params }: Props) {
 
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
-                <h3 className="font-heading text-lg font-bold text-uk-heading">
-                  Ready to meet your first {r.shortLabel} hire?
-                </h3>
-                <p className="mt-1 text-sm text-uk-gray">
-                  A 30-minute scoping call starts the shortlist — typically
-                  interviewing within 48 hours.
-                </p>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Ready to meet your first ")}{ukText(r.shortLabel)}{ukText("hire?")}</h3>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A 30-minute scoping call starts the shortlist — typically interviewing within 48 hours.")}</p>
               </div>
-              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">
-                Start hiring
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Start hiring")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
             </Reveal>
 
             <Reveal className="mt-10 border-t border-uk-line pt-8">
               <Link
-                href="/hire"
+                href={ukText("/hire")}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
               >
-                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-                All developers
-              </Link>
+                <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />{ukText("All developers")}</Link>
             </Reveal>
           </Container>
         </section>

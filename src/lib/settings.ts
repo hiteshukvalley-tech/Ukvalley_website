@@ -69,7 +69,7 @@ async function readFromDb() {
 // on DB errors (so failures are never cached); callers catch and fall back.
 const cachedRead = unstable_cache(readFromDb, ["site-settings-v1"], {
   tags: [SETTINGS_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 /** Settings for the public site. Never throws: falls back to the defaults. */

@@ -2,13 +2,14 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE, checkCredentials, envUser, type SessionUser } from "@/lib/admin-auth";
+import { SESSION_COOKIE, type SessionUser } from "@/lib/admin-auth";
 import { setSessionCookie } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
+import { checkOwnerCredentials } from "@/lib/owner-password";
 import { authenticateUser } from "@/lib/users-store";
-import { EMAIL_MAX, PASSWORD_MAX } from "@/lib/users-validation";
+import { EMAIL_MAX, PASSWORD_MAX, passwordRuleError } from "@/lib/users-validation";
 
-export type LoginState = { error?: string; email?: string };
+export type LoginState = { error?: string; email?: string; errors?: { password?: string } };
 
 // Simple in-memory throttle: 5 failed attempts per IP, and 10 per account, per
 // 15 minutes. The IP comes from a client-settable header, so the per-account
@@ -56,6 +57,10 @@ export async function loginAction(
   if (email.length > EMAIL_MAX || password.length > PASSWORD_MAX) {
     return { error: "Incorrect email ID or password.", email: email.slice(0, EMAIL_MAX) };
   }
+  // Same check the form runs before submitting. A password that breaks the
+  // rules can't be anyone's, so no account is looked up.
+  const rule = passwordRuleError(password);
+  if (rule) return { errors: { password: rule }, email };
   const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim() || "local";
   const ipKey = `ip:${ip}`;
   const accountKey = `acct:${email.trim().toLowerCase()}`;
@@ -68,11 +73,9 @@ export async function loginAction(
     return { error: "Admin login is not configured. Set the env vars from .env.example." };
   }
 
-  // The owner account from the env vars always works; otherwise a database user.
-  let user: SessionUser | null = null;
-  if (await checkCredentials(email, password)) {
-    user = envUser();
-  } else if (hasDatabaseUrl()) {
+  // The owner account (env vars, or its reset password); otherwise a database user.
+  let user: SessionUser | null = await checkOwnerCredentials(email, password);
+  if (!user && hasDatabaseUrl()) {
     try {
       user = await authenticateUser(email, password);
     } catch {

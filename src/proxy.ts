@@ -20,8 +20,9 @@ export async function proxy(request: NextRequest) {
 
   // The login page decides for itself whether to forward a signed-in user
   // (it can check the database; this proxy can't). Redirecting here on the
-  // cookie alone would loop for a disabled account.
-  if (pathname === "/admin/login") return NextResponse.next();
+  // cookie alone would loop for a disabled account. "Forgot password" is
+  // public too.
+  if (pathname === "/admin/login" || pathname === "/admin/forgot-password") return NextResponse.next();
   if (!authed) {
     return NextResponse.redirect(new URL("/admin/login", request.url));
   }

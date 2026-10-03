@@ -3,13 +3,17 @@ import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
-import { PageHero } from "@/components/site/page-hero";
+import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { ContactForm } from "@/components/site/contact-form";
 import { offices } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/settings";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Contact Ukvalley — book a free 30-minute scoping call",
@@ -56,16 +60,15 @@ export default async function ContactPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <PageHero variant="company"
-          eyebrow="Contact"
+        <EditableHero pageKey="contact" variant="company"
+          eyebrow={ukText("Contact")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
           title={
-            <>
-              Talk to a software architect —{" "}
-              <span className="text-gradient-blue">not a sales bot.</span>
+            <>{ukText("Talk to a software architect —")}{" "}
+              <span className="text-gradient-blue">{ukText("not a sales bot.")}</span>
             </>
           }
-          description="A free 30-minute scoping call. Within 1 business hour you'll get a reply. A rough estimate in 3 days, a fixed proposal in 7. No charge, no obligation."
+          description={ukText("A free 30-minute scoping call. Within 1 business hour you'll get a reply. A rough estimate in 3 days, a fixed proposal in 7. No charge, no obligation.")}
         />
 
         <section className="relative bg-uk-surface-2 section-py">
@@ -74,13 +77,8 @@ export default async function ContactPage() {
               {/* Form card — top edge on the same line as What happens next */}
               <Reveal className="flex">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-8">
-                  <h2 className="font-heading text-2xl font-bold text-uk-heading">
-                    Tell us about your project
-                  </h2>
-                  <p className="mt-2 text-sm text-uk-gray">
-                    Share a few details and an architect will reply within one
-                    business hour. We never share your details.
-                  </p>
+                  <h2 className="font-heading text-2xl font-bold text-uk-heading">{ukText("Tell us about your project")}</h2>
+                  <p className="mt-2 text-sm text-uk-gray">{ukText("Share a few details and an architect will reply within one business hour. We never share your details.")}</p>
                   <div className="mt-6 flex-1">
                     <ContactForm email={company.email} phone={company.phonePrimary} />
                   </div>
@@ -91,9 +89,7 @@ export default async function ContactPage() {
               <Reveal className="flex flex-col gap-5">
                 {/* What happens next — same card colour as the cards below */}
                 <div className="flex flex-1 flex-col rounded-2xl border border-uk-line bg-uk-card p-6 card-hover">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">
-                    What happens next
-                  </h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("What happens next")}</h3>
                   <ol className="mt-4 flex flex-1 flex-col justify-center gap-4">
                     {[
                       { t: "1 business hour", d: "A real reply from an architect, not an autoresponder." },
@@ -103,8 +99,8 @@ export default async function ContactPage() {
                       <li key={s.t} className="flex items-start gap-3">
                         <Clock className="mt-0.5 h-5 w-5 flex-none text-uk-blue" />
                         <div>
-                          <p className="font-semibold text-uk-heading">{s.t}</p>
-                          <p className="text-sm text-uk-gray">{s.d}</p>
+                          <p className="font-semibold text-uk-heading">{ukText(s.t)}</p>
+                          <p className="text-sm text-uk-gray">{ukText(s.d)}</p>
                         </div>
                       </li>
                     ))}
@@ -113,44 +109,38 @@ export default async function ContactPage() {
 
                 {/* Direct contact */}
                 <div className="flex flex-1 flex-col rounded-2xl border border-uk-line bg-uk-card p-6 card-hover">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">
-                    Reach us directly
-                  </h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Reach us directly")}</h3>
                   <div className="mt-4 flex flex-1 flex-col justify-center gap-5 text-sm">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-uk-blue">
-                        HR team
-                      </p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-uk-blue">{ukText("HR team")}</p>
                       <ul className="mt-2 flex flex-col gap-2">
                         <li>
-                          <a href={`tel:${company.hr.phone.replace(/\s/g, "")}`} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
+                          <a href={ukText(`tel:${company.hr.phone.replace(/\s/g, "")}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Phone className="h-4 w-4 text-uk-blue" />
-                            {company.hr.phone}
+                            {ukText(company.hr.phone)}
                           </a>
                         </li>
                         <li>
-                          <a href={`mailto:${company.hr.email}`} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
+                          <a href={ukText(`mailto:${company.hr.email}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Mail className="h-4 w-4 text-uk-blue" />
-                            {company.hr.email}
+                            {ukText(company.hr.email)}
                           </a>
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-uk-blue">
-                        Sales team
-                      </p>
+                      <p className="text-xs font-bold uppercase tracking-wider text-uk-blue">{ukText("Sales team")}</p>
                       <ul className="mt-2 flex flex-col gap-2">
                         <li>
-                          <a href={`tel:${company.sales.phone.replace(/\s/g, "")}`} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
+                          <a href={ukText(`tel:${company.sales.phone.replace(/\s/g, "")}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Phone className="h-4 w-4 text-uk-blue" />
-                            {company.sales.phone}
+                            {ukText(company.sales.phone)}
                           </a>
                         </li>
                         <li>
-                          <a href={`mailto:${company.sales.email}`} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
+                          <a href={ukText(`mailto:${company.sales.email}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Mail className="h-4 w-4 text-uk-blue" />
-                            {company.sales.email}
+                            {ukText(company.sales.email)}
                           </a>
                         </li>
                       </ul>
@@ -160,16 +150,16 @@ export default async function ContactPage() {
 
                 {/* Offices */}
                 <div className="flex flex-1 flex-col rounded-2xl border border-uk-line bg-uk-card p-6 card-hover">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">Our Offices</h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Our Offices")}</h3>
                   <ul className="mt-4 flex flex-1 flex-col justify-center gap-5 text-sm">
                     {offices.map((o) => (
                       <li key={o.country} className="flex items-start gap-3">
                         <MapPin className="mt-0.5 h-4 w-4 flex-none text-uk-blue" />
                         <address className="not-italic">
-                          <p className="font-semibold text-uk-heading">{o.country}</p>
+                          <p className="font-semibold text-uk-heading">{ukText(o.country)}</p>
                           <p className="mt-1 text-uk-gray">
                             {o.lines.map((line, i) => (
-                              <span key={i} className="block">{line}</span>
+                              <span key={i} className="block">{ukText(line)}</span>
                             ))}
                           </p>
                         </address>
@@ -181,6 +171,7 @@ export default async function ContactPage() {
             </div>
           </Container>
         </section>
+        <PageBlocks pageKey="contact" />
       </main>
       <Footer />
     </>

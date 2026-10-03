@@ -17,10 +17,36 @@ export const PASSWORD_MIN = 10;
 export const PASSWORD_MAX = 128;
 export const EMAIL_MAX = 200;
 
-/** Returns a message when the password is not acceptable, otherwise undefined. */
+// "‑" is a non-breaking hyphen, so "(A-Z)" never wraps across lines.
+const PASSWORD_RULES: { test: RegExp; label: string }[] = [
+  { test: /[A-Z]/, label: "one uppercase letter (A‑Z)" },
+  { test: /[a-z]/, label: "one lowercase letter (a‑z)" },
+  { test: /[0-9]/, label: "one number (0‑9)" },
+  { test: /[^A-Za-z0-9\s]/, label: "one special symbol (e.g. @ # $ ! %)" },
+];
+
+/** Shown under password fields. */
+export const PASSWORD_HINT = `At least ${PASSWORD_MIN} characters, including an uppercase letter, a lowercase letter, a number and a special symbol.`;
+
+/**
+ * Length and character rules (uppercase, lowercase, number, special symbol).
+ * Client-safe: the login page checks this before submitting. Returns a
+ * message naming what is missing, or undefined when the password is fine.
+ */
+export function passwordRuleError(password: string): string | undefined {
+  if (!password) return "Please enter your password.";
+  if (password.length < PASSWORD_MIN) return `Password must be at least ${PASSWORD_MIN} characters long.`;
+  if (password.length > PASSWORD_MAX) return `Password must be ${PASSWORD_MAX} characters or fewer.`;
+  const missing = PASSWORD_RULES.filter((r) => !r.test.test(password)).map((r) => r.label);
+  if (!missing.length) return undefined;
+  const list = missing.length === 1 ? missing[0] : `${missing.slice(0, -1).join(", ")} and ${missing[missing.length - 1]}`;
+  return `Password must contain at least ${list}.`;
+}
+
+/** Returns a message when a new password is not acceptable, otherwise undefined. */
 export function passwordError(password: string, email = ""): string | undefined {
-  if (password.length < PASSWORD_MIN) return `Use at least ${PASSWORD_MIN} characters.`;
-  if (password.length > PASSWORD_MAX) return `Use ${PASSWORD_MAX} characters or fewer.`;
+  const rule = passwordRuleError(password);
+  if (rule) return rule;
   if (email && password.toLowerCase() === email.toLowerCase()) return "The password can't be the same as the email.";
   if (/^(.)\1+$/.test(password)) return "Choose a less repetitive password.";
   return undefined;

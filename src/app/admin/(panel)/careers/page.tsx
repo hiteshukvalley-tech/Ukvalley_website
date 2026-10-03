@@ -1,7 +1,8 @@
 import Link from "@/components/site/intent-link";
-import { CircleAlert, Plus, Search } from "lucide-react";
+import { CircleAlert, FileUser, Plus, Search } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { listCareersForAdmin } from "@/lib/careers-store";
+import { formatExperience, formatPostedDate } from "@/lib/careers-shared";
 import { ImportButton } from "./import-button";
 import { CareerList } from "./sortable-list";
 import { FlashToast } from "@/components/admin/toast";
@@ -19,7 +20,7 @@ export default async function CareersAdminPage({ searchParams }: Props) {
   const filtered = items.filter((c) => {
     if (status === "published" && !c.published) return false;
     if (status === "draft" && c.published) return false;
-    return !needle || `${c.role} ${c.slug} ${c.location} ${c.type}`.toLowerCase().includes(needle);
+    return !needle || `${c.role} ${c.slug} ${c.location} ${c.type} ${c.mode}`.toLowerCase().includes(needle);
   });
   // Reordering only makes sense against the full list, so lock it while filtering.
   const filtering = Boolean(needle) || status !== "all";
@@ -32,12 +33,20 @@ export default async function CareersAdminPage({ searchParams }: Props) {
         crumbs={[{ label: "Careers" }]}
         description="Open roles listed on /careers and the Team page, in this order. Drag rows to reorder. Draft roles are hidden from the live site."
         action={
-          <Link
-            href="/admin/careers/new"
-            className="btn-sheen inline-flex h-10 items-center gap-2 rounded-lg bg-uk-blue px-4 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright"
-          >
-            <Plus className="h-4 w-4" /> Add role
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/applications"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading"
+            >
+              <FileUser className="h-4 w-4" /> Applications
+            </Link>
+            <Link
+              href="/admin/careers/new"
+              className="btn-sheen inline-flex h-10 items-center gap-2 rounded-lg bg-uk-blue px-4 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright"
+            >
+              <Plus className="h-4 w-4" /> Add role
+            </Link>
+          </div>
         }
       />
 
@@ -67,7 +76,7 @@ export default async function CareersAdminPage({ searchParams }: Props) {
                 type="search"
                 name="q"
                 defaultValue={q}
-                placeholder="Search by role, location or type"
+                placeholder="Search by role, location, mode or type"
                 className="h-10 w-full rounded-lg border border-input bg-transparent pl-9 pr-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               />
             </label>
@@ -107,6 +116,9 @@ export default async function CareersAdminPage({ searchParams }: Props) {
                 title: c.role,
                 type: c.type,
                 location: c.location,
+                mode: c.mode,
+                experience: formatExperience(c.experienceMin, c.experienceMax),
+                posted: formatPostedDate(c.postedAt),
                 published: c.published,
               }))}
             />

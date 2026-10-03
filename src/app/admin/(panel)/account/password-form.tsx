@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { CircleAlert, CircleCheck, Loader2, Save } from "lucide-react";
 import { FormField, FormSection } from "@/components/admin/form";
-import { PASSWORD_MAX, PASSWORD_MIN } from "@/lib/users-validation";
+import { PASSWORD_HINT, PASSWORD_MAX } from "@/lib/users-validation";
 import { changePasswordAction, type PasswordFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 
@@ -35,7 +35,7 @@ export function PasswordForm() {
 
       <FormSection title="Change password" description="Changing it signs you out of other browsers and devices.">
         <FormField label="Current password" name="current" type="password" required full autoComplete="current-password" maxLength={PASSWORD_MAX} error={errors.current} />
-        <FormField label="New password" name="next" type="password" required autoComplete="new-password" maxLength={PASSWORD_MAX} error={errors.next} hint={`At least ${PASSWORD_MIN} characters.`} />
+        <FormField label="New password" name="next" type="password" required autoComplete="new-password" maxLength={PASSWORD_MAX} error={errors.next} hint={PASSWORD_HINT} />
         <FormField label="Confirm new password" name="confirm" type="password" required autoComplete="new-password" maxLength={PASSWORD_MAX} error={errors.confirm} />
       </FormSection>
 

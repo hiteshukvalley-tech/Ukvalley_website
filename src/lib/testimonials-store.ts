@@ -49,13 +49,13 @@ async function readPublished(): Promise<Testimonial[]> {
 // Throws on DB errors so a failure is never cached; callers fall back.
 const cachedPublished = unstable_cache(readPublished, ["testimonials-published-v1"], {
   tags: [TESTIMONIALS_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 const cachedHasAny = unstable_cache(
   async () => (await col().estimatedDocumentCount()) > 0,
   ["testimonials-has-any-v1"],
-  { tags: [TESTIMONIALS_TAG], revalidate: 3600 }
+  { tags: [TESTIMONIALS_TAG], revalidate: 60 }
 );
 
 /**

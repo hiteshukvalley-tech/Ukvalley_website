@@ -1,0 +1,14 @@
+import { launch, newPage, go, sleep } from "./scripts/qa/lib.mjs";
+const b = await launch();
+const p = await newPage(b, { width: 1280, height: 900 });
+await go(p, "/careers");
+await p.$eval("#open-roles", (e) => e.scrollIntoView());
+await sleep(1500);
+const box = await (await p.$("#open-roles article p")).boundingBox();
+const x = box.x + 20, y = box.y + 5;
+console.log("box", JSON.stringify(box));
+console.log("element at point:", await p.evaluate((x, y) => { const e = document.elementFromPoint(x, y); return e ? `${e.tagName}.${e.className.toString().slice(0, 80)} href=${e.getAttribute("href") ?? e.closest("a")?.getAttribute("href")}` : null; }, x, y));
+await p.mouse.click(x, y);
+await sleep(3000);
+console.log("url after click:", p.url());
+await b.close();

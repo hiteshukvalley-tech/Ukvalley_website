@@ -14,6 +14,9 @@ export type CareerItem = {
   title: string;
   type: string;
   location: string;
+  mode: string;
+  experience: string;
+  posted: string;
   published: boolean;
 };
 
@@ -102,7 +105,7 @@ export function CareerList({ initial, locked }: { initial: CareerItem[]; locked:
               </span>
             </div>
             <p className="mt-0.5 truncate text-xs text-uk-muted">
-              {p.type} · {p.location}
+              {p.type} · {p.mode} · {p.location} · {p.experience} · Posted {p.posted}
             </p>
           </div>
           <RowActions slug={p.slug} name={p.title} published={p.published} />

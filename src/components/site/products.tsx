@@ -6,6 +6,7 @@ import { FlagshipProductCard } from "./flagship-product-card";
 import { Marked } from "./marked";
 import { flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
 import type { HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 /** Cards come from Admin → Products; heading from Admin → Home page → Products. */
 export async function Products({ content: c }: { content: HomeContent["products"] }) {
@@ -17,9 +18,9 @@ export async function Products({ content: c }: { content: HomeContent["products"
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
-            eyebrow={c.eyebrow}
-            title={<Marked text={c.title} />}
-            description={c.description || undefined}
+            eyebrow={ukText(c.eyebrow)}
+            title={<Marked text={ukText(c.title)} />}
+            description={ukText(c.description || undefined)}
           />
         </div>
 
@@ -52,25 +53,25 @@ export async function Products({ content: c }: { content: HomeContent["products"
                 <div className="flex flex-1 flex-col gap-2.5 p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1">
-                      <h4 className="font-heading text-xl font-bold text-uk-heading">{p.name}</h4>
-                      <p className="text-sm text-uk-blue">{p.tagline}</p>
+                      <h4 className="font-heading text-xl font-bold text-uk-heading">{ukText(p.name)}</h4>
+                      <p className="text-sm text-uk-blue">{ukText(p.tagline)}</p>
                     </div>
                     <Link
-                      href={`/products/${p.slug}`}
+                      href={ukText(`/products/${p.slug}`)}
                       className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-uk-surface-blue text-uk-blue transition-all group-hover:bg-uk-blue group-hover:text-uk-white"
                       aria-label={`Explore ${p.name}`}
                     >
                       <ArrowUpRight className="h-4 w-4" />
                     </Link>
                   </div>
-                  <p className="text-sm leading-relaxed text-uk-gray">{p.description}</p>
+                  <p className="text-sm leading-relaxed text-uk-gray">{ukText(p.description)}</p>
 
                   {/* highlights with checks */}
                   <ul className="flex flex-wrap gap-2">
                     {p.highlights.map((h) => (
                       <li key={h} className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-uk-surface-blue px-2.5 py-1 text-xs font-medium text-uk-body">
                         <Check className="h-3 w-3 text-uk-blue" />
-                        {h}
+                        {ukText(h)}
                       </li>
                     ))}
                   </ul>
@@ -79,11 +80,11 @@ export async function Products({ content: c }: { content: HomeContent["products"
                   <div className="mt-auto flex items-center gap-4 border-t border-uk-line pt-3">
                     <span className="inline-flex items-center gap-1.5 text-xs text-uk-muted">
                       <MonitorSmartphone className="h-3.5 w-3.5" />
-                      {p.platform}
+                      {ukText(p.platform)}
                     </span>
                     <span className="inline-flex items-center gap-1.5 text-xs text-uk-muted">
                       <Users className="h-3.5 w-3.5" />
-                      {p.audience}
+                      {ukText(p.audience)}
                     </span>
                   </div>
                 </div>
@@ -94,10 +95,10 @@ export async function Products({ content: c }: { content: HomeContent["products"
 
         <Reveal className="mt-10 flex justify-center">
           <Link
-            href="/products"
+            href={ukText("/products")}
             className="group inline-flex items-center gap-2 rounded-full border border-uk-line bg-white dark:bg-uk-card px-5 py-2.5 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue-bright"
           >
-            {c.linkLabel}
+            {ukText(c.linkLabel)}
             <ArrowUpRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
         </Reveal>

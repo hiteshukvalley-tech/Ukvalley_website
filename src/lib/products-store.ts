@@ -41,13 +41,13 @@ async function readPublished(): Promise<Product[]> {
 // Throws on DB errors so a failure is never cached; callers fall back.
 const cachedPublished = unstable_cache(readPublished, ["products-published-v1"], {
   tags: [PRODUCTS_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 const cachedHasAny = unstable_cache(
   async () => (await col().estimatedDocumentCount()) > 0,
   ["products-has-any-v1"],
-  { tags: [PRODUCTS_TAG], revalidate: 3600 }
+  { tags: [PRODUCTS_TAG], revalidate: 60 }
 );
 
 /**

@@ -3,6 +3,7 @@ import { Reveal } from "./reveal";
 import { ScopingButton } from "./scoping-modal";
 import { AuroraBlobs } from "./aurora-blobs";
 import { defaultHome, type HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 /**
  * Closing call-to-action band. The home page passes its admin-edited text
@@ -36,25 +37,25 @@ export function CtaBand({ content: c = defaultHome.cta }: { content?: HomeConten
             <div className="relative flex flex-col items-center gap-6">
               {c.badge && (
                 <span className="inline-flex items-center gap-2 rounded-full border border-uk-white/30 bg-uk-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.2em] text-uk-white backdrop-blur">
-                  {c.badge}
+                  {ukText(c.badge)}
                 </span>
               )}
               <h2 className="font-heading max-w-3xl text-balance text-3xl font-bold leading-[1.08] text-uk-white sm:text-5xl">
-                {c.title}
+                {ukText(c.title)}
               </h2>
               {c.description && (
-                <p className="max-w-xl text-base text-uk-white/85 sm:text-lg">{c.description}</p>
+                <p className="max-w-xl text-base text-uk-white/85 sm:text-lg">{ukText(c.description)}</p>
               )}
 
               {/* phone number & email live on the Contact page only */}
               <div className="mt-2 flex flex-col items-center gap-3">
                 <ScopingButton className="btn-sheen btn-lift group inline-flex h-14 items-center justify-center gap-2 rounded-full bg-uk-yellow px-8 font-heading text-base font-bold text-[#151122] shadow-glow-yellow">
-                  {c.buttonLabel}
+                  {ukText(c.buttonLabel)}
                   <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </ScopingButton>
                 {c.note && (
                   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-uk-white/85">
-                    {c.note}
+                    {ukText(c.note)}
                   </span>
                 )}
               </div>

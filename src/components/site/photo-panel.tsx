@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Check } from "lucide-react";
 import { Reveal } from "./reveal";
 import { cn } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
 
 /**
  * Photo + copy panel. The artwork sits in a rounded frame with the same
@@ -95,8 +96,8 @@ export function PhotoPanel({
             <div className="relative rounded-[2rem] bg-gradient-to-br from-[#3100FF] via-[#684DFF] via-60% to-[#fff500] p-[3px] shadow-premium-lg">
               <div className="relative aspect-[4/3] overflow-hidden rounded-[calc(2rem-3px)] bg-[#070511]">
                 <Image
-                  src={photo.src}
-                  alt={photo.alt}
+                  src={ukText(photo.src)}
+                  alt={ukText(photo.alt)}
                   fill
                   sizes="(min-width: 1024px) 40rem, 100vw"
                   quality={95}
@@ -107,7 +108,7 @@ export function PhotoPanel({
               </div>
             </div>
             {caption && (
-              <figcaption className="mt-3 text-center text-xs text-uk-muted">{caption}</figcaption>
+              <figcaption className="mt-3 text-center text-xs text-uk-muted">{ukText(caption)}</figcaption>
             )}
           </figure>
 
@@ -115,10 +116,10 @@ export function PhotoPanel({
           <div className="flex flex-col gap-5">
             {eyebrow && (
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                {eyebrow}
+                {ukText(eyebrow)}
               </span>
             )}
-            <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{title}</h2>
+            <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText(title)}</h2>
             <div className="text-justify-prose space-y-4 text-base leading-relaxed text-uk-body sm:text-lg">
               {children}
             </div>
@@ -129,7 +130,7 @@ export function PhotoPanel({
                     <span className="mt-0.5 flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                       <Check className="h-3 w-3" strokeWidth={3} />
                     </span>
-                    {f}
+                    {ukText(f)}
                   </li>
                 ))}
               </ul>

@@ -7,6 +7,8 @@ import { getIndustries } from "@/lib/industries-store";
 import { getHireRoles } from "@/lib/hire-store";
 import { getCaseStudies } from "@/lib/cases-store";
 import { getLocations } from "@/lib/locations-store";
+import { getCareers } from "@/lib/careers-store";
+import { listMainSlugs } from "@/lib/menu-store";
 
 const BASE = "https://ukvalley.com";
 
@@ -48,6 +50,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: now,
     changeFrequency: "monthly",
     priority: 0.8,
+  }));
+
+  // Pages behind main-menu sections added in Admin → Main menu.
+  const mainSectionRoutes: MetadataRoute.Sitemap = (await listMainSlugs()).map((slug) => ({
+    url: `${BASE}/s/${slug}`,
+    lastModified: now,
+    changeFrequency: "monthly",
+    priority: 0.6,
   }));
 
   const productRoutes: MetadataRoute.Sitemap = (await getProducts()).map((p) => ({
@@ -99,9 +109,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.5,
   }));
 
+  const careerRoutes: MetadataRoute.Sitemap = (await getCareers()).map((c) => ({
+    url: `${BASE}/careers/${c.slug}`,
+    lastModified: new Date(`${c.postedAt}T00:00:00Z`),
+    changeFrequency: "weekly",
+    priority: 0.5,
+  }));
+
   return [
     ...staticRoutes,
+    ...careerRoutes,
     ...serviceRoutes,
+    ...mainSectionRoutes,
     ...solutionRoutes,
     ...hireRoutes,
     ...locationRoutes,

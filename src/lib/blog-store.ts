@@ -33,13 +33,13 @@ async function readPublished(): Promise<Insight[]> {
 // Throws on DB errors so a failure is never cached; callers fall back.
 const cachedPublished = unstable_cache(readPublished, ["blog-published-v1"], {
   tags: [BLOG_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 const cachedHasAny = unstable_cache(
   async () => (await col().estimatedDocumentCount()) > 0,
   ["blog-has-any-v1"],
-  { tags: [BLOG_TAG], revalidate: 3600 }
+  { tags: [BLOG_TAG], revalidate: 60 }
 );
 
 /**

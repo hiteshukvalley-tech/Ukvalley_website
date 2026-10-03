@@ -5,6 +5,7 @@ import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { timeSavers } from "@/lib/site-data";
 import { cn } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
 
 const icons: Record<string, LucideIcon> = {
   fileText: FileText,
@@ -23,8 +24,7 @@ const icons: Record<string, LucideIcon> = {
 export function TimeSavers({
   eyebrow = "Your time back",
   title = (
-    <>
-      Six ways the model <span className="text-uk-blue">saves your team&apos;s time.</span>
+    <>{ukText("Six ways the model ")}<span className="text-uk-blue">{ukText("saves your team's time.")}</span>
     </>
   ),
   description = "Every figure below is a mechanism, not a promise — a contractual term or a fixed delivery ritual you can check on any engagement.",
@@ -41,7 +41,7 @@ export function TimeSavers({
     <section className={cn("relative bg-uk-surface section-py", className)}>
       <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-        <SectionHeading align={align} eyebrow={eyebrow} title={title} description={description} />
+        <SectionHeading align={align} eyebrow={ukText(eyebrow)} title={ukText(title)} description={ukText(description)} />
         <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {timeSavers.map((t) => {
             const Icon = icons[t.icon] ?? Clock;
@@ -55,14 +55,14 @@ export function TimeSavers({
                     <Icon className="h-5 w-5" />
                   </span>
                   <span className="flex flex-col items-end text-right">
-                    <span className="font-heading text-2xl font-bold leading-none text-uk-blue">{t.saved}</span>
+                    <span className="font-heading text-2xl font-bold leading-none text-uk-blue">{ukText(t.saved)}</span>
                     <span className="mt-1 text-[0.68rem] font-semibold uppercase tracking-wider text-uk-muted">
-                      {t.savedLabel}
+                      {ukText(t.savedLabel)}
                     </span>
                   </span>
                 </div>
-                <h3 className="font-heading text-base font-bold text-uk-heading">{t.title}</h3>
-                <p className="text-sm leading-relaxed text-uk-gray">{t.desc}</p>
+                <h3 className="font-heading text-base font-bold text-uk-heading">{ukText(t.title)}</h3>
+                <p className="text-sm leading-relaxed text-uk-gray">{ukText(t.desc)}</p>
               </div>
             );
           })}

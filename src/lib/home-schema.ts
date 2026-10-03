@@ -9,18 +9,20 @@ export type HomeSectionKey =
   | "testimonials" | "insights" | "faq" | "cta";
 
 type BaseField = { key: string; label: string; hint?: string; required?: boolean };
-type SubField = BaseField & { kind: "text" | "textarea"; max: number; link?: boolean };
+type SubField = BaseField & { kind: "text" | "textarea" | "image"; max: number; link?: boolean };
 
 export type FieldDef =
   | (BaseField & { kind: "text"; max: number; link?: boolean })
   | (BaseField & { kind: "textarea"; max: number; rows?: number })
+  /** An image: a /media/<id> path from the library, or a full https:// link. */
+  | (BaseField & { kind: "image"; max?: number })
   /** A list of one-line strings (chips, logos, steps…). */
   | (BaseField & { kind: "list"; itemLabel: string; max: number; minItems: number; maxItems: number })
   /** A list of cards, each with the same small set of fields. */
   | (BaseField & { kind: "group"; itemLabel: string; fields: SubField[]; minItems: number; maxItems: number });
 
-export type SectionDef = {
-  key: HomeSectionKey;
+export type SectionDef<K extends string = string> = {
+  key: K;
   label: string;
   /** what the section is, as the admin sees it */
   description: string;
@@ -41,7 +43,7 @@ const statFields: SubField[] = [
 ];
 
 /** Every home page section, in the order the page shows them. */
-export const HOME_SECTIONS: SectionDef[] = [
+export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
   {
     key: "hero",
     label: "Hero",
@@ -215,6 +217,8 @@ export const HOME_SECTIONS: SectionDef[] = [
       description,
       { key: "linkLabel", label: "Link text", kind: "text", max: 60, required: true, hint: "{count} becomes the number of case studies." },
       { key: "footnote", label: "Footnote", kind: "text", max: 160 },
+      { key: "challengeLabel", label: "Card label — challenge", kind: "text", max: 30, hint: "Shown before each case study's challenge, e.g. \"Challenge —\"." },
+      { key: "outcomeLabel", label: "Card label — outcome", kind: "text", max: 30, hint: "Shown before each case study's result, e.g. \"Outcome —\"." },
     ],
   },
   {
@@ -223,7 +227,14 @@ export const HOME_SECTIONS: SectionDef[] = [
     description: "Heading of the industry switchboard.",
     canHide: true,
     managedBy: [{ label: "Industries", href: "/admin/industries" }],
-    fields: [eyebrow, title(), description],
+    fields: [
+      eyebrow,
+      title(),
+      description,
+      { key: "buttonSuffix", label: "Panel button text", kind: "text", max: 40, hint: "Follows the first word of the industry name, e.g. \"Healthcare products & consulting\"." },
+      { key: "slowLabel", label: "Panel heading — challenges", kind: "text", max: 40 },
+      { key: "rulesLabel", label: "Panel heading — compliance", kind: "text", max: 40 },
+    ],
   },
   {
     key: "process",
@@ -273,6 +284,7 @@ export const HOME_SECTIONS: SectionDef[] = [
       title(),
       description,
       { key: "linkLabel", label: "Link text", kind: "text", max: 40, required: true },
+      { key: "readLabel", label: "Article link text", kind: "text", max: 40, required: true, hint: "The link at the bottom of each article card." },
       { key: "libraryBadge", label: "Library card — badge", kind: "text", max: 40 },
       { key: "libraryTitle", label: "Library card — title", kind: "text", max: 100, required: true },
       { key: "libraryText", label: "Library card — text", kind: "textarea", max: 300, rows: 2 },
@@ -303,6 +315,7 @@ export const HOME_SECTIONS: SectionDef[] = [
 ];
 
 export const homeSectionDef = (key: string) => HOME_SECTIONS.find((s) => s.key === key);
+export const isHomeSectionKey = (key: string): key is HomeSectionKey => HOME_SECTIONS.some((s) => s.key === key);
 
 /** One section's editable values, in the shape the editor and database use. */
 export type SectionValues = Record<string, string | string[] | Record<string, string>[]>;
@@ -380,9 +393,9 @@ export function validateSection(
 
   for (const f of def.fields) {
     const v = input[f.key];
-    if (f.kind === "text" || f.kind === "textarea") {
+    if (f.kind === "text" || f.kind === "textarea" || f.kind === "image") {
       const s = str(v);
-      checkText(f.key, s, f);
+      checkText(f.key, s, f.kind === "image" ? { ...f, max: f.max ?? 300, link: true } : f);
       value[f.key] = s;
     } else if (f.kind === "list") {
       const items = (Array.isArray(v) ? v : []).map(str).filter(Boolean);
@@ -399,7 +412,9 @@ export function validateSection(
         .filter((r) => Object.values(r).some(Boolean));
       if (rows.length > f.maxItems) errors[f.key] = `Add at most ${f.maxItems}.`;
       else if (rows.length < f.minItems) errors[f.key] = `Add at least ${f.minItems}.`;
-      rows.forEach((r, i) => f.fields.forEach((sf) => checkText(`${f.key}.${i}.${sf.key}`, r[sf.key], sf)));
+      rows.forEach((r, i) =>
+        f.fields.forEach((sf) => checkText(`${f.key}.${i}.${sf.key}`, r[sf.key], sf.kind === "image" ? { ...sf, link: true } : sf))
+      );
       value[f.key] = rows;
     }
   }

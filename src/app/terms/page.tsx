@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
-import { PageHero } from "@/components/site/page-hero";
+import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { getSiteSettings } from "@/lib/settings";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Terms of Service",
@@ -52,34 +56,33 @@ export default async function TermsPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <PageHero variant="company"
-          eyebrow="Legal"
+        <EditableHero pageKey="terms" variant="company"
+          eyebrow={ukText("Legal")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Terms of Service" }]}
-          title="Terms of Service"
-          description="The terms that govern use of this website. Project engagements are governed by a separate signed agreement that takes precedence."
+          title={ukText("Terms of Service")}
+          description={ukText("The terms that govern use of this website. Project engagements are governed by a separate signed agreement that takes precedence.")}
         />
 
         <section className="relative bg-uk-surface-2 section-py">
           <Container className="max-w-5xl">
             <Reveal className="flex flex-col gap-8">
-              <p className="text-sm text-uk-gray">
-                Last updated: {LAST_UPDATED}
+              <p className="text-sm text-uk-gray">{ukText("Last updated: ")}{ukText(LAST_UPDATED)}
               </p>
               {sections.map((s) => (
                 <div key={s.h} className="flex flex-col gap-3">
-                  <h2 className="font-heading text-xl font-bold text-uk-heading">{s.h}</h2>
-                  <p className="text-justify-prose leading-relaxed text-uk-body">{s.p}</p>
+                  <h2 className="font-heading text-xl font-bold text-uk-heading">{ukText(s.h)}</h2>
+                  <p className="text-justify-prose leading-relaxed text-uk-body">{ukText(s.p)}</p>
                 </div>
               ))}
               <div className="rounded-2xl border border-uk-line bg-uk-card p-6 text-sm text-uk-gray">
-                <p className="font-semibold text-uk-heading">Questions about these terms?</p>
-                <p className="mt-1">
-                  Email <a href={`mailto:${company.email}`} className="text-uk-blue hover:text-uk-blue-bright">{company.email}</a>.
+                <p className="font-semibold text-uk-heading">{ukText("Questions about these terms?")}</p>
+                <p className="mt-1">{ukText("Email ")}<a href={ukText(`mailto:${company.email}`)} className="text-uk-blue hover:text-uk-blue-bright">{ukText(company.email)}</a>.
                 </p>
               </div>
             </Reveal>
           </Container>
         </section>
+        <PageBlocks pageKey="terms" />
       </main>
       <Footer />
     </>

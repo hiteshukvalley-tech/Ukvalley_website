@@ -56,7 +56,7 @@ export function ProductForm({
           hint={
             mode === "edit"
               ? "The slug can't be changed after creation."
-              : "Lowercase, e.g. finvalley. Becomes /products/<slug>."
+              : "Lowercase, e.g. script-magix. Becomes /products/<slug>."
           }
         />
         <FormField label="Tagline" name="tagline" required full defaultValue={values.tagline} error={errors.tagline} hint="One short line, e.g. “SIM-based sales engagement”." />

@@ -5,7 +5,7 @@ import { useActionState, useState, useTransition } from "react";
 import { CircleAlert, CircleCheck, Loader2, Save, Trash2 } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect } from "@/components/admin/form";
 import { ADMIN_ROLES } from "@/lib/admin-auth";
-import { EMAIL_MAX, PASSWORD_MAX, PASSWORD_MIN, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
+import { EMAIL_MAX, PASSWORD_HINT, PASSWORD_MAX, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
 import { createUserAction, deleteUserAction, updateUserAction, type UserFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 import { toast } from "@/components/admin/toast";
@@ -111,7 +111,7 @@ export function UserForm({
             maxLength={PASSWORD_MAX}
             error={errors.password}
             autoComplete="new-password"
-            hint={`At least ${PASSWORD_MIN} characters.`}
+            hint={PASSWORD_HINT}
           />
         </FormSection>
 

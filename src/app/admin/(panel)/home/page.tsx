@@ -1,9 +1,10 @@
 import Link from "@/components/site/intent-link";
-import { ArrowRight, CircleAlert, ExternalLink, Eye, EyeOff } from "lucide-react";
+import { CircleAlert, ExternalLink } from "lucide-react";
 import { requireAdmin } from "@/lib/admin-session";
 import { PageHeader } from "@/components/admin/page-header";
-import { HOME_SECTIONS } from "@/lib/home-schema";
+import { homeSectionDef } from "@/lib/home-schema";
 import { getHomeForAdmin } from "@/lib/home-store";
+import { SectionList, type SectionRow } from "./section-list";
 
 export const metadata = { title: "Home page" };
 export const dynamic = "force-dynamic";
@@ -14,14 +15,37 @@ const fmt = (iso: string) =>
 export default async function HomeSectionsPage() {
   await requireAdmin();
   const { page, updated, dbError } = await getHomeForAdmin();
-  const hidden = HOME_SECTIONS.filter((s) => !page.visible[s.key]).length;
+
+  const rows: SectionRow[] = page.order.flatMap((id): SectionRow[] => {
+    const savedAt = updated[id];
+    const note = savedAt ? `Last saved ${fmt(savedAt)}` : "Original text";
+    const custom = page.custom.find((c) => c.id === id);
+    if (custom) {
+      return [{
+        id, custom: true, note,
+        label: custom.values.adminName || "Custom section",
+        description: custom.values.title.replace(/\*/g, ""),
+        shown: custom.visible,
+      }];
+    }
+    const def = homeSectionDef(id);
+    if (!def) return [];
+    return [{
+      id, custom: false, note,
+      label: def.label,
+      description: def.description,
+      shown: page.visible[def.key],
+      cards: def.managedBy?.map((m) => m.label).join(", "),
+    }];
+  });
+  const hidden = rows.filter((r) => !r.shown).length;
 
   return (
     <>
       <PageHeader
         title="Home page"
         crumbs={[{ label: "Home page" }]}
-        description={`Edit every section of the home page, in the order visitors see them. ${HOME_SECTIONS.length} sections${hidden ? `, ${hidden} hidden` : ""}.`}
+        description={`Edit every section of the home page and choose the order visitors see them in. ${rows.length} sections${hidden ? `, ${hidden} hidden` : ""}.`}
         action={
           <Link
             href="/"
@@ -39,45 +63,7 @@ export default async function HomeSectionsPage() {
         </div>
       )}
 
-      <ol className="space-y-3">
-        {HOME_SECTIONS.map((s, i) => {
-          const shown = page.visible[s.key];
-          const savedAt = updated[s.key];
-          return (
-            <li key={s.key}>
-              <Link
-                href={`/admin/home/${s.key}`}
-                className="group flex items-center gap-4 rounded-2xl border border-uk-line bg-uk-card p-5 transition-colors hover:border-uk-blue/40"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-uk-blue/10 font-heading text-sm font-bold text-uk-blue">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span className="font-heading text-base font-semibold text-uk-heading">{s.label}</span>
-                    <span
-                      className={
-                        shown
-                          ? "inline-flex items-center gap-1 rounded-full bg-emerald-500/12 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300"
-                          : "inline-flex items-center gap-1 rounded-full bg-uk-surface-3 px-2 py-0.5 text-[11px] font-semibold text-uk-muted"
-                      }
-                    >
-                      {shown ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                      {shown ? "Shown" : "Hidden"}
-                    </span>
-                  </span>
-                  <span className="mt-0.5 block text-sm text-uk-muted">{s.description}</span>
-                  <span className="mt-1 block text-xs text-uk-muted">
-                    {savedAt ? `Last saved ${fmt(savedAt)}` : "Original text"}
-                    {s.managedBy && ` · Cards: ${s.managedBy.map((m) => m.label).join(", ")}`}
-                  </span>
-                </span>
-                <ArrowRight className="h-4 w-4 shrink-0 text-uk-muted transition-transform group-hover:translate-x-0.5 group-hover:text-uk-blue" />
-              </Link>
-            </li>
-          );
-        })}
-      </ol>
+      <SectionList rows={rows} />
     </>
   );
 }

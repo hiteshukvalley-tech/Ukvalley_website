@@ -37,14 +37,20 @@ export type HomeContent = Sections<{
   };
   numbers: { badge: string; title: string; updated: string; cadence: string; items: StatSub[] };
   products: { eyebrow: string; title: string; description: string; linkLabel: string };
-  caseStudies: { eyebrow: string; title: string; description: string; linkLabel: string; footnote: string };
-  industries: { eyebrow: string; title: string; description: string };
+  caseStudies: {
+    eyebrow: string; title: string; description: string; linkLabel: string; footnote: string;
+    challengeLabel: string; outcomeLabel: string;
+  };
+  industries: {
+    eyebrow: string; title: string; description: string;
+    buttonSuffix: string; slowLabel: string; rulesLabel: string;
+  };
   process: { eyebrow: string; title: string; description: string; badge: string };
   engagement: { eyebrow: string; title: string; description: string; ctaLabel: string };
   tech: { eyebrow: string; title: string; description: string; footnote: string };
   testimonials: { eyebrow: string; title: string; description: string };
   insights: {
-    eyebrow: string; title: string; description: string; linkLabel: string;
+    eyebrow: string; title: string; description: string; linkLabel: string; readLabel: string;
     libraryBadge: string; libraryTitle: string; libraryText: string; libraryCta: string;
   };
   faq: { eyebrow: string; title: string; description: string };
@@ -70,7 +76,7 @@ export const defaultHome: HomeContent = {
   },
   trust: {
     label: "Trusted by 150+ businesses · Products & platforms in production",
-    brands: ["Finvalley", "TeleValley", "BBNPlay", "Dream Loans", "TurfPro", "AgriChain", "MediCore", "RetailOne", "BuildRight", "LogiFlow"],
+    brands: ["Script Magix", "TeleValley", "Mediline", "HR Agency System", "Emailz.ca", "AgriChain", "MediCore", "RetailOne", "BuildRight", "LogiFlow"],
   },
   explore: {
     eyebrow: "Explore",
@@ -198,7 +204,7 @@ export const defaultHome: HomeContent = {
       },
       {
         title: "Real product portfolio",
-        desc: "TeleValley, Finvalley, BBNPlay and more — proof we build and maintain our own IP, not just billable hours.",
+        desc: "TeleValley, Script Magix, Emailz.ca and more — proof we build and maintain our own IP, not just billable hours.",
         detail: "{products} products in production right now.",
       },
       {
@@ -233,12 +239,17 @@ export const defaultHome: HomeContent = {
     description: "A few anonymized engagements. Named clients and detailed write-ups live on the full case-study pages.",
     linkLabel: "All {count} case studies",
     footnote: "Every case study includes the constraint, the approach and the measured result.",
+    challengeLabel: "Challenge —",
+    outcomeLabel: "Outcome —",
   },
   industries: {
     eyebrow: "Industry switchboard",
     title: "Verticals where we have *shipped real systems.*",
     description:
       "We don't claim to serve everyone. These are the sectors where we have live, proven work — and the case studies to match.",
+    buttonSuffix: "products & consulting",
+    slowLabel: "What slows teams down",
+    rulesLabel: "Built for the rules",
   },
   process: {
     eyebrow: "How we work",
@@ -270,6 +281,7 @@ export const defaultHome: HomeContent = {
     title: "Practical guides from the *engineers who build.*",
     description: "No thought-leadership fluff. Frameworks, buyer's guides and postmortems you can actually use.",
     linkLabel: "Read the blog",
+    readLabel: "Read article",
     libraryBadge: "The full library",
     libraryTitle: "Every guide, playbook and engineering note in one place.",
     libraryText:

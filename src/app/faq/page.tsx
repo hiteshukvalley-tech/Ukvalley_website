@@ -4,12 +4,17 @@ import { ChevronRight, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
-import { PageHero, heroExtras } from "@/components/site/page-hero";
+import { heroExtras } from "@/components/site/page-hero";
+import { EditableHero, PageBlocks } from "@/components/site/page-extras";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
 import { getFaqs } from "@/lib/faqs-store";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
+
+// Re-render at least once a minute so admin text overrides always show up.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "FAQ — honest answers about working with Ukvalley",
@@ -136,18 +141,17 @@ export default async function FaqPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        <PageHero
+        <EditableHero pageKey="faq"
           variant="company"
           extras={heroExtras.company}
-          eyebrow="FAQ"
+          eyebrow={ukText("FAQ")}
           crumbs={[{ label: "Home", href: "/" }, { label: "FAQ" }]}
           title={
-            <>
-              Straight answers —{" "}
-              <span className="text-gradient-blue">no sales spin.</span>
+            <>{ukText("Straight answers —")}{" "}
+              <span className="text-gradient-blue">{ukText("no sales spin.")}</span>
             </>
           }
-          description="Everything buyers ask us before signing: ownership, pricing, timelines, quality and what happens when things change. If your question isn't here, ask it directly — a human architect answers."
+          description={ukText("Everything buyers ask us before signing: ownership, pricing, timelines, quality and what happens when things change. If your question isn't here, ask it directly — a human architect answers.")}
         />
 
         {/* The problem it solves */}
@@ -155,29 +159,19 @@ export default async function FaqPage() {
           <Container className="max-w-5xl">
             <Reveal>
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-                <Target className="h-3.5 w-3.5" />
-                The problem it solves
-              </span>
+                <Target className="h-3.5 w-3.5" />{ukText("The problem it solves")}</span>
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                  Why most vendor FAQ pages answer nothing that matters
-                </h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  Most agency FAQ pages exist to be seen, not read: "Do you build websites?" "Yes!" "Do you offer support?" "Of course!" — questions with no real information in the answer, designed to fill a page rather than help a buyer decide. The actual hard questions — who owns the code, what happens if an engineer quits, what a change request costs — go conspicuously unasked.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  That evasiveness costs buyers later: a verbal assurance on a sales call about ownership or timelines has no force once a dispute starts, and the FAQ page that promised "flexible, transparent pricing" turns out to have never actually defined what either word means in the contract.
-                </p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
-                  We answer the questions buyers actually ask before signing — ownership, pricing, timelines, what happens when things change — in specific, checkable terms, not marketing adjectives.
-                </p>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why most vendor FAQ pages answer nothing that matters")}</h2>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency FAQ pages exist to be seen, not read: \"Do you build websites?\" \"Yes!\" \"Do you offer support?\" \"Of course!\" — questions with no real information in the answer, designed to fill a page rather than help a buyer decide. The actual hard questions — who owns the code, what happens if an engineer quits, what a change request costs — go conspicuously unasked.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That evasiveness costs buyers later: a verbal assurance on a sales call about ownership or timelines has no force once a dispute starts, and the FAQ page that promised \"flexible, transparent pricing\" turns out to have never actually defined what either word means in the contract.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We answer the questions buyers actually ask before signing — ownership, pricing, timelines, what happens when things change — in specific, checkable terms, not marketing adjectives.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
                 <div className="flex w-full flex-col rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
-                  <h3 className="font-heading text-lg font-bold text-uk-heading">Questions worth asking any vendor</h3>
+                  <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Questions worth asking any vendor")}</h3>
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {[
                       "Who owns the code and credentials from day one?",
@@ -189,7 +183,7 @@ export default async function FaqPage() {
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
                           <Check className="h-3.5 w-3.5" strokeWidth={3} />
                         </span>
-                        <p className="text-sm leading-relaxed text-uk-body">{item}</p>
+                        <p className="text-sm leading-relaxed text-uk-body">{ukText(item)}</p>
                       </li>
                     ))}
                   </ul>
@@ -197,9 +191,7 @@ export default async function FaqPage() {
 
                 <div className="flex w-full flex-col rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-7">
                   <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-uk-heading">
-                    <Gauge className="h-4 w-4 text-uk-blue" />
-                    At a glance
-                  </h3>
+                    <Gauge className="h-4 w-4 text-uk-blue" />{ukText("At a glance")}</h3>
                   <dl className="mt-4 flex flex-col divide-y divide-uk-line">
                     {[
                       { label: "Questions answered", value: String(groups.reduce((n, g) => n + g.items.length, 0)), sub: "Grouped by topic" },
@@ -209,10 +201,10 @@ export default async function FaqPage() {
                     ].map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">
                         <dt className="text-sm text-uk-gray">
-                          {f.label}
-                          <span className="block text-xs text-uk-muted">{f.sub}</span>
+                          {ukText(f.label)}
+                          <span className="block text-xs text-uk-muted">{ukText(f.sub)}</span>
                         </dt>
-                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{f.value}</dd>
+                        <dd className="whitespace-nowrap font-heading text-base font-bold text-uk-blue">{ukText(f.value)}</dd>
                       </div>
                     ))}
                   </dl>
@@ -230,7 +222,7 @@ export default async function FaqPage() {
             <Container className="max-w-5xl">
               <Reveal>
                 <h2 className="font-heading text-xl font-bold text-uk-heading sm:text-2xl">
-                  {g.label}
+                  {ukText(g.label)}
                 </h2>
               </Reveal>
               <Reveal staggerChildren className="mt-6 flex flex-col gap-3">
@@ -240,10 +232,10 @@ export default async function FaqPage() {
                     className="group rounded-2xl border border-uk-line bg-uk-card px-5 py-4 transition-colors hover:border-uk-blue/40 open:border-uk-blue/40"
                   >
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-heading text-base font-semibold text-uk-heading [&::-webkit-details-marker]:hidden">
-                      {f.q}
+                      {ukText(f.q)}
                       <ChevronRight className="h-4 w-4 flex-none text-uk-muted transition-transform group-open:rotate-90" />
                     </summary>
-                    <p className="mt-3 text-sm leading-relaxed text-uk-gray">{f.a}</p>
+                    <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText(f.a)}</p>
                   </details>
                 ))}
               </Reveal>
@@ -254,25 +246,19 @@ export default async function FaqPage() {
         <section className="relative bg-uk-surface section-py">
           <Container>
             <Reveal className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-8 text-center">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading">
-                Still have a question?
-              </h2>
-              <p className="text-uk-gray">
-                Ask it on a free 30-minute scoping call — a software architect
-                answers, not a salesperson. A reply within 1 business hour.
-              </p>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading">{ukText("Still have a question?")}</h2>
+              <p className="text-uk-gray">{ukText("Ask it on a free 30-minute scoping call — a software architect answers, not a salesperson. A reply within 1 business hour.")}</p>
               <Link
-                href="/contact"
+                href={ukText("/contact")}
                 className="btn-sheen group inline-flex items-center gap-2 rounded-full bg-uk-blue px-6 py-3 text-sm font-semibold text-white shadow-glow-blue-sm transition-all hover:bg-uk-blue-bright"
-              >
-                Contact us
-                <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+              >{ukText("Contact us")}<ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </Reveal>
           </Container>
         </section>
 
         <CtaBand />
+        <PageBlocks pageKey="faq" />
       </main>
       <Footer />
     </>

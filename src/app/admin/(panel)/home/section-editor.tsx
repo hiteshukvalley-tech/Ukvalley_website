@@ -2,14 +2,14 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import {
-  ArrowDown, ArrowUp, CircleAlert, CircleCheck, Eye, EyeOff, Loader2, Plus, RotateCcw, Save, Trash2,
+  ArrowDown, ArrowUp, CircleAlert, CircleCheck, Eye, EyeOff, ImageIcon, Loader2, Plus, RotateCcw, Save, Trash2, Upload,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { FieldDef, SectionDef, SectionValues } from "@/lib/home-schema";
-import { resetHomeSectionAction, saveHomeSectionAction, type HomeSectionState } from "./actions";
+import type { HomeSectionState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 
 type Errors = Record<string, string>;
@@ -68,6 +68,86 @@ function TextInput({
       </Label>
       {multiline ? <Textarea {...props} rows={rows} /> : <Input {...props} className="h-10" />}
       <Footer id={id} error={error} hint={hint} length={value.length} max={max} />
+    </div>
+  );
+}
+
+/** An image field: paste a link, or upload a file to the media library (stored as /media/<id>). */
+export function ImageInput({
+  id, label, value, onChange, error, hint,
+}: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string }) {
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState("");
+
+  async function upload(file: File | undefined) {
+    if (!file) return;
+    setBusy(true);
+    setProblem("");
+    try {
+      const body = new FormData();
+      body.append("files", file);
+      const res = await fetch("/admin/media/upload", { method: "POST", body });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; results?: { ok: boolean; id?: string; error?: string }[] };
+      const r = data.results?.[0];
+      if (r?.ok && r.id) onChange(`/media/${r.id}`);
+      else setProblem(r?.error ?? data.error ?? "Upload failed.");
+    } catch {
+      setProblem("Upload failed. Check your connection and try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id} className="text-uk-heading">{label}</Label>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-uk-line bg-uk-surface-2 text-uk-muted">
+          {value ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={value} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <ImageIcon className="h-5 w-5" />
+          )}
+        </div>
+        <div className="min-w-48 flex-1 space-y-2">
+          <Input
+            id={id}
+            value={value}
+            maxLength={300}
+            placeholder="/media/… or https://…"
+            aria-invalid={error ? true : undefined}
+            onChange={(e) => onChange(e.target.value)}
+            className="h-9"
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-lg border border-uk-line px-3 text-xs font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading">
+              {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+              {busy ? "Uploading…" : "Upload image"}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
+                className="sr-only"
+                disabled={busy}
+                onChange={(e) => {
+                  void upload(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+            {value && (
+              <button type="button" onClick={() => onChange("")} className="text-xs font-medium text-uk-muted hover:text-destructive">
+                Remove image
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+      {error || problem ? (
+        <p role="alert" className="text-xs font-medium text-destructive">{error || problem}</p>
+      ) : (
+        <p className="text-xs text-uk-muted">{hint ?? "PNG, JPG, GIF, WebP or AVIF, up to 4 MB. Files are kept in Admin → Media."}</p>
+      )}
     </div>
   );
 }
@@ -136,6 +216,19 @@ function Field({
         multiline={f.kind === "textarea"}
         rows={f.kind === "textarea" ? f.rows : undefined}
         required={f.required}
+        error={errors[f.key]}
+        hint={f.hint}
+      />
+    );
+  }
+
+  if (f.kind === "image") {
+    return (
+      <ImageInput
+        id={id}
+        label={f.label}
+        value={typeof value === "string" ? value : ""}
+        onChange={onChange}
         error={errors[f.key]}
         hint={f.hint}
       />
@@ -213,19 +306,30 @@ function Field({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {f.fields.map((sf) => (
-                <div key={sf.key} className={sf.kind === "textarea" ? "sm:col-span-2" : undefined}>
-                  <TextInput
-                    id={`${id}-${i}-${sf.key}`}
-                    label={sf.label}
-                    value={row[sf.key] ?? ""}
-                    onChange={(v) => onChange(rows.map((r, j) => (j === i ? { ...r, [sf.key]: v } : r)))}
-                    max={sf.max}
-                    multiline={sf.kind === "textarea"}
-                    rows={2}
-                    required={sf.required}
-                    error={errors[`${f.key}.${i}.${sf.key}`]}
-                    hint={sf.hint}
-                  />
+                <div key={sf.key} className={sf.kind === "textarea" || sf.kind === "image" ? "sm:col-span-2" : undefined}>
+                  {sf.kind === "image" ? (
+                    <ImageInput
+                      id={`${id}-${i}-${sf.key}`}
+                      label={sf.label}
+                      value={row[sf.key] ?? ""}
+                      onChange={(v) => onChange(rows.map((r, j) => (j === i ? { ...r, [sf.key]: v } : r)))}
+                      error={errors[`${f.key}.${i}.${sf.key}`]}
+                      hint={sf.hint}
+                    />
+                  ) : (
+                    <TextInput
+                      id={`${id}-${i}-${sf.key}`}
+                      label={sf.label}
+                      value={row[sf.key] ?? ""}
+                      onChange={(v) => onChange(rows.map((r, j) => (j === i ? { ...r, [sf.key]: v } : r)))}
+                      max={sf.max}
+                      multiline={sf.kind === "textarea"}
+                      rows={2}
+                      required={sf.required}
+                      error={errors[`${f.key}.${i}.${sf.key}`]}
+                      hint={sf.hint}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -250,9 +354,9 @@ function Field({
  * copy changes, so after a save or a reset it shows what is really stored.
  */
 function EditorBody({
-  def, initial, initialVisible, errors, onDirty,
+  def, initial, initialVisible, errors, onDirty, where,
 }: {
-  def: SectionDef; initial: SectionValues; initialVisible: boolean; errors: Errors; onDirty: (d: boolean) => void;
+  def: SectionDef; initial: SectionValues; initialVisible: boolean; errors: Errors; onDirty: (d: boolean) => void; where: string;
 }) {
   const [values, setValues] = useState<SectionValues>(initial);
   const [visible, setVisible] = useState(initialVisible);
@@ -278,7 +382,7 @@ function EditorBody({
             </span>
             <div>
               <p className="text-sm font-semibold text-uk-heading">
-                {visible ? "Shown on the home page" : "Hidden from the home page"}
+                {visible ? `Shown on ${where}` : `Hidden from ${where}`}
               </p>
               <p className="text-xs text-uk-muted">Hiding keeps the text, so you can switch it back on any time.</p>
             </div>
@@ -311,18 +415,21 @@ function EditorBody({
 }
 
 export function SectionEditor({
-  def, initial, visible, version,
+  def, initial, visible, version, save, reset, where = "the home page",
 }: {
   def: SectionDef;
   initial: SectionValues;
   visible: boolean;
   /** changes whenever the stored copy changes (its last-saved time) */
   version: string;
+  /** server action, already bound to this section */
+  save: (prev: HomeSectionState, formData: FormData) => Promise<HomeSectionState>;
+  /** server action that restores the built-in text; omit when there is none */
+  reset?: () => Promise<HomeSectionState>;
+  /** where the content shows, for the visibility note ("the home page", "every page") */
+  where?: string;
 }) {
-  const [state, action, saving] = useActionState<HomeSectionState, FormData>(
-    saveHomeSectionAction.bind(null, def.key),
-    {}
-  );
+  const [state, action, saving] = useActionState<HomeSectionState, FormData>(save, {});
   const [resetting, startReset] = useTransition();
   const [resetState, setResetState] = useState<HomeSectionState>({});
   const [dirty, setDirty] = useState(false);
@@ -362,22 +469,27 @@ export function SectionEditor({
         initialVisible={visible}
         errors={errors}
         onDirty={setDirty}
+        where={where}
       />
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-uk-line bg-uk-card/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6">
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => {
-            if (window.confirm(`Restore "${def.label}" to its original text? Your saved changes to this section will be removed.`)) {
-              startReset(async () => setResetState(await resetHomeSectionAction(def.key)));
-            }
-          }}
-          className="inline-flex h-10 items-center gap-2 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading disabled:opacity-60"
-        >
-          {resetting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
-          Restore original text
-        </button>
+        {reset ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              if (window.confirm(`Restore "${def.label}" to its original text? Your saved changes to this section will be removed.`)) {
+                startReset(async () => setResetState(await reset()));
+              }
+            }}
+            className="inline-flex h-10 items-center gap-2 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading disabled:opacity-60"
+          >
+            {resetting ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+            Restore original text
+          </button>
+        ) : (
+          <span />
+        )}
         <div className="flex items-center gap-3">
           {dirty && <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Unsaved changes</span>}
           <button

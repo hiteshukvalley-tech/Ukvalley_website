@@ -2,7 +2,7 @@ import Link from "@/components/site/intent-link";
 import {
   Wrench, Newspaper, Trophy, Boxes, Puzzle, Building2, UserPlus, MapPin,
   Users, Briefcase, MessageSquareQuote, HelpCircle, ExternalLink, CircleCheck,
-  CircleAlert, Info, ArrowUpRight, Inbox, Image as ImageIcon, House, EyeOff,
+  CircleAlert, Info, ArrowUpRight, Inbox, Image as ImageIcon, House, EyeOff, FileUser,
 } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatCard } from "@/components/admin/stat-card";
@@ -19,6 +19,7 @@ import { getHireRoles } from "@/lib/hire-store";
 import { getTestimonials } from "@/lib/testimonials-store";
 import { getFaqs } from "@/lib/faqs-store";
 import { countNewLeads } from "@/lib/leads-store";
+import { countNewApplications } from "@/lib/applications-store";
 import { countMedia } from "@/lib/media-store";
 import { getTeam } from "@/lib/team-store";
 import { getCareers } from "@/lib/careers-store";
@@ -80,11 +81,11 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   // database instead of ~15 in a row.
   const [
     statusChecks, posts, services, cases, products, solutions, industries,
-    hireRoles, locations, team, careers, testimonials, faqs, newLeads, mediaCount, home,
+    hireRoles, locations, team, careers, testimonials, faqs, newLeads, newApplications, mediaCount, home,
   ] = await Promise.all([
     getStatusChecks(), getPosts(), getServices(), getCaseStudies(), getProducts(), getSolutions(),
     getIndustries(), getHireRoles(), getLocations(), getTeam(), getCareers(), getTestimonials(),
-    getFaqs(), countNewLeads(), countMedia(), getHomeForAdmin(),
+    getFaqs(), countNewLeads(), countNewApplications(), countMedia(), getHomeForAdmin(),
   ]);
   const cards = content(services.length, posts.length, cases.length, products.length, solutions.length, industries.length, hireRoles.length, locations.length, team.length, careers.length, testimonials.length, faqs.length);
   const editedHome = HOME_SECTIONS.filter((s) => home.updated[s.key]).length;
@@ -125,6 +126,13 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             icon={Inbox}
             href="/admin/leads"
             hint={newLeads === null ? "Database not connected" : newLeads === 0 ? "All caught up" : "Waiting for a reply"}
+          />
+          <StatCard
+            label="New job applications"
+            value={newApplications ?? "—"}
+            icon={FileUser}
+            href="/admin/applications"
+            hint={newApplications === null ? "Database not connected" : newApplications === 0 ? "All reviewed" : "Waiting for review"}
           />
           <StatCard
             label="Media files"

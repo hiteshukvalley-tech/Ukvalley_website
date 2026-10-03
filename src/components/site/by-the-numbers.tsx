@@ -4,6 +4,7 @@ import { StatCounter } from "./stat-counter";
 import { deliveryStats } from "@/lib/site-data";
 import type { HomeContent } from "@/lib/home-defaults";
 import { cn } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
 
 /**
  * Delivery scoreboard — operating figures refreshed each quarter from the
@@ -36,16 +37,16 @@ export function ByTheNumbers({
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-uk-blue/40" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-uk-blue" />
               </span>
-              {source.badge}
+              {ukText(source.badge)}
             </span>
             <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-              {source.title}
+              {ukText(source.title)}
             </h2>
           </div>
           {(source.updated || source.cadence) && (
             <p className="inline-flex items-center gap-1.5 text-xs text-uk-muted">
               <Activity className="h-3.5 w-3.5 text-uk-blue" />
-              {[source.updated && `Updated ${source.updated}`, source.cadence].filter(Boolean).join(" · ")}
+              {ukText([source.updated && `Updated ${source.updated}`, source.cadence].filter(Boolean).join(" · "))}
             </p>
           )}
         </Reveal>
@@ -60,8 +61,8 @@ export function ByTheNumbers({
                 value={s.value}
                 className="font-heading text-3xl font-bold leading-none text-uk-blue sm:text-4xl"
               />
-              <span className="mt-1 text-sm font-semibold text-uk-heading">{s.label}</span>
-              <span className="text-xs text-uk-gray">{s.sub}</span>
+              <span className="mt-1 text-sm font-semibold text-uk-heading">{ukText(s.label)}</span>
+              <span className="text-xs text-uk-gray">{ukText(s.sub)}</span>
             </div>
           ))}
         </Reveal>

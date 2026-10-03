@@ -66,6 +66,15 @@ export async function getUser(id: string): Promise<AdminUser | null> {
   }
 }
 
+/** The id of the user with this email (optionally only if active), or null. */
+export async function findUserIdByEmail(email: string, { activeOnly = false } = {}): Promise<string | null> {
+  const doc = await col().findOne(
+    { email: email.trim().toLowerCase(), ...(activeOnly ? { active: true } : {}) },
+    { projection: { _id: 1 } }
+  );
+  return doc?._id ?? null;
+}
+
 /** Active admins other than `excludeId` — used to never lock everyone out. */
 export async function countOtherActiveAdmins(excludeId: string): Promise<number> {
   return col().countDocuments({ role: "admin", active: true, _id: { $ne: excludeId } });

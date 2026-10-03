@@ -4,7 +4,7 @@
 //   - admin text inside JSON-LD can't break out of its <script> tag (XSS)
 //   - /faq shows FAQs edited in the admin (it used to read the static file)
 //   - unpublished solutions drop out of the header menu instead of 404ing
-import { check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
+import { BASE, check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
 
 const browser = await launch();
 const stamp = Date.now();
@@ -56,8 +56,9 @@ check("sitemap lists the new service", (await site.content()).includes(`/service
 await go(admin, "/admin/services");
 await admin.click(`button[aria-label^="Delete ${SVC_TITLE}"]`).catch(() => {});
 await sleep(3000);
-res = await go(site, `/services/${SVC}`);
-check("deleted service 404s", res?.status() === 404, `status ${res?.status()}`);
+// fetch with no-store: the browser would answer with its cached copy (a 304).
+const gone = await fetch(`${BASE}/services/${SVC}`, { cache: "no-store" });
+check("deleted service 404s", gone.status === 404, `status ${gone.status}`);
 
 // ---------------------------------------------------------------- JSON-LD XSS
 section("JSON-LD cannot be broken out of");

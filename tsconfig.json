@@ -40,7 +40,9 @@
     ".next-dev-check/types/**/*.ts",
     ".next-dev-check/dev/types/**/*.ts",
     ".next/claude-check/types/**/*.ts",
-    ".next/claude-check/dev/types/**/*.ts"
+    ".next/claude-check/dev/types/**/*.ts",
+    ".next-qa-careers/types/**/*.ts",
+    ".next-qa-careers/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

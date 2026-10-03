@@ -24,6 +24,7 @@ import { getSolutions } from "@/lib/solutions-store";
 import { getHireRoles } from "@/lib/hire-store";
 import { fill } from "@/lib/home-schema";
 import type { HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 /** Card look — icon, gradients and silhouette — by position. Text is admin-edited. */
 type CardStyle = {
@@ -93,9 +94,9 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeading
           align="center"
-          eyebrow={c.eyebrow}
-          title={<Marked text={c.title} />}
-          description={c.description || undefined}
+          eyebrow={ukText(c.eyebrow)}
+          title={<Marked text={ukText(c.title)} />}
+          description={ukText(c.description || undefined)}
         />
 
         <Reveal
@@ -107,7 +108,7 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
             return (
               <Link
                 key={`${card.label}-${i}`}
-                href={card.href}
+                href={ukText(card.href)}
                 className={cn(
                   "explore-card group p-8 sm:p-9",
                   `explore-card--${card.shape}`
@@ -139,10 +140,10 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
                   {(card.stat.value || card.stat.label) && (
                     <span className="flex flex-col items-end text-right">
                       <span className="font-heading text-3xl font-bold leading-none text-uk-blue">
-                        {card.stat.value}
+                        {ukText(card.stat.value)}
                       </span>
                       <span className="mt-1.5 max-w-[8rem] text-[0.7rem] font-semibold uppercase leading-tight tracking-wider text-uk-muted">
-                        {card.stat.label}
+                        {ukText(card.stat.label)}
                       </span>
                     </span>
                   )}
@@ -150,10 +151,10 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
 
                 {/* Title + overview */}
                 <span className="relative z-10 mt-7 font-heading text-xl font-bold text-uk-heading">
-                  {card.label}
+                  {ukText(card.label)}
                 </span>
                 <span className="relative z-10 mt-2 text-sm leading-relaxed text-uk-muted">
-                  {card.description}
+                  {ukText(card.description)}
                 </span>
 
                 {/* What's behind the door */}
@@ -164,7 +165,7 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
                         <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/10 text-uk-blue">
                           <Check className="h-3 w-3" strokeWidth={3} />
                         </span>
-                        {h}
+                        {ukText(h)}
                       </span>
                     ))}
                   </span>
@@ -172,7 +173,7 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
 
                 {/* CTA */}
                 <span className="relative z-10 mt-auto flex items-center gap-2 pt-6 text-sm font-semibold text-uk-blue">
-                  {card.cta}
+                  {ukText(card.cta)}
                   <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1.5" />
                 </span>
               </Link>

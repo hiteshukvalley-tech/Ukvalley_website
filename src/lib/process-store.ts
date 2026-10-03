@@ -52,13 +52,13 @@ async function readPublished(): Promise<ProcessStep[]> {
 // Throws on DB errors so a failure is never cached; callers fall back.
 const cachedPublished = unstable_cache(readPublished, ["processSteps-published-v1"], {
   tags: [PROCESS_TAG],
-  revalidate: 3600,
+  revalidate: 60,
 });
 
 const cachedHasAny = unstable_cache(
   async () => (await col().estimatedDocumentCount()) > 0,
   ["processSteps-has-any-v1"],
-  { tags: [PROCESS_TAG], revalidate: 3600 }
+  { tags: [PROCESS_TAG], revalidate: 60 }
 );
 
 /**

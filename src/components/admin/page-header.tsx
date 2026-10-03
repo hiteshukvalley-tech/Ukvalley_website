@@ -18,8 +18,8 @@ export function PageHeader({
       <div>
         <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-1 text-xs text-uk-muted">
           <Link href="/admin" className="hover:text-uk-heading">Admin</Link>
-          {crumbs.map((c) => (
-            <span key={c.label} className="flex items-center gap-1">
+          {crumbs.map((c, i) => (
+            <span key={`${i}-${c.label}`} className="flex items-center gap-1">
               <ChevronRight className="h-3 w-3" />
               {c.href ? <Link href={c.href} className="hover:text-uk-heading">{c.label}</Link> : c.label}
             </span>

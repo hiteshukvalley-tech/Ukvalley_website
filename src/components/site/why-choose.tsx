@@ -8,6 +8,7 @@ import { getSiteSettings } from "@/lib/settings";
 import { getProducts } from "@/lib/products-store";
 import { fill } from "@/lib/home-schema";
 import type { HomeContent } from "@/lib/home-defaults";
+import { ukText } from "@/lib/texts";
 
 /** Reason-card icons, by position. */
 const icons = [FileCode2, Clock, Users, Building2, IndianRupee, BadgeCheck];
@@ -30,9 +31,9 @@ export async function WhyChoose({ content: c }: { content: HomeContent["why"] })
       <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
         <SectionHeading
           align="center"
-          eyebrow={c.eyebrow}
-          title={<Marked text={c.title} className="text-gradient-blue" />}
-          description={c.description || undefined}
+          eyebrow={ukText(c.eyebrow)}
+          title={<Marked text={ukText(c.title)} className="text-gradient-blue" />}
+          description={ukText(c.description || undefined)}
         />
 
         {/* stats band */}
@@ -48,8 +49,8 @@ export async function WhyChoose({ content: c }: { content: HomeContent["why"] })
               />
               {/* strategic yellow accent under each stat */}
               <span className="h-1 w-8 rounded-full bg-uk-yellow" aria-hidden />
-              <span className="text-sm font-semibold text-uk-heading">{s.label}</span>
-              <span className="text-xs text-uk-gray">{s.sub}</span>
+              <span className="text-sm font-semibold text-uk-heading">{ukText(s.label)}</span>
+              <span className="text-xs text-uk-gray">{ukText(s.sub)}</span>
             </div>
           ))}
         </Reveal>
@@ -71,13 +72,13 @@ export async function WhyChoose({ content: c }: { content: HomeContent["why"] })
                   <span className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-uk-blue/12 text-uk-blue transition-colors group-hover:bg-uk-blue group-hover:text-uk-white">
                     <d.icon className="h-5 w-5" />
                   </span>
-                  <h3 className="font-heading text-base font-bold text-uk-heading pt-2">{d.title}</h3>
+                  <h3 className="font-heading text-base font-bold text-uk-heading pt-2">{ukText(d.title)}</h3>
                 </div>
-                <p className="text-sm leading-relaxed text-uk-gray">{d.desc}</p>
+                <p className="text-sm leading-relaxed text-uk-gray">{ukText(d.desc)}</p>
                 {d.detail && (
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-uk-blue">
                     <Check className="h-3 w-3" />
-                    {d.detail}
+                    {ukText(d.detail)}
                   </span>
                 )}
                 <Check className="absolute right-5 top-5 h-4 w-4 text-uk-blue/30" aria-hidden />

@@ -55,7 +55,7 @@ async function sign(payload: string): Promise<string> {
 }
 
 /** Constant-time string compare (hashes first so lengths never leak). */
-async function safeEqual(a: string, b: string): Promise<boolean> {
+export async function safeEqual(a: string, b: string): Promise<boolean> {
   const [ha, hb] = await Promise.all([
     crypto.subtle.digest("SHA-256", enc.encode(a)),
     crypto.subtle.digest("SHA-256", enc.encode(b)),
@@ -71,8 +71,9 @@ async function safeEqual(a: string, b: string): Promise<boolean> {
  * The owner's session version: a keyed hash of ADMIN_PASSWORD, so rotating the
  * password signs out every existing owner session. Keyed with AUTH_SECRET, so
  * the value in the (readable) cookie reveals nothing about the password.
+ * Also used with a reset password's hash (see owner-password.ts).
  */
-function ownerSessionVersion(password: string): number {
+export function ownerSessionVersion(password: string): number {
   const input = `${process.env.AUTH_SECRET ?? ""}|${password}`;
   let h = 0x811c9dc5; // FNV-1a, 32-bit
   for (let i = 0; i < input.length; i++) {
