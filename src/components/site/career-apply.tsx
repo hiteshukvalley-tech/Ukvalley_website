@@ -11,6 +11,7 @@ import {
 } from "@/lib/applications-validation";
 import { validatePhone } from "@/lib/contact-validation";
 import { DEFAULT_HIRING_PROCESS, type HiringStep } from "@/lib/careers-shared";
+import { T, Tx, useT } from "@/components/site/texts-context";
 
 /**
  * Careers "Apply" popup. Wrap the open roles in <CareerApplyProvider>; any
@@ -117,13 +118,13 @@ export function CareerApplyProvider({
                   <div className="absolute inset-0 bg-blueprint bg-grid-fade opacity-60" aria-hidden />
                   <div className="relative flex flex-col gap-2 pr-12">
                     <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/25 bg-white/70 px-3.5 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.2em] text-uk-blue dark:bg-uk-card/70">
-                      Careers at Ukvalley
+                      <T>Careers at Ukvalley</T>
                     </span>
                     <h2 id="apply-title" className="font-heading text-2xl font-bold leading-tight text-uk-heading">
-                      Apply to join Ukvalley
+                      <T>Apply to join Ukvalley</T>
                     </h2>
                     <p className="text-sm text-uk-muted">
-                      Fields marked <span className="text-red-600 dark:text-red-400">*</span> are required. Our HR team reads every application and replies by email.
+                      <T>Fields marked</T> <span className="text-red-600 dark:text-red-400">*</span> <T>are required. Our HR team reads every application and replies by email.</T>
                     </p>
                   </div>
                 </div>
@@ -151,6 +152,7 @@ function ApplicationForm({
   processes: Record<string, HiringStep[]>;
   onDone: () => void;
 }) {
+  const t = useT();
   const [status, setStatus] = useState<"idle" | "submitting" | "sent">("idle");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string>();
@@ -228,12 +230,12 @@ function ApplicationForm({
         </span>
         <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">Thank you, {sentTo.name}! Your application is in.</h3>
         <p className="mt-2 max-w-md text-sm text-uk-body">
-          We&apos;ve received your application for <span className="font-semibold text-uk-heading">{sentTo.position}</span> and
-          sent a confirmation to <span className="font-semibold text-uk-heading">{sentTo.email}</span>. Our HR team will be in
-          touch if your profile is a match.
+          <T>We&apos;ve received your application for</T> <span className="font-semibold text-uk-heading"><Tx>{sentTo.position}</Tx></span> <T>and
+          sent a confirmation to</T> <span className="font-semibold text-uk-heading"><Tx>{sentTo.email}</Tx></span><T>. Our HR team will be in
+          touch if your profile is a match.</T>
         </p>
         <div className="mt-6 w-full max-w-md rounded-2xl border border-uk-line bg-uk-card p-5 text-left">
-          <h4 className="font-heading text-sm font-bold uppercase tracking-[0.14em] text-uk-muted">What happens next</h4>
+          <h4 className="font-heading text-sm font-bold uppercase tracking-[0.14em] text-uk-muted"><T>What happens next</T></h4>
           <ol className="mt-3 flex flex-col gap-3">
             {steps.map((s, i) => (
               <li key={`${i}-${s.title}`} className="flex items-start gap-3">
@@ -245,8 +247,8 @@ function ApplicationForm({
                   {i + 1}
                 </span>
                 <span className="text-sm text-uk-body">
-                  <span className="font-semibold text-uk-heading">{s.title}</span>
-                  {i === 0 && <span className="ml-2 rounded-full bg-uk-blue/10 px-2 py-0.5 text-[0.65rem] font-semibold text-uk-blue">You are here</span>}
+                  <span className="font-semibold text-uk-heading"><Tx>{s.title}</Tx></span>
+                  {i === 0 && <span className="ml-2 rounded-full bg-uk-blue/10 px-2 py-0.5 text-[0.65rem] font-semibold text-uk-blue"><T>You are here</T></span>}
                 </span>
               </li>
             ))}
@@ -257,7 +259,7 @@ function ApplicationForm({
           onClick={onDone}
           className="mt-6 inline-flex h-11 items-center rounded-full bg-uk-blue px-6 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright"
         >
-          Close
+          <T>Close</T>
         </button>
       </div>
     );
@@ -269,7 +271,7 @@ function ApplicationForm({
       {/* Honeypot — hidden from people; bots fill it and are ignored. */}
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
         <label>
-          Website
+          <T>Website</T>
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
@@ -277,19 +279,19 @@ function ApplicationForm({
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Full Name" htmlFor="apply-name" error={errors.name} required>
           <Input
-            ref={firstField} id="apply-name" name="name" autoComplete="name" placeholder="Your full name" maxLength={NAME_MAX}
+            ref={firstField} id="apply-name" name="name" autoComplete="name" placeholder={t("Your full name")} maxLength={NAME_MAX}
             aria-invalid={!!errors.name || undefined} onInput={() => clearError("name")} className="h-11 px-3.5"
           />
         </Field>
         <Field label="Email Address" htmlFor="apply-email" error={errors.email} required>
           <Input
-            id="apply-email" name="email" type="email" autoComplete="email" placeholder="you@example.com" maxLength={EMAIL_MAX}
+            id="apply-email" name="email" type="email" autoComplete="email" placeholder={t("you@example.com")} maxLength={EMAIL_MAX}
             aria-invalid={!!errors.email || undefined} onInput={() => clearError("email")} className="h-11 px-3.5"
           />
         </Field>
         <Field label="Phone Number" htmlFor="apply-phone" error={errors.phone} required>
           <Input
-            id="apply-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="+91 98765 43210" maxLength={18}
+            id="apply-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder={t("+91 98765 43210")} maxLength={18}
             aria-invalid={!!errors.phone || undefined}
             onInput={() => clearError("phone")}
             onBlur={(e) => {
@@ -301,14 +303,14 @@ function ApplicationForm({
         </Field>
         <Field label="Current Location" htmlFor="apply-location" error={errors.location} required>
           <Input
-            id="apply-location" name="location" autoComplete="address-level2" placeholder="City, State" maxLength={LOCATION_MAX}
+            id="apply-location" name="location" autoComplete="address-level2" placeholder={t("City, State")} maxLength={LOCATION_MAX}
             aria-invalid={!!errors.location || undefined} onInput={() => clearError("location")} className="h-11 px-3.5"
           />
         </Field>
         <Field label="Position Applied For" htmlFor="apply-position" error={errors.position} required>
           <Input
             id="apply-position" name="position" list="apply-positions" defaultValue={initialPosition}
-            placeholder="Select or type a position" maxLength={POSITION_MAX} autoComplete="off"
+            placeholder={t("Select or type a position")} maxLength={POSITION_MAX} autoComplete="off"
             aria-invalid={!!errors.position || undefined} onInput={() => clearError("position")} className="h-11 px-3.5"
           />
           <datalist id="apply-positions">
@@ -324,9 +326,9 @@ function ApplicationForm({
             // text-base on phones: iOS zooms into fields under 16px.
             className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue aria-invalid:border-destructive sm:text-sm"
           >
-            <option value="" disabled>Select experience…</option>
+            <option value="" disabled><T>Select experience…</T></option>
             {EXPERIENCE_OPTIONS.map((x) => (
-              <option key={x} value={x}>{x}</option>
+              <option key={x} value={x}><Tx>{x}</Tx></option>
             ))}
           </select>
         </Field>
@@ -334,7 +336,7 @@ function ApplicationForm({
 
       <Field label="Portfolio / LinkedIn (Optional)" htmlFor="apply-portfolio" error={errors.portfolio}>
         <Input
-          id="apply-portfolio" name="portfolio" type="url" inputMode="url" placeholder="https://" maxLength={PORTFOLIO_MAX}
+          id="apply-portfolio" name="portfolio" type="url" inputMode="url" placeholder={t("https://")} maxLength={PORTFOLIO_MAX}
           aria-invalid={!!errors.portfolio || undefined} onInput={() => clearError("portfolio")} className="h-11 px-3.5"
         />
       </Field>
@@ -365,13 +367,13 @@ function ApplicationForm({
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-uk-line bg-uk-card px-3.5 text-sm font-medium text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
           >
             <Upload className="h-4 w-4" />
-            Choose file
+            <T>Choose file</T>
           </button>
           <span className="flex min-w-0 flex-1 items-center gap-1.5 text-sm text-uk-muted">
             {fileName ? (
               <>
                 <FileText className="h-4 w-4 shrink-0 text-uk-blue" />
-                <span className="truncate text-uk-body">{fileName}</span>
+                <span className="truncate text-uk-body"><Tx>{fileName}</Tx></span>
               </>
             ) : (
               "No file chosen"
@@ -383,7 +385,7 @@ function ApplicationForm({
 
       <Field label="Cover Letter (Optional)" htmlFor="apply-cover" error={errors.coverLetter}>
         <Textarea
-          id="apply-cover" name="coverLetter" rows={5} maxLength={COVER_LETTER_MAX} placeholder="Write your cover letter..."
+          id="apply-cover" name="coverLetter" rows={5} maxLength={COVER_LETTER_MAX} placeholder={t("Write your cover letter...")}
           onChange={(e) => {
             setCoverLength(e.target.value.length);
             clearError("coverLetter");
@@ -400,7 +402,7 @@ function ApplicationForm({
       {formError && (
         <p role="alert" className="flex items-start gap-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-          {formError}
+          <Tx>{formError}</Tx>
         </p>
       )}
 
@@ -433,7 +435,7 @@ function Field({
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={htmlFor} className="gap-0.5 text-sm font-medium text-uk-body">
-        {label}
+        <Tx>{label}</Tx>
         {required && (
           <span className="text-red-600 dark:text-red-400" aria-hidden>
             {" "}*
@@ -444,7 +446,7 @@ function Field({
       {error && (
         <span role="alert" className="flex items-center gap-1 text-xs text-destructive">
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-          {error}
+          <Tx>{error}</Tx>
         </span>
       )}
     </div>

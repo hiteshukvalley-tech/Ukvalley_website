@@ -80,7 +80,7 @@ export async function listScanPaths(): Promise<PathGroup[]> {
         page("pricing"), page("faq"), page("contact"),
         page("careers", "Main page"), ...rows("/careers", careers as Labelled[], "Job opening"),
         page("locations", "Main page"), ...rows("/locations", locations as Labelled[], "Location"),
-        page("privacy"), page("terms"),
+        page("privacy"), page("terms"), page("sitemap"),
       ],
     },
     { group: "Hire", entries: [page("hire", "Main page"), ...rows("/hire", hire as Labelled[], "Role")] },

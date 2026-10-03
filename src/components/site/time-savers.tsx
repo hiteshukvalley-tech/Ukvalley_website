@@ -40,7 +40,7 @@ export function TimeSavers({
   return (
     <section className={cn("relative bg-uk-surface section-py", className)}>
       <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <SectionHeading align={align} eyebrow={ukText(eyebrow)} title={ukText(title)} description={ukText(description)} />
         <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {timeSavers.map((t) => {

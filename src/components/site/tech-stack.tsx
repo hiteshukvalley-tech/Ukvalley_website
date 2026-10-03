@@ -16,6 +16,7 @@ import {
   FlaskConical,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tx } from "@/components/site/texts-context";
 
 const iconMap: Record<string, LucideIcon> = {
   monitor: Monitor,
@@ -129,7 +130,7 @@ export function TechStack({
       {/* background texture */}
       <div className="absolute inset-0 bg-blueprint bg-grid-fade opacity-50" aria-hidden />
 
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         {heading && (
           <SectionHeading
             align="center"
@@ -180,17 +181,17 @@ export function TechStack({
                       </span>
                       <div>
                         <h3 className="font-heading text-lg font-bold text-uk-heading">
-                          {cat.label}
+                          <Tx>{cat.label}</Tx>
                         </h3>
                         <p className="text-xs text-uk-body/70">
-                          {cat.items.length} technologies
+                          <Tx>{`${cat.items.length} technologies`}</Tx>
                         </p>
                       </div>
                     </div>
 
                     {/* Why this stack — the reasoning behind the choices */}
                     <p className="mb-4 text-sm leading-relaxed text-uk-body/80">
-                      {cat.why}
+                      <Tx>{cat.why}</Tx>
                     </p>
 
                     {/* Tech pills — each language tinted with its brand
@@ -207,7 +208,7 @@ export function TechStack({
                             pillDarkColorMap[item] ?? ""
                           )}
                         >
-                          {item}
+                          <Tx>{item}</Tx>
                         </span>
                       ))}
                     </div>
@@ -221,7 +222,7 @@ export function TechStack({
         {/* Bottom note */}
         {c.footnote && (
           <Reveal className="mt-10 text-center">
-            <p className="mx-auto max-w-xl text-sm leading-relaxed text-uk-body/70">{c.footnote}</p>
+            <p className="mx-auto max-w-xl text-sm leading-relaxed text-uk-body/70"><Tx>{c.footnote}</Tx></p>
           </Reveal>
         )}
       </div>

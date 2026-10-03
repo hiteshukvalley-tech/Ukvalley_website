@@ -12,6 +12,7 @@ import { Marked } from "./marked";
 import { company } from "@/lib/site-core";
 import { markedWords } from "@/lib/home-schema";
 import type { HomeContent } from "@/lib/home-defaults";
+import { T, Tx, useT } from "@/components/site/texts-context";
 
 /** Chip dot colours, by position. */
 const chipDots = [
@@ -22,6 +23,7 @@ const chipDots = [
 
 /** Home page hero. Text comes from Admin → Home page → Hero. */
 export function Hero({ content: c }: { content: HomeContent["hero"] }) {
+  const t = useT();
   const headline = markedWords(c.headline);
   return (
     <section className="relative overflow-hidden bg-uk-surface-blue">
@@ -36,7 +38,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
       <div className="glow-drift absolute bottom-[-10%] left-[30%] h-80 w-80 rounded-full bg-uk-yellow/15 blur-[120px]" />
 
       {/* ── Hero content ── */}
-      <div className="relative mx-auto max-w-7xl px-5 pt-32 pb-16 lg:px-8 lg:pt-40 lg:pb-20">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-32 pb-16 lg:px-8 lg:pt-40 lg:pb-20">
         {/* Badge */}
         <div className="mb-8 flex justify-center">
           <div className="badge-yellow inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs uppercase tracking-[0.18em] shadow-glow-yellow">
@@ -44,7 +46,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-uk-heading/30" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-uk-heading" />
             </span>
-            {c.badge}
+            <Tx>{c.badge}</Tx>
           </div>
         </div>
 
@@ -56,7 +58,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
             className="font-heading-display text-balance text-4xl font-bold leading-[1.05] tracking-tight text-uk-heading-strong sm:text-5xl lg:text-[4.5rem] lg:leading-[1.04]"
             highlight={headline.highlight}
           >
-            {headline.text}
+            {t(headline.text)}
           </SplitHeading>
 
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-uk-muted sm:text-xl">
@@ -67,7 +69,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
         {/* CTAs */}
         <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <ScopingButton className="group inline-flex h-14 w-full max-w-sm items-center justify-center gap-2 rounded-full sm:w-auto btn-sheen btn-glow bg-uk-blue px-8 text-base font-semibold text-white transition-all hover:bg-uk-blue-bright">
-            {c.primaryCta}
+            <Tx>{c.primaryCta}</Tx>
             <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
           </ScopingButton>
           <Button
@@ -78,7 +80,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
             render={<Link href={c.secondaryHref} />}
           >
             <CheckCircle2 className="mr-2 h-4 w-4" />
-            {c.secondaryCta}
+            <Tx>{c.secondaryCta}</Tx>
           </Button>
         </div>
 
@@ -87,7 +89,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
           {c.trustNote && (
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-uk-blue" />
-              {c.trustNote}
+              <Tx>{c.trustNote}</Tx>
             </span>
           )}
           {c.ratingNote && <span className="inline-flex items-center gap-2">
@@ -96,7 +98,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
                 <Star key={i} className="h-4 w-4 fill-uk-yellow text-uk-yellow drop-shadow-[0_1px_0_rgba(31,41,55,0.15)] dark:drop-shadow-[0_1px_0_rgba(0,0,0,0.4)]" />
               ))}
             </span>
-            {c.ratingNote}
+            <Tx>{c.ratingNote}</Tx>
           </span>}
         </div>
 
@@ -114,11 +116,11 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
                 <span className="h-3 w-3 rounded-full bg-emerald-400/80 dark:bg-emerald-400/70" />
               </div>
               <span className="font-heading text-xs font-semibold uppercase tracking-[0.2em] text-uk-muted">
-                {c.panelTitle}
+                <Tx>{c.panelTitle}</Tx>
               </span>
               <div className="flex items-center gap-1.5 text-uk-muted">
                 <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)] dark:shadow-[0_0_6px_rgba(52,211,153,0.6)]" />
-                <span className="text-[0.65rem] font-medium uppercase tracking-wider">Live</span>
+                <span className="text-[0.65rem] font-medium uppercase tracking-wider"><T>Live</T></span>
               </div>
             </div>
 
@@ -134,7 +136,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
               {c.chips.map((chip, i) => (
                 <span key={`${chip}-${i}`} className="inline-flex items-center gap-2 rounded-full border border-uk-line bg-white/90 dark:bg-uk-card/90 px-4 py-2 text-sm font-medium text-uk-heading shadow-float backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/50 hover:shadow-glow-blue-sm">
                   <span className={`h-2 w-2 rounded-full ${chipDots[i % chipDots.length]}`} />
-                  {chip}
+                  <Tx>{chip}</Tx>
                 </span>
               ))}
             </div>
@@ -153,7 +155,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
               />
               <span className="h-1 w-8 rounded-full bg-uk-yellow" aria-hidden />
               <span className="text-xs font-medium uppercase tracking-wider text-uk-muted sm:text-sm">
-                {s.label}
+                <Tx>{s.label}</Tx>
               </span>
             </div>
           ))}
@@ -162,14 +164,14 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
 
       {/* ── Delivery mesh ── */}
       <div className="relative bg-white dark:bg-uk-card pb-16 pt-12 lg:pb-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
           <div className="flex flex-col gap-2 text-center">
             {c.meshEyebrow && (
               <span className="text-xs font-semibold uppercase tracking-[0.28em] text-uk-blue">
-                {c.meshEyebrow}
+                <Tx>{c.meshEyebrow}</Tx>
               </span>
             )}
-            {c.meshText && <p className="text-sm text-uk-muted">{c.meshText}</p>}
+            {c.meshText && <p className="text-sm text-uk-muted"><Tx>{c.meshText}</Tx></p>}
           </div>
           <DeliveryMesh className="mx-auto mt-8 max-w-4xl" />
         </div>

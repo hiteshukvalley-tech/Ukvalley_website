@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Award, Briefcase, Building2, CalendarDays, Laptop, MapPin, RotateCcw, Search, SearchX, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ApplyButton } from "@/components/site/career-apply";
+import { T, Tx, useT } from "@/components/site/texts-context";
 import {
   NEW_ROLE_DAYS, daysSincePosted, formatExperience, formatPostedDate, hasWords, matchesExperience, postedLabel, todayInIndia,
   type JobMode,
@@ -32,7 +33,7 @@ export function ModeBadge({ mode }: { mode: JobMode }) {
   return (
     <span className="inline-flex items-center gap-1 rounded-full border border-uk-blue/25 bg-uk-blue/10 px-2.5 py-0.5 text-[0.7rem] font-semibold text-uk-blue">
       <Icon className="h-3 w-3" aria-hidden />
-      {mode}
+      <Tx>{mode}</Tx>
     </span>
   );
 }
@@ -43,6 +44,7 @@ export function ModeBadge({ mode }: { mode: JobMode }) {
  * search can be shared or bookmarked, and survive Back from a job page.
  */
 export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
+  const t = useT();
   const [filters, setFilters] = useState<Filters>(EMPTY);
   // Relative dates ("3 days ago") need the visitor's clock, so they appear
   // after hydration; the server renders the absolute date.
@@ -105,7 +107,7 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
             id="job-position"
             label="Position"
             icon={Search}
-            placeholder="e.g. React, Flutter, Designer"
+            placeholder={t("e.g. React, Flutter, Designer")}
             value={filters.position}
             onChange={(v) => update("position", v)}
             list="job-position-list"
@@ -115,7 +117,7 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
             id="job-location"
             label="Location"
             icon={MapPin}
-            placeholder="e.g. Pune, Remote, Hybrid"
+            placeholder={t("e.g. Pune, Remote, Hybrid")}
             value={filters.location}
             onChange={(v) => update("location", v)}
             list="job-location-list"
@@ -125,7 +127,7 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
             id="job-experience"
             label="Experience (years)"
             icon={Award}
-            placeholder="Your years, e.g. 3 or 0 for fresher"
+            placeholder={t("Your years, e.g. 3 or 0 for fresher")}
             value={filters.experience}
             onChange={(v) => update("experience", v)}
             inputMode="numeric"
@@ -135,12 +137,12 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
           <p aria-live="polite" className="text-sm text-uk-muted">
             {filtering ? (
               <>
-                <span className="font-semibold text-uk-heading">{results.length}</span> of {jobs.length} open role
+                <span className="font-semibold text-uk-heading"><Tx>{results.length}</Tx></span> of {jobs.length} open role
                 {jobs.length === 1 ? "" : "s"} match your search
               </>
             ) : (
               <>
-                <span className="font-semibold text-uk-heading">{jobs.length}</span> open role{jobs.length === 1 ? "" : "s"}
+                <span className="font-semibold text-uk-heading"><Tx>{jobs.length}</Tx></span> <Tx>{`open role${jobs.length === 1 ? "" : "s"}`}</Tx>
               </>
             )}
           </p>
@@ -151,7 +153,7 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
               className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-uk-blue transition-colors hover:bg-uk-blue/10"
             >
               <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-              Clear search
+              <T>Clear search</T>
             </button>
           )}
         </div>
@@ -167,10 +169,10 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
         jobs.length > 0 && (
           <div className="rounded-2xl border border-dashed border-uk-line bg-uk-card p-8 text-center">
             <SearchX className="mx-auto h-8 w-8 text-uk-blue" aria-hidden />
-            <p className="mt-3 font-heading text-lg font-bold text-uk-heading">No roles match that search</p>
+            <p className="mt-3 font-heading text-lg font-bold text-uk-heading"><T>No roles match that search</T></p>
             <p className="mx-auto mt-1 max-w-md text-sm text-uk-body">
-              Try a broader position or location, or clear the experience box. You can also send us an open application —
-              we hire for people, not just open roles.
+              <T>Try a broader position or location, or clear the experience box. You can also send us an open application —
+              we hire for people, not just open roles.</T>
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
               <button
@@ -178,10 +180,10 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
                 onClick={clearAll}
                 className="inline-flex items-center gap-2 rounded-full border border-uk-line px-5 py-2.5 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
               >
-                <RotateCcw className="h-4 w-4" aria-hidden /> Clear search
+                <RotateCcw className="h-4 w-4" aria-hidden /> <T>Clear search</T>
               </button>
               <ApplyButton className="inline-flex items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright">
-                Send an open application <ArrowRight className="h-4 w-4" />
+                <T>Send an open application</T> <ArrowRight className="h-4 w-4" />
               </ApplyButton>
             </div>
           </div>
@@ -207,7 +209,7 @@ function SearchField({
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-xs font-semibold uppercase tracking-[0.14em] text-uk-muted">
-        {label}
+        <Tx>{label}</Tx>
       </label>
       <div className="relative">
         <Icon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-uk-blue" aria-hidden />
@@ -246,37 +248,37 @@ function JobCard({ job: j, today }: { job: JobListing; today?: string }) {
           <ModeBadge mode={j.mode} />
           {isNew && (
             <span className="rounded-full bg-uk-yellow px-2.5 py-0.5 text-[0.7rem] font-bold uppercase tracking-wide text-[#151122]">
-              New
+              <T>New</T>
             </span>
           )}
         </div>
         <h3 className="font-heading text-lg font-bold text-uk-heading">
           {/* The link's ::after covers the whole card, so a click anywhere opens the job. */}
           <Link href={`/careers/${j.slug}`} className="transition-colors after:absolute after:inset-0 after:rounded-2xl group-hover:text-uk-blue">
-            {j.role}
+            <Tx>{j.role}</Tx>
           </Link>
         </h3>
-        <p className="text-sm text-uk-gray">{j.summary}</p>
+        <p className="text-sm text-uk-gray"><Tx>{j.summary}</Tx></p>
         <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-uk-gray" aria-label="Job details">
           <li className="inline-flex items-center gap-1.5">
             <MapPin className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-            <span className="sr-only">Location: </span>
-            {j.location}
+            <span className="sr-only"><T>Location:</T> </span>
+            <Tx>{j.location}</Tx>
           </li>
           <li className="inline-flex items-center gap-1.5">
             <Briefcase className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-            <span className="sr-only">Employment type: </span>
-            {j.type}
+            <span className="sr-only"><T>Employment type:</T> </span>
+            <Tx>{j.type}</Tx>
           </li>
           <li className="inline-flex items-center gap-1.5">
             <Award className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-            <span className="sr-only">Experience: </span>
-            {formatExperience(j.experienceMin, j.experienceMax)}
+            <span className="sr-only"><T>Experience:</T> </span>
+            <Tx>{formatExperience(j.experienceMin, j.experienceMax)}</Tx>
           </li>
           <li className="inline-flex items-center gap-1.5">
             <CalendarDays className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
             <time dateTime={j.postedAt} title={formatPostedDate(j.postedAt)}>
-              {today ? postedLabel(j.postedAt, today) : `Posted ${formatPostedDate(j.postedAt)}`}
+              <Tx>{today ? postedLabel(j.postedAt, today) : `Posted ${formatPostedDate(j.postedAt)}`}</Tx>
             </time>
           </li>
         </ul>
@@ -287,11 +289,11 @@ function JobCard({ job: j, today }: { job: JobListing; today?: string }) {
           position={j.role}
           className="relative z-10 inline-flex w-fit items-center gap-2 rounded-full border border-uk-line bg-white px-5 py-2.5 text-sm font-semibold text-uk-heading transition-colors group-hover:border-uk-blue/50 group-hover:text-uk-blue-bright dark:bg-uk-card"
         >
-          Apply
+          <T>Apply</T>
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
         </ApplyButton>
         <span className="text-xs font-semibold text-uk-blue" aria-hidden>
-          View details & hiring process →
+          <T>View details & hiring process →</T>
         </span>
       </div>
     </li>

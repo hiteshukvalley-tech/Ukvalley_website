@@ -100,7 +100,7 @@ export default async function LocationPage({ params }: Props) {
           <Container className="max-w-5xl">
             <Reveal className="flex flex-col gap-5">
               <h2 className="font-heading text-2xl font-bold text-uk-heading">
-                {ukText(l.city)}{ukText("at Ukvalley")}</h2>
+                {ukText(l.city)}{" "}{ukText("at Ukvalley")}</h2>
               {l.paragraphs.map((para, i) => (
                 <p key={i} className="text-justify-prose text-lg leading-relaxed text-uk-body">
                   {ukText(para)}
@@ -141,7 +141,7 @@ export default async function LocationPage({ params }: Props) {
           <div className="absolute inset-0 bg-dots opacity-20" aria-hidden />
           <Container className="relative">
             <Reveal className="max-w-2xl">
-              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What ")}{ukText(l.city)}{ukText("clients build with us")}</h2>
+              <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What ")}{ukText(l.city)}{" "}{ukText("clients build with us")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {l.services.map((s) => (
@@ -173,7 +173,7 @@ export default async function LocationPage({ params }: Props) {
           <Container className="max-w-5xl">
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                {ukText(l.city)}{ukText("— common questions")}</h2>
+                {ukText(l.city)}{" "}{ukText("— common questions")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-8 flex flex-col gap-4">
               {l.faqs.map((f) => (

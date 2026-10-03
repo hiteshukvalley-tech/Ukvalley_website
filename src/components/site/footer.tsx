@@ -37,8 +37,8 @@ export async function Footer() {
     .filter((m) => m.href);
   return (
     <footer className="relative border-t border-uk-line bg-uk-surface-2 bg-aurora">
-      <div className="mx-auto max-w-7xl px-5 py-16 lg:px-8">
-        <div className="grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
+      <div className="mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] py-12 pb-[max(3rem,env(safe-area-inset-bottom))] sm:py-16 lg:px-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
           {/* Brand */}
           <div className="col-span-2 flex flex-col gap-5 lg:col-span-1">
             <Link href={ukText("/")} className="flex items-center gap-2.5" aria-label={`${header.logoName} ${header.logoSub} home`.trim()}>
@@ -54,13 +54,13 @@ export async function Footer() {
               </span>
             </Link>
             {f.brandText && <p className="max-w-xs text-sm leading-relaxed text-uk-muted">{ukText(f.brandText)}</p>}
-            <div className="flex gap-2.5">
+            <div className="flex flex-wrap gap-2.5">
               {socials.map((s) => (
                 <a
                   key={s.label}
                   href={ukText(s.href)}
                   aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-uk-line bg-white dark:bg-uk-surface-2 text-uk-muted transition-colors hover:border-uk-blue/40 hover:bg-uk-blue/10 hover:text-uk-blue"
+                  className="flex h-11 w-11 items-center justify-center rounded-lg border border-uk-line bg-white dark:bg-uk-surface-2 text-uk-muted sm:h-9 sm:w-9 transition-colors hover:border-uk-blue/40 hover:bg-uk-blue/10 hover:text-uk-blue"
                 >
                   {s.path ? (
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
@@ -88,7 +88,7 @@ export async function Footer() {
             {f.contactLinkLabel && (
               <SmartLink
                 href={ukText(f.contactLinkHref)}
-                className="link-ink group inline text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
+                className="link-ink group inline text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright max-sm:py-2"
               >
                 {ukText(f.contactLinkLabel)}
                 <ArrowRight className="ml-1 inline h-4 w-4 align-text-bottom transition-transform group-hover:translate-x-0.5" />
@@ -116,9 +116,9 @@ export async function Footer() {
         {/* bottom bar */}
         <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-uk-line pt-7 text-xs text-uk-muted sm:flex-row">
           <p>{ukText(fill(f.copyright, { year: new Date().getFullYear(), name: company.name }))}</p>
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 sm:gap-y-2">
             {f.bottomLinks.map((l) => (
-              <SmartLink key={l.href + l.label} href={ukText(l.href)} className="transition-colors hover:text-uk-blue">
+              <SmartLink key={l.href + l.label} href={ukText(humanLink(l.href))} className="inline-flex min-h-10 items-center transition-colors hover:text-uk-blue sm:min-h-0">
                 {ukText(l.label)}
               </SmartLink>
             ))}
@@ -129,14 +129,17 @@ export async function Footer() {
   );
 }
 
+/** The raw XML sitemap is for search engines; people get the readable page. */
+const humanLink = (href: string) => (href === "/sitemap.xml" ? "/sitemap" : href);
+
 function FooterCol({ title, links }: { title: string; links: NavLink[] }) {
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
       <h3 className="font-heading text-sm font-bold uppercase tracking-wider text-uk-heading">{ukText(title)}</h3>
-      <ul className="flex flex-col gap-2.5">
+      <ul className="flex flex-col gap-0.5 sm:gap-2.5">
         {links.map((l) => (
           <li key={l.href + l.label}>
-            <SmartLink href={ukText(l.href)} className="link-ink text-sm text-uk-muted transition-colors hover:text-uk-blue">
+            <SmartLink href={ukText(humanLink(l.href))} className="link-ink inline-flex min-h-10 items-center text-sm text-uk-muted transition-colors hover:text-uk-blue sm:min-h-0">
               {ukText(l.label)}
             </SmartLink>
           </li>

@@ -13,7 +13,7 @@ import { resetAllTextsAction, saveTextsAction, verifyTextsAction, type TextChang
 
 export type TextRow = {
   id: string;
-  kind: "text" | "alt" | "link" | "image";
+  kind: "text" | "alt" | "hint" | "link" | "image";
   region: "Header" | "Page" | "Footer";
   role: string;
   /** places on the page that show this */
@@ -23,6 +23,10 @@ export type TextRow = {
   sectionTitle: string;
   cardId: number;
   cardTitle: string;
+  /** the whole sentence this piece sits in (empty when the piece is the whole line) */
+  context: string;
+  /** rows with the same non-zero id are pieces of one sentence */
+  blockId: number;
   /** the text as written in the page code */
   original: string;
   /** what the page shows now */
@@ -38,10 +42,11 @@ const KINDS: { value: "all" | TextRow["kind"]; label: string }[] = [
   { value: "text", label: "Text & buttons" },
   { value: "image", label: "Images" },
   { value: "alt", label: "Image descriptions" },
+  { value: "hint", label: "Input hints (placeholders)" },
 ];
 
 const edge = (o: string) => ({ lead: /^\s*/.exec(o)![0], trail: /\s*$/.exec(o)![0] });
-const isTextKind = (r: TextRow) => r.kind === "text" || r.kind === "alt";
+const isTextKind = (r: TextRow) => r.kind === "text" || r.kind === "alt" || r.kind === "hint";
 
 type Group = { key: string; title: string; region: TextRow["region"]; blocks: { cardId: number; cardTitle: string; rows: TextRow[] }[]; total: number };
 
@@ -60,6 +65,30 @@ function groupRows(rows: TextRow[]): Group[] {
     else g.blocks.push({ cardId: r.cardId, cardTitle: r.cardTitle, rows: [r] });
   }
   return groups;
+}
+
+/**
+ * Some lines are written in pieces (a styled word inside a sentence), and each
+ * piece is edited on its own. This shows the whole sentence with the piece
+ * being edited highlighted, so nothing reads as cut off.
+ */
+function SentenceContext({ context, piece }: { context: string; piece: string }) {
+  const own = piece.replace(/\s+/g, " ").trim();
+  const at = context.indexOf(own);
+  return (
+    <p className="mt-2 rounded-lg border border-dashed border-uk-line bg-uk-surface-2 px-3 py-2 text-xs leading-relaxed text-uk-muted">
+      <span className="font-semibold text-uk-heading">Full sentence on the page: </span>
+      {at >= 0 ? (
+        <>
+          {context.slice(0, at)}
+          <mark className="rounded bg-uk-blue/15 px-0.5 font-semibold text-uk-heading">{own}</mark>
+          {context.slice(at + own.length)}
+        </>
+      ) : (
+        context
+      )}
+    </p>
+  );
 }
 
 /** All text, button labels, links and images of one page, by section. */
@@ -108,7 +137,55 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
     });
   }
 
-  function renderRow(r: TextRow) {
+  /** Rows in page order; the pieces of one sentence are gathered into a single card. */
+  function renderRows(list: TextRow[]) {
+    const out: React.ReactNode[] = [];
+    for (let i = 0; i < list.length; ) {
+      const r = list[i];
+      let j = i + 1;
+      if (r.kind === "text" && r.blockId) while (j < list.length && list[j].kind === "text" && list[j].blockId === r.blockId) j++;
+      const parts = list.slice(i, j);
+      if (parts.length > 1) out.push(renderSentence(parts));
+      else out.push(renderRow(r));
+      i = j;
+    }
+    return out;
+  }
+
+  /** One sentence made of several pieces: the whole sentence (updating as you type) and a text box per piece. */
+  function renderSentence(parts: TextRow[]) {
+    // Rebuild the sentence from what is typed in each box.
+    let sentence = parts[0].context;
+    let from = 0;
+    for (const p of parts) {
+      const own = p.original.replace(/\s+/g, " ").trim();
+      const at = sentence.indexOf(own, from);
+      if (at < 0) continue;
+      const now = (values[p.id] ?? "").replace(/\s+/g, " ").trim();
+      sentence = sentence.slice(0, at) + now + sentence.slice(at + own.length);
+      from = at + now.length;
+    }
+    const anyChanged = parts.some((p) => changed.includes(p));
+    return (
+      <li key={`s-${parts[0].id}`} className={cn("rounded-xl border bg-uk-card p-3.5", anyChanged ? "border-amber-500/50" : "border-uk-line")}>
+        <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
+          <span className="inline-flex items-center gap-1 rounded-full bg-uk-blue/10 px-2 py-0.5 text-uk-blue">
+            <Type className="h-3 w-3" />
+            {parts[0].role}
+          </span>
+          <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-uk-muted">One sentence · {parts.length} editable parts</span>
+          {anyChanged && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-300">Unsaved</span>}
+        </div>
+        <p className="rounded-lg bg-uk-surface-2 px-3 py-2.5 text-sm leading-relaxed text-uk-heading">{sentence}</p>
+        <p className="mt-2 text-xs text-uk-muted">
+          This sentence is written in parts (some words are styled or come from another section). Edit each part below; the sentence above updates as you type. Words that have no box here, such as a service name, are edited in their own section.
+        </p>
+        <ol className="mt-3 space-y-3">{parts.map((p, n) => renderRow(p, `Part ${n + 1} of ${parts.length}`))}</ol>
+      </li>
+    );
+  }
+
+  function renderRow(r: TextRow, partLabel?: string) {
     const value = values[r.id] ?? "";
     const isChanged = changed.includes(r);
     const Icon = r.kind === "link" ? Link2 : Type;
@@ -117,7 +194,7 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
         <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
           <span className="inline-flex items-center gap-1 rounded-full bg-uk-blue/10 px-2 py-0.5 text-uk-blue">
             {r.kind !== "image" && <Icon className="h-3 w-3" />}
-            {r.role}
+            {partLabel ?? r.role}
           </span>
           {r.count > 1 && <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-uk-muted">shown {r.count}× on this page</span>}
           {r.edited && <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-emerald-700 dark:text-emerald-300">Edited</span>}
@@ -138,14 +215,16 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
           <Textarea
             value={value}
             aria-label={`${r.role} text`}
-            rows={Math.min(8, Math.max(1, Math.ceil(value.length / 90)))}
+            rows={Math.min(16, Math.max(1, Math.ceil(value.length / 80), value.split("\n").length))}
             onChange={(e) => setValues((p) => ({ ...p, [r.id]: e.target.value }))}
           />
         )}
 
+        {!partLabel && r.kind === "text" && r.context && <SentenceContext context={r.context} piece={r.original} />}
+
         {(r.edited || r.stuckOverride !== undefined) && (
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-uk-muted">
-            {r.edited && <span>Original: <span className="text-uk-body">{r.original.trim().slice(0, 160)}{r.original.trim().length > 160 ? "…" : ""}</span></span>}
+            {r.edited && <span>Original: <span className="text-uk-body">{r.original.trim()}</span></span>}
             {r.stuckOverride !== undefined && (
               <span className="inline-flex items-center gap-1 font-medium text-amber-700 dark:text-amber-300">
                 <CircleAlert className="h-3.5 w-3.5" /> A saved edit is not showing here (interactive part of the page).
@@ -221,7 +300,7 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
                     {String(gi + 1).padStart(2, "0")}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-heading text-base font-semibold text-uk-heading">{g.title}</span>
+                    <span className="block break-words font-heading text-base font-semibold text-uk-heading">{g.title}</span>
                     <span className="block text-xs text-uk-muted">
                       {g.region === "Page" ? "Section" : g.region} · {g.total} item{g.total === 1 ? "" : "s"}
                       {g.blocks.some((b) => b.cardId) && ` · ${new Set(g.blocks.filter((b) => b.cardId).map((b) => b.cardId)).size} cards`}
@@ -238,10 +317,10 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
                           <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-uk-blue">
                             <Layers className="h-3.5 w-3.5" /> Card · <span className="normal-case tracking-normal text-uk-heading">{b.cardTitle}</span>
                           </p>
-                          <ol className="space-y-3">{b.rows.map(renderRow)}</ol>
+                          <ol className="space-y-3">{renderRows(b.rows)}</ol>
                         </div>
                       ) : (
-                        <ol key={`loose-${bi}`} className="space-y-3">{b.rows.map(renderRow)}</ol>
+                        <ol key={`loose-${bi}`} className="space-y-3">{renderRows(b.rows)}</ol>
                       )
                     )}
                   </div>

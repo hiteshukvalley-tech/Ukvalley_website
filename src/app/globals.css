@@ -1505,3 +1505,29 @@ html.lenis body {
     animation: none;
   }
 }
+
+/* ── Phones (Android / iOS) ───────────────────────────────────────────
+   Small badges and chips never go below 12px (the dashboard demo is a
+   miniature on purpose, and upper-case tracking labels stay as designed),
+   and form fields are at least 16px so iOS Safari doesn't zoom the page
+   when one is focused. */
+@media (max-width: 639px) {
+  :where(
+      [class*="text-[0.6rem]"],
+      [class*="text-[0.62rem]"],
+      [class*="text-[0.65rem]"],
+      [class*="text-[0.68rem]"],
+      [class*="text-[0.7rem]"],
+      [class*="text-[0.72rem]"],
+      [class*="text-[10px]"],
+      [class*="text-[11px]"]
+    ):not(.uppercase, [data-mock] *) {
+    font-size: 0.75rem;
+    line-height: 1.3;
+  }
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+}

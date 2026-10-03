@@ -1,3 +1,4 @@
+import { ukText } from "@/lib/texts";
 /**
  * Global delivery mesh — an abstract world-arcs visualization showing
  * Ukvalley's delivery footprint (Canada · USA · Dubai · India) with
@@ -65,7 +66,7 @@ export function DeliveryMesh({ className }: { className?: string }) {
               textAnchor="middle"
               className="fill-uk-heading font-heading text-[11px] font-bold max-sm:text-[17px]"
             >
-              {n.label}
+              {ukText(n.label)}
             </text>
           </g>
         ))}

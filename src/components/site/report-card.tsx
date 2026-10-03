@@ -76,7 +76,7 @@ function BarChart({ chart, id }: { chart: Report["chart"]; id: string }) {
                 className="fill-uk-heading text-[12px] font-semibold"
                 style={{ fontVariantNumeric: "tabular-nums" }}
               >
-                {r.value}
+                {ukText(r.value)}
               </text>
             </g>
           );
@@ -96,7 +96,7 @@ function BarChart({ chart, id }: { chart: Report["chart"]; id: string }) {
             {rows.map((r) => (
               <tr key={r.label}>
                 <td className="border-b border-uk-line py-1.5 pr-3 text-uk-body">{ukText(r.label)}</td>
-                <td className="border-b border-uk-line py-1.5 text-right tabular-nums text-uk-body">{r.value}</td>
+                <td className="border-b border-uk-line py-1.5 text-right tabular-nums text-uk-body">{ukText(r.value)}</td>
               </tr>
             ))}
           </tbody>
@@ -171,7 +171,7 @@ export function ReportsSection({
 }) {
   return (
     <section id="reports" className={cn("relative bg-uk-surface-2 section-py scroll-mt-24", className)}>
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <SectionHeading align="center" eyebrow={ukText(eyebrow)} title={ukText(title)} description={ukText(description)} />
         <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-6 lg:grid-cols-2">
           {reports.map((r) => (

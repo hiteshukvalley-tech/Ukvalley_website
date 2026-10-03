@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { company as defaultCompany } from "@/lib/site-core";
 import { BUDGETS, MESSAGE_MAX, SERVICES, validatePhone } from "@/lib/contact-validation";
 import { submitEnquiryAction } from "@/app/contact/actions";
+import { T, Tx, useT } from "@/components/site/texts-context";
 
 export function ContactForm({
   email = defaultCompany.email,
@@ -20,6 +21,7 @@ export function ContactForm({
   /** where the form is shown, saved with the lead */
   source?: "contact-page" | "scoping-popup";
 } = {}) {
+  const t = useT();
   const company = { email, phonePrimary: phone };
   // "sent" = saved to the inbox; "mailto" = fallback, handed to the email app
   const [status, setStatus] = useState<"idle" | "submitting" | "sent" | "mailto">("idle");
@@ -115,7 +117,7 @@ export function ContactForm({
           <Check className="h-6 w-6" />
         </span>
         <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">
-          Thanks — we&apos;ve received your enquiry.
+          <T>Thanks — we&apos;ve received your enquiry.</T>
         </h3>
         <p className="mt-2 text-sm text-uk-body">
           A software architect will reply within one business hour. Prefer to talk now? Call{" "}
@@ -123,7 +125,7 @@ export function ContactForm({
             href={`tel:${company.phonePrimary.replace(/\s+/g, "")}`}
             className="font-semibold text-uk-blue hover:text-uk-blue-bright"
           >
-            {company.phonePrimary}
+            <Tx>{company.phonePrimary}</Tx>
           </a>
           .
         </p>
@@ -135,7 +137,7 @@ export function ContactForm({
           }}
           className="mt-5 text-sm font-semibold text-uk-blue underline-offset-4 hover:underline"
         >
-          Send another enquiry
+          <T>Send another enquiry</T>
         </button>
       </div>
     );
@@ -151,23 +153,23 @@ export function ContactForm({
             email app. Say so plainly: on phones without a mail app set up
             nothing opens, and "sent" would be untrue. */}
         <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">
-          One last step — press Send in your email app.
+          <T>One last step — press Send in your email app.</T>
         </h3>
         <p className="mt-2 text-sm text-uk-body">
-          We&apos;ve written the email for you. Once it&apos;s sent, we reply
-          within one business hour.
+          <T>We&apos;ve written the email for you. Once it&apos;s sent, we reply
+          within one business hour.</T>
         </p>
         <p className="mt-4 text-sm text-uk-body">
           Email app didn&apos;t open? Write to{" "}
           <a href={`mailto:${company.email}`} className="font-semibold text-uk-blue hover:text-uk-blue-bright">
-            {company.email}
+            <Tx>{company.email}</Tx>
           </a>{" "}
           or call{" "}
           <a
             href={`tel:${company.phonePrimary.replace(/\s+/g, "")}`}
             className="font-semibold text-uk-blue hover:text-uk-blue-bright"
           >
-            {company.phonePrimary}
+            <Tx>{company.phonePrimary}</Tx>
           </a>
           .
         </p>
@@ -180,7 +182,7 @@ export function ContactForm({
           }}
           className="mt-5 text-sm font-semibold text-uk-blue underline-offset-4 hover:underline"
         >
-          Back to the form
+          <T>Back to the form</T>
         </button>
       </div>
     );
@@ -195,23 +197,23 @@ export function ContactForm({
       {/* Honeypot — hidden from people; bots fill it and are ignored. */}
       <div aria-hidden className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
         <label>
-          Website
+          <T>Website</T>
           <input type="text" name="website" tabIndex={-1} autoComplete="off" />
         </label>
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
         <Field label="Full name" htmlFor="name" error={errors.name} required>
-          <Input id="name" name="name" autoComplete="name" placeholder="Your name" required maxLength={100} className="h-11 px-3.5" />
+          <Input id="name" name="name" autoComplete="name" placeholder={t("Your name")} required maxLength={100} className="h-11 px-3.5" />
         </Field>
         <Field label="Email" htmlFor="email" error={errors.email} required>
-          <Input id="email" name="email" type="email" autoComplete="email" placeholder="you@example.com" required maxLength={200} className="h-11 px-3.5" />
+          <Input id="email" name="email" type="email" autoComplete="email" placeholder={t("you@example.com")} required maxLength={200} className="h-11 px-3.5" />
         </Field>
         <Field label="Company" htmlFor="company" error={errors.company}>
           <Input
             id="company"
             name="company"
             autoComplete="organization"
-            placeholder="Company name"
+            placeholder={t("Company name")}
             maxLength={150}
             aria-invalid={errors.company ? true : undefined}
             className="h-11 px-3.5"
@@ -225,7 +227,7 @@ export function ContactForm({
             inputMode="tel"
             autoComplete="tel"
             maxLength={18}
-            placeholder="+91 98765 43210"
+            placeholder={t("+91 98765 43210")}
             aria-invalid={errors.phone ? true : undefined}
             onChange={(e) => {
               const value = e.target.value;
@@ -263,9 +265,9 @@ export function ContactForm({
           // form field under 16px when it's tapped, and stays zoomed in.
           className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue sm:text-sm"
         >
-          <option value="" disabled>Select a service…</option>
+          <option value="" disabled><T>Select a service…</T></option>
           {SERVICES.map((s) => (
-            <option key={s} value={s}>{s}</option>
+            <option key={s} value={s}><Tx>{s}</Tx></option>
           ))}
         </select>
       </Field>
@@ -276,7 +278,7 @@ export function ContactForm({
             <label key={b} className="cursor-pointer">
               <input type="radio" name="budget" value={b} className="peer sr-only" />
               <span className="inline-flex items-center rounded-full border border-uk-line bg-uk-surface-2 px-4 py-2 text-sm text-uk-body transition-colors peer-checked:border-uk-blue peer-checked:bg-uk-blue/10 peer-checked:text-uk-blue hover:border-uk-blue/50">
-                {b}
+                <Tx>{b}</Tx>
               </span>
             </label>
           ))}
@@ -290,7 +292,7 @@ export function ContactForm({
           rows={5}
           maxLength={MESSAGE_MAX}
           onChange={(e) => setMessageLength(e.target.value.length)}
-          placeholder="Goals, scope, timeline, anything that helps us reply with substance."
+          placeholder={t("Goals, scope, timeline, anything that helps us reply with substance.")}
           required
           aria-describedby="message-count"
           data-lenis-prevent
@@ -313,11 +315,11 @@ export function ContactForm({
           className="mt-0.5 h-4 w-4 flex-none rounded border-uk-line-2 bg-uk-card text-uk-blue"
         />
         <span>
-          I agree to be contacted about this enquiry. We never share your details.
+          <T>I agree to be contacted about this enquiry. We never share your details.</T>
           {errors.consent && (
             <span className="mt-1 flex items-center gap-1 text-destructive">
               <AlertCircle className="h-3.5 w-3.5" />
-              {errors.consent}
+              <Tx>{errors.consent}</Tx>
             </span>
           )}
         </span>
@@ -326,7 +328,7 @@ export function ContactForm({
       {formError && (
         <p role="alert" className="flex items-center gap-1 text-sm text-destructive">
           <AlertCircle className="h-4 w-4" />
-          {formError}
+          <Tx>{formError}</Tx>
         </p>
       )}
 
@@ -335,12 +337,12 @@ export function ContactForm({
         disabled={status === "submitting"}
         className="h-13 bg-uk-blue text-uk-white hover:bg-uk-blue-bright"
       >
-        {status === "submitting" ? "Sending…" : "Send enquiry"}
+        <Tx>{status === "submitting" ? "Sending…" : "Send enquiry"}</Tx>
         <ArrowRight className="ml-2 h-5 w-5" />
       </Button>
 
       <p className="text-center text-xs text-uk-muted">
-        Within 1 business hour: a reply. 3 days: a rough estimate. 7 days: a fixed proposal.
+        <T>Within 1 business hour: a reply. 3 days: a rough estimate. 7 days: a fixed proposal.</T>
       </p>
     </form>
   );
@@ -362,7 +364,7 @@ function Field({
   return (
     <div className="flex flex-col gap-2">
       <Label htmlFor={htmlFor} className="gap-0.5 text-sm font-medium text-uk-body">
-        {label}
+        <Tx>{label}</Tx>
         {required && (
           <span className="text-red-600 dark:text-red-400" aria-hidden>
             *
@@ -373,7 +375,7 @@ function Field({
       {error && (
         <span className="flex items-center gap-1 text-xs text-destructive">
           <AlertCircle className="h-3.5 w-3.5" />
-          {error}
+          <Tx>{error}</Tx>
         </span>
       )}
     </div>

@@ -82,7 +82,7 @@ export function PhotoPanel({
 }) {
   return (
     <section className={cn("relative bg-uk-surface section-py", className)}>
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <Reveal
           className={cn(
             "grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16",

@@ -91,7 +91,7 @@ export async function ExploreBlobs({ content: c }: { content: HomeContent["explo
         ]}
       />
 
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <SectionHeading
           align="center"
           eyebrow={ukText(c.eyebrow)}

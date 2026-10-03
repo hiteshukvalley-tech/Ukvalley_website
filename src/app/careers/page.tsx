@@ -192,7 +192,7 @@ export default async function CareersPage() {
                     </span>
                     <p className="text-sm leading-relaxed text-uk-gray">{ukText(l.text)}</p>
                     <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-uk-blue">
-                      {l.count > 0 ? `${l.count} open ${l.count === 1 ? "role" : "roles"}` : ukText("No open roles right now")}
+                      {l.count > 0 ? ukText(`${l.count} open ${l.count === 1 ? "role" : "roles"}`) : ukText("No open roles right now")}
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                     </span>
                   </a>

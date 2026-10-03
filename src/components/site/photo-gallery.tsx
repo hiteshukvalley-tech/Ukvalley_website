@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Tx } from "@/components/site/texts-context";
 
 export type GalleryPhoto = { src: string; alt: string; /** Tailwind object-position class for the carousel crop */ focus?: string };
 
@@ -112,7 +113,7 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
 
           {caption && (
             <div className="pointer-events-none absolute bottom-4 left-4 z-10 max-w-[80%] rounded-lg bg-black/70 px-3.5 py-2 text-sm font-medium text-white backdrop-blur-sm sm:bottom-6 sm:left-6 sm:px-5 sm:py-3 sm:text-lg">
-              {caption}
+              <Tx>{caption}</Tx>
             </div>
           )}
           <span className="pointer-events-none absolute right-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-black/50 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
@@ -195,7 +196,7 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
             src={photos[index].src}
             alt={photos[index].alt}
             onClick={(e) => e.stopPropagation()}
-            className="max-h-[88vh] max-w-full rounded-lg object-contain"
+            className="max-h-[88dvh] max-w-full rounded-lg object-contain"
           />
           <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/80">
             {index + 1} / {count}

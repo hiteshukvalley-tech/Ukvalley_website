@@ -89,7 +89,7 @@ export function SplitHeading({
   }
 
   return (
-    <Tag ref={ref as never} className={className} aria-label={words.join(" ")}>
+    <Tag ref={ref as never} className={className} aria-label={words.join(" ")} data-sh-root="">
       {words.map((w, i) => (
         <span
           key={`${w}-${i}`}

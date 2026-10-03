@@ -1,5 +1,6 @@
 import { Reveal } from "./reveal";
 import { cn } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
 
 type SectionHeadingProps = {
   eyebrow?: string;
@@ -32,11 +33,11 @@ export function SectionHeading({
           )}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-uk-yellow shadow-glow-yellow" />
-          {eyebrow}
+          {ukText(eyebrow)}
         </span>
       )}
       <h2 className="font-heading-display max-w-3xl text-balance text-[clamp(2rem,4.5vw,3.4rem)] font-bold leading-[1.08] tracking-tight text-uk-heading-strong">
-        {title}
+        {ukText(title)}
       </h2>
       {description && (
         <p
@@ -45,7 +46,7 @@ export function SectionHeading({
             align === "center" && "mx-auto"
           )}
         >
-          {description}
+          {ukText(description)}
         </p>
       )}
     </Reveal>

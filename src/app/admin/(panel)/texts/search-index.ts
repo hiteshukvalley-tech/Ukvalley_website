@@ -38,7 +38,7 @@ async function build(): Promise<IndexedPage[]> {
       pages[i] = {
         path: e.path, slug: e.slug, label: e.label, group: e.group, tag: e.tag,
         items: items
-          .filter((it) => it.region === "Page" && (it.kind === "text" || it.kind === "alt"))
+          .filter((it) => it.region === "Page" && (it.kind === "text" || it.kind === "alt" || it.kind === "hint"))
           .map((it) => ({
             value: it.value.trim(), lower: it.value.trim().toLowerCase(), role: it.role,
             section: it.sectionTitle, card: it.cardTitle,

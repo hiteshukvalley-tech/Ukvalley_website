@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { T, Tx } from "@/components/site/texts-context";
 
 /* ── Sidebar items ── */
 const sidebarItems = [
@@ -183,11 +184,11 @@ function PipelineBar({ pct, count, label, delay }: { pct: number; count: number;
   }, [pct, delay]);
   return (
     <div className={cn("flex items-center gap-3 transition-all duration-300", visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1")}>
-      <span className="w-[68px] text-[0.7rem] text-uk-body/60 dark:text-white/50">{label}</span>
+      <span className="w-[68px] text-[0.7rem] text-uk-body/60 dark:text-white/50"><Tx>{label}</Tx></span>
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-uk-line/50 dark:bg-white/[0.06]">
         <div className="h-full rounded-full bg-gradient-to-r from-uk-blue to-uk-blue-bright transition-all duration-700 ease-out" style={{ width: `${width}%` }} />
       </div>
-      <span className="text-[0.7rem] font-semibold tabular-nums text-uk-body/70 dark:text-white/70">{count}</span>
+      <span className="text-[0.7rem] font-semibold tabular-nums text-uk-body/70 dark:text-white/70"><Tx>{count}</Tx></span>
     </div>
   );
 }
@@ -203,12 +204,12 @@ function KpiCard({ kpi, delay }: { kpi: { label: string; value: string; change: 
     <div className={cn("rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-2.5 shadow-float dark:shadow-none lg:p-3 transition-all duration-300", visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2")}>
       <div className="flex items-center gap-1.5 mb-1">
         <Icon className="h-3 w-3 text-uk-blue" />
-        <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40">{kpi.label}</p>
+        <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><Tx>{kpi.label}</Tx></p>
       </div>
       <div className="flex items-baseline gap-2">
-        <span className="font-heading text-lg font-bold text-uk-heading dark:text-white/90 lg:text-xl">{kpi.value}</span>
+        <span className="font-heading text-lg font-bold text-uk-heading dark:text-white/90 lg:text-xl"><Tx>{kpi.value}</Tx></span>
         <span className={cn("inline-flex items-center gap-0.5 text-[0.65rem] font-semibold", kpi.up ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400")}>
-          {kpi.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}{kpi.change}
+          {kpi.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}<Tx>{kpi.change}</Tx>
         </span>
       </div>
     </div>
@@ -237,7 +238,7 @@ function DashboardView({ data, ck }: { data: typeof dashboardScreen; ck: number 
       <div key={`db-${ck}`} className="flex flex-1 flex-col gap-2.5 p-3 sm:flex-row lg:gap-3 lg:p-4">
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60">Pipeline</h3>
+            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Pipeline</T></h3>
             <TrendingUp className="h-3.5 w-3.5 text-uk-blue" />
           </div>
           <div className="flex flex-col gap-2.5">
@@ -246,7 +247,7 @@ function DashboardView({ data, ck }: { data: typeof dashboardScreen; ck: number 
         </div>
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60">{data.listTitle}</h3>
+            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><Tx>{data.listTitle}</Tx></h3>
             <ChevronRight className="h-3.5 w-3.5 text-uk-muted/50 dark:text-white/30" />
           </div>
           <div className="flex flex-col gap-2">
@@ -255,11 +256,11 @@ function DashboardView({ data, ck }: { data: typeof dashboardScreen; ck: number 
                 <div className="flex items-center justify-between rounded-md bg-uk-surface/60 dark:bg-white/[0.03] px-2.5 py-2">
                   <div className="flex items-center gap-2">
                     <span className={cn("h-2 w-2 rounded-full", d.badgeColor)} />
-                    <span className="text-[0.75rem] font-medium text-uk-heading dark:text-white/80">{d.name}</span>
+                    <span className="text-[0.75rem] font-medium text-uk-heading dark:text-white/80"><Tx>{d.name}</Tx></span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[0.7rem] font-semibold text-uk-muted dark:text-white/60">{d.value}</span>
-                    <span className="rounded-full bg-uk-surface dark:bg-white/[0.06] px-1.5 py-0.5 text-[0.6rem] text-uk-body dark:text-white/50">{d.badge}</span>
+                    <span className="text-[0.7rem] font-semibold text-uk-muted dark:text-white/60"><Tx>{d.value}</Tx></span>
+                    <span className="rounded-full bg-uk-surface dark:bg-white/[0.06] px-1.5 py-0.5 text-[0.6rem] text-uk-body dark:text-white/50"><Tx>{d.badge}</Tx></span>
                   </div>
                 </div>
               </AnimatedItem>
@@ -283,10 +284,10 @@ function CrmView({ data, ck }: { data: typeof crmScreen; ck: number }) {
               <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-2.5 shadow-float dark:shadow-none lg:p-3">
                 <div className="flex items-center gap-2 mb-1">
                   <Icon className="h-4 w-4 text-uk-blue" />
-                  <span className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40">{s.label}</span>
+                  <span className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><Tx>{s.label}</Tx></span>
                 </div>
-                <span className="font-heading text-xl font-bold text-uk-heading dark:text-white/90">{s.value}</span>
-                <p className="text-[0.6rem] text-emerald-600 dark:text-emerald-400 mt-0.5">{s.change}</p>
+                <span className="font-heading text-xl font-bold text-uk-heading dark:text-white/90"><Tx>{s.value}</Tx></span>
+                <p className="text-[0.6rem] text-emerald-600 dark:text-emerald-400 mt-0.5"><Tx>{s.change}</Tx></p>
               </div>
             </AnimatedItem>
           );
@@ -294,18 +295,18 @@ function CrmView({ data, ck }: { data: typeof crmScreen; ck: number }) {
       </div>
       {/* Contact cards */}
       <div key={`cc-${ck}`} className="flex flex-1 flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60">Recent Contacts</h3>
+        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Recent Contacts</T></h3>
         {data.contacts.map((c, i) => (
           <AnimatedItem key={c.name} delay={i * 100 + 200}>
             <div className="flex items-center gap-3 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
-              <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue font-heading text-sm font-bold">{c.initials}</div>
+              <div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue font-heading text-sm font-bold"><Tx>{c.initials}</Tx></div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-uk-heading dark:text-white/90 truncate">{c.name}</p>
+                <p className="text-sm font-semibold text-uk-heading dark:text-white/90 truncate"><Tx>{c.name}</Tx></p>
                 <p className="text-[0.7rem] text-uk-muted dark:text-white/50">{c.role} · {c.company}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-semibold text-white", c.stageColor)}>{c.stage}</span>
-                <span className="text-[0.7rem] font-semibold text-uk-heading dark:text-white/80">{c.value}</span>
+                <span className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-semibold text-white", c.stageColor)}><Tx>{c.stage}</Tx></span>
+                <span className="text-[0.7rem] font-semibold text-uk-heading dark:text-white/80"><Tx>{c.value}</Tx></span>
               </div>
             </div>
           </AnimatedItem>
@@ -325,8 +326,8 @@ function OrdersView({ data, ck }: { data: typeof ordersScreen; ck: number }) {
             <div className="flex items-center gap-2 rounded-lg border border-uk-line dark:border-white/[0.06] bg-white dark:bg-white/[0.04] px-3 py-2 shadow-float dark:shadow-none">
               <span className={cn("h-2.5 w-2.5 rounded-full", s.color)} />
               <div>
-                <p className="font-heading text-lg font-bold text-uk-heading dark:text-white/90">{s.value}</p>
-                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40">{s.label}</p>
+                <p className="font-heading text-lg font-bold text-uk-heading dark:text-white/90"><Tx>{s.value}</Tx></p>
+                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><Tx>{s.label}</Tx></p>
               </div>
             </div>
           </AnimatedItem>
@@ -334,20 +335,20 @@ function OrdersView({ data, ck }: { data: typeof ordersScreen; ck: number }) {
       </div>
       {/* Order table */}
       <div key={`ot-${ck}`} className="flex-1 p-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-2.5">Recent Orders</h3>
+        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-2.5"><T>Recent Orders</T></h3>
         {/* Header */}
         <div className="hidden sm:grid grid-cols-[1fr_1fr_0.8fr_0.8fr_0.7fr] gap-2 text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40 px-2.5 pb-1.5">
-          <span>Order</span><span>Customer</span><span>Amount</span><span>Status</span><span>Date</span>
+          <span><T>Order</T></span><span><T>Customer</T></span><span><T>Amount</T></span><span><T>Status</T></span><span><T>Date</T></span>
         </div>
         <div className="flex flex-col gap-1.5">
           {data.orders.map((o, i) => (
             <AnimatedItem key={o.id} delay={i * 100 + 200}>
               <div className="grid grid-cols-2 sm:grid-cols-[1fr_1fr_0.8fr_0.8fr_0.7fr] gap-2 items-center rounded-lg bg-uk-surface/60 dark:bg-white/[0.03] px-2.5 py-2">
-                <span className="text-[0.75rem] font-semibold text-uk-heading dark:text-white/90">{o.id}</span>
-                <span className="text-[0.7rem] text-uk-body dark:text-white/70 truncate">{o.customer}</span>
-                <span className="text-[0.7rem] font-semibold text-uk-heading dark:text-white/80">{o.amount}</span>
-                <span className={cn("text-[0.7rem] font-semibold", o.statusColor)}>{o.status}</span>
-                <span className="text-[0.65rem] text-uk-muted dark:text-white/40">{o.date}</span>
+                <span className="text-[0.75rem] font-semibold text-uk-heading dark:text-white/90"><Tx>{o.id}</Tx></span>
+                <span className="text-[0.7rem] text-uk-body dark:text-white/70 truncate"><Tx>{o.customer}</Tx></span>
+                <span className="text-[0.7rem] font-semibold text-uk-heading dark:text-white/80"><Tx>{o.amount}</Tx></span>
+                <span className={cn("text-[0.7rem] font-semibold", o.statusColor)}><Tx>{o.status}</Tx></span>
+                <span className="text-[0.65rem] text-uk-muted dark:text-white/40"><Tx>{o.date}</Tx></span>
               </div>
             </AnimatedItem>
           ))}
@@ -366,14 +367,14 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
       <div key={`rb-${ck}`} className="flex flex-1 flex-col gap-2.5 p-3 sm:flex-row lg:gap-3 lg:p-4">
         {/* Bar chart */}
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
-          <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3">Monthly Revenue</h3>
+          <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3"><T>Monthly Revenue</T></h3>
           <div className="flex items-end gap-2 h-[120px]">
             {data.bars.map((b, i) => (
               <AnimatedItem key={b.label} delay={i * 80 + 200}>
                 <div className="flex flex-1 flex-col items-center gap-1">
                   <span className="text-[0.6rem] font-semibold text-uk-heading dark:text-white/70">{b.value}%</span>
                   <div className="w-full rounded-t bg-gradient-to-t from-uk-blue to-uk-blue-bright transition-all duration-700" style={{ height: `${b.value}%` }} />
-                  <span className="text-[0.6rem] text-uk-muted dark:text-white/40">{b.label}</span>
+                  <span className="text-[0.6rem] text-uk-muted dark:text-white/40"><Tx>{b.label}</Tx></span>
                 </div>
               </AnimatedItem>
             ))}
@@ -381,7 +382,7 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
         </div>
         {/* Donut */}
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
-          <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3">Revenue Split</h3>
+          <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3"><T>Revenue Split</T></h3>
           <div className="flex items-center gap-4">
             {/* Stacked bar as donut proxy */}
             <div className="flex flex-col gap-1.5 flex-1">
@@ -389,7 +390,7 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
                 <AnimatedItem key={d.label} delay={i * 100 + 300}>
                   <div className="flex items-center gap-2">
                     <span className={cn("h-3 w-3 rounded-sm flex-none", d.color)} />
-                    <span className="text-[0.75rem] font-medium text-uk-heading dark:text-white/80 flex-1">{d.label}</span>
+                    <span className="text-[0.75rem] font-medium text-uk-heading dark:text-white/80 flex-1"><Tx>{d.label}</Tx></span>
                     <span className="text-[0.75rem] font-semibold text-uk-body dark:text-white/60">{d.pct}%</span>
                   </div>
                 </AnimatedItem>
@@ -405,29 +406,29 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
 function MarketingView({ data, ck }: { data: typeof marketingScreen; ck: number }) {
   return (
     <div key={`mc-${ck}`} className="flex-1 flex flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-      <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60">Active Campaigns</h3>
+      <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Active Campaigns</T></h3>
       {data.campaigns.map((c, i) => (
         <AnimatedItem key={c.name} delay={i * 100 + 100}>
           <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
             <div className="flex items-start justify-between gap-2 mb-2">
               <div>
-                <p className="text-sm font-semibold text-uk-heading dark:text-white/90">{c.name}</p>
-                <p className="text-[0.7rem] text-uk-muted dark:text-white/50">{c.channel}</p>
+                <p className="text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{c.name}</Tx></p>
+                <p className="text-[0.7rem] text-uk-muted dark:text-white/50"><Tx>{c.channel}</Tx></p>
               </div>
-              <span className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-semibold text-white flex-none", c.statusColor)}>{c.status}</span>
+              <span className={cn("rounded-full px-2 py-0.5 text-[0.6rem] font-semibold text-white flex-none", c.statusColor)}><Tx>{c.status}</Tx></span>
             </div>
             <div className="grid grid-cols-3 gap-2 border-t border-uk-line dark:border-white/[0.06] pt-2">
               <div>
-                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40">Spend</p>
-                <p className="text-sm font-semibold text-uk-heading dark:text-white/90">{c.spend}</p>
+                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><T>Spend</T></p>
+                <p className="text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{c.spend}</Tx></p>
               </div>
               <div>
-                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40">Leads</p>
-                <p className="text-sm font-semibold text-uk-heading dark:text-white/90">{c.leads}</p>
+                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><T>Leads</T></p>
+                <p className="text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{c.leads}</Tx></p>
               </div>
               <div>
-                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40">CPL</p>
-                <p className="text-sm font-semibold text-uk-heading dark:text-white/90">{c.cpl}</p>
+                <p className="text-[0.6rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><T>CPL</T></p>
+                <p className="text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{c.cpl}</Tx></p>
               </div>
             </div>
           </div>
@@ -449,9 +450,9 @@ function SecurityView({ data, ck }: { data: typeof securityScreen; ck: number })
               <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
                 <div className="flex items-center gap-2 mb-1">
                   <Icon className={cn("h-4 w-4", s.color)} />
-                  <span className="text-sm font-semibold text-uk-heading dark:text-white/90">{s.label}</span>
+                  <span className="text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{s.label}</Tx></span>
                 </div>
-                <p className="text-[0.7rem] text-uk-muted dark:text-white/50">{s.detail}</p>
+                <p className="text-[0.7rem] text-uk-muted dark:text-white/50"><Tx>{s.detail}</Tx></p>
               </div>
             </AnimatedItem>
           );
@@ -459,14 +460,14 @@ function SecurityView({ data, ck }: { data: typeof securityScreen; ck: number })
       </div>
       {/* Alerts */}
       <div key={`sa-${ck}`} className="flex-1 flex flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60">Recent Alerts</h3>
+        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Recent Alerts</T></h3>
         {data.alerts.map((a, i) => (
           <AnimatedItem key={a.msg} delay={i * 100 + 300}>
             <div className="flex items-start gap-2.5 rounded-lg border border-uk-line dark:border-white/[0.06] bg-white dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
               <AlertTriangle className={cn("h-4 w-4 flex-none mt-0.5", a.severity === "high" ? "text-red-500" : a.severity === "low" ? "text-uk-yellow" : "text-uk-blue")} />
               <div className="flex-1 min-w-0">
-                <p className="text-[0.75rem] font-medium text-uk-heading dark:text-white/80">{a.msg}</p>
-                <p className="text-[0.65rem] text-uk-muted dark:text-white/40">{a.time}</p>
+                <p className="text-[0.75rem] font-medium text-uk-heading dark:text-white/80"><Tx>{a.msg}</Tx></p>
+                <p className="text-[0.65rem] text-uk-muted dark:text-white/40"><Tx>{a.time}</Tx></p>
               </div>
             </div>
           </AnimatedItem>
@@ -483,30 +484,30 @@ function SettingsView({ data, ck }: { data: typeof settingsScreen; ck: number })
       <div key={`st-${ck}`} className="grid grid-cols-3 gap-2.5 border-b border-uk-line dark:border-white/[0.06] p-3 lg:gap-3 lg:p-4">
         <AnimatedItem delay={80}>
           <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-2.5 shadow-float dark:shadow-none text-center lg:p-3">
-            <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40">Team</p>
-            <p className="font-heading text-xl font-bold text-uk-heading dark:text-white/90">{data.team.total}</p>
+            <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><T>Team</T></p>
+            <p className="font-heading text-xl font-bold text-uk-heading dark:text-white/90"><Tx>{data.team.total}</Tx></p>
             <p className="text-[0.6rem] text-emerald-600 dark:text-emerald-400">{data.team.active} active</p>
           </div>
         </AnimatedItem>
         <AnimatedItem delay={160}>
           <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-2.5 shadow-float dark:shadow-none text-center lg:p-3">
-            <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40">API Calls</p>
-            <p className="font-heading text-xl font-bold text-uk-heading dark:text-white/90">{data.usage.apiCalls}</p>
-            <p className="text-[0.6rem] text-uk-muted dark:text-white/40">this month</p>
+            <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><T>API Calls</T></p>
+            <p className="font-heading text-xl font-bold text-uk-heading dark:text-white/90"><Tx>{data.usage.apiCalls}</Tx></p>
+            <p className="text-[0.6rem] text-uk-muted dark:text-white/40"><T>this month</T></p>
           </div>
         </AnimatedItem>
         <AnimatedItem delay={240}>
           <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-2.5 shadow-float dark:shadow-none text-center lg:p-3">
-            <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40">Uptime</p>
-            <p className="font-heading text-xl font-bold text-uk-heading dark:text-white/90">{data.usage.uptime}</p>
-            <p className="text-[0.6rem] text-emerald-600 dark:text-emerald-400">30-day avg</p>
+            <p className="text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40"><T>Uptime</T></p>
+            <p className="font-heading text-xl font-bold text-uk-heading dark:text-white/90"><Tx>{data.usage.uptime}</Tx></p>
+            <p className="text-[0.6rem] text-emerald-600 dark:text-emerald-400"><T>30-day avg</T></p>
           </div>
         </AnimatedItem>
       </div>
       {/* Integrations */}
       <div key={`si-${ck}`} className="flex-1 flex flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60">Integrations</h3>
-        <p className="text-[0.7rem] text-uk-muted dark:text-white/40 -mt-1">{data.team.roles}</p>
+        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Integrations</T></h3>
+        <p className="text-[0.7rem] text-uk-muted dark:text-white/40 -mt-1"><Tx>{data.team.roles}</Tx></p>
         {data.integrations.map((ig, i) => {
           const Icon = ig.icon;
           return (
@@ -516,8 +517,8 @@ function SettingsView({ data, ck }: { data: typeof settingsScreen; ck: number })
                   <Icon className="h-4 w-4 text-uk-blue" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-uk-heading dark:text-white/90">{ig.name}</p>
-                  <p className="text-[0.7rem] text-uk-muted dark:text-white/50">{ig.desc}</p>
+                  <p className="text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{ig.name}</Tx></p>
+                  <p className="text-[0.7rem] text-uk-muted dark:text-white/50"><Tx>{ig.desc}</Tx></p>
                 </div>
                 <span className={cn("rounded-full px-2.5 py-1 text-[0.6rem] font-semibold", ig.connected ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-gray-500/10 text-gray-500 dark:text-gray-400")}>
                   {ig.connected ? "Connected" : "Setup"}
@@ -548,14 +549,14 @@ export function DashboardShowcase() {
   }, [activeTab]);
 
   return (
-    <div className="flex h-full w-full overflow-hidden rounded-xl bg-uk-surface-3 dark:bg-[#0d091c] lg:rounded-2xl">
+    <div data-mock className="flex h-full w-full overflow-hidden rounded-xl bg-uk-surface-3 dark:bg-[#0d091c] lg:rounded-2xl">
       {/* ── Sidebar ── */}
       <div className={cn(
         "hidden sm:flex flex-col border-r border-uk-line dark:border-white/[0.06] bg-uk-surface dark:bg-[#0d091c] transition-all duration-300",
         sidebarOpen ? "w-[170px]" : "w-[52px] lg:w-[56px]"
       )}>
         <div className="flex h-12 items-center justify-between border-b border-uk-line dark:border-white/[0.06] px-3">
-          <span className={cn("font-heading text-sm font-bold text-uk-blue transition-all duration-300 overflow-hidden", sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0")}>Ukvalley</span>
+          <span className={cn("font-heading text-sm font-bold text-uk-blue transition-all duration-300 overflow-hidden", sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0")}><T>Ukvalley</T></span>
           <button onClick={() => setSidebarOpen((o) => !o)} className="flex h-7 w-7 flex-none items-center justify-center rounded-md text-uk-muted hover:bg-uk-surface-2 hover:text-uk-heading dark:text-white/40 dark:hover:bg-white/[0.04] dark:hover:text-white/70 transition-colors" aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}>
             {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
           </button>
@@ -566,7 +567,7 @@ export function DashboardShowcase() {
             return (
               <button key={item.label} onClick={() => handleTabClick(i)} className={cn("flex items-center gap-2.5 rounded-lg transition-all duration-200", sidebarOpen ? "h-9 px-2.5" : "h-9 w-9 justify-center", i === activeTab ? "bg-uk-blue/12 text-uk-blue dark:bg-uk-blue/20" : "text-uk-muted hover:bg-uk-surface-2 dark:text-white/40 dark:hover:bg-white/[0.04] dark:hover:text-white/70")} aria-label={item.label}>
                 <Icon className="h-[18px] w-[18px] flex-none" />
-                <span className={cn("text-sm font-medium transition-all duration-300 whitespace-nowrap overflow-hidden", sidebarOpen ? "opacity-100" : "opacity-0 w-0")}>{item.label}</span>
+                <span className={cn("text-sm font-medium transition-all duration-300 whitespace-nowrap overflow-hidden", sidebarOpen ? "opacity-100" : "opacity-0 w-0")}><Tx>{item.label}</Tx></span>
               </button>
             );
           })}
@@ -578,8 +579,8 @@ export function DashboardShowcase() {
         {/* Top bar — stays fixed */}
         <div className="flex h-12 items-center justify-between border-b border-uk-line dark:border-white/[0.06] px-4 flex-none">
           <div className="flex items-center gap-2">
-            <span className="font-heading text-sm font-semibold text-uk-heading dark:text-white/90">{screen.title}</span>
-            <span className="rounded-full bg-uk-blue/12 px-2 py-0.5 text-[0.65rem] font-semibold text-uk-blue dark:bg-uk-blue/20">{screen.subtitle}</span>
+            <span className="font-heading text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{screen.title}</Tx></span>
+            <span className="rounded-full bg-uk-blue/12 px-2 py-0.5 text-[0.65rem] font-semibold text-uk-blue dark:bg-uk-blue/20"><Tx>{screen.subtitle}</Tx></span>
           </div>
           {/* Decorative mock-up icons — not real controls, so not buttons */}
           <div className="flex items-center gap-3 text-uk-muted dark:text-white/30" aria-hidden>

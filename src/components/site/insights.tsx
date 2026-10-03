@@ -29,7 +29,7 @@ export async function Insights({ content: c }: { content: HomeContent["insights"
 
   return (
     <section id="insights" className="relative bg-uk-surface-3 section-py">
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"
@@ -100,7 +100,7 @@ export async function Insights({ content: c }: { content: HomeContent["insights"
                 {ukText(c.libraryBadge)}
               </span>
               <span className="font-heading text-3xl font-bold leading-none text-uk-white">
-                {insights.length}
+                {ukText(insights.length)}
               </span>
             </div>
 
@@ -119,7 +119,7 @@ export async function Insights({ content: c }: { content: HomeContent["insights"
                 >
                   {ukText(c.name)}
                   <span className="rounded-full bg-uk-white/20 px-1.5 text-[0.65rem] font-bold">
-                    {c.count}
+                    {ukText(c.count)}
                   </span>
                 </li>
               ))}

@@ -25,3 +25,12 @@ export function ukText<T>(v: T): T {
   const r = map.get(v);
   return (r === undefined ? v : (r as unknown as T)) as T;
 }
+
+/** The current overrides as a plain object, for client components (see TextsProvider). */
+export function textsSnapshot(): Record<string, string> {
+  const map = g.__ukTexts;
+  if (!map || map.size === 0) return {};
+  const out: Record<string, string> = {};
+  for (const [o, r] of map) if (o.length <= 400) out[o] = r;
+  return out;
+}

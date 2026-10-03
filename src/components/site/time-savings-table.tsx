@@ -16,7 +16,7 @@ export function TimeSavingsTable({
 }) {
   return (
     <section className="relative bg-uk-surface section-py">
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <Reveal className="max-w-2xl">
           <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
             <Clock className="h-3.5 w-3.5" />{ukText("Your time back")}</span>

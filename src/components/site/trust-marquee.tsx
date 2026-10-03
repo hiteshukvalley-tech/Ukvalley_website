@@ -14,7 +14,7 @@ export function TrustMarquee({ content: c }: { content: HomeContent["trust"] }) 
       <div className="pointer-events-none absolute inset-y-0 right-6 hidden items-center lg:flex" aria-hidden>
         <span className="node-pulse h-2 w-2 rounded-full bg-uk-yellow" style={{ animationDelay: "0.8s" }} />
       </div>
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.28em] text-uk-heading">
           {ukText(c.label)}
         </p>

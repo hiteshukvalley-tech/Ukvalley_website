@@ -118,6 +118,15 @@ export default async function CaseStudyPage({ params }: Props) {
               <Meta icon={Layers} label={ukText("Stack")} value={c.stack.join(" · ")} />
             </Reveal>
 
+            {c.teamMembers && c.teamMembers.length > 0 && (
+              <Reveal className="mt-4 flex flex-wrap items-center gap-2" aria-label={ukText("The team")}>
+                <span className="mr-1 text-xs font-medium uppercase tracking-wider text-uk-gray">{ukText("The team")}</span>
+                {c.teamMembers.map((name) => (
+                  <span key={name} className="rounded-full border border-uk-line bg-uk-card px-3 py-1 text-sm font-medium text-uk-heading">{ukText(name)}</span>
+                ))}
+              </Reveal>
+            )}
+
             <Reveal className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1.2fr]">
               <div>
                 <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
@@ -256,7 +265,7 @@ export default async function CaseStudyPage({ params }: Props) {
               <Link
                 href={ukText("/case-studies")}
                 className="group inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
-              >{ukText("All ")}{caseStudies.length}{ukText("case studies")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              >{ukText("All ")}{ukText(caseStudies.length)}{" "}{ukText("case studies")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Reveal>
             <Reveal staggerChildren className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">

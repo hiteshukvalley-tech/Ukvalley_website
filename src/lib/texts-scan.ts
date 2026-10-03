@@ -4,7 +4,7 @@
 // Pure functions (no database, no fetch of its own) — see scanPage() in the
 // admin for the fetching part.
 
-export type ScanKind = "text" | "alt" | "link" | "image";
+export type ScanKind = "text" | "alt" | "hint" | "link" | "image";
 export type ScanRegion = "Header" | "Page" | "Footer";
 
 export type ScanItem = {
@@ -22,6 +22,10 @@ export type ScanItem = {
   /** the card inside the section (0 = not in a card) and its title */
   cardId: number;
   cardTitle: string;
+  /** the whole sentence / line this piece belongs to, when it is only part of one (text with a styled word inside) */
+  context: string;
+  /** pieces of the same sentence share this id (0 = the piece is a whole line on its own) */
+  blockId: number;
 };
 
 const NAMED: Record<string, string> = {
@@ -41,9 +45,11 @@ export function decodeEntities(s: string): string {
 }
 
 const VOID = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
-const SKIP = new Set(["script", "style", "noscript", "template", "svg", "head", "title"]);
+/** Tags that stay inside a sentence, so their text belongs to the line around them. */
+const INLINE = new Set(["span", "strong", "em", "b", "i", "br", "small", "mark", "time", "code", "sup", "sub", "u", "abbr"]);
+const SKIP = new Set(["script", "style", "noscript", "template", "head", "title"]);
 const hasWords = (s: string) => /[\p{L}\p{N}]/u.test(s);
-const clip = (s: string) => (s.length > 70 ? `${s.slice(0, 67)}…` : s);
+const clip = (s: string) => (s.length > 110 ? `${s.slice(0, 107)}…` : s);
 const isCardClass = (cls: string) => cls.split(/\s+/).some((t) => t === "card" || t.startsWith("card-"));
 
 function attr(attrs: string, name: string): string | undefined {
@@ -104,20 +110,27 @@ export function scanHtml(html: string): ScanItem[] {
     }
     return { sec, card };
   };
+  // The nearest non-inline element around each piece of text, and all the text it holds.
+  const blockStack: number[] = [];
+  const blockText = new Map<number, string>();
+  let blockCount = 0;
+  const curBlock = () => blockStack[blockStack.length - 1] ?? 0;
   const regionNow = (): ScanRegion => (stack.includes("header") ? "Header" : stack.includes("footer") ? "Footer" : "Page");
 
+  // Everything found, in page order. Turned into the list (with repeats merged)
+  // after the whole page is read, because whether a piece belongs to a sentence
+  // is only known once its line is complete.
+  type Occ = { kind: ScanKind; region: ScanRegion; role: string; value: string; sec: number; card: number; block: number };
+  const occ: Occ[] = [];
   const add = (kind: ScanKind, region: ScanRegion, role: string, value: string) => {
-    const key = `${kind}\u0000${value}`;
-    const hit = items.get(key);
-    if (hit) {
-      hit.count++;
-      return;
-    }
     const { sec, card } = region === "Page" ? here() : { sec: 0, card: 0 };
-    items.set(key, { kind, region, role, value, count: 1, sectionId: sec, sectionTitle: "", cardId: card, cardTitle: "" });
+    occ.push({ kind, region, role, value, sec, card, block: curBlock() });
   };
 
   let skipDepth = 0;
+  // Inside a headline that is split into one span per word (data-sh-root): the
+  // whole headline is one line of text, taken from its aria-label.
+  let wholeAt = 0;
   const re = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][\w:-]*)((?:"[^"]*"|'[^']*'|[^'">])*)>|[^<]+/g;
   for (const m of body.matchAll(re)) {
     const [whole, closing, rawName, attrs = ""] = m;
@@ -128,13 +141,24 @@ export function scanHtml(html: string): ScanItem[] {
         const at = stack.lastIndexOf(name);
         if (at >= 0) {
           for (let i = stack.length - 1; i >= at; i--) if (SKIP.has(stack[i])) skipDepth--;
+          if (wholeAt && at < wholeAt) wholeAt = 0;
           stack.length = at;
           meta.length = at;
+          blockStack.length = at;
         }
         continue;
       }
       const region = regionNow();
-      if (skipDepth === 0) {
+      if (skipDepth === 0 && !wholeAt && attr(attrs, "data-sh-root") !== undefined) {
+        const label = attr(attrs, "aria-label");
+        if (label && hasWords(label)) add("text", region, "Heading", label);
+        if (!VOID.has(name) && !/\/\s*$/.test(attrs)) wholeAt = stack.length + 1;
+      }
+      if (skipDepth === 0 && !wholeAt) {
+        if (name === "input" || name === "textarea") {
+          const hint = attr(attrs, "placeholder");
+          if (hint && hasWords(hint)) add("hint", region, "Input hint", hint);
+        }
         if (name === "img") {
           const p = imagePath(attr(attrs, "src") ?? "");
           if (p) add("image", region, "Image", p);
@@ -150,13 +174,50 @@ export function scanHtml(html: string): ScanItem[] {
       }
       meta.push(mark);
       stack.push(name);
+      blockStack.push(INLINE.has(name) ? curBlock() : ++blockCount);
       if (SKIP.has(name)) skipDepth++;
       continue;
     }
-    if (skipDepth > 0) continue;
+    if (skipDepth > 0 || wholeAt) continue;
+    // Drawings: only the words inside <text> are content, not the shapes around them.
+    if (stack.includes("svg") && !stack.includes("text")) continue;
     const text = decodeEntities(whole);
+    blockText.set(curBlock(), `${blockText.get(curBlock()) ?? ""} ${text}`);
     if (!hasWords(text)) continue;
     add("text", regionNow(), roleOf(stack, stack.includes("a")), text);
+  }
+
+  // Lines made of several pieces: a styled word inside a sentence, or a name
+  // that comes from other data ("Why" + "Web development" + "goes wrong…").
+  const piecesOf = new Map<number, Occ[]>();
+  for (const o of occ) if (o.kind === "text" && o.block) piecesOf.set(o.block, [...(piecesOf.get(o.block) ?? []), o]);
+  const sentenceOf = new Map<number, string>();
+  for (const [blk, pieces] of piecesOf) {
+    const whole = (blockText.get(blk) ?? "").replace(/\s+/g, " ").trim();
+    const vals = pieces.map((p) => p.value.replace(/\s+/g, " ").trim());
+    // A later piece carries on in lower case or with punctuation ("Why" + "goes wrong — and how…"),
+    // or an earlier one ends mid-sentence. Side-by-side labels such as "100%" + "Code you own" are not a sentence.
+    const sentence =
+      vals.slice(1).some((v) => /^[a-z,.;:!?—–)]/.test(v)) || vals.slice(0, -1).some((v) => /[,:;—–]$/.test(v));
+    if (!sentence || whole.length > 700 || !vals.every((v) => v && whole.includes(v))) continue;
+    // Pieces are joined with a space; none belongs before punctuation.
+    sentenceOf.set(blk, whole.replace(/\s+([,.;:!?%)])/g, "$1"));
+  }
+  // Repeats of the same text are merged — except inside a sentence, where every
+  // piece stays in its place so the whole sentence can be read and edited in one card.
+  for (const o of occ) {
+    const ctx = o.kind === "text" ? sentenceOf.get(o.block) : undefined;
+    const key = ctx ? `${o.kind}\u0000${o.value}\u0000${o.block}` : `${o.kind}\u0000${o.value}`;
+    const hit = items.get(key);
+    if (hit) {
+      hit.count++;
+      continue;
+    }
+    items.set(key, {
+      kind: o.kind, region: o.region, role: o.role, value: o.value, count: 1,
+      sectionId: o.sec, sectionTitle: "", cardId: o.card, cardTitle: "",
+      context: ctx ?? "", blockId: ctx ? o.block : 0,
+    });
   }
 
   // Titles: the first heading (else the first text) of each section and card.

@@ -6,6 +6,7 @@ import { ArrowRight, MapPin, Search, SearchX } from "lucide-react";
 import { ApplyButton } from "@/components/site/career-apply";
 import type { JobListing } from "@/components/site/careers-board";
 import { formatExperience, hasWords } from "@/lib/careers-shared";
+import { T, Tx, useT } from "@/components/site/texts-context";
 
 const SHOWN = 5;
 const field =
@@ -19,6 +20,7 @@ const field =
  * list below.
  */
 export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: number }) {
+  const t = useT();
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
   /** What was searched for; null until the visitor presses Search. */
@@ -89,7 +91,7 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
         className="grid grid-cols-1 gap-3 rounded-2xl border border-uk-line bg-uk-card p-3 shadow-premium sm:grid-cols-[1.3fr_1fr_auto] sm:p-4"
       >
         <label className="relative block">
-          <span className="sr-only">Job title or keyword</span>
+          <span className="sr-only"><T>Job title or keyword</T></span>
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-uk-blue" aria-hidden />
           <input
             name="position"
@@ -99,13 +101,13 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
             list="hero-roles"
             value={position}
             onChange={(e) => setPosition(e.target.value)}
-            placeholder="Job title or keyword"
+            placeholder={t("Job title or keyword")}
             className={field}
           />
           <datalist id="hero-roles">{jobs.map((j) => <option key={j.slug} value={j.role} />)}</datalist>
         </label>
         <label className="relative block">
-          <span className="sr-only">Location</span>
+          <span className="sr-only"><T>Location</T></span>
           <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-uk-blue" aria-hidden />
           <input
             name="location"
@@ -115,7 +117,7 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
             list="hero-locations"
             value={location}
             onChange={(e) => setLocation(e.target.value)}
-            placeholder="Location (e.g. Pune, Remote)"
+            placeholder={t("Location (e.g. Pune, Remote)")}
             className={field}
           />
           <datalist id="hero-locations">{locations.map((o) => <option key={o} value={o} />)}</datalist>
@@ -124,7 +126,7 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
           type="submit"
           className="btn-sheen inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-uk-blue px-7 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright"
         >
-          <Search className="h-4 w-4" aria-hidden />Search jobs
+          <Search className="h-4 w-4" aria-hidden /><T>Search jobs</T>
         </button>
       </form>
 
@@ -132,16 +134,16 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
         {searching ? (
           filtered ? (
             <>
-              <span className="font-semibold text-uk-heading">{results.length}</span> of {total} open role{total === 1 ? "" : "s"} match your search
+              <span className="font-semibold text-uk-heading"><Tx>{results.length}</Tx></span> of {total} open role{total === 1 ? "" : "s"} match your search
             </>
           ) : (
             <>
-              Showing all <span className="font-semibold text-uk-heading">{total}</span> open role{total === 1 ? "" : "s"}
+              <T>Showing all</T> <span className="font-semibold text-uk-heading"><Tx>{total}</Tx></span> <Tx>{`open role${total === 1 ? "" : "s"}`}</Tx>
             </>
           )
         ) : (
           <>
-            <span className="font-semibold text-uk-heading">{total}</span> open role{total === 1 ? "" : "s"} · Pune, Nagpur &amp; remote across India
+            <span className="font-semibold text-uk-heading"><Tx>{total}</Tx></span> <Tx>{`open role${total === 1 ? "" : "s"}`}</Tx> <Tx>· Pune, Nagpur &amp; remote across India</Tx>
           </>
         )}
       </p>
@@ -153,21 +155,21 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
               <li key={j.slug} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3.5 sm:px-5">
                 <div className="min-w-0">
                   <Link href={`/careers/${j.slug}`} className="font-heading text-base font-bold text-uk-heading transition-colors hover:text-uk-blue">
-                    {j.role}
+                    <Tx>{j.role}</Tx>
                   </Link>
                   <p className="mt-0.5 text-xs text-uk-gray">
-                    {j.location} · {j.mode} · {j.type} · {formatExperience(j.experienceMin, j.experienceMax)}
+                    <Tx>{j.location}</Tx> · <Tx>{j.mode}</Tx> · <Tx>{j.type}</Tx> · <Tx>{formatExperience(j.experienceMin, j.experienceMax)}</Tx>
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
                   <Link href={`/careers/${j.slug}`} className="text-sm font-semibold text-uk-blue hover:text-uk-blue-bright">
-                    View details
+                    <T>View details</T>
                   </Link>
                   <ApplyButton
                     position={j.role}
                     className="inline-flex items-center gap-1.5 rounded-full bg-uk-blue px-4 py-2 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright"
                   >
-                    Apply<ArrowRight className="h-3.5 w-3.5" />
+                    <T>Apply</T><ArrowRight className="h-3.5 w-3.5" />
                   </ApplyButton>
                 </div>
               </li>
@@ -186,9 +188,9 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
       {searching && results.length === 0 && (
         <div className="mt-3 rounded-2xl border border-dashed border-uk-line bg-uk-card p-6 text-center">
           <SearchX className="mx-auto h-7 w-7 text-uk-blue" aria-hidden />
-          <p className="mt-2 font-heading text-base font-bold text-uk-heading">No roles match that search</p>
+          <p className="mt-2 font-heading text-base font-bold text-uk-heading"><T>No roles match that search</T></p>
           <p className="mx-auto mt-1 max-w-md text-sm text-uk-body">
-            Try a broader job title or a different location — or send us an open application and we&apos;ll reach out when something fits.
+            <T>Try a broader job title or a different location — or send us an open application and we&apos;ll reach out when something fits.</T>
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <button
@@ -196,10 +198,10 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
               onClick={clear}
               className="rounded-full border border-uk-line px-5 py-2 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
             >
-              Clear search
+              <T>Clear search</T>
             </button>
             <ApplyButton className="inline-flex items-center gap-2 rounded-full bg-uk-blue px-5 py-2 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright">
-              Send an open application<ArrowRight className="h-4 w-4" />
+              <T>Send an open application</T><ArrowRight className="h-4 w-4" />
             </ApplyButton>
           </div>
         </div>

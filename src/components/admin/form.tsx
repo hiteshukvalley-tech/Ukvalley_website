@@ -42,6 +42,7 @@ export function FormField({
   maxLength,
   suggestions,
   slugFrom,
+  example,
 }: {
   label: string;
   name: string;
@@ -62,10 +63,12 @@ export function FormField({
   suggestions?: readonly string[];
   /** makes this a slug box that is filled in from, and corrected like, the named field */
   slugFrom?: string;
+  /** a sample value shown under the box */
+  example?: string;
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
   const describedBy =
-    [error ? `${id}-err` : hint ? `${id}-hint` : "", maxLength ? `${id}-count` : ""].filter(Boolean).join(" ") ||
+    [error ? `${id}-err` : "", hint ? `${id}-hint` : "", example ? `${id}-example` : "", maxLength ? `${id}-count` : ""].filter(Boolean).join(" ") ||
     undefined;
   return (
     <div className={cn("space-y-2", full && "sm:col-span-2")}>
@@ -125,30 +128,38 @@ export function FormField({
       )}
       {maxLength ? (
         <div className="flex items-start gap-3">
-          <FieldMessage id={id} error={error} hint={hint} />
+          <FieldMessage id={id} error={error} hint={hint} example={example} />
           <CharCounter htmlFor={id} max={maxLength} />
         </div>
       ) : (
-        <FieldMessage id={id} error={error} hint={hint} />
+        <FieldMessage id={id} error={error} hint={hint} example={example} />
       )}
     </div>
   );
 }
 
-function FieldMessage({ id, error, hint }: { id: string; error?: string; hint?: string }) {
-  if (error) {
-    return (
-      <p id={`${id}-err`} role="alert" className="text-xs font-medium text-destructive">
-        {error}
-      </p>
-    );
-  }
-  return hint ? <p id={`${id}-hint`} className="text-xs text-uk-muted">{hint}</p> : null;
+function FieldMessage({ id, error, hint, example }: { id: string; error?: string; hint?: string; example?: string }) {
+  return (
+    <>
+      {error && (
+        <p id={`${id}-err`} role="alert" className="text-xs font-medium text-destructive">
+          {error}
+        </p>
+      )}
+      {hint && <p id={`${id}-hint`} className="text-xs text-uk-muted">{hint}</p>}
+      {example && (
+        <div id={`${id}-example`} className="rounded-lg border border-dashed border-uk-line bg-uk-surface-2 px-3 py-2 text-xs text-uk-body">
+          <span className="font-semibold text-uk-heading">Example</span>
+          <span className="mt-1 block whitespace-pre-line font-mono text-[0.72rem] leading-relaxed">{example}</span>
+        </div>
+      )}
+    </>
+  );
 }
 
 /** Multi-line version of FormField. */
 export function FormTextarea({
-  label, name, defaultValue, error, hint, placeholder, required, full, rows = 4,
+  label, name, defaultValue, error, hint, placeholder, required, full, rows = 4, maxLength, example,
 }: {
   label: string;
   name: string;
@@ -159,8 +170,15 @@ export function FormTextarea({
   required?: boolean;
   full?: boolean;
   rows?: number;
+  /** caps the length and shows a "120 / 600" counter */
+  maxLength?: number;
+  /** a sample value shown under the box (for line-by-line formats) */
+  example?: string;
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
+  const describedBy =
+    [error ? `${id}-err` : "", hint ? `${id}-hint` : "", example ? `${id}-example` : "", maxLength ? `${id}-count` : ""].filter(Boolean).join(" ") ||
+    undefined;
   return (
     <div className={cn("space-y-2", full && "sm:col-span-2")}>
       <Label htmlFor={id} className="text-uk-heading">
@@ -174,10 +192,20 @@ export function FormTextarea({
         defaultValue={defaultValue}
         placeholder={placeholder}
         required={required}
+        maxLength={maxLength}
         aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
+        aria-describedby={describedBy}
       />
-      <FieldMessage id={id} error={error} hint={hint} />
+      {maxLength ? (
+        <div className="flex items-start gap-3">
+          <div className="min-w-0 flex-1 space-y-2">
+            <FieldMessage id={id} error={error} hint={hint} example={example} />
+          </div>
+          <CharCounter htmlFor={id} max={maxLength} />
+        </div>
+      ) : (
+        <FieldMessage id={id} error={error} hint={hint} example={example} />
+      )}
     </div>
   );
 }

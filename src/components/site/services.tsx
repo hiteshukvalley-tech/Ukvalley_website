@@ -74,7 +74,7 @@ export async function Services({ content: c = defaultHome.services }: { content?
   return (
     <section id="services" className="relative bg-uk-surface section-py">
       <div className="absolute inset-0 bg-dots opacity-40" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"

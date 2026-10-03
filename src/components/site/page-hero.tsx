@@ -1495,7 +1495,7 @@ export async function PageHero({
       <div className="pointer-events-none absolute inset-y-10 left-1/2 hidden w-px bg-gradient-to-b from-transparent via-uk-blue/10 to-transparent lg:block" aria-hidden />
 
       {/* ── content ── */}
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         {crumbs && (
           <div className="mb-6">
             <Breadcrumbs items={crumbs} />

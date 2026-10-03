@@ -21,7 +21,7 @@ export async function Testimonials({ content: c }: { content: HomeContent["testi
   return (
     <section id="testimonials" className="relative overflow-hidden bg-uk-surface-2 section-py">
       <div className="absolute -right-24 bottom-10 h-80 w-80 rounded-full bg-uk-yellow/10 blur-[130px]" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"

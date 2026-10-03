@@ -29,6 +29,7 @@ export const EDITABLE_PAGES = [
   { key: "blog", label: "Insights (index)", href: "/blog" },
   { key: "privacy", label: "Privacy policy", href: "/privacy" },
   { key: "terms", label: "Terms of service", href: "/terms" },
+  { key: "sitemap", label: "Sitemap", href: "/sitemap" },
 ] as const;
 
 export type PageKey = (typeof EDITABLE_PAGES)[number]["key"];

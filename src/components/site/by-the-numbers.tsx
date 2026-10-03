@@ -29,7 +29,7 @@ export function ByTheNumbers({
   const items = limit ? source.items.slice(0, limit) : source.items;
   return (
     <section className={cn("relative bg-uk-surface-2 section-py", className)}>
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <Reveal className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">

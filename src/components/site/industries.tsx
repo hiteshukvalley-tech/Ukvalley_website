@@ -12,6 +12,7 @@ import { Reveal } from "./reveal";
 import { gsap } from "gsap";
 import type { Industry } from "@/lib/site-data";
 import type { HomeContent } from "@/lib/home-defaults";
+import { Tx } from "@/components/site/texts-context";
 
 const icons: Record<string, React.ComponentType<{ className?: string }>> = {
   landmark: Landmark,
@@ -109,7 +110,7 @@ export function Industries({
   return (
     <section id="industries" className="relative overflow-hidden bg-uk-surface-2 section-py">
       <div className="absolute inset-0 bg-blueprint opacity-40" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         {heading && (
           <SectionHeading
             align="center"
@@ -158,7 +159,7 @@ export function Industries({
                       {Icon && <Icon className="h-4.5 w-4.5" />}
                     </span>
                     <span className={`text-sm font-semibold ${selected ? "text-uk-heading" : "text-uk-body group-hover:text-uk-heading"}`}>
-                      {ind.name}
+                      <Tx>{ind.name}</Tx>
                     </span>
                     <ArrowUpRight
                       className={`ml-auto h-4 w-4 flex-none transition-all duration-300 ${
@@ -187,15 +188,15 @@ export function Industries({
                     href={`/industries/${current.slug}`}
                     className="btn-lift inline-flex items-center gap-2 rounded-full bg-uk-blue px-4 py-2 text-sm font-semibold text-uk-white shadow-glow-blue-sm hover:bg-uk-blue-bright"
                   >
-                    {current.name.split(" ")[0]} {labels.buttonSuffix}
+                    <Tx>{current.name.split(" ")[0]}</Tx> <Tx>{labels.buttonSuffix}</Tx>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                 </div>
                 <h3 className="mt-6 font-heading text-2xl font-bold text-uk-heading-strong sm:text-3xl">
-                  {current.name}
+                  <Tx>{current.name}</Tx>
                 </h3>
                 <p className="mt-3 max-w-lg text-sm leading-relaxed text-uk-muted sm:text-base">
-                  {current.overview[0]}
+                  <Tx>{current.overview[0]}</Tx>
                 </p>
                 <ul className="mt-5 flex flex-wrap gap-2.5">
                   {current.outcomes.map((o) => (
@@ -204,7 +205,7 @@ export function Industries({
                       className="inline-flex items-center gap-1.5 rounded-full border border-uk-blue/20 bg-white dark:bg-uk-card px-3 py-1.5 text-xs font-medium text-uk-body"
                     >
                       <Check className="h-3.5 w-3.5 text-uk-blue" />
-                      {o}
+                      <Tx>{o}</Tx>
                     </li>
                   ))}
                 </ul>
@@ -214,8 +215,8 @@ export function Industries({
                   <div className="mt-5 grid max-w-md grid-cols-3 gap-3 rounded-2xl border border-uk-blue/15 bg-uk-blue/[0.06] p-4">
                     {current.proof.map((s) => (
                       <div key={s.label} className="flex flex-col gap-0.5">
-                        <span className="font-heading text-lg font-bold text-uk-blue sm:text-xl">{s.value}</span>
-                        <span className="text-[0.7rem] leading-tight text-uk-muted">{s.label}</span>
+                        <span className="font-heading text-lg font-bold text-uk-blue sm:text-xl"><Tx>{s.value}</Tx></span>
+                        <span className="text-[0.7rem] leading-tight text-uk-muted"><Tx>{s.label}</Tx></span>
                       </div>
                     ))}
                   </div>
@@ -225,13 +226,13 @@ export function Industries({
                 {current.challenges.length > 0 && (
                   <div className="mt-5 max-w-lg">
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-muted">
-                      {labels.slowLabel}
+                      <Tx>{labels.slowLabel}</Tx>
                     </p>
                     <ul className="mt-2.5 grid grid-cols-1 gap-x-4 gap-y-1.5 sm:grid-cols-2">
                       {current.challenges.map((c) => (
                         <li key={c} className="flex items-start gap-2 text-xs leading-snug text-uk-body">
                           <CircleAlert className="mt-0.5 h-3.5 w-3.5 flex-none text-uk-blue" />
-                          {c}
+                          <Tx>{c}</Tx>
                         </li>
                       ))}
                     </ul>
@@ -243,7 +244,7 @@ export function Industries({
                   <div className="mt-5 max-w-lg">
                     <p className="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-muted">
                       <ShieldCheck className="h-3.5 w-3.5 text-uk-blue" />
-                      {labels.rulesLabel}
+                      <Tx>{labels.rulesLabel}</Tx>
                     </p>
                     <ul className="mt-2.5 flex flex-wrap gap-2">
                       {current.compliance.map((c) => (
@@ -251,7 +252,7 @@ export function Industries({
                           key={c}
                           className="inline-flex items-center rounded-full border border-uk-blue/20 bg-white dark:bg-uk-card px-3 py-1 text-[0.7rem] font-medium text-uk-body"
                         >
-                          {c}
+                          <Tx>{c}</Tx>
                         </li>
                       ))}
                     </ul>
@@ -267,7 +268,7 @@ export function Industries({
                     <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-[0.6rem] font-bold text-uk-blue">
                       CS
                     </span>
-                    {current.featuredCase.title}
+                    <Tx>{current.featuredCase.title}</Tx>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover/case:translate-x-0.5" />
                   </Link>
                 )}

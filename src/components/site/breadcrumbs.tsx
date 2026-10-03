@@ -1,6 +1,7 @@
 import Link from "@/components/site/intent-link";
 import { ChevronRight } from "lucide-react";
 import { jsonLd } from "@/lib/utils";
+import { ukText } from "@/lib/texts";
 
 export type Crumb = { label: string; href?: string };
 
@@ -37,11 +38,11 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
                     href={c.href}
                     className="transition-colors hover:text-uk-blue"
                   >
-                    {c.label}
+                    {ukText(c.label)}
                   </Link>
                 ) : (
                   <span className={last ? "text-uk-heading" : ""}>
-                    {c.label}
+                    {ukText(c.label)}
                   </span>
                 )}
                 {!last && <ChevronRight className="h-3.5 w-3.5 text-uk-muted/60" />}

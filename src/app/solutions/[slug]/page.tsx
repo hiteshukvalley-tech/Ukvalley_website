@@ -109,7 +109,7 @@ export default async function SolutionPage({ params }: Props) {
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(s.name)}{ukText("projects fail — and how we build them differently")}</h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(s.name)}{" "}{ukText("projects fail — and how we build them differently")}</h2>
                 {s.longDescription.map((para, i) => (
                   <p key={i} className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
                     {ukText(para)}
@@ -401,7 +401,7 @@ export default async function SolutionPage({ params }: Props) {
 
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
-                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want ")}{ukText(s.name)}{ukText("built around your workflow?")}</h3>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want ")}{ukText(s.name)}{" "}{ukText("built around your workflow?")}</h3>
                 <p className="mt-1 text-sm text-uk-gray">{ukText("Book a free scoping call — a written estimate in 3 days.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />

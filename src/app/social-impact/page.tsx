@@ -71,7 +71,7 @@ export default function SocialImpactPage() {
                 <h2 className={`${i === 0 ? "mt-5 " : ""}font-heading text-3xl font-bold text-uk-heading sm:text-4xl`}>{ukText(g.title)}</h2>
                 <p className="mt-4 text-lg text-uk-gray">{ukText(g.description)}</p>
               </Reveal>
-              <PhotoCarousel photos={g.photos} caption={ukText(g.caption)} />
+              <PhotoCarousel photos={g.photos.map((p) => ({ ...p, src: ukText(p.src), alt: ukText(p.alt) }))} caption={ukText(g.caption)} />
             </Container>
           </section>
         ))}

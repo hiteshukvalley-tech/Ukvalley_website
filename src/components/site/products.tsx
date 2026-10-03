@@ -14,7 +14,7 @@ export async function Products({ content: c }: { content: HomeContent["products"
   return (
     <section id="products" className="relative overflow-hidden bg-uk-surface-3 section-py">
       <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-uk-blue/12 blur-[120px]" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"

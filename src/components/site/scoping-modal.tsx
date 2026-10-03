@@ -11,6 +11,7 @@ import {
 import { X, Phone, Clock, ShieldCheck, CalendarCheck, ChevronDown } from "lucide-react";
 import { ContactForm } from "./contact-form";
 import { company } from "@/lib/site-core";
+import { T, Tx } from "@/components/site/texts-context";
 
 /**
  * Site-wide "Book a scoping call" popup. Any scoping-call button on the site
@@ -196,32 +197,32 @@ export function ScopingProvider({
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-uk-blue/40" />
                       <span className="relative inline-flex h-2 w-2 rounded-full bg-uk-blue" />
                     </span>
-                    Free · 30 minutes · No obligation
+                    <T>Free · 30 minutes · No obligation</T>
                   </span>
                   <h3 className="font-heading text-2xl font-bold leading-tight text-uk-heading">
                     Book a scoping call with a{" "}
-                    <span className="text-gradient-blue">software architect</span> — not a
-                    sales bot.
+                    <span className="text-gradient-blue"><T>software architect</T></span> <T>— not a
+                    sales bot.</T>
                   </h3>
                   <p className="text-sm leading-relaxed text-uk-muted">
                     Tell us about your project below. A reply within{" "}
-                    <span className="font-semibold text-uk-heading">1 business hour</span>,
-                    a rough estimate in 3 days, a fixed proposal in 7.
+                    <span className="font-semibold text-uk-heading"><T>1 business hour</T></span><T>,
+                    a rough estimate in 3 days, a fixed proposal in 7.</T>
                   </p>
 
                   {/* Quick proof chips */}
                   <div className="mt-1 flex flex-wrap gap-2">
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-white/80 px-3 py-1 text-xs font-medium text-uk-heading shadow-float backdrop-blur dark:bg-uk-card/80">
                       <Clock className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-                      Reply in 1 business hour
+                      <T>Reply in 1 business hour</T>
                     </span>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-white/80 px-3 py-1 text-xs font-medium text-uk-heading shadow-float backdrop-blur dark:bg-uk-card/80">
                       <ShieldCheck className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-                      NDA &amp; IP before day one
+                      <T>NDA &amp; IP before day one</T>
                     </span>
                     <span className="hidden items-center gap-1.5 rounded-full border border-uk-line bg-white/80 px-3 py-1 text-xs font-medium text-uk-heading shadow-float backdrop-blur dark:bg-uk-card/80 sm:inline-flex">
                       <CalendarCheck className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-                      Estimate in 3 days
+                      <T>Estimate in 3 days</T>
                     </span>
                   </div>
                 </div>
@@ -251,7 +252,7 @@ export function ScopingProvider({
                     href={`tel:${phone.replace(/\s+/g, "")}`}
                     className="font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
                   >
-                    {phone}
+                    <Tx>{phone}</Tx>
                   </a>
                 </span>
               </div>
@@ -262,7 +263,7 @@ export function ScopingProvider({
             {showHint && (
               <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center" aria-hidden>
                 <span className="glass mb-3 inline-flex animate-bounce items-center gap-1.5 rounded-full border border-uk-blue/30 bg-white/85 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-uk-blue shadow-float backdrop-blur dark:border-uk-blue/40 dark:bg-uk-card/85">
-                  Scroll for more
+                  <T>Scroll for more</T>
                   <ChevronDown className="h-3.5 w-3.5" />
                 </span>
               </div>

@@ -36,19 +36,23 @@ const linkIdle = "text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading";
 
 /** A main section that opens into its sub-sections. */
 function NavSection({
-  entry, pathname, onNavigate,
-}: { entry: AdminNavEntry & { children: AdminNavLink[] }; pathname: string; onNavigate?: () => void }) {
+  entry, pathname, open, onToggle, onNavigate,
+}: {
+  entry: AdminNavEntry & { children: AdminNavLink[] };
+  pathname: string;
+  /** whether this section's dropdown is open (only one is, at a time) */
+  open: boolean;
+  onToggle: () => void;
+  onNavigate?: () => void;
+}) {
   const holdsActive = entry.children.some((c) => isActive(c, pathname));
-  // null = follow the current page (open while inside this section).
-  const [toggled, setToggled] = useState<boolean | null>(null);
-  const open = toggled ?? holdsActive;
   const Icon = entry.icon;
   const listId = `nav-${entry.label.toLowerCase().replace(/\s+/g, "-")}`;
   return (
     <li>
       <button
         type="button"
-        onClick={() => setToggled(!open)}
+        onClick={onToggle}
         aria-expanded={open}
         aria-controls={listId}
         className={cn(linkBase, "w-full", holdsActive ? "text-uk-heading" : linkIdle)}
@@ -84,6 +88,17 @@ function NavSection({
 
 function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => void }) {
   const pathname = usePathname();
+  // Which section's dropdown is open: one at a time. Opening another section,
+  // or going to any other tab, closes the previous one.
+  const sectionHolding = (path: string) =>
+    adminNav.flatMap((g) => g.items).find((i) => i.children?.some((c) => isActive(c, path)))?.label ?? null;
+  const [openSection, setOpenSection] = useState<string | null>(() => sectionHolding(pathname));
+  const [seenPath, setSeenPath] = useState(pathname);
+  if (pathname !== seenPath) {
+    // Navigated: show the section the new page belongs to (none for a plain tab).
+    setSeenPath(pathname);
+    setOpenSection(sectionHolding(pathname));
+  }
   // Editors never see admin-only pages (the pages themselves refuse them too).
   const allowed = (l: AdminNavLink) => !l.adminOnly || role === "admin";
   const groups = adminNav
@@ -104,14 +119,13 @@ function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => voi
           <ul className="space-y-0.5">
             {g.items.map((item) => {
               if (item.children?.length) {
-                // Keyed on "holds the current page", so a section re-opens
-                // whenever you navigate into it, even if you closed it earlier.
-                const inside = item.children.some((c) => isActive(c, pathname));
                 return (
                   <NavSection
-                    key={`${item.label}-${inside}`}
+                    key={item.label}
                     entry={{ ...item, children: item.children }}
                     pathname={pathname}
+                    open={openSection === item.label}
+                    onToggle={() => setOpenSection(openSection === item.label ? null : item.label)}
                     onNavigate={onNavigate}
                   />
                 );
@@ -122,7 +136,10 @@ function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => voi
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    onClick={onNavigate}
+                    onClick={() => {
+                      setOpenSection(null);
+                      onNavigate?.();
+                    }}
                     aria-current={active ? "page" : undefined}
                     className={cn(linkBase, active ? linkActive : linkIdle)}
                   >

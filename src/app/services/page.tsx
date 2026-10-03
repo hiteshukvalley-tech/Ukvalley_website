@@ -73,7 +73,7 @@ export default async function ServicesPage() {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("At a glance")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                {ukText(capitalize(word))}{ukText("service lines, compared on the numbers that matter")}</h2>
+                {ukText(capitalize(word))}{" "}{ukText("service lines, compared on the numbers that matter")}</h2>
               <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Typical timelines, starting investment and when you first see working software — so you can shortlist before the call. Every figure is a range from past engagements; your written estimate follows the scoping call within 3 business days.")}</p>
             </Reveal>
             <Reveal className="mt-8 overflow-x-auto rounded-3xl border border-uk-line bg-uk-card">

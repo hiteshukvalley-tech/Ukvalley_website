@@ -17,7 +17,7 @@ export function SectionDivider({
   if (variant === "circuit") {
     return (
       <div className={cn("w-full", className)} aria-hidden>
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+        <div className="mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
           <div className="flex items-center gap-3 py-2">
             <span className="h-px flex-1 bg-gradient-to-r from-transparent to-uk-blue/40" />
             <span className="flex h-2 w-2 items-center justify-center">
@@ -81,7 +81,7 @@ export function SectionDivider({
   // glow — full-width wrapper (accepts bg/padding) with centered line
   return (
     <div className={cn("w-full", className)} aria-hidden>
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <div className="divider-glow" />
       </div>
     </div>

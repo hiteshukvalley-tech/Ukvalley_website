@@ -251,7 +251,7 @@ export function HeaderClient({
         />
         <div
           className={cn(
-            "mx-auto flex max-w-7xl items-center justify-between gap-6 px-5 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:px-8",
+            "mx-auto flex max-w-7xl items-center justify-between gap-6 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:px-8",
             scrolled ? "h-14 lg:h-16" : "h-16 lg:h-18"
           )}
         >

@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { splitMarks } from "@/lib/home-schema";
+import { ukText } from "@/lib/texts";
 
 /**
  * Renders admin-edited text where *starred* words get the highlight style
@@ -10,9 +11,9 @@ export function Marked({ text, className = "text-uk-blue" }: { text: string; cla
     <>
       {splitMarks(text).map((p, i) =>
         p.marked ? (
-          <span key={i} className={className}>{p.text}</span>
+          <span key={i} className={className}>{ukText(p.text)}</span>
         ) : (
-          <Fragment key={i}>{p.text}</Fragment>
+          <Fragment key={i}>{ukText(p.text)}</Fragment>
         )
       )}
     </>

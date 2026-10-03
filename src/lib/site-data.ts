@@ -358,6 +358,8 @@ export type CaseStudy = {
   stack: string[];
   timeline: string;
   team: string;
+  /** Names of the people on the team (optional); `team` then reads "N people". */
+  teamMembers?: string[];
   approach: string[];
   /** One paragraph on the sector reality this engagement sat inside. */
   industryContext: string;

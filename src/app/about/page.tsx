@@ -85,7 +85,7 @@ export default async function AboutPage() {
                 <h2 className="font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("Engineers who scope it build it — no brokers, no offshoring pools.")}</h2>
                 <div className="text-justify-prose space-y-4 text-lg leading-relaxed text-uk-gray">
                   <p>{ukText("Ukvalley was founded in 2017 with a simple premise: small and mid-sized businesses deserved the same engineering rigour the enterprise gets, at a cost that made sense. Our India cost base keeps us 30–40% below metro agencies without compromising on the people doing the work.")}</p>
-                  <p>{ukText("Today we run ")}{ukText(countWord(serviceCount))}{ukText("service lines and a portfolio of our own products — TeleValley, Script Magix, Mediline Website, HR Agency Management System and Emailz.ca — all live in production. Products we run ourselves are proof most service firms can't offer.")}</p>
+                  <p>{ukText("Today we run ")}{ukText(countWord(serviceCount))}{" "}{ukText("service lines and a portfolio of our own products — TeleValley, Script Magix, Mediline Website, HR Agency Management System and Emailz.ca — all live in production. Products we run ourselves are proof most service firms can't offer.")}</p>
                   <p>{ukText("We stay unfunded by choice. It keeps us accountable to clients, not to a cap table. The engineers who scope your project are the engineers who build it, and you own the code from day one.")}</p>
                   <p>{ukText("Most agencies that raise venture money eventually optimise for the next round, not the current client — pricing shifts, senior staff get pulled onto whatever investors want to see, and roadmaps bend toward a pitch deck. Staying unfunded means our only growth lever is doing the work well enough that clients stay and refer the next one.")}</p>
                 </div>
@@ -245,7 +245,7 @@ export default async function AboutPage() {
                     {m.image ? (
                       // plain <img>: the admin can point this at /media/<id> or any https address
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={m.image} alt={m.name} loading="lazy" className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl bg-white object-cover object-top ring-1 ring-uk-line" />
+                      <img src={m.image} alt={ukText(m.name)} loading="lazy" className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl bg-white object-cover object-top ring-1 ring-uk-line" />
                     ) : (
                       <span
                         className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"

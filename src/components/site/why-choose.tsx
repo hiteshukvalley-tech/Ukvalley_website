@@ -28,7 +28,7 @@ export async function WhyChoose({ content: c }: { content: HomeContent["why"] })
   return (
     <section id="why" className="relative overflow-hidden bg-uk-surface-2 section-py">
       <div className="absolute right-0 top-1/4 h-80 w-80 rounded-full bg-uk-blue/15 blur-[130px]" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <SectionHeading
           align="center"
           eyebrow={ukText(c.eyebrow)}

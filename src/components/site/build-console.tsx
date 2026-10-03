@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Tx } from "@/components/site/texts-context";
 
 const SCRIPT: { text: string; tone: "dim" | "blue" | "yellow" | "ok" }[] = [
   { text: "$ ukvalley deploy --env production", tone: "dim" },
@@ -91,11 +92,11 @@ export function BuildConsole({ className }: { className?: string }) {
       <div className="flex min-h-[7.2rem] flex-col justify-end gap-0.5">
         {displayLines.map((l, i) => (
           <p key={`${l}-${i}`} className={TONE_CLASS[SCRIPT.find((s) => s.text === l)?.tone ?? "dim"]}>
-            {l}
+            <Tx>{l}</Tx>
           </p>
         ))}
         <p className={TONE_CLASS[SCRIPT.find((s) => s.text.startsWith(current))?.tone ?? "dim"]}>
-          {current}
+          <Tx>{current}</Tx>
           <span className="console-cursor ml-0.5" />
         </p>
       </div>

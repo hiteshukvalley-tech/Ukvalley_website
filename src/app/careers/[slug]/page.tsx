@@ -137,7 +137,7 @@ export default async function CareerPage({ params }: Props) {
                   <h2 id="hiring-process" className="scroll-mt-28 flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
                     <Workflow className="h-5 w-5 text-uk-blue" />{ukText("Your hiring journey")}</h2>
                   <p className="mt-2 text-sm text-uk-gray">
-                    {c.hiringProcess.length}{ukText("stage")}{ukText(c.hiringProcess.length === 1 ? "" : "s")}{ukText("from application to offer. We keep you posted by email at every step.")}</p>
+                    {ukText(c.hiringProcess.length)}{" "}{ukText("stage")}{ukText(c.hiringProcess.length === 1 ? "" : "s")}{" "}{ukText("from application to offer. We keep you posted by email at every step.")}</p>
                   <ol className="relative mt-6 flex flex-col gap-6" aria-labelledby="hiring-process">
                     {c.hiringProcess.map((s, i) => (
                       <li key={`${i}-${s.title}`} className="relative flex gap-4">
@@ -182,7 +182,7 @@ export default async function CareerPage({ params }: Props) {
                     href={ukText("#hiring-process")}
                     className="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-sm font-medium text-uk-blue hover:text-uk-blue-bright"
                   >
-                    <Workflow className="h-4 w-4" aria-hidden />{ukText("See the ")}{c.hiringProcess.length}{ukText("-stage hiring journey")}</a>
+                    <Workflow className="h-4 w-4" aria-hidden />{ukText("See the ")}{ukText(c.hiringProcess.length)}{ukText("-stage hiring journey")}</a>
                   <p className="mt-4 text-xs text-uk-muted">{ukText("Questions about this role? Write to")}{" "}
                     <a href={ukText(`mailto:${settings.hr.email}`)} className="font-semibold text-uk-blue hover:text-uk-blue-bright">
                       {ukText(settings.hr.email)}

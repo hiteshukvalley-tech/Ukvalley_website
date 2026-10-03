@@ -123,7 +123,7 @@ export default async function TeamPage() {
                     {m.image ? (
                       // plain <img>: the admin can point this at /media/<id> or any https address
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={m.image} alt={m.name} loading="lazy" className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl bg-white object-cover object-top ring-1 ring-uk-line" />
+                      <img src={m.image} alt={ukText(m.name)} loading="lazy" className="mx-auto aspect-square w-full max-w-[15rem] rounded-xl bg-white object-cover object-top ring-1 ring-uk-line" />
                     ) : (
                       <span
                         className="flex h-12 w-12 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright font-heading text-lg font-bold text-uk-white"
@@ -203,7 +203,7 @@ export default async function TeamPage() {
             <Reveal className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Join them")}</h2>
-                <p className="mt-3 text-uk-gray">{ukText("We're hiring engineers and designers who want to own outcomes — ")}{careers.length}{ukText("roles open now.")}</p>
+                <p className="mt-3 text-uk-gray">{ukText("We're hiring engineers and designers who want to own outcomes — ")}{ukText(careers.length)}{" "}{ukText("roles open now.")}</p>
               </div>
               <Link
                 href={ukText("/careers")}

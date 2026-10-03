@@ -94,7 +94,7 @@ export async function TextsView({ group, path, q }: { group?: string; path?: str
       return {
         id: `${i}`, kind: it.kind, region: it.region, role: it.role, count: it.count,
         sectionKey: it.region === "Page" ? `p${it.sectionId}` : it.region,
-        sectionTitle: it.sectionTitle, cardId: it.cardId, cardTitle: it.cardTitle,
+        sectionTitle: it.sectionTitle, cardId: it.cardId, cardTitle: it.cardTitle, context: it.context, blockId: it.blockId,
         original, current: it.value, edited, stuckOverride: stuck ? byO.get(it.value)! : undefined,
       };
     });

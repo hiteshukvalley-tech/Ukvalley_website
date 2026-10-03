@@ -80,7 +80,7 @@ export async function FounderSection({ pageKey }: { pageKey: string }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image}
-                alt={c.founderImageAlt || d.imageAlt}
+                alt={ukText(c.founderImageAlt || d.imageAlt)}
                 loading="lazy"
                 className="aspect-[4/5] w-full rounded-[1.25rem] object-cover object-top"
               />
@@ -95,18 +95,18 @@ export async function FounderSection({ pageKey }: { pageKey: string }) {
               <p className="mt-1 text-base font-semibold text-uk-blue">{c.founderRole || ukText(d.role)}</p>
             </div>
             <div className="space-y-4 text-lg leading-relaxed text-uk-gray">
-              {bio.map((p, i) => <p key={i}>{p}</p>)}
+              {bio.map((p, i) => <p key={i}>{ukText(p)}</p>)}
             </div>
             <div className="rounded-2xl border border-uk-line bg-uk-card p-5 sm:p-6">
               <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("About the company")}</h3>
               <div className="mt-2 space-y-3 text-sm leading-relaxed text-uk-gray">
-                {about.map((p, i) => <p key={i}>{p}</p>)}
+                {about.map((p, i) => <p key={i}>{ukText(p)}</p>)}
               </div>
               <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-uk-line pt-4 text-sm sm:grid-cols-2">
                 {facts.map((f, i) => (
                   <div key={i} className="flex items-baseline justify-between gap-4">
-                    <dt className="flex-none text-uk-gray">{f.label}</dt>
-                    <dd className="text-right font-medium text-uk-body">{f.value}</dd>
+                    <dt className="flex-none text-uk-gray">{ukText(f.label)}</dt>
+                    <dd className="text-right font-medium text-uk-body">{ukText(f.value)}</dd>
                   </div>
                 ))}
               </dl>

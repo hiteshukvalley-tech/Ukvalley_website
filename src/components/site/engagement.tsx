@@ -19,7 +19,7 @@ export async function Engagement({ content: c = defaultHome.engagement }: { cont
   const vars = countVars(engagementModels.length);
   return (
     <section id="engagement" className="relative bg-uk-surface-2 section-py">
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         <div className="flex flex-col items-center">
           <SectionHeading
             align="center"

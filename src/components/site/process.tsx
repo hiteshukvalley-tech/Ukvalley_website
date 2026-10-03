@@ -9,6 +9,7 @@ import { Check } from "lucide-react";
 import { Marked } from "./marked";
 import type { ProcessStep } from "@/lib/process-validation";
 import type { HomeContent } from "@/lib/home-defaults";
+import { Tx } from "@/components/site/texts-context";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -89,7 +90,7 @@ export function Process({
   return (
     <section id="process" className="relative overflow-hidden bg-uk-surface-2 section-py">
       <div className="absolute left-1/2 top-1/2 h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-uk-blue/10 blur-[150px]" aria-hidden />
-      <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] lg:px-8">
         {/* narrative column — now at the top of the section */}
         <div>
           <SectionHeading
@@ -105,7 +106,7 @@ export function Process({
                 <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-uk-blue" />
               </span>
               <span className="text-sm font-medium text-uk-heading">
-                {c.badge}
+                <Tx>{c.badge}</Tx>
               </span>
             </div>
           </Reveal>}
@@ -131,23 +132,23 @@ export function Process({
                     className="relative z-10 flex h-12 w-12 flex-none items-center justify-center rounded-2xl border border-uk-blue/40 bg-uk-card font-heading text-base font-bold text-uk-blue shadow-glow-blue-sm"
                     style={{ transitionDelay: `${i * 60}ms` }}
                   >
-                    {p.step}
+                    <Tx>{p.step}</Tx>
                     <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-uk-yellow" aria-hidden />
                   </div>
                   <div className="flex flex-col gap-2 pt-1">
                     <div className="flex flex-wrap items-center gap-3">
-                      <h3 className="font-heading text-lg font-bold text-uk-heading">{p.title}</h3>
+                      <h3 className="font-heading text-lg font-bold text-uk-heading"><Tx>{p.title}</Tx></h3>
                       <span className="inline-flex w-fit rounded-full bg-uk-surface-blue px-2.5 py-0.5 text-xs font-medium text-uk-blue">
-                        {p.duration}
+                        <Tx>{p.duration}</Tx>
                       </span>
                     </div>
-                    <p className="max-w-lg text-sm leading-relaxed text-uk-muted">{p.desc}</p>
+                    <p className="max-w-lg text-sm leading-relaxed text-uk-muted"><Tx>{p.desc}</Tx></p>
                     {p.points && (
                       <ul className="mt-1 flex flex-col gap-1.5">
                         {p.points.map((pt) => (
                           <li key={pt} className="flex items-start gap-2 text-sm font-medium text-uk-body">
                             <Check className="mt-0.5 h-3.5 w-3.5 flex-none text-uk-blue" aria-hidden />
-                            {pt}
+                            <Tx>{pt}</Tx>
                           </li>
                         ))}
                       </ul>

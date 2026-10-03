@@ -9,6 +9,8 @@ import { ScopingProvider } from "@/components/site/scoping-modal";
 import { getSiteSettings } from "@/lib/settings";
 import { AuroraBackground } from "@/components/site/aurora-background";
 import { SiteOnly } from "@/components/site/site-only";
+import { TextsProvider } from "@/components/site/texts-context";
+import { textsSnapshot, ukText } from "@/lib/texts";
 
 // Fonts are self-hosted (latin variable-weight files from Fontsource, OFL) in
 // ./fonts. next/font/google fetches from Google at build time, and an odd
@@ -44,6 +46,7 @@ const sora = localFont({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f8f7ff" },
     { media: "(prefers-color-scheme: dark)", color: "#070511" },
@@ -101,6 +104,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <SiteOnly>
           <AuroraBackground />
         </SiteOnly>
+        <TextsProvider map={textsSnapshot()}>
         <ThemeProviderWrapper>
           <ScopingProvider email={settings.email} phone={settings.phonePrimary}>
             <SiteOnly>
@@ -110,7 +114,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               href="#main"
               className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-uk-blue focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-uk-white"
             >
-              Skip to main content
+              {ukText("Skip to main content")}
             </a>
             <SmoothScroll>
               <SiteOnly>
@@ -120,6 +124,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             </SmoothScroll>
           </ScopingProvider>
         </ThemeProviderWrapper>
+        </TextsProvider>
       </body>
     </html>
   );
