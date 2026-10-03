@@ -36,11 +36,12 @@ export function HireForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="title"
           required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. react-developers. Becomes /hire/<slug>."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Made from the name as you type; edit it if you like, e.g. react-developers. Becomes /hire/<slug>."}
         />
         <FormSelect label="Icon" name="icon" required defaultValue={values.icon} error={errors.icon} options={iconOptions} />
         <FormField label="Tagline" name="tagline" required full defaultValue={values.tagline} error={errors.tagline} />

@@ -36,8 +36,8 @@ export const defaultMenu: MenuItem[] = [
   { id: "solutions", label: "Solutions", type: "solutions", href: "", links: [], visible: true },
   { id: "work", label: "Work", type: "dropdown", href: "", links: defaultWorkLinks, visible: true },
   { id: "company", label: "Company", type: "dropdown", href: "", links: defaultCompanyLinks, visible: true },
-  { id: "hire", label: "Hire", type: "hire", href: "", links: [], visible: true },
   { id: "careers", label: "Careers", type: "link", href: "/careers", visible: true, links: [] },
+  { id: "hire", label: "Hire", type: "hire", href: "", links: [], visible: true },
   { id: "insights", label: "Insights", type: "link", href: "/blog", visible: true, links: [] },
 ];
 

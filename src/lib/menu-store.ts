@@ -21,7 +21,15 @@ const pageCol = () => getDb().collection<MainPageDoc>(PAGES_COLLECTION);
 function withBuiltIns(saved: MenuItem[] | undefined): MenuItem[] {
   if (!saved?.length) return defaultMenu;
   const items = [...saved];
-  for (const d of defaultMenu) if (!items.some((i) => i.id === d.id)) items.push({ ...d, visible: false });
+  for (const d of defaultMenu) {
+    if (items.some((i) => i.id === d.id)) continue;
+    // Careers is a main menu item of its own, right after Company. Menus saved
+    // before it existed get it there, shown; other missing items return hidden.
+    if (d.id === "careers") {
+      const at = items.findIndex((i) => i.id === "company");
+      items.splice(at >= 0 ? at + 1 : items.length, 0, d);
+    } else items.push({ ...d, visible: false });
+  }
   return items;
 }
 

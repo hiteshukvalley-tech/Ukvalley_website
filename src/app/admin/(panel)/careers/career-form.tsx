@@ -34,6 +34,7 @@ export function CareerForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="role"
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}

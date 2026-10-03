@@ -3,6 +3,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/admin/password-input";
 import { CharCounter } from "@/components/admin/char-counter";
+import { SlugInput } from "@/components/admin/slug-input";
 import { cn } from "@/lib/utils";
 
 /** Titled card that groups related fields. Used on every admin form. */
@@ -40,6 +41,7 @@ export function FormField({
   readOnly,
   maxLength,
   suggestions,
+  slugFrom,
 }: {
   label: string;
   name: string;
@@ -58,6 +60,8 @@ export function FormField({
   maxLength?: number;
   /** suggestions offered while typing; any value is still accepted */
   suggestions?: readonly string[];
+  /** makes this a slug box that is filled in from, and corrected like, the named field */
+  slugFrom?: string;
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
   const describedBy =
@@ -81,6 +85,20 @@ export function FormField({
           autoComplete={autoComplete ?? "off"}
           aria-invalid={error ? true : undefined}
           aria-describedby={describedBy}
+        />
+      ) : slugFrom && !readOnly ? (
+        <SlugInput
+          id={id}
+          name={name}
+          slugFrom={slugFrom}
+          defaultValue={defaultValue}
+          placeholder={placeholder}
+          required={required}
+          maxLength={maxLength}
+          autoComplete="off"
+          aria-invalid={error ? true : undefined}
+          aria-describedby={describedBy}
+          className="h-10"
         />
       ) : (
         <Input

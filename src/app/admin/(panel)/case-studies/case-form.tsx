@@ -32,6 +32,7 @@ export function CaseForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="title"
           required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
@@ -39,7 +40,7 @@ export function CaseForm({
           hint={
             mode === "edit"
               ? "The slug can't be changed after creation."
-              : "Lowercase, e.g. loan-origination-nbfc. Becomes /case-studies/<slug>."
+              : "Made from the name as you type; edit it if you like, e.g. loan-origination-nbfc. Becomes /case-studies/<slug>."
           }
         />
         <FormField label="Client" name="client" required defaultValue={values.client} error={errors.client} hint="Anonymised is fine, e.g. “A Tier-1 Indian NBFC”." />

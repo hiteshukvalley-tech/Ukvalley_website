@@ -80,11 +80,12 @@ export function SolutionForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="name"
           required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. crm. Becomes /solutions/<slug>."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Made from the name as you type; edit it if you like, e.g. crm. Becomes /solutions/<slug>."}
         />
         <FormField label="Category" name="category" required defaultValue={values.category} error={errors.category} hint="e.g. Sales & customer management" />
         <FormSelect label="Icon" name="icon" required defaultValue={values.icon} error={errors.icon} options={iconOptions} />

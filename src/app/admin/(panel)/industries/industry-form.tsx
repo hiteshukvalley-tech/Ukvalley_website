@@ -34,11 +34,12 @@ export function IndustryForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="name"
           required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. fintech-lending. Becomes /industries/<slug>."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Made from the name as you type; edit it if you like, e.g. fintech-lending. Becomes /industries/<slug>."}
         />
         <FormSelect label="Icon" name="icon" required defaultValue={values.icon} error={errors.icon} options={iconOptions} />
         <FormTextarea label="Summary" name="blurb" required full rows={3} defaultValue={values.blurb} error={errors.blurb} hint="Up to 400 characters. Also the search-result description." />

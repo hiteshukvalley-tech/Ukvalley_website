@@ -32,11 +32,12 @@ export function BlogForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="title"
           required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. crm-vs-erp. Becomes /blog/<slug>."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Made from the name as you type; edit it if you like, e.g. crm-vs-erp. Becomes /blog/<slug>."}
         />
         <FormField label="Category" name="category" required defaultValue={values.category} error={errors.category} hint="e.g. Engineering, Buyer's guide." />
         <FormField label="Publish date" name="date" type="date" required defaultValue={values.date} error={errors.date} />

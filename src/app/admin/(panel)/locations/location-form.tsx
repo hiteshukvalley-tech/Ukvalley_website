@@ -36,11 +36,12 @@ export function LocationForm({
         <FormField
           label="Slug"
           name="slug"
+          slugFrom="city"
           required
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Lowercase, e.g. pune. Becomes /locations/<slug>."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Made from the name as you type; edit it if you like, e.g. pune. Becomes /locations/<slug>."}
         />
         <FormField label="Region" name="region" required defaultValue={values.region} error={errors.region} hint="State or province, e.g. Maharashtra" />
         <FormField label="Country" name="country" required defaultValue={values.country} error={errors.country} />
