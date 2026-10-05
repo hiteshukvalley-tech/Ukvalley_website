@@ -1449,7 +1449,9 @@ export async function PageHero({
           team constellation (company), talent network with match-score arcs
           and travelling applicants (hire) or story stream (insights), each
           orbiting its glowing chip core */}
-      <div className={ART_ZONE} aria-hidden>
+      {/* data-scan-*: Admin → Pages & text lists this artwork as its own card,
+          after the hero's title, text and buttons */}
+      <div className={ART_ZONE} aria-hidden data-scan-card="Hero picture (artwork beside the title)" data-scan-late="">
         {art && (
           <ImageCanvas
             art={art}
@@ -1561,10 +1563,13 @@ export async function PageHero({
             and in landscape via a short touch screen. Hidden with CSS, so
             the lazy image isn't downloaded there either. */}
         {art && (
-          <ImageCanvas
-            art={art}
-            className="relative mx-auto mb-10 mt-20 w-[min(20rem,calc(100vw-9rem))] max-md:hidden xl:hidden [@media(pointer:coarse)_and_(max-height:500px)]:hidden"
-          />
+          // data-scan-skip: the same artwork as above; Admin → Pages & text lists it once
+          <div data-scan-skip="" className="contents">
+            <ImageCanvas
+              art={art}
+              className="relative mx-auto mb-10 mt-20 w-[min(20rem,calc(100vw-9rem))] max-md:hidden xl:hidden [@media(pointer:coarse)_and_(max-height:500px)]:hidden"
+            />
+          </div>
         )}
       </div>
 

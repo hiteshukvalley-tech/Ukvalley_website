@@ -13,18 +13,41 @@ const clickButton = (label) =>
 const has = (body, s) => body.toLowerCase().includes(s.toLowerCase());
 const waitForText = (t, ms = 60000) => page.waitForFunction((x) => document.body.innerText.includes(x), { timeout: ms }, t);
 
-/** Types into the editor field that currently holds `match`. */
+/**
+ * Changes the text `match` to `value` in the editor: a line in a section's
+ * text box (one line per line on the page), or an image / link field.
+ */
 async function setField(match, value) {
   const ok = await page.evaluate((m, v) => {
+    const put = (el, val) => {
+      const proto = el.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(proto, "value").set.call(el, val);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    for (const box of document.querySelectorAll('main textarea[aria-label^="All text of the section"]')) {
+      // texts in a section box are separated by an empty line
+      const lines = box.value.split(/\n\s*\n/);
+      const i = lines.indexOf(m);
+      if (i >= 0) {
+        lines[i] = v;
+        put(box, lines.join("\n\n"));
+        return true;
+      }
+    }
     const el = [...document.querySelectorAll("main ol textarea, main ol input")].find((e) => e.value === m);
     if (!el) return false;
-    const proto = el.tagName === "TEXTAREA" ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-    Object.getOwnPropertyDescriptor(proto, "value").set.call(el, v);
-    el.dispatchEvent(new Event("input", { bubbles: true }));
+    put(el, v);
     return true;
   }, match, value);
   return ok;
 }
+/** Every line of every section box on the editor page, with what it is (Heading, Button…). */
+const boxLines = () =>
+  page.$$eval("main section details ol li", (ls) =>
+    ls.map((l) => { const s = l.querySelectorAll("span"); return { role: s[1]?.textContent ?? "", val: s[2]?.textContent ?? "" }; })
+  );
+const hasLine = (t) =>
+  page.evaluate((x) => [...document.querySelectorAll('main textarea[aria-label^="All text of the section"]')].some((b) => b.value.split(/\n\s*\n/).includes(x)), t);
 const editorPath = (p) => `/admin/texts?path=${encodeURIComponent(p)}`;
 const publicText = async (p) => { await go(page, p, { timeout: 120000 }); return text(page); };
 
@@ -54,8 +77,9 @@ check("editor shows the service's name, not its address", has(await page.$eval("
 section("Page scan");
 await go(page, editorPath("/privacy"), { timeout: 180000 });
 body = await text(page);
-check("shows the page's heading", await page.evaluate(() => [...document.querySelectorAll("main ol textarea")].some((e) => e.value === "Privacy Policy")));
-check("shows a paragraph", await page.evaluate(() => [...document.querySelectorAll("main ol textarea")].some((e) => e.value === "What we collect")));
+check("shows the page's heading", await hasLine("Privacy Policy"));
+check("shows a paragraph", await hasLine("What we collect"));
+check("one text box per section", (await page.$$('main textarea[aria-label^="All text of the section"]')).length >= 2);
 const sectionCount = (await page.$$("main section[class*=overflow-hidden] > button")).length;
 check("text is grouped into collapsible sections", sectionCount >= 2, String(sectionCount));
 // Header and footer are edited once in their own editors (Overview → Header / Footer), not per page.
@@ -64,7 +88,7 @@ check("no Header/Footer groups on a page", !has(body, "Header (menu bar)"));
 section("Edit text");
 check("heading field found", await setField("Privacy Policy", "QA Privacy Heading"));
 check("paragraph field found", await setField("What we collect", "QA what we collect"));
-check("unsaved marker", has(await text(page), "2 unsaved changes"));
+check("unsaved marker", /\d+ unsaved change/.test(await text(page)));
 await clickButton("Save changes");
 await waitForText("Checked on the live page");
 check("saved and verified on the live page", true);
@@ -78,11 +102,9 @@ check("same text replaced everywhere it appears (footer link)", has(body, "QA Pr
 section("Editor shows edited state, then revert");
 await go(page, editorPath("/privacy"));
 body = await text(page);
-check("edited rows are marked and show the original", has(body, "Edited") && has(body, "Original: Privacy Policy"));
-await page.evaluate(() => {
-  const li = [...document.querySelectorAll("main ol > li")].find((l) => l.querySelector("textarea")?.value === "QA Privacy Heading");
-  [...(li?.querySelectorAll("button") ?? [])].find((b) => b.textContent.includes("Revert"))?.click();
-});
+check("edited sections are marked", has(body, "Edited") && (await hasLine("QA Privacy Heading")));
+// Typing the original text back reverts that one line; the rest of the section keeps its edits.
+await setField("QA Privacy Heading", "Privacy Policy");
 await clickButton("Save changes");
 await waitForText("Checked on the live page");
 body = await publicText("/privacy");
@@ -91,7 +113,7 @@ check("the other edit is kept", has(body, "QA what we collect"));
 
 section("Link text and image");
 await go(page, editorPath("/about"), { timeout: 180000 });
-const aboutRows = await page.$$eval("main ol > li", (ls) => ls.map((l) => ({ role: l.querySelector("span")?.innerText ?? "", val: l.querySelector("textarea,input")?.value ?? "" })));
+const aboutRows = await boxLines();
 const candidates = aboutRows.filter((r) => /link|button/i.test(r.role) && r.val && r.val.length < 40 && !r.val.startsWith("/")).slice(0, 5);
 check("found button or link labels on /about", candidates.length > 0, JSON.stringify(aboutRows.slice(0, 4)));
 let buttonDone = false;
@@ -134,8 +156,7 @@ check("bad image path is rejected", await (async () => {
 // October 2026 "editable text everywhere" pass they are editable like any text.
 section("Form labels can be edited");
 await go(page, editorPath("/contact"), { timeout: 180000 });
-const label = await page.$$eval("main ol > li", (ls) => ls.map((l) => ({ role: l.querySelector("span")?.innerText ?? "", val: l.querySelector("textarea,input")?.value ?? "" }))
-  .find((r) => /label/i.test(r.role) && r.val.length > 2 && r.val.length < 40)?.val ?? null);
+const label = (await boxLines()).find((r) => /label/i.test(r.role) && r.val.length > 2 && r.val.length < 40)?.val ?? null;
 check("found a form label on /contact", !!label);
 if (label) {
   await setField(label, "QA form label");

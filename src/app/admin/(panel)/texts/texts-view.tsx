@@ -109,7 +109,7 @@ export async function TextsView({ group, path, q }: { group?: string; path?: str
             ...(section ? [{ label: section.name, href: listHref }] : [{ label: "All pages", href: "/admin/texts" }]),
             { label: pageName === section?.name ? `${pageName} page` : pageName },
           ]}
-          description="Only what is on this page, organised by section: open a section to edit its text, buttons and images (cards are grouped inside their section). The header menu and footer are shared by every page and have their own editors under Site layout. Save, and the page is checked to confirm each change is really showing."
+          description="This page, section by section, in the order they appear: each section's text is in one box, one paragraph per text on the page (heading, text, buttons) with an empty line between them. Images and links are below the box. The header menu and footer are shared by every page and have their own editors under Site layout. Save, and the page is checked to confirm each change is really showing."
           action={
             <div className="flex flex-wrap items-center gap-2">
               {blocksKey && (

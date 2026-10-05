@@ -61,14 +61,18 @@ await page.waitForSelector("main section button");
 const body = await text(page);
 check("editor shows the page name", (await page.$eval("h1", (h) => h.innerText)) === "Privacy policy");
 check("search is pre-filled with the term", (await page.$eval('main input[placeholder^="Search text"]', (i) => i.value)) === "what we collect");
-check("only matching lines are listed", await page.evaluate(() => [...document.querySelectorAll("main ol textarea")].every((t) => t.value.toLowerCase().includes("what we collect"))));
+const boxes = 'main textarea[aria-label^="All text of the section"]';
+check("only matching sections are listed", await page.evaluate((b) => [...document.querySelectorAll(b)].every((t) => t.value.toLowerCase().includes("what we collect")), boxes));
 
 section("Saved edits are searchable");
-await page.evaluate(() => {
-  const el = [...document.querySelectorAll("main ol textarea")].find((e) => e.value === "What we collect");
-  Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(el, "QA zebra stripes");
+await page.evaluate((b) => {
+  // a section's text is one box, one line per line on the page
+  // texts in a section box are separated by an empty line
+  const el = [...document.querySelectorAll(b)].find((e) => e.value.split(/\n\s*\n/).includes("What we collect"));
+  const lines = el.value.split(/\n\s*\n/).map((l) => (l === "What we collect" ? "QA zebra stripes" : l));
+  Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value").set.call(el, lines.join("\n\n"));
   el.dispatchEvent(new Event("input", { bubbles: true }));
-});
+}, boxes);
 await clickButton("Save changes");
 await waitForText("Checked on the live page");
 await go(page, "/admin", { timeout: 120000 });

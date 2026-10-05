@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronDown, CircleAlert, Layers, Link2, Loader2, RotateCcw, Save, Search, Trash2, Type } from "lucide-react";
+import { ChevronDown, CircleAlert, Link2, ListOrdered, Loader2, RotateCcw, Save, Search, Trash2, Type } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,7 @@ import { toast } from "@/components/admin/toast";
 import { confirmDialog } from "@/components/admin/confirm-dialog";
 import { ImageInput } from "../home/section-editor";
 import { resetAllTextsAction, saveTextsAction, verifyTextsAction, type TextChange } from "./actions";
+import { buildSectionLines, linesText, norm, sectionChanges, type SectionLine } from "./section-text";
 
 export type TextRow = {
   id: string;
@@ -45,60 +46,43 @@ const KINDS: { value: "all" | TextRow["kind"]; label: string }[] = [
   { value: "hint", label: "Input hints (placeholders)" },
 ];
 
-const edge = (o: string) => ({ lead: /^\s*/.exec(o)![0], trail: /\s*$/.exec(o)![0] });
 const isTextKind = (r: TextRow) => r.kind === "text" || r.kind === "alt" || r.kind === "hint";
 
-type Group = { key: string; title: string; region: TextRow["region"]; blocks: { cardId: number; cardTitle: string; rows: TextRow[] }[]; total: number };
+/**
+ * One section of the page: all of its text in one box (one paragraph per text on
+ * the page), plus its images, links, image descriptions and input hints,
+ * which are edited one by one below the box.
+ */
+type Group = { key: string; title: string; textRows: TextRow[]; lines: SectionLine[]; base: string; others: TextRow[] };
 
-/** Rows grouped by section (in page order), then by card inside the section. */
 function groupRows(rows: TextRow[]): Group[] {
   const groups: Group[] = [];
   for (const r of rows) {
     let g = groups.find((x) => x.key === r.sectionKey);
     if (!g) {
-      g = { key: r.sectionKey, title: r.sectionTitle, region: r.region, blocks: [], total: 0 };
+      g = { key: r.sectionKey, title: r.sectionTitle, textRows: [], lines: [], base: "", others: [] };
       groups.push(g);
     }
-    g.total++;
-    const last = g.blocks[g.blocks.length - 1];
-    if (last && last.cardId === r.cardId) last.rows.push(r);
-    else g.blocks.push({ cardId: r.cardId, cardTitle: r.cardTitle, rows: [r] });
+    (r.kind === "text" ? g.textRows : g.others).push(r);
+  }
+  for (const g of groups) {
+    g.lines = buildSectionLines(g.textRows);
+    g.base = linesText(g.lines);
   }
   return groups;
-}
-
-/**
- * Some lines are written in pieces (a styled word inside a sentence), and each
- * piece is edited on its own. This shows the whole sentence with the piece
- * being edited highlighted, so nothing reads as cut off.
- */
-function SentenceContext({ context, piece }: { context: string; piece: string }) {
-  const own = piece.replace(/\s+/g, " ").trim();
-  const at = context.indexOf(own);
-  return (
-    <p className="mt-2 rounded-lg border border-dashed border-uk-line bg-uk-surface-2 px-3 py-2 text-xs leading-relaxed text-uk-muted">
-      <span className="font-semibold text-uk-heading">Full sentence on the page: </span>
-      {at >= 0 ? (
-        <>
-          {context.slice(0, at)}
-          <mark className="rounded bg-uk-blue/15 px-0.5 font-semibold text-uk-heading">{own}</mark>
-          {context.slice(at + own.length)}
-        </>
-      ) : (
-        context
-      )}
-    </p>
-  );
 }
 
 /** All text, button labels, links and images of one page, by section. */
 export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; rows: TextRow[]; initialQuery?: string }) {
   const router = useRouter();
-  const baseline = useMemo(
-    () => Object.fromEntries(rows.map((r) => [r.id, isTextKind(r) ? r.current.trim() : r.current])),
-    [rows]
-  );
-  const [values, setValues] = useState<Record<string, string>>(baseline);
+  const groups = useMemo(() => groupRows(rows), [rows]);
+
+  // Section boxes being edited (key → box text); a section not in here shows its saved text.
+  const [boxes, setBoxes] = useState<Record<string, string>>({});
+  // Sections to put back to their original text on save.
+  const [restore, setRestore] = useState<Set<string>>(new Set());
+  // Images, links, image descriptions and hints, edited one by one.
+  const [values, setValues] = useState<Record<string, string>>({});
   const [revert, setRevert] = useState<Set<string>>(new Set());
   const [q, setQ] = useState(initialQuery);
   const [kind, setKind] = useState<"all" | TextRow["kind"]>("all");
@@ -106,22 +90,69 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
   const [notApplied, setNotApplied] = useState<string[]>([]);
   const [closed, setClosed] = useState<Set<string>>(new Set());
 
-  const changed = rows.filter((r) => values[r.id] !== baseline[r.id] || revert.has(r.id));
-  const searching = q.trim() !== "";
+  const boxText = (g: Group) => boxes[g.key] ?? g.base;
+  const boxDirty = (g: Group) => (boxes[g.key] !== undefined && norm(boxes[g.key]) !== norm(g.base)) || restore.has(g.key);
+  const rowValue = (r: TextRow) => values[r.id] ?? (isTextKind(r) ? r.current.trim() : r.current);
+  const rowDirty = (r: TextRow) => (values[r.id] !== undefined && values[r.id] !== (isTextKind(r) ? r.current.trim() : r.current)) || revert.has(r.id);
 
-  const shown = rows.filter((r) => {
-    if (kind !== "all" && r.kind !== kind) return false;
-    if (searching && !`${r.current} ${r.original}`.toLowerCase().includes(q.trim().toLowerCase())) return false;
-    return true;
-  });
-  const groups = useMemo(() => groupRows(shown), [shown]);
+  const dirtyGroups = groups.filter(boxDirty);
+  const dirtyRows = groups.flatMap((g) => g.others).filter(rowDirty);
+  const unsavedCount = dirtyGroups.length + dirtyRows.length;
+  const searching = q.trim() !== "";
+  const needle = q.trim().toLowerCase();
+
+  // What is shown: the box when text is included in the filter, and the rows of the chosen kind.
+  const showBox = kind === "all" || kind === "text";
+  const visible = groups
+    .map((g) => {
+      const others = g.others.filter((r) => (kind === "all" || r.kind === kind) && (!searching || `${r.current} ${r.original}`.toLowerCase().includes(needle)));
+      const box = showBox && g.lines.length > 0 && (!searching || boxText(g).toLowerCase().includes(needle));
+      return { g, others, box };
+    })
+    .filter((x) => x.box || x.others.length);
+
+  function collectChanges(): TextChange[] | null {
+    const out: TextChange[] = [];
+    for (const g of dirtyGroups) {
+      if (restore.has(g.key)) {
+        for (const r of g.textRows) if (r.edited || r.stuckOverride !== undefined) out.push({ kind: "text", o: r.original, r: null });
+        continue;
+      }
+      const res = sectionChanges(g.lines, boxText(g));
+      if ("error" in res) {
+        toast.error(`${g.title}: ${res.error}`);
+        setClosed((p) => { const n = new Set(p); n.delete(g.key); return n; });
+        return null;
+      }
+      for (const e of res.edits) {
+        const row = e.row as TextRow;
+        out.push({ kind: "text", o: row.original, r: norm(e.typed) === norm(row.original) && e.typed !== "" ? null : e.typed });
+      }
+    }
+    for (const r of dirtyRows) {
+      const typed = isTextKind(r)
+        ? (() => { const lead = /^\s*/.exec(r.original)![0]; const trail = /\s*$/.exec(r.original)![0]; return lead + rowValue(r).trim() + trail; })()
+        : rowValue(r).trim();
+      out.push({ kind: r.kind, o: r.original, r: revert.has(r.id) || typed === r.original ? null : typed });
+    }
+    // One change per text, however many sections list it (the first one wins).
+    const seen = new Set<string>();
+    return out.filter((c) => {
+      const key = `${c.kind}\u0000${c.o}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
 
   function save() {
-    const changes: TextChange[] = changed.map((r) => {
-      const typed = isTextKind(r) ? (() => { const { lead, trail } = edge(r.original); return lead + values[r.id].trim() + trail; })() : values[r.id].trim();
-      const back = revert.has(r.id) || typed === r.original;
-      return { kind: r.kind, o: r.original, r: back ? null : typed };
-    });
+    const changes = collectChanges();
+    if (!changes) return;
+    if (!changes.length) {
+      setBoxes({});
+      setRestore(new Set());
+      return;
+    }
     start(async () => {
       const saved = await saveTextsAction(path, changes);
       if (saved.status !== "saved") {
@@ -132,70 +163,100 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
       const res = await verifyTextsAction(path, changes);
       setNotApplied(res.notApplied ?? []);
       (res.notApplied?.length ? toast.error : toast.success)(res.message ?? saved.message ?? "Saved.");
+      setBoxes({});
+      setRestore(new Set());
+      setValues({});
       setRevert(new Set());
-      if (!res.notApplied?.length) router.refresh();
+      router.refresh();
     });
   }
 
-  /** Rows in page order; the pieces of one sentence are gathered into a single card. */
-  function renderRows(list: TextRow[]) {
-    const out: React.ReactNode[] = [];
-    for (let i = 0; i < list.length; ) {
-      const r = list[i];
-      let j = i + 1;
-      if (r.kind === "text" && r.blockId) while (j < list.length && list[j].kind === "text" && list[j].blockId === r.blockId) j++;
-      const parts = list.slice(i, j);
-      if (parts.length > 1) out.push(renderSentence(parts));
-      else out.push(renderRow(r));
-      i = j;
-    }
-    return out;
-  }
-
-  /** One sentence made of several pieces: the whole sentence (updating as you type) and a text box per piece. */
-  function renderSentence(parts: TextRow[]) {
-    // Rebuild the sentence from what is typed in each box.
-    let sentence = parts[0].context;
-    let from = 0;
-    for (const p of parts) {
-      const own = p.original.replace(/\s+/g, " ").trim();
-      const at = sentence.indexOf(own, from);
-      if (at < 0) continue;
-      const now = (values[p.id] ?? "").replace(/\s+/g, " ").trim();
-      sentence = sentence.slice(0, at) + now + sentence.slice(at + own.length);
-      from = at + now.length;
-    }
-    const anyChanged = parts.some((p) => changed.includes(p));
+  function renderBox(g: Group) {
+    const text = boxText(g);
+    const dirty = boxDirty(g);
+    const problem = dirty && !restore.has(g.key) ? sectionChanges(g.lines, text) : null;
+    const error = problem && "error" in problem ? problem.error : "";
+    const edited = g.textRows.some((r) => r.edited || r.stuckOverride !== undefined);
+    // each text plus the empty line after it
+    const rowsTall = g.lines.reduce((n, l) => n + Math.max(1, Math.ceil(l.text.length / 95)) + 1, 0);
     return (
-      <li key={`s-${parts[0].id}`} className={cn("rounded-xl border bg-uk-card p-3.5", anyChanged ? "border-amber-500/50" : "border-uk-line")}>
+      <div className={cn("rounded-xl border bg-uk-card p-3.5", dirty ? "border-amber-500/50" : "border-uk-line")}>
         <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
           <span className="inline-flex items-center gap-1 rounded-full bg-uk-blue/10 px-2 py-0.5 text-uk-blue">
-            <Type className="h-3 w-3" />
-            {parts[0].role}
+            <Type className="h-3 w-3" /> One section · 1 editable part
           </span>
-          <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-uk-muted">One sentence · {parts.length} editable parts</span>
-          {anyChanged && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-300">Unsaved</span>}
+          <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-uk-muted">
+            {g.lines.length} text{g.lines.length === 1 ? "" : "s"}
+          </span>
+          {edited && <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-emerald-700 dark:text-emerald-300">Edited</span>}
+          {restore.has(g.key) && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-300">Original text on save</span>}
+          {dirty && !restore.has(g.key) && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-300">Unsaved</span>}
         </div>
-        <p className="rounded-lg bg-uk-surface-2 px-3 py-2.5 text-sm leading-relaxed text-uk-heading">{sentence}</p>
-        <p className="mt-2 text-xs text-uk-muted">
-          This sentence is written in parts (some words are styled or come from another section). Edit each part below; the sentence above updates as you type. Words that have no box here, such as a service name, are edited in their own section.
-        </p>
-        <ol className="mt-3 space-y-3">{parts.map((p, n) => renderRow(p, `Part ${n + 1} of ${parts.length}`))}</ol>
-      </li>
+        <Textarea
+          value={text}
+          aria-label={`All text of the section “${g.title}”, one text per paragraph, separated by empty lines`}
+          rows={Math.min(60, Math.max(3, rowsTall))}
+          disabled={restore.has(g.key)}
+          onChange={(e) => setBoxes((p) => ({ ...p, [g.key]: e.target.value }))}
+          className="font-[inherit] leading-relaxed"
+        />
+        {error ? (
+          <p role="alert" className="mt-2 flex items-start gap-1.5 text-xs font-medium text-destructive">
+            <CircleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" /> {error}
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-uk-muted">
+            Each paragraph is one text of this section on the page (heading, text, button…), with an empty line between texts. Change the words; keep the empty lines and the number of texts.
+          </p>
+        )}
+        <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+          <details className="min-w-0 flex-1 text-uk-muted">
+            <summary className="inline-flex cursor-pointer items-center gap-1 font-semibold text-uk-blue hover:text-uk-blue-bright">
+              <ListOrdered className="h-3.5 w-3.5" /> What each text is
+            </summary>
+            <ol className="mt-2 space-y-1 rounded-lg bg-uk-surface-2 p-3">
+              {g.lines.map((l, i) => (
+                <li key={i} className="flex gap-2">
+                  <span className="w-6 shrink-0 text-right font-semibold text-uk-heading">{i + 1}</span>
+                  <span className="shrink-0 font-semibold text-uk-blue">{l.role}</span>
+                  <span className="min-w-0 truncate">{l.text}</span>
+                </li>
+              ))}
+            </ol>
+          </details>
+          {(dirty || edited) && (
+            <button
+              type="button"
+              onClick={() => {
+                if (dirty) {
+                  setBoxes((p) => { const n = { ...p }; delete n[g.key]; return n; });
+                  setRestore((p) => { const n = new Set(p); n.delete(g.key); return n; });
+                } else setRestore((p) => new Set(p).add(g.key));
+              }}
+              className="inline-flex items-center gap-1 font-semibold text-uk-blue hover:text-uk-blue-bright"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> {dirty ? "Undo my changes" : "Restore this section's original text"}
+            </button>
+          )}
+        </div>
+      </div>
     );
   }
 
-  function renderRow(r: TextRow, partLabel?: string) {
-    const value = values[r.id] ?? "";
-    const isChanged = changed.includes(r);
+  /** An image, link, image description or input hint, edited on its own. */
+  function renderRow(r: TextRow) {
+    const value = rowValue(r);
+    const isChanged = rowDirty(r);
+    const set = (v: string) => setValues((p) => ({ ...p, [r.id]: v }));
     const Icon = r.kind === "link" ? Link2 : Type;
     return (
       <li key={r.id} className={cn("rounded-xl border bg-uk-card p-3.5", isChanged ? "border-amber-500/50" : "border-uk-line")}>
         <div className="mb-2 flex flex-wrap items-center gap-2 text-[11px] font-semibold">
           <span className="inline-flex items-center gap-1 rounded-full bg-uk-blue/10 px-2 py-0.5 text-uk-blue">
             {r.kind !== "image" && <Icon className="h-3 w-3" />}
-            {partLabel ?? r.role}
+            {r.role}
           </span>
+          {r.cardTitle && <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-uk-muted">{r.cardTitle}</span>}
           {r.count > 1 && <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-uk-muted">shown {r.count}× on this page</span>}
           {r.edited && <span className="rounded-full bg-emerald-500/12 px-2 py-0.5 text-emerald-700 dark:text-emerald-300">Edited</span>}
           {isChanged && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-amber-700 dark:text-amber-300">Unsaved</span>}
@@ -206,21 +267,14 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
             id={`t-${r.id}`}
             label="Image"
             value={value}
-            onChange={(v) => setValues((p) => ({ ...p, [r.id]: v }))}
+            onChange={set}
             hint="Upload a new image or paste a /media/… path. Use “Revert” to go back to the original."
           />
         ) : r.kind === "link" ? (
-          <Input value={value} aria-label="Link address" onChange={(e) => setValues((p) => ({ ...p, [r.id]: e.target.value }))} className="h-10 font-mono text-xs" />
+          <Input value={value} aria-label="Link address" onChange={(e) => set(e.target.value)} className="h-10 font-mono text-xs" />
         ) : (
-          <Textarea
-            value={value}
-            aria-label={`${r.role} text`}
-            rows={Math.min(16, Math.max(1, Math.ceil(value.length / 80), value.split("\n").length))}
-            onChange={(e) => setValues((p) => ({ ...p, [r.id]: e.target.value }))}
-          />
+          <Textarea value={value} aria-label={`${r.role} text`} rows={Math.min(8, Math.max(1, Math.ceil(value.length / 80)))} onChange={(e) => set(e.target.value)} />
         )}
-
-        {!partLabel && r.kind === "text" && r.context && <SentenceContext context={r.context} piece={r.original} />}
 
         {(r.edited || r.stuckOverride !== undefined) && (
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-uk-muted">
@@ -233,7 +287,7 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
             <button
               type="button"
               onClick={() => {
-                setValues((p) => ({ ...p, [r.id]: isTextKind(r) ? r.original.trim() : r.original }));
+                set(isTextKind(r) ? r.original.trim() : r.original);
                 setRevert((p) => new Set(p).add(r.id));
               }}
               className="inline-flex items-center gap-1 font-semibold text-uk-blue hover:text-uk-blue-bright"
@@ -277,17 +331,18 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
           <ul className="mt-1 list-disc pl-6 text-xs">
             {notApplied.map((n) => <li key={n}>{n.length > 120 ? `${n.slice(0, 120)}…` : n}</li>)}
           </ul>
-          <p className="mt-1 text-xs">That text is built into an interactive part of the page (a form or widget). Use “Remove saved edit” to clear them.</p>
+          <p className="mt-1 text-xs">That text is built into an interactive part of the page (a form or widget). Restore it from its section to clear the saved edit.</p>
         </div>
       )}
 
-      {groups.length === 0 ? (
+      {visible.length === 0 ? (
         <p className="rounded-2xl border border-uk-line bg-uk-card p-10 text-center text-sm text-uk-muted">Nothing matches.</p>
       ) : (
         <div className="space-y-4">
-          {groups.map((g, gi) => {
+          {visible.map(({ g, others, box }) => {
+            const gi = groups.indexOf(g);
             const open = searching || !closed.has(g.key);
-            const unsaved = g.blocks.flatMap((b) => b.rows).filter((r) => changed.includes(r)).length;
+            const unsaved = (boxDirty(g) ? 1 : 0) + others.filter(rowDirty).length;
             return (
               <section key={g.key} className="overflow-hidden rounded-2xl border border-uk-line bg-uk-surface">
                 <button
@@ -302,27 +357,17 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
                   <span className="min-w-0 flex-1">
                     <span className="block break-words font-heading text-base font-semibold text-uk-heading">{g.title}</span>
                     <span className="block text-xs text-uk-muted">
-                      {g.region === "Page" ? "Section" : g.region} · {g.total} item{g.total === 1 ? "" : "s"}
-                      {g.blocks.some((b) => b.cardId) && ` · ${new Set(g.blocks.filter((b) => b.cardId).map((b) => b.cardId)).size} cards`}
+                      Section · {g.lines.length} text{g.lines.length === 1 ? "" : "s"}
+                      {g.others.length > 0 && ` · ${g.others.length} image${g.others.length === 1 ? "" : "s"}, link${g.others.length === 1 ? "" : "s"} or hint${g.others.length === 1 ? "" : "s"}`}
                     </span>
                   </span>
-                  {unsaved > 0 && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">{unsaved} unsaved</span>}
+                  {unsaved > 0 && <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300">Unsaved</span>}
                   <ChevronDown className={cn("h-4 w-4 shrink-0 text-uk-muted transition-transform", open && "rotate-180")} />
                 </button>
                 {open && (
                   <div className="space-y-4 border-t border-uk-line p-4 sm:p-5">
-                    {g.blocks.map((b, bi) =>
-                      b.cardId ? (
-                        <div key={`${b.cardId}-${bi}`} className="rounded-2xl border border-uk-blue/25 bg-uk-blue/[0.04] p-3.5">
-                          <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-uk-blue">
-                            <Layers className="h-3.5 w-3.5" /> Card · <span className="normal-case tracking-normal text-uk-heading">{b.cardTitle}</span>
-                          </p>
-                          <ol className="space-y-3">{renderRows(b.rows)}</ol>
-                        </div>
-                      ) : (
-                        <ol key={`loose-${bi}`} className="space-y-3">{renderRows(b.rows)}</ol>
-                      )
-                    )}
+                    {box && renderBox(g)}
+                    {others.length > 0 && <ol className="space-y-3">{others.map(renderRow)}</ol>}
                   </div>
                 )}
               </section>
@@ -333,12 +378,12 @@ export function TextsEditor({ path, rows, initialQuery = "" }: { path: string; r
 
       <div className="sticky bottom-0 -mx-4 flex flex-wrap items-center justify-between gap-3 border-t border-uk-line bg-uk-card/95 px-4 py-4 backdrop-blur sm:-mx-6 sm:px-6">
         <p className="text-xs text-uk-muted">
-          {changed.length ? <span className="font-medium text-amber-600 dark:text-amber-400">{changed.length} unsaved change{changed.length === 1 ? "" : "s"}</span> : "No changes yet."}{" "}
+          {unsavedCount ? <span className="font-medium text-amber-600 dark:text-amber-400">{unsavedCount} unsaved change{unsavedCount === 1 ? "" : "s"}</span> : "No changes yet."}{" "}
           Edits apply to every place that shows exactly the same text.
         </p>
         <button
           type="button"
-          disabled={pending || changed.length === 0}
+          disabled={pending || unsavedCount === 0}
           onClick={save}
           className="btn-sheen inline-flex h-10 items-center gap-2 rounded-lg bg-uk-blue px-5 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright disabled:opacity-60"
         >

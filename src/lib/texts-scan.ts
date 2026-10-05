@@ -96,6 +96,11 @@ export function scanHtml(html: string): ScanItem[] {
   // Section / card markers, parallel to the tag stack.
   const stack: string[] = [];
   const meta: ({ sec?: number; card?: number } | null)[] = [];
+  // Whether each open element hides its contents from the scan (script, style, data-scan-skip…).
+  const skips: boolean[] = [];
+  // Cards named in the markup (data-scan-card) and cards listed after the rest of their section (data-scan-late).
+  const namedCard = new Map<number, string>();
+  const lateCard = new Set<number>();
   let secCount = 0;
   let cardCount = 0;
   const here = () => {
@@ -141,9 +146,10 @@ export function scanHtml(html: string): ScanItem[] {
       if (closing) {
         const at = stack.lastIndexOf(name);
         if (at >= 0) {
-          for (let i = stack.length - 1; i >= at; i--) if (SKIP.has(stack[i])) skipDepth--;
+          for (let i = stack.length - 1; i >= at; i--) if (skips[i]) skipDepth--;
           if (wholeAt && at < wholeAt) wholeAt = 0;
           stack.length = at;
+          skips.length = at;
           meta.length = at;
           blockStack.length = at;
         }
@@ -170,13 +176,21 @@ export function scanHtml(html: string): ScanItem[] {
       if (VOID.has(name) || /\/\s*$/.test(attrs)) continue;
       let mark: { sec?: number; card?: number } | null = null;
       if (region === "Page" && skipDepth === 0) {
+        const scanCard = attr(attrs, "data-scan-card");
         if (name === "section") mark = { sec: ++secCount };
-        else if (name === "article" || isCardClass(attr(attrs, "class") ?? "")) mark = { card: ++cardCount };
+        else if (scanCard !== undefined) {
+          mark = { card: ++cardCount };
+          if (scanCard) namedCard.set(cardCount, scanCard);
+          if (attr(attrs, "data-scan-late") !== undefined) lateCard.add(cardCount);
+        } else if (name === "article" || isCardClass(attr(attrs, "class") ?? "")) mark = { card: ++cardCount };
       }
       meta.push(mark);
       stack.push(name);
       blockStack.push(INLINE.has(name) ? curBlock() : ++blockCount);
-      if (SKIP.has(name)) skipDepth++;
+      // data-scan-skip: a second copy of something listed elsewhere (e.g. the tablet-size hero artwork)
+      const skipHere = SKIP.has(name) || attr(attrs, "data-scan-skip") !== undefined;
+      skips.push(skipHere);
+      if (skipHere) skipDepth++;
       continue;
     }
     if (skipDepth > 0 || wholeAt) continue;
@@ -204,25 +218,46 @@ export function scanHtml(html: string): ScanItem[] {
     // Pieces are joined with a space; none belongs before punctuation.
     sentenceOf.set(blk, whole.replace(/\s+([,.;:!?%)])/g, "$1"));
   }
-  // Repeats of the same text are merged — except inside a sentence, where every
-  // piece stays in its place so the whole sentence can be read and edited in one card.
+  // Repeats of the same text inside one section (and card) are merged; the same
+  // text in another section, or in the header, is listed there too, so every
+  // section shows all of its own text (a page title that is also a menu item
+  // stays in the hero). Inside a sentence every piece stays in its place so the
+  // whole sentence can be read and edited in one card. `count` is page-wide.
+  const onPage = new Map<string, number>();
+  for (const o of occ) onPage.set(`${o.kind}\u0000${o.value}`, (onPage.get(`${o.kind}\u0000${o.value}`) ?? 0) + 1);
   for (const o of occ) {
     const ctx = o.kind === "text" ? sentenceOf.get(o.block) : undefined;
-    const key = ctx ? `${o.kind}\u0000${o.value}\u0000${o.block}` : `${o.kind}\u0000${o.value}`;
+    const key = ctx
+      ? `${o.kind}\u0000${o.value}\u0000b${o.block}`
+      : `${o.kind}\u0000${o.value}\u0000${o.region}\u0000${o.sec}\u0000${o.card}`;
     const hit = items.get(key);
     if (hit) {
-      hit.count++;
+      // e.g. a page title that is also the last breadcrumb: list it as the heading it is
+      if (o.role === "Heading") hit.role = "Heading";
       continue;
     }
     items.set(key, {
-      kind: o.kind, region: o.region, role: o.role, value: o.value, count: 1,
+      kind: o.kind, region: o.region, role: o.role, value: o.value, count: onPage.get(`${o.kind}\u0000${o.value}`) ?? 1,
       sectionId: o.sec, sectionTitle: "", cardId: o.card, cardTitle: "",
       context: ctx ?? "", blockId: ctx ? o.block : 0,
     });
   }
 
+  // Page order, except cards marked data-scan-late, which go to the end of their section.
+  const firstAt = new Map<number, number>();
+  const list = [...items.values()]
+    .map((i, at) => {
+      if (!firstAt.has(i.sectionId)) firstAt.set(i.sectionId, at);
+      return { i, at };
+    })
+    .sort((a, b) =>
+      (firstAt.get(a.i.sectionId)! - firstAt.get(b.i.sectionId)!) ||
+      (Number(lateCard.has(a.i.cardId)) - Number(lateCard.has(b.i.cardId))) ||
+      a.at - b.at
+    )
+    .map((x) => x.i);
+
   // Titles: the first heading (else the first text) of each section and card.
-  const list = [...items.values()];
   const firstTitle = (pick: (i: ScanItem) => boolean) => {
     const texts = list.filter((i) => pick(i) && i.kind === "text");
     const real = (v: string) => /[\p{L}]{3,}/u.test(v);
@@ -244,7 +279,7 @@ export function scanHtml(html: string): ScanItem[] {
       i.region === "Header" ? "Header (menu bar)"
       : i.region === "Footer" ? "Footer"
       : i.sectionId ? secTitle.get(i.sectionId) || `Section ${i.sectionId}` : "Top of the page";
-    i.cardTitle = i.cardId ? cardTitle.get(i.cardId) || `Card ${i.cardId}` : "";
+    i.cardTitle = i.cardId ? namedCard.get(i.cardId) || cardTitle.get(i.cardId) || `Card ${i.cardId}` : "";
   }
   return list;
 }
