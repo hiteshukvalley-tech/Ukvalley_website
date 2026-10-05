@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { withSharePreview } from "@/lib/page-metadata";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/site/header";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/s/[slug]">): Prom
   return withSharePreview({
     title,
     description: page.heroDescription || undefined,
-    alternates: { canonical: `https://ukvalley.com/s/${slug}` },
+    alternates: { canonical: `${SITE_URL}/s/${slug}` },
   });
 }
 

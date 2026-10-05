@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowUpRight, Target, Check, Gauge } from "lucide-react";
@@ -24,7 +25,7 @@ const baseMetadata: Metadata = {
   title: "Products — our own IP in production",
   description:
     "TeleValley, Script Magix, Mediline Website, HR Agency Management System and Emailz.ca — software products Ukvalley built and runs in production. Proof most service firms can't offer.",
-  alternates: { canonical: "https://ukvalley.com/products" },
+  alternates: { canonical: `${SITE_URL}/products` },
 };
 
 export default async function ProductsPage() {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import {
   Cloud, Activity, ShieldCheck, Wrench, ArrowRight, Clock,
@@ -25,7 +26,7 @@ const baseMetadata: Metadata = {
   title: "Support & maintenance — a 24-hour SLA, stated in writing",
   description:
     "Ukvalley's support and maintenance plans: 24-hour response SLA, 24×7 monitoring, patching, backups with tested restores and monthly health reports for the systems we build — and ones we didn't.",
-  alternates: { canonical: "https://ukvalley.com/support-maintenance" },
+  alternates: { canonical: `${SITE_URL}/support-maintenance` },
 };
 
 const plans = [

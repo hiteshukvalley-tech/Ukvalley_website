@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ChevronRight, Target, Check, Gauge } from "lucide-react";
@@ -23,7 +24,7 @@ const baseMetadata: Metadata = {
   title: "FAQ — honest answers about working with Ukvalley",
   description:
     "Straight answers on IP and code ownership, pricing, timelines, response SLAs, vendor takeovers and technology choices — the questions buyers actually ask before signing.",
-  alternates: { canonical: "https://ukvalley.com/faq" },
+  alternates: { canonical: `${SITE_URL}/faq` },
 };
 
 type FaqGroup = { label: string; items: { q: string; a: string }[] };

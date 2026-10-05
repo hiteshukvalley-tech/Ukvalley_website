@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { ArrowRight, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -26,7 +27,7 @@ const baseMetadata: Metadata = {
   title: "How we work — our software delivery process",
   description:
     "From a free scoping call to a thin-slice prototype in week three, two-week build sprints with weekly demos, to launch and ongoing support with a 24-hour SLA.",
-  alternates: { canonical: "https://ukvalley.com/process" },
+  alternates: { canonical: `${SITE_URL}/process` },
 };
 
 export default async function ProcessPage() {

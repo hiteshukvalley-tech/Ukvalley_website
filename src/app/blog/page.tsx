@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Clock, Target, Check, Gauge } from "lucide-react";
@@ -22,7 +23,7 @@ const baseMetadata: Metadata = {
   title: "Insights — software, CRM & ERP buyer's guides",
   description:
     "Plain-English guides for Indian SMEs choosing CRM vs ERP, and how to ship real software in weeks — not months. Written by the engineers who build it.",
-  alternates: { canonical: "https://ukvalley.com/blog" },
+  alternates: { canonical: `${SITE_URL}/blog` },
 };
 
 export default async function BlogPage() {

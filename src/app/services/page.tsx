@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -44,7 +45,7 @@ const baseMetadata: Metadata = {
   title: "Services — web, mobile, CRM, ERP, cloud & cybersecurity",
   description:
     "Service lines under one accountable team: web & mobile apps, custom CRM/ERP/HRMS, cloud & DevOps, digital marketing, managed IT, blockchain and brand design.",
-  alternates: { canonical: "https://ukvalley.com/services" },
+  alternates: { canonical: `${SITE_URL}/services` },
 };
 
 export default async function ServicesPage() {

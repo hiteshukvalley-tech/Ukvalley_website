@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -45,7 +46,7 @@ const baseMetadata: Metadata = {
   title: "Tech stack — the platforms we build on",
   description:
     "React, Next.js, Angular, Vue, Flutter, Kotlin, Node, Laravel, Django, Python, PHP, Java, MongoDB and PostgreSQL on AWS and Azure. We pick the stack that fits your team — not ours.",
-  alternates: { canonical: "https://ukvalley.com/tech-stack" },
+  alternates: { canonical: `${SITE_URL}/tech-stack` },
 };
 
 export default async function TechStackPage() {

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
@@ -46,7 +47,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return withSharePreview({
     title: `${l.city} — software development ${l.type === "Presence" ? "presence" : "office & delivery"}`,
     description: l.blurb,
-    alternates: { canonical: `https://ukvalley.com/locations/${l.slug}` },
+    alternates: { canonical: `${SITE_URL}/locations/${l.slug}` },
   });
 }
 

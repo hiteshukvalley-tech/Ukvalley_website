@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return withSharePreview({
     title: `${c.title} — ${c.sector} case study`,
     description: c.result,
-    alternates: { canonical: `https://ukvalley.com/case-studies/${c.slug}` },
+    alternates: { canonical: `${SITE_URL}/case-studies/${c.slug}` },
     openGraph: {
       type: "article",
       title: c.title,
@@ -67,7 +68,7 @@ export default async function CaseStudyPage({ params }: Props) {
     publisher: {
       "@type": "Organization",
       name: "Ukvalley Technologies",
-      url: "https://ukvalley.com",
+      url: `${SITE_URL}`,
     },
   };
 

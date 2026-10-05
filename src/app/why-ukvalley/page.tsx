@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { Check, X, ArrowRight, ShieldCheck, Clock, Rocket, Users, Target, Gauge } from "lucide-react";
@@ -25,7 +26,7 @@ const baseMetadata: Metadata = {
   title: "Why Ukvalley — code you own, SLA in writing, engineers who scope it",
   description:
     "What makes Ukvalley different from typical agencies: code ownership from day one, a 24-hour response SLA in every contract, thin-slice delivery by week three and product-grade engineering discipline.",
-  alternates: { canonical: "https://ukvalley.com/why-ukvalley" },
+  alternates: { canonical: `${SITE_URL}/why-ukvalley` },
 };
 
 const contrasts = [

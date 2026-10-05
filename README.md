@@ -41,10 +41,20 @@ service that runs `npm ci && npm run build`, then `npm start`.
    `/admin/login`, sign in as the owner and check *Admin → Dashboard* shows
    "Database: Connected". If the database is new, run
    *Admin → Migration → Import all* once.
-6. **Domain:** add `ukvalley.com` and `www.ukvalley.com` under the service's
-   **Settings → Custom Domains** and create the DNS records Render shows. The
-   site's canonical URLs, sitemap and Open Graph tags already use
-   `https://ukvalley.com`.
+6. **Domain:** the website and the admin panel both run on
+   `https://uat.ukvalley.com` (set in `render.yaml`):
+
+   | Variable | Value | Serves |
+   |---|---|---|
+   | `NEXT_PUBLIC_SITE_URL` | `https://uat.ukvalley.com` | the public website (canonical URLs, sitemap, SEO, share previews) |
+   | `NEXT_PUBLIC_API_URL` | `https://uat.ukvalley.com` | the admin panel and server routes (`/admin`, `/media`, `/careers/apply`) |
+
+   Add `uat.ukvalley.com` under the service's **Settings → Custom Domains** and
+   create the DNS record Render shows (a CNAME for `uat`). The admin panel is at
+   `https://uat.ukvalley.com/admin`. If the two values are ever set to different
+   domains, `/admin` on the website is redirected to the backend and public
+   pages opened on the backend go to the website. The values are read at build
+   time: after changing them, redeploy.
 
 ### Platform notes
 

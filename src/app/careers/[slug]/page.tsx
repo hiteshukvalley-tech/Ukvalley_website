@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
@@ -36,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return withSharePreview({
     title: `${c.role} — Careers`,
     description: c.summary,
-    alternates: { canonical: `https://ukvalley.com/careers/${c.slug}` },
+    alternates: { canonical: `${SITE_URL}/careers/${c.slug}` },
   });
 }
 
@@ -80,7 +81,7 @@ export default async function CareerPage({ params }: Props) {
     description: [c.summary, ...c.responsibilities, ...c.requirements].join(" "),
     datePosted: c.postedAt,
     employmentType: c.type.toUpperCase().replace(/[\s-]+/g, "_"),
-    hiringOrganization: { "@type": "Organization", name: settings.name, sameAs: "https://ukvalley.com" },
+    hiringOrganization: { "@type": "Organization", name: settings.name, sameAs: `${SITE_URL}` },
     directApply: true,
     ...(c.experienceMin > 0
       ? { experienceRequirements: { "@type": "OccupationalExperienceRequirements", monthsOfExperience: c.experienceMin * 12 } }

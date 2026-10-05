@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Target, ShieldCheck, Check } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -24,7 +25,7 @@ const baseMetadata: Metadata = {
   title: "Industries — fourteen sectors, production-proven software",
   description:
     "From NBFC lending to agri supply chains: the fourteen verticals where Ukvalley runs live systems today — each with measured outcomes and the case study to back it.",
-  alternates: { canonical: "https://ukvalley.com/industries" },
+  alternates: { canonical: `${SITE_URL}/industries` },
 };
 
 export default async function IndustriesPage() {

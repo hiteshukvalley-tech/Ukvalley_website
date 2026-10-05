@@ -1,12 +1,34 @@
-// Which host names this server will trust from a request's Host /
-// X-Forwarded-Host header. Those headers are set by the client, so anything
-// built from them (links in emails, the admin's own-page fetches) must only use
-// a host that is really this site — never an address an attacker chose.
+// The site's two public addresses, and which host names this server will
+// trust from a request's Host / X-Forwarded-Host header. Those headers are set
+// by the client, so anything built from them (links in emails, the admin's
+// own-page fetches) must only use a host that is really this site — never an
+// address an attacker chose.
+//
+// One Next.js app serves both:
+//   SITE_URL  (frontend) — the public website: canonical links, sitemap, SEO, share previews
+//   API_URL   (backend)  — the admin panel and server routes (/admin, /media, /careers/apply)
+// Both are https://uat.ukvalley.com. Set NEXT_PUBLIC_SITE_URL / NEXT_PUBLIC_API_URL
+// to change them (read at build time). If they ever differ, src/proxy.ts sends
+// /admin to the backend address and public pages to the frontend address.
 
-/** The public site address; override with SITE_URL (e.g. a staging domain). */
-export const SITE_ORIGIN = (process.env.SITE_URL || "https://ukvalley.com").replace(/\/+$/, "");
+const clean = (u: string) => u.trim().replace(/\/+$/, "");
 
-const PUBLIC_HOST = /^(?:www\.)?ukvalley\.com$|\.onrender\.com$/i;
+/** The public website: https://uat.ukvalley.com */
+export const SITE_URL = clean(process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://uat.ukvalley.com");
+/** The backend (admin panel and server routes); the same address as the website unless set. */
+export const API_URL = clean(process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || SITE_URL);
+
+const hostOf = (u: string) => {
+  try {
+    return new URL(u).hostname.toLowerCase();
+  } catch {
+    return "";
+  }
+};
+export const SITE_HOST = hostOf(SITE_URL);
+export const API_HOST = hostOf(API_URL);
+
+const PUBLIC_HOST = /^(?:[a-z0-9-]+\.)?ukvalley\.com$|\.onrender\.com$/i;
 const LOCAL_HOST = /^(?:localhost|127\.0\.0\.1|\[::1\])$/i;
 
 function isTrustedHost(host: string): boolean {
@@ -15,10 +37,8 @@ function isTrustedHost(host: string): boolean {
   const [, name, port] = m;
   // `next dev` on the local network (npm run dev:mobile opens it at 192.168.x.x).
   if (process.env.NODE_ENV === "development") return true;
-  if (PUBLIC_HOST.test(name)) return true;
-  try {
-    if (name.toLowerCase() === new URL(SITE_ORIGIN).hostname.toLowerCase()) return true;
-  } catch {}
+  const lower = name.toLowerCase();
+  if (PUBLIC_HOST.test(lower) || lower === SITE_HOST || lower === API_HOST) return true;
   // This machine: only the port the server itself listens on (when known), so
   // a forged "localhost:6379" can't reach other local services.
   return LOCAL_HOST.test(name) && (!process.env.PORT || !port || port === process.env.PORT);

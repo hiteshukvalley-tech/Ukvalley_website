@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
@@ -31,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return withSharePreview({
     title: post.title,
     description: post.excerpt,
-    alternates: { canonical: `https://ukvalley.com/blog/${post.slug}` },
+    alternates: { canonical: `${SITE_URL}/blog/${post.slug}` },
     openGraph: {
       type: "article",
       title: post.title,
@@ -62,7 +63,7 @@ export default async function BlogArticlePage({ params }: Props) {
     publisher: {
       "@type": "Organization",
       name: "Ukvalley Technologies",
-      url: "https://ukvalley.com",
+      url: `${SITE_URL}`,
     },
   };
 

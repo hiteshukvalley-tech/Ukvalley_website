@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import {
   ArrowRight, Award, Briefcase, Check, GraduationCap, Heart, MapPin, RotateCcw, Rocket, Sparkles,
@@ -29,7 +30,7 @@ const baseMetadata: Metadata = {
   title: "Careers at Ukvalley — find your next role",
   description:
     "Open roles at Ukvalley Technologies — Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",
-  alternates: { canonical: "https://ukvalley.com/careers" },
+  alternates: { canonical: `${SITE_URL}/careers` },
 };
 
 const pathways = [

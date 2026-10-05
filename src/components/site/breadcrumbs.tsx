@@ -1,4 +1,5 @@
 import Link from "@/components/site/intent-link";
+import { SITE_URL } from "@/lib/site-origin";
 import { ChevronRight } from "lucide-react";
 import { jsonLd } from "@/lib/utils";
 import { ukText } from "@/lib/texts";
@@ -17,7 +18,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
       "@type": "ListItem",
       position: i + 1,
       name: c.label,
-      ...(c.href ? { item: `https://ukvalley.com${c.href}` } : {}),
+      ...(c.href ? { item: `${SITE_URL}${c.href}` } : {}),
     })),
   };
 

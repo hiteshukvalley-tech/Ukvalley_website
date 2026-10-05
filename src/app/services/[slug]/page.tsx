@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
@@ -82,7 +83,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return withSharePreview({
     title: service.title,
     description: detail?.longDescription ?? service.blurb,
-    alternates: { canonical: `https://ukvalley.com/services/${slug}` },
+    alternates: { canonical: `${SITE_URL}/services/${slug}` },
   });
 }
 
@@ -126,7 +127,7 @@ export default async function ServicePage({ params }: Props) {
     provider: {
       "@type": "Organization",
       name: "Ukvalley Technologies",
-      url: "https://ukvalley.com",
+      url: `${SITE_URL}`,
     },
     areaServed: "IN & Global",
     description: detail.longDescription,

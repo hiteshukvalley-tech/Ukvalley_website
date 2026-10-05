@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -7,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin"],
     },
-    sitemap: "https://ukvalley.com/sitemap.xml",
-    host: "https://ukvalley.com",
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: `${SITE_URL}`,
   };
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowUpRight } from "lucide-react";
@@ -28,7 +29,7 @@ export const generateMetadata = () => editableMetadata("sitemap", baseMetadata);
 const baseMetadata: Metadata = {
   title: "Sitemap — every page of the Ukvalley website",
   description: "A readable list of every page on the Ukvalley Technologies website, grouped by section.",
-  alternates: { canonical: "https://ukvalley.com/sitemap" },
+  alternates: { canonical: `${SITE_URL}/sitemap` },
 };
 
 type Entry = { label: string; href: string };

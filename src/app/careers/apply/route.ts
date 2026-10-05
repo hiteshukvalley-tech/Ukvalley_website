@@ -5,7 +5,7 @@ import { getCareers } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { checkApplicationLimits, createApplication, markEmailsSent } from "@/lib/applications-store";
 import { sendApplicationEmails } from "@/lib/application-emails";
-import { SITE_ORIGIN, trustedRequestOrigin } from "@/lib/site-origin";
+import { API_URL, trustedRequestOrigin } from "@/lib/site-origin";
 import {
   RESUME_MAX_BYTES, looksLikePdf, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
@@ -99,8 +99,10 @@ export async function POST(request: Request) {
     );
 
     // Email HR and the applicant after replying, so the visitor isn't kept waiting.
-    // The link HR gets: this site's address, never one taken from a forged Host header.
-    const origin = trustedRequestOrigin(request.headers) ?? SITE_ORIGIN;
+    // The link HR gets: the admin panel's address (API_URL), never one taken from
+    // a forged Host header. On a local test server, that server.
+    const here = trustedRequestOrigin(request.headers);
+    const origin = here && /^https?:\/\/(localhost|127\.0\.0\.1)[:/]?/.test(here) ? here : API_URL;
     const resumeBuffer = Buffer.from(bytes!);
     after(async () => {
       const sent = await sendApplicationEmails(app, {

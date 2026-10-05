@@ -11,7 +11,7 @@ import { getCareers } from "@/lib/careers-store";
 import { EDITABLE_PAGES } from "@/lib/pages-schema";
 import { getMenuForAdmin } from "@/lib/menu-store";
 import { scanHtml, type ScanItem } from "@/lib/texts-scan";
-import { trustedRequestOrigin } from "@/lib/site-origin";
+import { API_HOST, SITE_HOST, SITE_URL, trustedRequestOrigin } from "@/lib/site-origin";
 
 /** Only plain site paths: no scheme, no query, no ".." — what we are willing to fetch from ourselves. */
 export const isScanPath = (p: string) => /^\/(?:[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*)?$/i.test(p) && p.length <= 200;
@@ -107,6 +107,8 @@ export async function describePath(path: string): Promise<{ group: string; label
 async function origin(): Promise<string> {
   const o = trustedRequestOrigin(await headers());
   if (!o) throw new Error("Unexpected host header.");
+  // On the backend address public pages redirect to the website: read them there.
+  if (new URL(o).hostname.toLowerCase() === API_HOST && API_HOST !== SITE_HOST) return SITE_URL;
   return o;
 }
 

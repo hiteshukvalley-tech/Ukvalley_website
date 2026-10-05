@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -22,14 +23,14 @@ const baseMetadata: Metadata = {
   title: "Contact Ukvalley — book a free 30-minute scoping call",
   description:
     "Talk to a software architect, not a sales bot. Reply within 1 business hour, a rough estimate in 3 days, a fixed proposal in 7. Offices in Nashik, India and Jersey City, USA.",
-  alternates: { canonical: "https://ukvalley.com/contact" },
+  alternates: { canonical: `${SITE_URL}/contact` },
 };
 
 const buildSchema = (company: Awaited<ReturnType<typeof getSiteSettings>>) => ({
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   name: company.name,
-  url: "https://ukvalley.com",
+  url: `${SITE_URL}`,
   email: company.email,
   telephone: company.phonePrimary,
   address: [

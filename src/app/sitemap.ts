@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { getServices } from "@/lib/services-store";
 import { getPosts } from "@/lib/blog-store";
 import { getProducts } from "@/lib/products-store";
@@ -10,7 +11,7 @@ import { getLocations } from "@/lib/locations-store";
 import { getCareers } from "@/lib/careers-store";
 import { listMainSlugs } from "@/lib/menu-store";
 
-const BASE = "https://ukvalley.com";
+const BASE = `${SITE_URL}`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();

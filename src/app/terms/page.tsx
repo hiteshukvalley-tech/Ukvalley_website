@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -18,7 +19,7 @@ const baseMetadata: Metadata = {
   title: "Terms of Service",
   description:
     "The terms that govern use of the Ukvalley Technologies website and the basis on which project engagements are proposed.",
-  alternates: { canonical: "https://ukvalley.com/terms" },
+  alternates: { canonical: `${SITE_URL}/terms` },
 };
 
 const sections = [

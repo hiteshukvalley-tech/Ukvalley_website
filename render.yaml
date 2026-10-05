@@ -22,6 +22,14 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
+      # The site's address (add it under Settings → Custom Domains). Read at
+      # build time: change it, then redeploy.
+      # Frontend: the public website (canonical links, sitemap, SEO).
+      - key: NEXT_PUBLIC_SITE_URL
+        value: https://uat.ukvalley.com
+      # Backend: the admin panel and server routes (/admin, /media, /careers/apply).
+      - key: NEXT_PUBLIC_API_URL
+        value: https://uat.ukvalley.com
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD

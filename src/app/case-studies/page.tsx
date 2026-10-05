@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Target, Building2, CircleAlert, Layers, TrendingUp, Gauge } from "lucide-react";
@@ -24,7 +25,7 @@ const baseMetadata: Metadata = {
   title: "Case studies — software projects with measured results",
   description:
     "Eleven anonymised engagements across fintech, retail, healthcare, manufacturing, logistics, education and more. Each case study names the sector context, the challenge, what we built, the stack and the measured result.",
-  alternates: { canonical: "https://ukvalley.com/case-studies" },
+  alternates: { canonical: `${SITE_URL}/case-studies` },
 };
 
 export default async function CaseStudiesPage() {

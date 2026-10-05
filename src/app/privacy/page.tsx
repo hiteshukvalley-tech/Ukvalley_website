@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -18,7 +19,7 @@ const baseMetadata: Metadata = {
   title: "Privacy Policy",
   description:
     "How Ukvalley Technologies collects, uses and protects personal data submitted through our website and enquiry forms.",
-  alternates: { canonical: "https://ukvalley.com/privacy" },
+  alternates: { canonical: `${SITE_URL}/privacy` },
 };
 
 const sections = [

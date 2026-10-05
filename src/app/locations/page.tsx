@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import {
@@ -26,7 +27,7 @@ const baseMetadata: Metadata = {
   title: "Locations — where Ukvalley engineers and engages",
   description:
     "Ukvalley's offices and delivery coverage: Maharashtra headquarters, Pune and Nagpur offices, and delivery coverage for Mumbai, Delhi NCR, Bengaluru, Hyderabad, Ahmedabad, Chennai, Dubai, Toronto and New York.",
-  alternates: { canonical: "https://ukvalley.com/locations" },
+  alternates: { canonical: `${SITE_URL}/locations` },
 };
 
 const icons: Record<string, LucideIcon> = {

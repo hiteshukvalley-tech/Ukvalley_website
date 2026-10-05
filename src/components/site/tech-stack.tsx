@@ -27,24 +27,25 @@ const iconMap: Record<string, LucideIcon> = {
   flaskConical: FlaskConical,
 };
 
-/* Each category gets a distinct accent gradient — drawn from the Dark
-   Aurora ramp (indigo #3100FF · bright indigo #684DFF · electric blue
-   #287BFF · cyan #fff500) so the section stays on-identity. */
+/* Each category gets its own accent gradient, all from the same blue/indigo
+   ramp (deep indigo #2400C7 · indigo #3100FF · bright indigo #684DFF ·
+   electric blue #287BFF), so every card's icon badge matches the others and
+   the white icon stays readable. */
 const accentMap: Record<string, string> = {
-  Frontend: "from-[#3100FF] to-[#fff500]",
+  Frontend: "from-[#3100FF] to-[#287BFF]",
   Mobile: "from-[#3100FF] to-[#684DFF]",
   Backend: "from-[#287BFF] to-[#684DFF]",
-  Database: "from-[#287BFF] to-[#fff500]",
-  "Cloud & Infra": "from-[#684DFF] to-[#fff500]",
+  Database: "from-[#2400C7] to-[#684DFF]",
+  "Cloud & Infra": "from-[#684DFF] to-[#287BFF]",
   "Testing & QA": "from-[#2400C7] to-[#287BFF]",
 };
 
 const bgAccentMap: Record<string, string> = {
-  Frontend: "bg-gradient-to-br from-[#3100FF]/[0.07] to-[#fff500]/[0.03]",
+  Frontend: "bg-gradient-to-br from-[#3100FF]/[0.07] to-[#287BFF]/[0.03]",
   Mobile: "bg-gradient-to-br from-[#3100FF]/[0.07] to-[#684DFF]/[0.03]",
   Backend: "bg-gradient-to-br from-[#287BFF]/[0.07] to-[#684DFF]/[0.03]",
-  Database: "bg-gradient-to-br from-[#287BFF]/[0.07] to-[#fff500]/[0.03]",
-  "Cloud & Infra": "bg-gradient-to-br from-[#684DFF]/[0.07] to-[#fff500]/[0.03]",
+  Database: "bg-gradient-to-br from-[#2400C7]/[0.07] to-[#684DFF]/[0.03]",
+  "Cloud & Infra": "bg-gradient-to-br from-[#684DFF]/[0.07] to-[#287BFF]/[0.03]",
   "Testing & QA": "bg-gradient-to-br from-[#2400C7]/[0.07] to-[#287BFF]/[0.03]",
 };
 
@@ -52,7 +53,7 @@ const borderAccentMap: Record<string, string> = {
   Frontend: "hover:border-uk-blue/50",
   Mobile: "hover:border-[#684DFF]/50",
   Backend: "hover:border-[#287BFF]/50",
-  Database: "hover:border-[#fff500]/50",
+  Database: "hover:border-[#684DFF]/50",
   "Cloud & Infra": "hover:border-[#684DFF]/50",
   "Testing & QA": "hover:border-[#287BFF]/50",
 };

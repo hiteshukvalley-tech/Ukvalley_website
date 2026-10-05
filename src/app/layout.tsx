@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
@@ -54,7 +55,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ukvalley.com"),
+  metadataBase: new URL(`${SITE_URL}`),
   title: {
     default: "Ukvalley Technologies — Custom Software, CRM, ERP & Mobile Apps",
     template: "%s | Ukvalley Technologies",
@@ -74,7 +75,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://ukvalley.com",
+    url: `${SITE_URL}`,
     siteName: "Ukvalley Technologies",
     title: "Ukvalley Technologies — Custom Software, CRM, ERP & Mobile Apps",
     description:

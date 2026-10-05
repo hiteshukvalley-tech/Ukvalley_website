@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { SITE_URL } from "@/lib/site-origin";
 import type { Metadata } from "next";
 import { Header } from "@/components/site/header";
 import { Hero } from "@/components/site/hero";
@@ -36,14 +37,14 @@ import { ukText } from "@/lib/texts";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  alternates: { canonical: "https://ukvalley.com" },
+  alternates: { canonical: `${SITE_URL}` },
 };
 
 const buildOrganizationSchema = (company: Awaited<ReturnType<typeof getSiteSettings>>) => ({
   "@context": "https://schema.org",
   "@type": "Organization",
   name: company.name,
-  url: "https://ukvalley.com",
+  url: `${SITE_URL}`,
   foundingDate: String(company.foundedYear),
   description:
     "Custom software development company in India. Web, mobile, CRM, ERP, HRMS, cloud and cybersecurity services.",

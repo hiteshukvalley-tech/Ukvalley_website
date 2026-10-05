@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -48,7 +49,7 @@ const baseMetadata: Metadata = {
   title: "Engagement models — fixed-bid, dedicated team, retainer, staff augmentation",
   description:
     "Four transparent ways to work with Ukvalley: fixed-bid projects, dedicated teams, monthly retainers and staff augmentation. Pick the model that fits your scope and budget.",
-  alternates: { canonical: "https://ukvalley.com/engagement" },
+  alternates: { canonical: `${SITE_URL}/engagement` },
 };
 
 export default function EngagementPage() {

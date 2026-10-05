@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Users, Target, Check, Gauge } from "lucide-react";
@@ -28,7 +29,7 @@ const baseMetadata: Metadata = {
   title: "Our team — the people accountable for your project",
   description:
     "Meet Ukvalley's leadership: named engineers and operators you can reach directly — a founder LinkedIn, not a generic contact form. Engineer-led, unfunded, accountable since 2017.",
-  alternates: { canonical: "https://ukvalley.com/team" },
+  alternates: { canonical: `${SITE_URL}/team` },
 };
 
 export default async function TeamPage() {

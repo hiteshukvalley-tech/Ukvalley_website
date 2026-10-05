@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -22,7 +23,7 @@ const baseMetadata: Metadata = {
   title: "Our Social Impact — giving back through technology",
   description:
     "How Ukvalley Technologies gives back: tree plantation drives, sports days, celebrations and AI workshops that build digital skills in the communities we serve.",
-  alternates: { canonical: "https://ukvalley.com/social-impact" },
+  alternates: { canonical: `${SITE_URL}/social-impact` },
 };
 
 const eyebrowCls =

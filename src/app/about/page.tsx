@@ -1,4 +1,5 @@
 import { getServices } from "@/lib/services-store";
+import { SITE_URL } from "@/lib/site-origin";
 import { countWord } from "@/lib/services-validation";
 import type { Metadata } from "next";
 import { editableMetadata } from "@/lib/page-metadata";
@@ -30,7 +31,7 @@ const baseMetadata: Metadata = {
   title: "About Ukvalley Technologies — software engineers since 2017",
   description:
     "Founded in 2017, Ukvalley Technologies builds custom software, CRM, ERP and mobile apps for Indian SMEs and global startups. Meet the team and the principles we build on.",
-  alternates: { canonical: "https://ukvalley.com/about" },
+  alternates: { canonical: `${SITE_URL}/about` },
 };
 
 const principleIcons = [ShieldCheck, Clock, Rocket, Users];

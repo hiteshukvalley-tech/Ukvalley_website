@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import { Check, Minus, ArrowRight, CalendarClock, Layers, Target, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -23,7 +24,7 @@ const baseMetadata: Metadata = {
   title: "Pricing — how Ukvalley quotes, honestly",
   description:
     "How Ukvalley quotes custom software: what actually drives cost, from a single-workflow tool to a multi-department platform, plus dedicated-developer and retainer models. Written estimates in 3 days.",
-  alternates: { canonical: "https://ukvalley.com/pricing" },
+  alternates: { canonical: `${SITE_URL}/pricing` },
 };
 
 const bands = [
