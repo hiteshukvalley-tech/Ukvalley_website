@@ -11,6 +11,7 @@ import { getCareers } from "@/lib/careers-store";
 import { EDITABLE_PAGES } from "@/lib/pages-schema";
 import { getMenuForAdmin } from "@/lib/menu-store";
 import { scanHtml, type ScanItem } from "@/lib/texts-scan";
+import { trustedRequestOrigin } from "@/lib/site-origin";
 
 /** Only plain site paths: no scheme, no query, no ".." — what we are willing to fetch from ourselves. */
 export const isScanPath = (p: string) => /^\/(?:[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*)?$/i.test(p) && p.length <= 200;
@@ -76,7 +77,7 @@ export async function listScanPaths(): Promise<PathGroup[]> {
     {
       group: "Company",
       entries: [
-        page("about"), page("why-ukvalley"), page("team"), page("process"), page("engagement"), page("support-maintenance"),
+        page("about"), page("why-ukvalley"), page("team"), page("social-impact"), page("process"), page("engagement"), page("support-maintenance"),
         page("pricing"), page("faq"), page("contact"),
         page("careers", "Main page"), ...rows("/careers", careers as Labelled[], "Job opening"),
         page("locations", "Main page"), ...rows("/locations", locations as Labelled[], "Location"),
@@ -98,13 +99,15 @@ export async function describePath(path: string): Promise<{ group: string; label
   return path === "/" ? { group: "Home", label: "Home page", tag: "Page" } : null;
 }
 
-/** Where this server can reach itself: the host the admin is using. */
+/**
+ * Where this server can reach itself: the host the admin is using, but only
+ * when that host is really this site (a forged Host header must not make the
+ * server fetch some other address and hand its content back).
+ */
 async function origin(): Promise<string> {
-  const h = await headers();
-  const host = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
-  if (!/^[\w.-]+(:\d+)?$/.test(host)) throw new Error("Unexpected host header.");
-  const proto = (h.get("x-forwarded-proto") ?? (host.startsWith("localhost") || host.startsWith("127.") ? "http" : "https")).split(",")[0];
-  return `${proto}://${host}`;
+  const o = trustedRequestOrigin(await headers());
+  if (!o) throw new Error("Unexpected host header.");
+  return o;
 }
 
 /** Fetches the public page and lists what can be edited on it. */

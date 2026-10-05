@@ -5,6 +5,7 @@ import { getCareers } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { checkApplicationLimits, createApplication, markEmailsSent } from "@/lib/applications-store";
 import { sendApplicationEmails } from "@/lib/application-emails";
+import { SITE_ORIGIN, trustedRequestOrigin } from "@/lib/site-origin";
 import {
   RESUME_MAX_BYTES, looksLikePdf, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
@@ -98,13 +99,13 @@ export async function POST(request: Request) {
     );
 
     // Email HR and the applicant after replying, so the visitor isn't kept waiting.
-    const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host") ?? new URL(request.url).host;
-    const proto = request.headers.get("x-forwarded-proto") ?? new URL(request.url).protocol.replace(":", "");
+    // The link HR gets: this site's address, never one taken from a forged Host header.
+    const origin = trustedRequestOrigin(request.headers) ?? SITE_ORIGIN;
     const resumeBuffer = Buffer.from(bytes!);
     after(async () => {
       const sent = await sendApplicationEmails(app, {
         hrEmail: settings.hr.email,
-        adminUrl: `${proto}://${host}/admin/applications/${app.id}`,
+        adminUrl: `${origin}/admin/applications/${app.id}`,
         resume: resumeBuffer,
       });
       await markEmailsSent(app.id, sent).catch(() => {});

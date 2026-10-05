@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import {
   Atom, Triangle, Server, Smartphone, Braces, Component,
@@ -21,7 +22,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("hire", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Hire dedicated developers, designers & sales executives — React, Next.js, Node, Flutter & more",
   description:
     "Hire dedicated React, Next.js, Node.js, Flutter, Python, Angular, Laravel, DevOps and QA engineers — plus UI/UX designers and sales executives — from Ukvalley. Verified on live work, code and pipeline data you own from day one, start in 48 hours.",

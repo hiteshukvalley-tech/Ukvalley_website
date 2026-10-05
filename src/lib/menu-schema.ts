@@ -61,7 +61,8 @@ export function parseLinks(text: string): { links: NavItem[]; error?: string } {
   return { links };
 }
 
-const LINK = /^(\/[^\s]*|https?:\/\/[^\s]+)$/;
+// "/path" (but not "//host" or "/\host", which browsers treat as another site) or http(s)://
+const LINK = /^(\/(?![/\\])[^\s]*|https?:\/\/[^\s]+)$/;
 
 /**
  * Checks a submitted menu. Built-in items keep their type (and cannot be

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import { notFound } from "next/navigation";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -20,11 +21,11 @@ export async function generateMetadata({ params }: PageProps<"/s/[slug]">): Prom
   const page = await getMainPage(slug);
   if (!page) return {};
   const title = splitMarks(page.heroTitle).map((p) => p.text).join("");
-  return {
+  return withSharePreview({
     title,
     description: page.heroDescription || undefined,
     alternates: { canonical: `https://ukvalley.com/s/${slug}` },
-  };
+  });
 }
 
 export default async function MainSectionPublicPage({ params }: PageProps<"/s/[slug]">) {

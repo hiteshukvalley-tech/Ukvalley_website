@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import { ArrowRight, ArrowLeft, Clock, BookOpen, Layers } from "lucide-react";
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = (await getPosts()).find((p) => p.slug === slug);
   if (!post) return {};
-  return {
+  return withSharePreview({
     title: post.title,
     description: post.excerpt,
     alternates: { canonical: `https://ukvalley.com/blog/${post.slug}` },
@@ -37,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: post.excerpt,
       publishedTime: post.date,
     },
-  };
+  });
 }
 
 export default async function BlogArticlePage({ params }: Props) {

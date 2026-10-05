@@ -55,7 +55,7 @@ check("no *stars* left on the page", !/\*[A-Za-z]/.test(body));
 section("Admin sidebar");
 await go(page, "/admin", { timeout: 180000 });
 body = await text(page);
-for (const s of ["Home page", "Services", "Solutions", "Work", "Company", "Hire", "Insights", "Leads", "Media"]) {
+for (const s of ["Home page", "Services", "Solutions", "Work", "Company", "Hire", "Insights", "Leads"]) { // Media is hidden from the sidebar for now (nav.ts)
   check(`sidebar has "${s}"`, body.includes(s));
 }
 check("roadmap box removed", !body.includes("Admin roadmap"));
@@ -65,7 +65,7 @@ section("Home page overview");
 await go(page, "/admin/home", { timeout: 180000 });
 body = await text(page);
 check("lists 16 sections", (await page.$$("main ol > li")).length === 16, String((await page.$$("main ol > li")).length));
-check("sidebar Home page section is open", (await page.$$("#nav-home-page a")).length === 17);
+check("sidebar Home page section is open", (await page.$$("#nav-home-page a")).length === 18); // overview + 16 sections + "All text & images"
 
 section("Edit hero badge + hide trust strip");
 await go(page, "/admin/home/hero", { timeout: 180000 });

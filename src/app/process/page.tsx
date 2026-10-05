@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { ArrowRight, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -19,7 +20,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("process", baseMetadata);
+const baseMetadata: Metadata = {
   title: "How we work — our software delivery process",
   description:
     "From a free scoping call to a thin-slice prototype in week three, two-week build sprints with weekly demos, to launch and ongoing support with a 24-hour SLA.",

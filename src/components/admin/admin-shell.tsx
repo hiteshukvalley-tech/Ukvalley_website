@@ -12,20 +12,15 @@ import { Toaster } from "./toast";
 import { ConfirmHost } from "./confirm-dialog";
 import type { AdminRole } from "@/lib/admin-auth";
 import { cn } from "@/lib/utils";
+import { OFFICIAL_LOGO } from "@/lib/site-content-schema";
 
 function Brand() {
   return (
-    <Link href="/admin" className="flex items-center gap-3">
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright shadow-glow-blue-sm">
-        <span className="font-heading text-lg font-bold text-uk-white">U</span>
-        <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-uk-yellow" />
-      </span>
-      <span className="flex flex-col leading-tight">
-        <span className="font-heading text-sm font-bold uppercase tracking-[0.22em] text-uk-heading">
-          Ukvalley
-        </span>
-        <span className="text-[11px] font-medium text-uk-muted">Admin panel</span>
-      </span>
+    <Link href="/admin" className="flex flex-col gap-1" aria-label="Ukvalley Technologies admin panel home">
+      {/* the official logo (public/brand, built by scripts/build-brand-assets.mjs) */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={OFFICIAL_LOGO} alt="Ukvalley Technologies" className="h-10 w-auto max-w-[11rem] object-contain object-left" />
+      <span className="pl-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-uk-muted">Admin panel</span>
     </Link>
   );
 }

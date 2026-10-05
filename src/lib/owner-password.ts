@@ -22,36 +22,50 @@ type OwnerDoc = {
 
 const col = () => getDb().collection<OwnerDoc>(COLLECTION);
 
-/** The saved owner password, when there is one that still applies. */
-async function activeOverride(): Promise<OwnerDoc | null> {
+/** Thrown when the database is configured but can't be reached. */
+export class OwnerLookupError extends Error {}
+
+/**
+ * The saved owner password, when there is one that still applies. With no
+ * database configured there can't be one (the env password applies). When the
+ * database is configured but unreachable it is unknown: "unavailable", so a
+ * replaced (perhaps leaked) env password is never accepted again just because
+ * the database is down.
+ */
+async function activeOverride(): Promise<OwnerDoc | null | "unavailable"> {
   const env = envUser();
   if (!env || !hasDatabaseUrl()) return null;
   try {
     const doc = await col().findOne({ _id: DOC_ID });
     return doc && doc.email === env.email && doc.envFingerprint === env.sv ? doc : null;
   } catch {
-    // Database unreachable: the owner still signs in with the env password.
-    return null;
+    return "unavailable";
   }
 }
 
 /**
- * The owner as a session user, or null when not configured. With a reset
- * password, the session version follows that password, so resetting it again
- * signs out every older owner session.
+ * The owner as a session user, or null when not configured (or while the
+ * database can't be reached). With a reset password, the session version
+ * follows that password, so resetting it again signs out every older owner session.
  */
 export async function getOwner(): Promise<SessionUser | null> {
   const env = envUser();
   if (!env) return null;
   const override = await activeOverride();
+  if (override === "unavailable") return null;
   return override ? { ...env, sv: ownerSessionVersion(`reset|${override.passwordHash}`) } : env;
 }
 
-/** Checks the owner's email and password; returns the session user or null. */
+/**
+ * Checks the owner's email and password; returns the session user or null.
+ * Throws OwnerLookupError when the database is configured but unreachable.
+ */
 export async function checkOwnerCredentials(email: string, password: string): Promise<SessionUser | null> {
   const env = envUser();
   if (!env) return null;
+  if (email.trim().toLowerCase() !== env.email) return null;
   const override = await activeOverride();
+  if (override === "unavailable") throw new OwnerLookupError("Could not reach the database.");
   if (!override) return (await checkCredentials(email, password)) ? env : null;
   if (email.trim().toLowerCase() !== env.email) return null;
   return (await verifyPassword(password, override.passwordHash)) ? getOwner() : null;

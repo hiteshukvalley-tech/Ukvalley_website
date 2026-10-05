@@ -1,8 +1,8 @@
 import {
   LayoutDashboard, House, Settings, Wrench, Newspaper, Trophy, Boxes, Puzzle,
-  Building2, UserPlus, MapPin, Users, MessageSquareQuote, Inbox, Image as ImageIcon,
+  Building2, UserPlus, MapPin, Users, MessageSquareQuote, Inbox, /* Image as ImageIcon, */
   ShieldCheck, DatabaseZap, Briefcase, HelpCircle, ListOrdered, Layers, Handshake,
-  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, type LucideIcon,
+  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, type LucideIcon,
 } from "lucide-react";
 import { HOME_SECTIONS } from "@/lib/home-schema";
 
@@ -41,6 +41,8 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
         children: [
           { label: "All sections & order", href: "/admin/home", exact: true },
           ...HOME_SECTIONS.map((s) => ({ label: s.label, href: `/admin/home/${s.key}` })),
+          // every other line, button and image on the home page (Pages & text)
+          { label: "All text & images", href: "/admin/texts?path=%2F" },
         ],
       },
       { label: "Main menu", href: "/admin/menu", icon: Menu },
@@ -82,13 +84,24 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
         icon: Landmark,
         children: [
           { label: "Team", href: "/admin/team", icon: Users },
-          { label: "Careers", href: "/admin/careers", icon: Briefcase },
-          { label: "Job applications", href: "/admin/applications", icon: FileUser },
           { label: "Process", href: "/admin/process", icon: ListOrdered },
           { label: "Engagement models", href: "/admin/engagement", icon: Handshake },
           { label: "Locations", href: "/admin/locations", icon: MapPin },
           { label: "FAQs", href: "/admin/faqs", icon: HelpCircle },
           pagesLink("company"),
+        ],
+      },
+      // Our social impact page: its intro and event sections (add / edit / reorder / remove).
+      // A top-level entry so it is easy to find, not hidden in the Company dropdown.
+      { label: "Social impact", href: "/admin/pages/social-impact", icon: HeartHandshake },
+      // Careers sits as its own section, directly below Company.
+      {
+        label: "Careers",
+        href: "/admin/careers",
+        icon: Briefcase,
+        children: [
+          { label: "Job openings", href: "/admin/careers", icon: Briefcase },
+          { label: "Job applications", href: "/admin/applications", icon: FileUser },
         ],
       },
       {
@@ -109,7 +122,10 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
     group: "System",
     items: [
       { label: "Leads", href: "/admin/leads", icon: Inbox },
-      { label: "Media", href: "/admin/media", icon: ImageIcon },
+      // Media is hidden from the sidebar for now. The /admin/media pages and
+      // the upload route stay in place (the Home page editor uploads through
+      // it); uncomment this line (and ImageIcon above) to show it again.
+      // { label: "Media", href: "/admin/media", icon: ImageIcon },
       { label: "Site settings", href: "/admin/settings", icon: Settings, adminOnly: true },
       { label: "Users", href: "/admin/users", icon: ShieldCheck, adminOnly: true },
       { label: "Migration", href: "/admin/migration", icon: DatabaseZap, adminOnly: true },

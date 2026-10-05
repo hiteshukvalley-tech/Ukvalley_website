@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -32,11 +33,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const c = (await getCareers()).find((x) => x.slug === slug);
   if (!c) return {};
-  return {
+  return withSharePreview({
     title: `${c.role} — Careers`,
     description: c.summary,
     alternates: { canonical: `https://ukvalley.com/careers/${c.slug}` },
-  };
+  });
 }
 
 function ListCard({ icon: Icon, title, items }: { icon: typeof Check; title: string; items: string[] }) {

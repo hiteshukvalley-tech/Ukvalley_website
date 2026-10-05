@@ -83,11 +83,14 @@ try {
 
   section("Careers page");
   await go(page, "/careers");
-  const roleName = await page.$eval("#open-roles article h3", (e) => e.textContent.trim());
+  // Job cards (li) link to each role's own page, which has the "Apply now" button.
+  const roleName = await page.$eval("#open-roles li h3", (e) => e.textContent.trim());
+  const roleHref = await page.$eval("#open-roles li h3 a", (a) => a.getAttribute("href"));
   check("Apply buttons are buttons (no mailto)", !(await page.$('#open-roles a[href^="mailto:"][href*="Application"]')));
-  await page.$$eval("#open-roles article button", (b) => b[0].click());
+  await go(page, roleHref);
+  await page.$$eval("main button", (bs) => bs.find((b) => /Apply now/i.test(b.textContent))?.click());
   await page.waitForSelector('[role="dialog"]', { timeout: 10000 });
-  check("popup opens with the form title", /Ukvalley Career Application Form/.test(await text(page)));
+  check("popup opens with the form title", /Apply to join Ukvalley/.test(await text(page)));
   check("position prefilled with the clicked role", (await page.$eval("#apply-position", (e) => e.value)) === roleName, roleName);
   const labels = await page.$$eval('[role="dialog"] label', (ls) => ls.map((l) => l.textContent.replace(/\s+/g, " ").trim()));
   for (const want of ["Full Name", "Email Address", "Phone Number", "Current Location", "Position Applied For", "Years Of Experience", "Portfolio / LinkedIn (Optional)", "Upload Resume (PDF Only)", "Cover Letter (Optional)"]) {
@@ -165,7 +168,8 @@ try {
 
   section("Duplicate");
   await page.goto(BASE + "/careers", { waitUntil: "networkidle2" });
-  await page.$$eval("#open-roles article button", (b) => b[0].click());
+  await page.goto(BASE + roleHref, { waitUntil: "networkidle2" });
+  await page.$$eval("main button", (bs) => bs.find((b) => /Apply now/i.test(b.textContent))?.click());
   await page.waitForSelector("#apply-name");
   await page.type("#apply-name", "Qa Applicant");
   await page.type("#apply-email", APPLICANT);

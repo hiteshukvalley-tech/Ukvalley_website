@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -33,11 +34,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const s = (await getSolutions()).find((x) => x.slug === slug);
   if (!s) return {};
-  return {
-    title: `${s.name} — built around your workflow | Ukvalley`,
+  return withSharePreview({
+    title: `${s.name} — built around your workflow`,
     description: s.description,
     alternates: { canonical: `https://ukvalley.com/solutions/${s.slug}` },
-  };
+  });
 }
 
 export default async function SolutionPage({ params }: Props) {
@@ -65,10 +66,12 @@ export default async function SolutionPage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
-      />
+      {faqSchema.mainEntity.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }}
+        />
+      )}
       <ScrollProgress />
       <Header />
       <main id="main">

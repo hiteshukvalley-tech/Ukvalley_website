@@ -36,6 +36,8 @@ const SVC_TITLE = `QA Service ${stamp}`;
 await ensureImported("/admin/services", "Import");
 await go(admin, "/admin/services/new");
 await admin.type("#f-title", SVC_TITLE);
+// the slug fills itself in from the title: replace it, don't append
+await admin.$eval("#f-slug", (e) => { e.value = ""; e.dispatchEvent(new Event("input", { bubbles: true })); });
 await admin.type("#f-slug", SVC);
 await admin.type("#f-blurb", "A temporary service created by the automated QA suite.");
 await admin.type("#f-bullets", "First capability\nSecond capability");
@@ -53,7 +55,7 @@ check("no console/page errors", site.problems.length === 0, site.problems.join("
 await go(site, "/sitemap.xml");
 check("sitemap lists the new service", (await site.content()).includes(`/services/${SVC}`));
 
-await go(admin, "/admin/services");
+await go(admin, `/admin/services?q=${encodeURIComponent(SVC_TITLE)}`); // the list is paged: search for it
 await admin.click(`button[aria-label^="Delete ${SVC_TITLE}"]`).catch(() => {});
 await sleep(3000);
 // fetch with no-store: the browser would answer with its cached copy (a 304).
@@ -65,6 +67,8 @@ section("JSON-LD cannot be broken out of");
 const POST = `qa-xss-${stamp}`;
 await go(admin, "/admin/blog/new");
 await admin.type("#f-title", `QA xss </script><script>window.__pwned=1</script> ${stamp}`);
+// the slug fills itself in from the title: replace it, don't append
+await admin.$eval("#f-slug", (e) => { e.value = ""; e.dispatchEvent(new Event("input", { bubbles: true })); });
 await admin.type("#f-slug", POST);
 await admin.type("#f-category", "Testing");
 await admin.type("#f-excerpt", "Payload </script><img src=x onerror=window.__pwned=2> test.");
@@ -88,7 +92,7 @@ const ld = await site.evaluate(() =>
 check("JSON-LD still parses", !ld.includes("PARSE_ERROR"), JSON.stringify(ld));
 check("JSON-LD keeps the original text", ld.some((h) => typeof h === "string" && h.includes("</script>")));
 
-await go(admin, "/admin/blog");
+await go(admin, `/admin/blog?q=${stamp}`); // the list is paged: search for it
 await admin.click(`button[aria-label^="Delete QA xss"]`).catch(() => {});
 await sleep(3000);
 await go(admin, "/admin/blog");

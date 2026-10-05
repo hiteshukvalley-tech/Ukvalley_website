@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import type { SectionValues } from "@/lib/home-schema";
 import { pageDef, emptyPageContent, isPageKey, pageInfo } from "@/lib/pages-schema";
 import { getPagesForAdmin } from "@/lib/pages-store";
+import { socialImpactEditorDefaults } from "@/lib/social-impact-data";
 import { SectionEditor } from "../../home/section-editor";
 import { resetPageAction, savePageAction } from "../actions";
 
@@ -23,13 +24,30 @@ export default async function PageTextEditor({ params }: PageProps<"/admin/pages
   const info = pageInfo(key)!;
   const { byKey, dbError } = await getPagesForAdmin();
   const saved = byKey[key];
+  let initial = saved?.content ?? emptyPageContent;
+  // Our social impact: start from the sections the page shows today, so they
+  // can be edited, reordered or removed and new ones added below them.
+  if (key === "social-impact") {
+    const d = socialImpactEditorDefaults();
+    initial = {
+      ...initial,
+      introEyebrow: initial.introEyebrow || d.introEyebrow,
+      introTitle: initial.introTitle || d.introTitle,
+      introText: initial.introText || d.introText,
+      galleries: initial.galleries.length ? initial.galleries : d.galleries,
+    };
+  }
 
   return (
     <>
       <PageHeader
         title={info.label}
         crumbs={[{ label: "Page text", href: "/admin/pages" }, { label: info.label }]}
-        description="Hero fields you leave empty keep the page's built-in text. Extra blocks appear at the end of the page, above the footer."
+        description={
+          key === "social-impact"
+            ? "Edit the intro and the page sections (each a title, text and an optional photo gallery): reorder or remove them, or add new ones with “Add section”. Hero fields you leave empty keep the page's built-in text. Extra blocks appear at the end of the page, above the footer."
+            : "Hero fields you leave empty keep the page's built-in text. Extra blocks appear at the end of the page, above the footer."
+        }
         action={
           <Link
             href={info.href}
@@ -48,7 +66,7 @@ export default async function PageTextEditor({ params }: PageProps<"/admin/pages
       )}
       <SectionEditor
         def={pageDef(key)}
-        initial={(saved?.content ?? emptyPageContent) as unknown as SectionValues}
+        initial={initial as unknown as SectionValues}
         visible
         version={saved?.updatedAt ?? "default"}
         save={savePageAction.bind(null, key)}

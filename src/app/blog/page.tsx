@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Clock, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -15,7 +16,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("blog", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Insights — software, CRM & ERP buyer's guides",
   description:
     "Plain-English guides for Indian SMEs choosing CRM vs ERP, and how to ship real software in weeks — not months. Written by the engineers who build it.",

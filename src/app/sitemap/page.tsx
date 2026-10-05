@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowUpRight } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -22,7 +23,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so new pages and admin text edits show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("sitemap", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Sitemap — every page of the Ukvalley website",
   description: "A readable list of every page on the Ukvalley Technologies website, grouped by section.",
   alternates: { canonical: "https://ukvalley.com/sitemap" },

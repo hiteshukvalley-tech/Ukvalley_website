@@ -153,6 +153,119 @@ export function ImageInput({
   );
 }
 
+/**
+ * Several pictures (a photo gallery). The value is one image address per line;
+ * pictures can be uploaded (several at once), pasted as a link, reordered and removed.
+ */
+function ImagesInput({
+  id, label, value, onChange, error, hint, maxImages = 40,
+}: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string; maxImages?: number }) {
+  const list = value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState("");
+  const [link, setLink] = useState("");
+  const set = (next: string[]) => onChange(next.join("\n"));
+
+  async function upload(files: FileList | null) {
+    if (!files?.length) return;
+    const room = maxImages - list.length;
+    if (room <= 0) return setProblem(`This gallery is full (${maxImages} pictures).`);
+    setBusy(true);
+    setProblem("");
+    const added: string[] = [];
+    const failed: string[] = [];
+    // one file per request (the upload route's limit)
+    for (const file of Array.from(files).slice(0, room)) {
+      try {
+        const body = new FormData();
+        body.append("files", file);
+        const res = await fetch("/admin/media/upload", { method: "POST", body });
+        const data = (await res.json().catch(() => ({}))) as { error?: string; results?: { ok: boolean; id?: string; error?: string }[] };
+        const r = data.results?.[0];
+        if (r?.ok && r.id) added.push(`/media/${r.id}`);
+        else failed.push(`${file.name}: ${r?.error ?? data.error ?? "upload failed"}`);
+      } catch {
+        failed.push(`${file.name}: upload failed`);
+      }
+    }
+    if (added.length) set([...list, ...added]);
+    if (failed.length) setProblem(failed.join(" · "));
+    setBusy(false);
+  }
+
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-medium text-uk-heading">{label}</legend>
+      {list.length === 0 ? (
+        <p className="text-xs text-uk-muted">No pictures yet.</p>
+      ) : (
+        <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {list.map((src, i) => (
+            <li key={`${i}-${src}`} className="overflow-hidden rounded-lg border border-uk-line bg-uk-surface-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt={`Picture ${i + 1}`} className="aspect-[4/3] w-full object-cover" />
+              <div className="flex items-center justify-between gap-1 p-1.5">
+                <span className="pl-1 text-xs font-semibold text-uk-muted">{i + 1}</span>
+                <RowTools
+                  index={i}
+                  count={list.length}
+                  what={`picture ${i + 1}`}
+                  onMove={(to) => set(move(list, i, to))}
+                  onRemove={() => set(list.filter((_, j) => j !== i))}
+                />
+              </div>
+            </li>
+          ))}
+        </ol>
+      )}
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-lg border border-dashed border-uk-blue/40 px-3 text-sm font-medium text-uk-blue transition-colors hover:bg-uk-blue/10">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+          {busy ? "Uploading…" : "Upload pictures"}
+          <input
+            id={id}
+            type="file"
+            multiple
+            accept="image/png,image/jpeg,image/gif,image/webp,image/avif"
+            className="sr-only"
+            disabled={busy || list.length >= maxImages}
+            onChange={(e) => {
+              void upload(e.target.files);
+              e.target.value = "";
+            }}
+          />
+        </label>
+        <Input
+          value={link}
+          maxLength={300}
+          placeholder="…or paste /media/… or https://…"
+          aria-label={`Add a picture to ${label} by address`}
+          onChange={(e) => setLink(e.target.value)}
+          className="h-9 min-w-48 flex-1"
+        />
+        <button
+          type="button"
+          disabled={!link.trim() || list.length >= maxImages}
+          onClick={() => {
+            set([...list, link.trim()]);
+            setLink("");
+          }}
+          className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-uk-line px-3 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 disabled:pointer-events-none disabled:opacity-50"
+        >
+          <Plus className="h-4 w-4" /> Add
+        </button>
+      </div>
+      {error || problem ? (
+        <p role="alert" className="text-xs font-medium text-destructive">{error || problem}</p>
+      ) : (
+        <p className="text-xs text-uk-muted">
+          {list.length} of up to {maxImages}. {hint ?? "PNG, JPG, GIF, WebP or AVIF, up to 4 MB each."}
+        </p>
+      )}
+    </fieldset>
+  );
+}
+
 const iconBtn =
   "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-uk-line text-uk-muted transition-colors hover:bg-uk-surface-2 hover:text-uk-heading disabled:pointer-events-none disabled:opacity-40";
 
@@ -307,8 +420,18 @@ function Field({
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {f.fields.map((sf) => (
-                <div key={sf.key} className={sf.kind === "textarea" || sf.kind === "image" ? "sm:col-span-2" : undefined}>
-                  {sf.kind === "image" ? (
+                <div key={sf.key} className={sf.kind === "textarea" || sf.kind === "image" || sf.kind === "images" ? "sm:col-span-2" : undefined}>
+                  {sf.kind === "images" ? (
+                    <ImagesInput
+                      id={`${id}-${i}-${sf.key}`}
+                      label={sf.label}
+                      value={row[sf.key] ?? ""}
+                      onChange={(v) => onChange(rows.map((r, j) => (j === i ? { ...r, [sf.key]: v } : r)))}
+                      error={errors[`${f.key}.${i}.${sf.key}`]}
+                      hint={sf.hint}
+                      maxImages={sf.maxImages}
+                    />
+                  ) : sf.kind === "image" ? (
                     <ImageInput
                       id={`${id}-${i}-${sf.key}`}
                       label={sf.label}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowUpRight, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -17,7 +18,9 @@ import { ukText } from "@/lib/texts";
 export const revalidate = 60;
 
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("products", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Products — our own IP in production",
   description:
     "TeleValley, Script Magix, Mediline Website, HR Agency Management System and Emailz.ca — software products Ukvalley built and runs in production. Proof most service firms can't offer.",

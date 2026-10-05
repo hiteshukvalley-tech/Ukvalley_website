@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -14,7 +15,7 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { TimeSavingsTable } from "@/components/site/time-savings-table";
 import { CtaBand } from "@/components/site/cta";
-import { services, getServiceDetail, principles, type Service, type ServiceDetail } from "@/lib/site-data";
+import { getServiceDetail, principles, type Service, type ServiceDetail } from "@/lib/site-data";
 
 import { getServices } from "@/lib/services-store";
 import { capitalize, countWord } from "@/lib/services-validation";
@@ -67,8 +68,10 @@ function fallbackDetail(slug: string, service: Service): ServiceDetail {
   };
 }
 
-export function generateStaticParams() {
-  return services.map((s) => ({ slug: s.href.split("/").pop()! }));
+// Built from the admin-managed list (falls back to the built-in one), so
+// services added in the admin are pre-rendered too.
+export async function generateStaticParams() {
+  return (await getServices()).map((s) => ({ slug: s.href.split("/").pop()! }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -76,11 +79,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const service = (await getServices()).find((s) => s.href.endsWith(`/${slug}`));
   if (!service) return {};
   const detail = getServiceDetail(slug);
-  return {
-    title: `${service.title} — Ukvalley Technologies`,
+  return withSharePreview({
+    title: service.title,
     description: detail?.longDescription ?? service.blurb,
     alternates: { canonical: `https://ukvalley.com/services/${slug}` },
-  };
+  });
 }
 
 export default async function ServicePage({ params }: Props) {

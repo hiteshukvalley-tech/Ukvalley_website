@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -32,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const c = (await getCaseStudies()).find((x) => x.slug === slug);
   if (!c) return {};
-  return {
+  return withSharePreview({
     title: `${c.title} — ${c.sector} case study`,
     description: c.result,
     alternates: { canonical: `https://ukvalley.com/case-studies/${c.slug}` },
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: c.title,
       description: c.result,
     },
-  };
+  });
 }
 
 export default async function CaseStudyPage({ params }: Props) {
@@ -282,7 +283,9 @@ export default async function CaseStudyPage({ params }: Props) {
                     {ukText(r.title)}
                   </span>
                   <span className="mt-auto inline-flex items-center gap-1.5 text-xs font-semibold text-uk-blue">
-                    {ukText(r.metrics[0].value)} {ukText(r.metrics[0].label.toLowerCase())}
+                    {r.metrics[0]
+                      ? <>{ukText(r.metrics[0].value)} {ukText(r.metrics[0].label.toLowerCase())}</>
+                      : ukText("Read the case study")}
                     <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
                   </span>
                 </Link>

@@ -6,6 +6,7 @@ import { getPageContent } from "@/lib/pages-store";
 import { Container } from "./container";
 import { Reveal } from "./reveal";
 import { ukText } from "@/lib/texts";
+import { getSiteSettings } from "@/lib/settings";
 
 /**
  * PageHero whose text can be replaced from Admin → Page text. A field left
@@ -64,10 +65,18 @@ const paragraphs = (text: string) => text.split(/\n{2,}/).map((p) => p.trim()).f
  * Admin → Page text → About us; a field left empty keeps the built-in text.
  */
 export async function FounderSection({ pageKey }: { pageKey: string }) {
-  const c = await getPageContent(pageKey);
+  const [c, s] = await Promise.all([getPageContent(pageKey), getSiteSettings()]);
   const d = FOUNDER_DEFAULTS;
   const image = c.founderImage || d.image;
-  const facts = c.founderFacts.length ? c.founderFacts : d.facts;
+  // The built-in details follow Admin → Site settings (name, year, sales email).
+  const facts = c.founderFacts.length
+    ? c.founderFacts
+    : d.facts.map((f) =>
+        f.label === "Company" ? { ...f, value: s.name }
+        : f.label === "Founded" ? { ...f, value: String(s.foundedYear) }
+        : f.label === "Email" ? { ...f, value: s.sales.email || s.email }
+        : f
+      );
   const bio = paragraphs(c.founderDescription || d.description);
   const about = paragraphs(c.companyDescription || d.company);
   return (

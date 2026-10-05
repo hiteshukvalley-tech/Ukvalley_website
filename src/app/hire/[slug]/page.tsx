@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, ShieldCheck, ChevronRight, Target, Gauge } from "lucide-react";
@@ -26,11 +27,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const r = (await getHireRoles()).find((x) => x.slug === slug);
   if (!r) return {};
-  return {
-    title: `Hire ${r.title} — dedicated, verified, code you own | Ukvalley`,
+  return withSharePreview({
+    title: `Hire ${r.title} — dedicated, verified, code you own`,
     description: r.description,
     alternates: { canonical: `https://ukvalley.com/hire/${r.slug}` },
-  };
+  });
 }
 
 export default async function HireRolePage({ params }: Props) {

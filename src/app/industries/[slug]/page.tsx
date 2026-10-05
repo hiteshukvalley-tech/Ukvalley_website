@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -50,11 +51,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const ind = (await getIndustries()).find((i) => i.slug === slug);
   if (!ind) return {};
-  return {
-    title: `${ind.name} software development — Ukvalley`,
+  return withSharePreview({
+    title: `${ind.name} software development`,
     description: ind.blurb,
     alternates: { canonical: `https://ukvalley.com/industries/${ind.slug}` },
-  };
+  });
 }
 
 export default async function IndustryPage({ params }: Props) {
@@ -84,7 +85,7 @@ export default async function IndustryPage({ params }: Props) {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />
+      {faqSchema.mainEntity.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />}
       <ScrollProgress />
       <Header />
       <main id="main">

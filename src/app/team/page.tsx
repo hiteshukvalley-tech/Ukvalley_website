@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Users, Target, Check, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -21,7 +22,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("team", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Our team — the people accountable for your project",
   description:
     "Meet Ukvalley's leadership: named engineers and operators you can reach directly — a founder LinkedIn, not a generic contact form. Engineer-led, unfunded, accountable since 2017.",

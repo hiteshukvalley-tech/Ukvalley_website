@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
@@ -11,7 +12,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("terms", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Terms of Service",
   description:
     "The terms that govern use of the Ukvalley Technologies website and the basis on which project engagements are proposed.",

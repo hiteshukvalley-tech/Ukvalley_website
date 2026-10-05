@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, type ReactNode } from "react";
+import { loadClientTexts } from "@/lib/texts";
 
 /*
  * Client components can't read the server's text overrides, so the layout
@@ -10,6 +11,10 @@ import { createContext, useContext, type ReactNode } from "react";
 const TextsContext = createContext<Record<string, string>>({});
 
 export function TextsProvider({ map, children }: { map: Record<string, string>; children: ReactNode }) {
+  // In the browser, also fill ukText()'s map before the page renders, so client
+  // components that call ukText() show the same replacement the server
+  // rendered (otherwise the text flips back to the original on hydration).
+  loadClientTexts(map);
   return <TextsContext.Provider value={map}>{children}</TextsContext.Provider>;
 }
 

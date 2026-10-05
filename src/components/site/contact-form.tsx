@@ -120,7 +120,7 @@ export function ContactForm({
           <T>Thanks — we&apos;ve received your enquiry.</T>
         </h3>
         <p className="mt-2 text-sm text-uk-body">
-          A software architect will reply within one business hour. Prefer to talk now? Call{" "}
+          <T>A software architect will reply within one business hour. Prefer to talk now? Call</T>{" "}
           <a
             href={`tel:${company.phonePrimary.replace(/\s+/g, "")}`}
             className="font-semibold text-uk-blue hover:text-uk-blue-bright"
@@ -160,11 +160,11 @@ export function ContactForm({
           within one business hour.</T>
         </p>
         <p className="mt-4 text-sm text-uk-body">
-          Email app didn&apos;t open? Write to{" "}
+          <T>Email app didn&apos;t open? Write to</T>{" "}
           <a href={`mailto:${company.email}`} className="font-semibold text-uk-blue hover:text-uk-blue-bright">
             <Tx>{company.email}</Tx>
           </a>{" "}
-          or call{" "}
+          <T>or call</T>{" "}
           <a
             href={`tel:${company.phonePrimary.replace(/\s+/g, "")}`}
             className="font-semibold text-uk-blue hover:text-uk-blue-bright"

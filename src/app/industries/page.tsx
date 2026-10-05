@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { Target, ShieldCheck, Check } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -17,7 +18,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("industries", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Industries — fourteen sectors, production-proven software",
   description:
     "From NBFC lending to agri supply chains: the fourteen verticals where Ukvalley runs live systems today — each with measured outcomes and the case study to back it.",

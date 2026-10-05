@@ -3,7 +3,7 @@ import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import { defaultHome, type HomeContent } from "@/lib/home-defaults";
 import { HOME_SECTIONS, isHomeSectionKey, type HomeSectionKey, type SectionDef, type SectionValues } from "@/lib/home-schema";
 import {
-  CHROME_DEFS, CUSTOM_PREFIX, CUSTOM_SECTION_DEF, defaultFooter, defaultHeader, isCustomKey, newCustomSection,
+  CHROME_DEFS, CUSTOM_PREFIX, CUSTOM_SECTION_DEF, OFFICIAL_LOGO, defaultFooter, defaultHeader, isCustomKey, newCustomSection,
   type ChromeKey, type CustomSectionContent, type FooterContent, type HeaderContent,
 } from "@/lib/site-content-schema";
 
@@ -218,12 +218,14 @@ async function readChrome(): Promise<{ content: ChromeContent; updated: Partial<
     out[key] = mergeValues(CHROME_DEFS[key], chromeDefaults[key], doc?.values);
     if (doc) updated[key] = doc.updatedAt?.toISOString();
   }
+  // An empty logo field (e.g. a header saved before logos existed) means the official logo.
+  if (!out.header.logoImage) out.header.logoImage = OFFICIAL_LOGO;
   return { content: out as unknown as ChromeContent, updated };
 }
 
 const defaultChrome = (): ChromeContent => ({ header: defaultHeader, footer: defaultFooter });
 
-const cachedChrome = unstable_cache(async () => (await readChrome()).content, ["site-chrome-v1"], {
+const cachedChrome = unstable_cache(async () => (await readChrome()).content, ["site-chrome-v2"], {
   tags: [CHROME_TAG],
   revalidate: 60,
 });

@@ -117,7 +117,7 @@ export async function TextsView({ group, path, q }: { group?: string; path?: str
                   href={`/admin/pages/${blocksKey}`}
                   className="inline-flex h-9 items-center gap-2 rounded-lg border border-uk-line bg-uk-card px-3 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading"
                 >
-                  <LayoutPanelTop className="h-3.5 w-3.5" /> Add extra blocks
+                  <LayoutPanelTop className="h-3.5 w-3.5" /> {blocksKey === "social-impact" ? "Edit & add sections" : "Add extra blocks"}
                 </Link>
               )}
               <Link

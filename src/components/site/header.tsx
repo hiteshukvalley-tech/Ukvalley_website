@@ -2,16 +2,15 @@ import { getServices } from "@/lib/services-store";
 import { getSolutions } from "@/lib/solutions-store";
 import { getHireRoles } from "@/lib/hire-store";
 import { getMenu } from "@/lib/menu-store";
-import { liveLinks } from "@/lib/nav-links";
+import { adminLinks } from "@/lib/nav-links";
 import { nav } from "@/lib/site-core";
 import { getChrome } from "@/lib/home-store";
 import { HeaderClient, type ResolvedMenu } from "./header-client";
 
 /**
  * Server wrapper: the menu (order, names, items) comes from Admin → Main
- * menu. Services come from the admin-managed list; the curated Solutions and
- * Hire menus drop any page that is unpublished or deleted in the admin, so
- * they never link to a 404.
+ * menu. Services, Solutions and Hire follow their admin-managed lists, so an
+ * item added there shows up, and one unpublished or deleted never links to a 404.
  */
 export async function Header() {
   const [services, solutions, hireRoles, { header }, menu] = await Promise.all([
@@ -24,10 +23,11 @@ export async function Header() {
       switch (m.type) {
         case "services":
           return { ...base, type: "dropdown", items: services.map((s) => ({ label: s.title, href: s.href, icon: s.icon })) };
+        // Follow Admin → Solutions / Hire roles: their order, new items included.
         case "solutions":
-          return { ...base, type: "dropdown", wide: true, items: liveLinks(nav.solutions, "/solutions", solutions) };
+          return { ...base, type: "dropdown", wide: true, items: adminLinks(nav.solutions, "/solutions", solutions, (s) => s.name) };
         case "hire":
-          return { ...base, type: "dropdown", wide: true, items: liveLinks(nav.hire, "/hire", hireRoles) };
+          return { ...base, type: "dropdown", wide: true, items: adminLinks(nav.hire, "/hire", hireRoles, (r) => `Hire ${r.title}`) };
         case "dropdown":
           return { ...base, type: "dropdown", wide: m.links.length > 9, items: m.links };
         default:

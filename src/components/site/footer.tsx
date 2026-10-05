@@ -10,6 +10,7 @@ import { getServices } from "@/lib/services-store";
 import { getSolutions } from "@/lib/solutions-store";
 import { liveLinks } from "@/lib/nav-links";
 import { ukText } from "@/lib/texts";
+import { SiteLogo } from "@/components/site/site-logo";
 
 // Icons for the social links saved in Admin → Site settings. Empty links are
 // skipped, so nothing renders as a dead "#" placeholder.
@@ -42,16 +43,7 @@ export async function Footer() {
           {/* Brand */}
           <div className="col-span-2 flex flex-col gap-5 lg:col-span-1">
             <Link href={ukText("/")} className="flex items-center gap-2.5" aria-label={`${header.logoName} ${header.logoSub} home`.trim()}>
-              <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright shadow-glow-blue-sm">
-                <span className="font-heading text-lg font-bold text-uk-white">{ukText(header.logoMark)}</span>
-                <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-uk-yellow" />
-              </span>
-              <span className="flex flex-col leading-none">
-                <span className="font-heading text-base font-bold text-uk-heading">{ukText(header.logoName)}</span>
-                {header.logoSub && (
-                  <span className="text-[0.62rem] font-medium uppercase tracking-[0.28em] text-uk-muted">{ukText(header.logoSub)}</span>
-                )}
-              </span>
+              <SiteLogo content={header} text={ukText} />
             </Link>
             {f.brandText && <p className="max-w-xs text-sm leading-relaxed text-uk-muted">{ukText(f.brandText)}</p>}
             <div className="flex flex-wrap gap-2.5">

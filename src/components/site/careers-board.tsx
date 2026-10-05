@@ -137,8 +137,8 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
           <p aria-live="polite" className="text-sm text-uk-muted">
             {filtering ? (
               <>
-                <span className="font-semibold text-uk-heading"><Tx>{results.length}</Tx></span> of {jobs.length} open role
-                {jobs.length === 1 ? "" : "s"} match your search
+                <span className="font-semibold text-uk-heading"><Tx>{results.length}</Tx></span> <T>of</T> {jobs.length}{" "}
+                {jobs.length === 1 ? <T>open role matches your search</T> : <T>open roles match your search</T>}
               </>
             ) : (
               <>

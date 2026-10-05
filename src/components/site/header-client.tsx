@@ -67,6 +67,8 @@ import { defaultHeader, type HeaderContent } from "@/lib/site-content-schema";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { MenuIcon } from "./menu-icon";
+import { Tx } from "./texts-context";
+import { SiteLogo } from "./site-logo";
 
 /* Icons for the top-level bar items, keyed by menu (not by label, so the
    admin can rename a menu without losing its icon). */
@@ -257,27 +259,17 @@ export function HeaderClient({
         >
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-2.5" aria-label={`${c.logoName} ${c.logoSub} home`.trim()}>
-            <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-uk-blue to-uk-blue-bright shadow-glow-blue-sm transition-transform duration-300 group-hover:scale-105">
-              <span className="font-heading text-lg font-bold text-uk-white">{c.logoMark}</span>
-              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-uk-yellow shadow-glow-yellow animate-pulse" />
-            </span>
-            <span className="flex flex-col leading-none">
-              <span className="font-heading text-base font-bold tracking-tight text-uk-heading transition-colors">
-                {c.logoName}
-              </span>
-              {c.logoSub && (
-                <span className="text-[0.62rem] font-medium uppercase tracking-[0.28em] text-uk-muted transition-colors">
-                  {c.logoSub}
-                </span>
-              )}
-            </span>
+            <SiteLogo content={c} text={(s) => <Tx>{s}</Tx>} pulse />
           </Link>
 
           {/* Desktop nav — one dropdown open at a time; hovering another
-              button closes the current one and opens only the new one */}
+              button closes the current one and opens only the new one.
+              From xl only: the row needs ~1257px, so between lg and xl
+              (iPad Pro portrait, iPads in landscape) the CTA ran off-screen;
+              those widths get the hamburger menu instead. */}
           <nav
             ref={navRef}
-            className="hidden items-center gap-1 lg:flex"
+            className="hidden items-center gap-1 xl:flex"
             aria-label="Primary"
             onMouseLeave={() => setOpenMenu(null)}
           >
@@ -300,7 +292,7 @@ export function HeaderClient({
                   >
                     {menuIcon(m)}
                   </span>
-                  {m.label}
+                  <Tx>{m.label}</Tx>
                   <span
                     className={cn(
                       "pointer-events-none absolute inset-x-3 -bottom-0.5 h-0.5 origin-left rounded-full transition-transform duration-300",
@@ -335,7 +327,7 @@ export function HeaderClient({
               className="hidden h-10 px-5 text-sm font-semibold btn-sheen bg-uk-blue text-white shadow-glow-blue-sm transition-all hover:bg-uk-blue-bright sm:inline-flex"
               render={<Link href={c.ctaHref} />}
             >
-              {c.ctaLabel}
+              <Tx>{c.ctaLabel}</Tx>
               <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
 
@@ -347,7 +339,7 @@ export function HeaderClient({
               <SheetTrigger
                 render={
                   <button
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-uk-line text-uk-heading transition-colors hover:bg-uk-surface-2 lg:hidden"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-uk-line text-uk-heading transition-colors hover:bg-uk-surface-2 xl:hidden"
                     aria-label="Open menu"
                   >
                     <Menu className="h-5 w-5" />
@@ -366,7 +358,7 @@ export function HeaderClient({
               >
                 <div className="flex items-center justify-between border-b border-uk-line px-5 py-4">
                   <SheetTitle className="font-heading text-lg font-bold text-uk-heading">
-                    {c.menuTitle}
+                    <Tx>{c.menuTitle}</Tx>
                   </SheetTitle>
                   <SheetClose
                     render={
@@ -393,7 +385,7 @@ export function HeaderClient({
                         <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue" aria-hidden>
                           {menuIcon(m)}
                         </span>
-                        {m.label}
+                        <Tx>{m.label}</Tx>
                       </Link>
                     ) : (
                       <MobileGroup key={m.id} menuKey={m.id} label={m.label} items={m.items} icons={icons} onClose={() => setOpen(false)} />
@@ -405,7 +397,7 @@ export function HeaderClient({
                       className="bg-uk-blue text-white hover:bg-uk-blue-bright"
                       render={<Link href={c.ctaHref} onClick={() => setOpen(false)} />}
                     >
-                      {c.ctaLabel}
+                      <Tx>{c.ctaLabel}</Tx>
                       <ArrowRight className="ml-1.5 h-4 w-4" />
                     </Button>
                   </div>
@@ -474,7 +466,7 @@ function NavDropdown({
         >
           {topLevelIcons[menuKey] ?? <Layers className="h-4 w-4" />}
         </span>
-        {label}
+        <Tx>{label}</Tx>
         <ChevronDown
           className={cn(
             "h-3.5 w-3.5 transition-transform duration-300",
@@ -521,7 +513,7 @@ function NavDropdown({
                 <span className="h-1.5 w-1.5 flex-none rounded-full bg-uk-yellow opacity-0 transition-opacity group-hover/item:opacity-100" aria-hidden />
               )}
               <span className="flex-1 text-sm font-medium leading-snug text-uk-body transition-colors group-hover/item:text-uk-heading">
-                {item.label}
+                <Tx>{item.label}</Tx>
               </span>
               <ArrowUpRight className="h-3.5 w-3.5 flex-none text-uk-blue opacity-0 transition-opacity group-hover/item:opacity-100" />
             </Link>
@@ -560,7 +552,7 @@ function MobileGroup({
           >
             {topLevelIcons[menuKey] ?? <Layers className="h-4 w-4" />}
           </span>
-          {label}
+          <Tx>{label}</Tx>
         </span>
         <ChevronDown
           className={cn(
@@ -583,7 +575,7 @@ function MobileGroup({
                   {icons[item.label]}
                 </span>
               )}
-              {item.label}
+              <Tx>{item.label}</Tx>
             </Link>
           ))}
         </div>

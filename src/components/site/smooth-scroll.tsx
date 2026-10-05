@@ -96,9 +96,19 @@ export function SmoothScroll({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Route change → reset scroll position. Lenis owns this (Next 16's
-  // default scroll-behavior override was removed in v16).
+  // default scroll-behavior override was removed in v16). Not on the first
+  // load (the browser handles deep links like /careers#open-roles and restored
+  // positions), and a link with a #section lands on that section, not the top.
+  const lastPath = useRef(pathname);
   useEffect(() => {
-    if (lenisRef.current) {
+    if (lastPath.current === pathname) return;
+    lastPath.current = pathname;
+    const hash = window.location.hash.slice(1);
+    const target = hash ? document.getElementById(decodeURIComponent(hash)) : null;
+    if (target) {
+      if (lenisRef.current) lenisRef.current.scrollTo(target, { offset: -96, immediate: true });
+      else target.scrollIntoView();
+    } else if (lenisRef.current) {
       lenisRef.current.scrollTo(0, { immediate: true });
     } else {
       window.scrollTo(0, 0);

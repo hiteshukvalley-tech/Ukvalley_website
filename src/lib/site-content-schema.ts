@@ -87,12 +87,20 @@ const navLinkFields: Extract<FieldDef, { kind: "group" }>["fields"] = [
 export const HEADER_DEF: SectionDef = {
   key: "header",
   label: "Header",
-  description: "The bar at the top of every page: logo text and the button. The menu items themselves are in Main menu.",
+  description: "The bar at the top of every page: the logo and the button. The logo also shows in the footer. The menu items themselves are in Main menu.",
   canHide: false,
   fields: [
-    { key: "logoMark", label: "Logo letter", kind: "text", max: 2, required: true },
-    { key: "logoName", label: "Logo name", kind: "text", max: 30, required: true },
-    { key: "logoSub", label: "Logo sub-line", kind: "text", max: 30 },
+    {
+      key: "logoImage", label: "Logo image", kind: "image", max: 300,
+      hint: "Shown in the header and footer. Upload a new logo (PNG, WebP or JPG; a wide logo with a transparent background works best) to replace it. Left empty, the official Ukvalley logo is used.",
+    },
+    {
+      key: "logoImageDark", label: "Logo image for dark mode (optional)", kind: "image", max: 300,
+      hint: "A light-coloured version for the dark theme. Leave empty to use the logo above in both themes.",
+    },
+    { key: "logoMark", label: "Logo letter (only used if the logo image can't load)", kind: "text", max: 2, required: true },
+    { key: "logoName", label: "Company name (the logo's description for screen readers)", kind: "text", max: 30, required: true },
+    { key: "logoSub", label: "Company name — second part", kind: "text", max: 30 },
     { key: "ctaLabel", label: "Button text", kind: "text", max: 40, required: true },
     link("ctaHref", "Button link"),
     { key: "menuTitle", label: "Phone menu title", kind: "text", max: 20, required: true },
@@ -103,6 +111,8 @@ export type NavItem = { label: string; href: string; /** optional menu icon key 
 
 export type HeaderContent = {
   logoMark: string; logoName: string; logoSub: string;
+  /** optional logo pictures (/media/<id> or https://); when set they replace the text logo */
+  logoImage: string; logoImageDark: string;
   ctaLabel: string; ctaHref: string; menuTitle: string;
 };
 
@@ -128,8 +138,12 @@ export const defaultCompanyLinks: NavItem[] = [
   { label: "FAQ", href: "/faq" },
 ];
 
+/** The official Ukvalley logo (built by scripts/build-brand-assets.mjs). */
+export const OFFICIAL_LOGO = "/brand/ukvalley-logo.png";
+
 export const defaultHeader: HeaderContent = {
   logoMark: "U", logoName: "Ukvalley", logoSub: "Technologies",
+  logoImage: OFFICIAL_LOGO, logoImageDark: "",
   ctaLabel: "Book a scoping call", ctaHref: "/contact", menuTitle: "Menu",
 };
 

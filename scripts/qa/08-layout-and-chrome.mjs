@@ -135,7 +135,8 @@ for (const path of ["/", "/pricing"]) {
   await go(page, path, { timeout: 120000 });
   const t = await text(page);
   check(`${path}: header button`, has(t, "QA header button"));
-  check(`${path}: logo sub-line`, has(t, "QA Labs"));
+  // the logo is a picture now: the name and sub-line are its description
+  check(`${path}: logo sub-line`, (await page.$eval("header a[href='/'] img", (i) => i.alt).catch(() => "")).includes("QA Labs"));
 }
 section("Footer");
 await go(page, "/admin/site/footer", { timeout: 180000 });

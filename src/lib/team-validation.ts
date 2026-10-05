@@ -64,7 +64,7 @@ export function validateTeam(
   text("focus", "Focus", 80);
   text("bio", "Bio", 400);
 
-  if (v.image && (v.image.length > 300 || !/^(\/|https:\/\/)/.test(v.image))) {
+  if (v.image && (v.image.length > 300 || !/^(\/(?![/\\])|https:\/\/)/.test(v.image))) {
     e.image = "Use an uploaded image (/media/…) or a full https:// address, up to 300 characters.";
   }
 

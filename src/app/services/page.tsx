@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
@@ -37,7 +38,9 @@ const toGlance = (services: Awaited<ReturnType<typeof getServices>>) => services
   };
 });
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("services", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Services — web, mobile, CRM, ERP, cloud & cybersecurity",
   description:
     "Service lines under one accountable team: web & mobile apps, custom CRM/ERP/HRMS, cloud & DevOps, digital marketing, managed IT, blockchain and brand design.",

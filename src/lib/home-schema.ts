@@ -9,7 +9,8 @@ export type HomeSectionKey =
   | "testimonials" | "insights" | "faq" | "cta";
 
 type BaseField = { key: string; label: string; hint?: string; required?: boolean };
-type SubField = BaseField & { kind: "text" | "textarea" | "image"; max: number; link?: boolean };
+/** `images`: several pictures, stored as one image address per line (keeps a card's values plain strings). */
+type SubField = BaseField & { kind: "text" | "textarea" | "image" | "images"; max: number; link?: boolean; maxImages?: number };
 
 export type FieldDef =
   | (BaseField & { kind: "text"; max: number; link?: boolean })
@@ -375,7 +376,8 @@ export function markedWords(text: string): { text: string; highlight: number[] }
 
 /* ── Validation ────────────────────────────────────────────────────── */
 
-const LINK = /^(\/[^\s]*|#[\w-]+|https?:\/\/[^\s]+)$/;
+// "/path" (but not "//host" or "/\host", which browsers treat as another site), "#id" or http(s)://
+const LINK = /^(\/(?![/\\])[^\s]*|#[\w-]+|https?:\/\/[^\s]+)$/;
 
 /**
  * Checks a submitted section against its definition. Unknown keys are
@@ -420,7 +422,18 @@ export function validateSection(
       if (rows.length > f.maxItems) errors[f.key] = `Add at most ${f.maxItems}.`;
       else if (rows.length < f.minItems) errors[f.key] = `Add at least ${f.minItems}.`;
       rows.forEach((r, i) =>
-        f.fields.forEach((sf) => checkText(`${f.key}.${i}.${sf.key}`, r[sf.key], sf.kind === "image" ? { ...sf, link: true } : sf))
+        f.fields.forEach((sf) => {
+          const path = `${f.key}.${i}.${sf.key}`;
+          if (sf.kind !== "images") return checkText(path, r[sf.key], sf.kind === "image" ? { ...sf, link: true } : sf);
+          // one address per line; blank lines dropped
+          const lines = r[sf.key].split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+          r[sf.key] = lines.join("\n");
+          if (!lines.length) {
+            if (sf.required) errors[path] = `${sf.label} is required.`;
+          } else if (sf.maxImages && lines.length > sf.maxImages) errors[path] = `Add at most ${sf.maxImages} pictures.`;
+          else if (r[sf.key].length > sf.max) errors[path] = "Too many pictures — remove a few.";
+          else if (lines.some((s) => !LINK.test(s) || s.startsWith("#"))) errors[path] = "Each picture needs a /media/… path or a full https:// link.";
+        })
       );
       value[f.key] = rows;
     }

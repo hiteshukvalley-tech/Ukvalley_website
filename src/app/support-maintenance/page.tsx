@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import {
   Cloud, Activity, ShieldCheck, Wrench, ArrowRight, Clock,
   FileBarChart, LifeBuoy, DatabaseBackup, RefreshCcw, Gauge, Target, Check,
@@ -18,7 +19,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("support-maintenance", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Support & maintenance — a 24-hour SLA, stated in writing",
   description:
     "Ukvalley's support and maintenance plans: 24-hour response SLA, 24×7 monitoring, patching, backups with tested restores and monthly health reports for the systems we build — and ones we didn't.",

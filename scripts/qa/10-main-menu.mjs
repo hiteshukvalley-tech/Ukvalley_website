@@ -38,11 +38,11 @@ for (let i = 0; i < 5; i++) {
   await clickButton("Delete section");
   await page.waitForFunction(() => location.pathname === "/admin/menu", { timeout: 30000 });
 }
-check("menu starts with the 6 original items", (await menuNames()).join(",") === "Services,Solutions,Work,Company,Hire,Insights", (await menuNames()).join(","));
+check("menu starts with the 7 original items (Careers since Oct 2026)", (await menuNames()).join(",") === "Services,Solutions,Work,Company,Careers,Hire,Insights", (await menuNames()).join(","));
 
 section("Public header (defaults)");
 await go(page, "/", { timeout: 180000 });
-check("header shows the 6 menus in order", (await headerMenu()).join(",") === "Services,Solutions,Work,Company,Hire,Insights", (await headerMenu()).join(","));
+check("header shows the 7 menus in order", (await headerMenu()).join(",") === "Services,Solutions,Work,Company,Careers,Hire,Insights", (await headerMenu()).join(","));
 
 section("Add a main section with a page of its own");
 await go(page, "/admin/menu");
@@ -74,7 +74,7 @@ await go(page, `/s/${slug}`, { timeout: 120000 });
 let body = await text(page);
 check("public page shows hero, card and block", has(body, "QA resources hub") && has(body, "QA hero description") && has(body, "QA card A") && has(body, "Open A") && has(body, "QA block title"));
 check("no *stars* on the page", !body.includes("*resources*"));
-check("header has the new menu item after Insights", (await headerMenu()).join(",") === "Services,Solutions,Work,Company,Hire,Insights,QA Resources", (await headerMenu()).join(","));
+check("header has the new menu item after Insights", (await headerMenu()).join(",") === "Services,Solutions,Work,Company,Careers,Hire,Insights,QA Resources", (await headerMenu()).join(","));
 check("sitemap lists the page", (await (await fetch(`${new URL(page.url()).origin}/sitemap.xml`)).text()).includes(`/s/${slug}`));
 
 section("Reorder, rename, hide, edit links");
@@ -137,7 +137,7 @@ await go(page, "/admin/menu");
 await clickButton("Restore original menu");
 await waitForText("The original menu is back.");
 await go(page, "/", { timeout: 120000 });
-check("original menu back", (await headerMenu()).join(",") === "Services,Solutions,Work,Company,Hire,Insights", (await headerMenu()).join(","));
+check("original menu back", (await headerMenu()).join(",") === "Services,Solutions,Work,Company,Careers,Hire,Insights", (await headerMenu()).join(","));
 
 check("no console/page errors", page.problems.length === 0, page.problems.slice(0, 5).join(" | "));
 await browser.close();

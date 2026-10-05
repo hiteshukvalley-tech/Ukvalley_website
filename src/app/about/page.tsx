@@ -1,6 +1,7 @@
 import { getServices } from "@/lib/services-store";
 import { countWord } from "@/lib/services-validation";
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, ShieldCheck, Clock, Rocket, Users, Building2, Check } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -23,7 +24,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("about", baseMetadata);
+const baseMetadata: Metadata = {
   title: "About Ukvalley Technologies — software engineers since 2017",
   description:
     "Founded in 2017, Ukvalley Technologies builds custom software, CRM, ERP and mobile apps for Indian SMEs and global startups. Meet the team and the principles we build on.",

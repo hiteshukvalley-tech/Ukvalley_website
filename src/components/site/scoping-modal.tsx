@@ -200,12 +200,12 @@ export function ScopingProvider({
                     <T>Free · 30 minutes · No obligation</T>
                   </span>
                   <h3 className="font-heading text-2xl font-bold leading-tight text-uk-heading">
-                    Book a scoping call with a{" "}
+                    <T>Book a scoping call with a</T>{" "}
                     <span className="text-gradient-blue"><T>software architect</T></span> <T>— not a
                     sales bot.</T>
                   </h3>
                   <p className="text-sm leading-relaxed text-uk-muted">
-                    Tell us about your project below. A reply within{" "}
+                    <T>Tell us about your project below. A reply within</T>{" "}
                     <span className="font-semibold text-uk-heading"><T>1 business hour</T></span><T>,
                     a rough estimate in 3 days, a fixed proposal in 7.</T>
                   </p>
@@ -247,7 +247,7 @@ export function ScopingProvider({
               <div className="flex items-center justify-center gap-2 border-t border-uk-line bg-uk-surface-2 px-5 py-4 text-sm text-uk-muted">
                 <Phone className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
                 <span>
-                  Prefer to talk first? Call{" "}
+                  <T>Prefer to talk first? Call</T>{" "}
                   <a
                     href={`tel:${phone.replace(/\s+/g, "")}`}
                     className="font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"

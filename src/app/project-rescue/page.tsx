@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { Siren, KeyRound, FileSearch, Wrench, ArrowRight, ShieldAlert, GitBranch, DatabaseBackup, Target, Gauge, Check } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { ScopingButton } from "@/components/site/scoping-modal";
@@ -15,7 +16,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("project-rescue", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Project rescue — when your software project is failing",
   description:
     "The vendor disappeared, the code is undocumented and every change breaks something. Ukvalley's audit-first rescue sequence stabilises inherited codebases — ownership first, then a written audit, then fixes.",

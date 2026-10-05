@@ -2,7 +2,7 @@ import Link from "@/components/site/intent-link";
 import {
   Wrench, Newspaper, Trophy, Boxes, Puzzle, Building2, UserPlus, MapPin,
   Users, Briefcase, MessageSquareQuote, HelpCircle, ExternalLink, CircleCheck,
-  CircleAlert, Info, ArrowUpRight, Inbox, Image as ImageIcon, House, EyeOff, FileUser,
+  CircleAlert, Info, ArrowUpRight, Inbox, /* Image as ImageIcon, */ House, EyeOff, FileUser,
 } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { StatCard } from "@/components/admin/stat-card";
@@ -20,7 +20,7 @@ import { getTestimonials } from "@/lib/testimonials-store";
 import { getFaqs } from "@/lib/faqs-store";
 import { countNewLeads } from "@/lib/leads-store";
 import { countNewApplications } from "@/lib/applications-store";
-import { countMedia } from "@/lib/media-store";
+// import { countMedia } from "@/lib/media-store"; // Media card hidden (see below)
 import { getTeam } from "@/lib/team-store";
 import { getCareers } from "@/lib/careers-store";
 import { getLocations } from "@/lib/locations-store";
@@ -81,11 +81,11 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
   // database instead of ~15 in a row.
   const [
     statusChecks, posts, services, cases, products, solutions, industries,
-    hireRoles, locations, team, careers, testimonials, faqs, newLeads, newApplications, mediaCount, home,
+    hireRoles, locations, team, careers, testimonials, faqs, newLeads, newApplications, /* mediaCount, */ home,
   ] = await Promise.all([
     getStatusChecks(), getPosts(), getServices(), getCaseStudies(), getProducts(), getSolutions(),
     getIndustries(), getHireRoles(), getLocations(), getTeam(), getCareers(), getTestimonials(),
-    getFaqs(), countNewLeads(), countNewApplications(), countMedia(), getHomeForAdmin(),
+    getFaqs(), countNewLeads(), countNewApplications(), /* countMedia(), */ getHomeForAdmin(),
   ]);
   const cards = content(services.length, posts.length, cases.length, products.length, solutions.length, industries.length, hireRoles.length, locations.length, team.length, careers.length, testimonials.length, faqs.length);
   const editedHome = HOME_SECTIONS.filter((s) => home.updated[s.key]).length;
@@ -117,7 +117,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
 
       <section aria-labelledby="leads-heading" className="mb-8">
         <h2 id="leads-heading" className="mb-3 font-heading text-lg font-semibold text-uk-heading">
-          Inbox &amp; media
+          Inbox
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
           <StatCard
@@ -134,13 +134,14 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             href="/admin/applications"
             hint={newApplications === null ? "Database not connected" : newApplications === 0 ? "All reviewed" : "Waiting for review"}
           />
+          {/* Media is hidden from the admin panel for now (see nav.ts).
           <StatCard
             label="Media files"
             value={mediaCount ?? "—"}
             icon={ImageIcon}
             href="/admin/media"
             hint={mediaCount === null ? "Database not connected" : undefined}
-          />
+          /> */}
         </div>
       </section>
 

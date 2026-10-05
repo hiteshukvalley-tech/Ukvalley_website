@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import {
   MapPin, Building, Landmark, Flag, Cpu, Briefcase,
@@ -19,7 +20,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("locations", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Locations — where Ukvalley engineers and engages",
   description:
     "Ukvalley's offices and delivery coverage: Maharashtra headquarters, Pune and Nagpur offices, and delivery coverage for Mumbai, Delhi NCR, Bengaluru, Hyderabad, Ahmedabad, Chennai, Dubai, Toronto and New York.",

@@ -23,6 +23,16 @@ export function ReorderScope({ all, start, children }: { all: string[]; start: n
 }
 
 /**
+ * Turns the reordered slugs of the visible page into the full order to save:
+ * the whole list with this page's slots rewritten (unchanged without a scope).
+ */
+export function useFullOrder() {
+  const scope = useContext(ReorderContext);
+  return (slugs: string[]) =>
+    scope ? [...scope.all.slice(0, scope.start), ...slugs, ...scope.all.slice(scope.start + slugs.length)] : slugs;
+}
+
+/**
  * A list of rows you can drag anywhere (to the very top or bottom too). The new
  * order shows instantly and is saved on drop through `onReorder`; if the save
  * fails the list snaps back and shows the message. While dragging near the top
@@ -43,7 +53,7 @@ export function SortableRows<T extends { slug: string }>({
   renderRow: (item: T, index: number) => ReactNode;
   hint?: string;
 }) {
-  const scope = useContext(ReorderContext);
+  const fullOrder = useFullOrder();
   const [items, setItems] = useState(initial);
   const [dragging, setDragging] = useState<string | null>(null);
   // Index the dragged row would land at (0..n), shown as a line between rows.
@@ -109,10 +119,7 @@ export function SortableRows<T extends { slug: string }>({
     setItems(next);
     setError(undefined);
     start(async () => {
-      const slugs = next.map((s) => s.slug);
-      const r = await onReorder(
-        scope ? [...scope.all.slice(0, scope.start), ...slugs, ...scope.all.slice(scope.start + slugs.length)] : slugs
-      );
+      const r = await onReorder(fullOrder(next.map((s) => s.slug)));
       if (!r.ok) {
         setItems(previous);
         setError(r.message);

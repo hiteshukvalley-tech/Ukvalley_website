@@ -47,7 +47,9 @@ export const PAGE_DEF: SectionDef = {
     { key: "heroEyebrow", label: "Hero — small label", kind: "text", max: 60, hint: KEEP },
     { key: "heroTitle", label: "Hero — title", kind: "text", max: 160, hint: `${KEEP} Wrap words in *stars* to highlight them.` },
     { key: "heroDescription", label: "Hero — description", kind: "textarea", max: 400, rows: 3, hint: KEEP },
-        {
+    { key: "seoTitle", label: "SEO — page title (browser tab & Google)", kind: "text", max: 70, hint: `${KEEP} About 50–60 characters; the company name is added after it.` },
+    { key: "seoDescription", label: "SEO — description (Google & link previews)", kind: "textarea", max: 200, rows: 2, hint: `${KEEP} About 150–160 characters.` },
+    {
       key: "blocks",
       label: "Extra blocks (shown at the end of the page, above the footer)",
       kind: "group",
@@ -100,15 +102,43 @@ const TEAM_FIELDS: SectionDef["fields"] = [
   { key: "workImageAlt", label: "“How the team is built” — image description", kind: "text", max: 140 },
 ];
 
-/** The editor definition for one page: About also gets the owner / company fields. */
-export function pageDef(key: string): SectionDef {
-  if (key === "team") {
-    const i = PAGE_DEF.fields.findIndex((f) => f.key === "blocks");
-    return { ...PAGE_DEF, fields: [...PAGE_DEF.fields.slice(0, i), ...TEAM_FIELDS, ...PAGE_DEF.fields.slice(i)] };
-  }
-  if (key !== "about") return PAGE_DEF;
+/**
+ * Our social impact page: the intro and its photo-gallery sections (tree
+ * plantation, sports, celebrations…). The admin edits, reorders, removes and
+ * adds gallery sections; the editor opens pre-filled with the built-in ones.
+ */
+const SOCIAL_FIELDS: SectionDef["fields"] = [
+  { key: "introEyebrow", label: "Intro — small label", kind: "text", max: 60, hint: KEEP },
+  { key: "introTitle", label: "Intro — title", kind: "text", max: 160, hint: KEEP },
+  { key: "introText", label: "Intro — text", kind: "textarea", max: 3000, rows: 8, hint: `${KEEP} Press Enter twice for a new paragraph.` },
+  {
+    key: "galleries",
+    label: "Page sections",
+    kind: "group",
+    itemLabel: "Section",
+    minItems: 0,
+    maxItems: 30,
+    hint: "Each section is a title, a text and (optionally) a photo carousel. Add as many as you like with “Add section” and use the arrows to reorder them. Remove every section to show the built-in ones again.",
+    fields: [
+      { key: "title", label: "Title", kind: "text", max: 80, required: true },
+      { key: "caption", label: "Badge on the photos (e.g. Tree Plantation)", kind: "text", max: 40 },
+      { key: "description", label: "Text", kind: "textarea", max: 1500 },
+      { key: "photos", label: "Photos (optional — leave empty for a text-only section)", kind: "images", max: 12000, maxImages: 40 },
+    ],
+  },
+];
+
+const insertBeforeBlocks = (extra: SectionDef["fields"]): SectionDef => {
   const i = PAGE_DEF.fields.findIndex((f) => f.key === "blocks");
-  return { ...PAGE_DEF, fields: [...PAGE_DEF.fields.slice(0, i), ...FOUNDER_FIELDS, ...PAGE_DEF.fields.slice(i)] };
+  return { ...PAGE_DEF, fields: [...PAGE_DEF.fields.slice(0, i), ...extra, ...PAGE_DEF.fields.slice(i)] };
+};
+
+/** The editor definition for one page: some pages get extra fields of their own. */
+export function pageDef(key: string): SectionDef {
+  if (key === "team") return insertBeforeBlocks(TEAM_FIELDS);
+  if (key === "about") return insertBeforeBlocks(FOUNDER_FIELDS);
+  if (key === "social-impact") return insertBeforeBlocks(SOCIAL_FIELDS);
+  return PAGE_DEF;
 }
 
 export type PageBlock = {
@@ -117,17 +147,23 @@ export type PageBlock = {
 };
 export type PageContent = {
   heroEyebrow: string; heroTitle: string; heroDescription: string; blocks: PageBlock[];
+  seoTitle: string; seoDescription: string;
   founderEyebrow: string; founderName: string; founderRole: string; founderDescription: string;
   founderImage: string; founderImageAlt: string; companyDescription: string;
   founderFacts: { label: string; value: string }[];
   workImage: string; workImageAlt: string;
+  introEyebrow: string; introTitle: string; introText: string;
+  /** `photos`: one image address per line */
+  galleries: { title: string; caption: string; description: string; photos: string }[];
 };
 
 export const emptyPageContent: PageContent = {
   heroEyebrow: "", heroTitle: "", heroDescription: "", blocks: [],
+  seoTitle: "", seoDescription: "",
   founderEyebrow: "", founderName: "", founderRole: "", founderDescription: "",
   founderImage: "", founderImageAlt: "", companyDescription: "", founderFacts: [],
   workImage: "", workImageAlt: "",
+  introEyebrow: "", introTitle: "", introText: "", galleries: [],
 };
 export const emptyPageValues = emptyPageContent as unknown as SectionValues;
 

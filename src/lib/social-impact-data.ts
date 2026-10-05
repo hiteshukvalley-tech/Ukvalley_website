@@ -66,3 +66,54 @@ export const socialImpactGroups: ImpactGroup[] = [
     photos: photos("workshop", 19, "Ukvalley AI workshop"),
   },
 ];
+
+/* ── Admin editing (Admin → Page text → Our social impact) ──────────── */
+
+type SavedSocialImpact = {
+  introEyebrow: string; introTitle: string; introText: string;
+  galleries: { title: string; caption: string; description: string; photos: string }[];
+};
+
+/** The built-in intro and galleries in the editor's shape, so the admin starts from what the page shows. */
+export function socialImpactEditorDefaults(): SavedSocialImpact {
+  return {
+    introEyebrow: socialImpactIntro.eyebrow,
+    introTitle: socialImpactIntro.title,
+    introText: socialImpactIntro.paragraphs.join("\n\n"),
+    galleries: socialImpactGroups.map((g) => ({
+      title: g.title, caption: g.caption, description: g.description, photos: g.photos.map((p) => p.src).join("\n"),
+    })),
+  };
+}
+
+const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "section";
+// Descriptions and crops written for the built-in photos, kept when the admin re-saves them.
+const builtInPhotos = new Map(socialImpactGroups.flatMap((g) => g.photos).map((p) => [p.src, p]));
+
+/** What the page shows: saved admin edits where present, the built-in content otherwise. */
+export function resolveSocialImpact(saved: SavedSocialImpact) {
+  const paragraphs = saved.introText.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const intro = {
+    eyebrow: saved.introEyebrow || socialImpactIntro.eyebrow,
+    title: saved.introTitle || socialImpactIntro.title,
+    paragraphs: paragraphs.length ? paragraphs : socialImpactIntro.paragraphs,
+  };
+  if (!saved.galleries.length) return { intro, groups: socialImpactGroups };
+  const used = new Set<string>();
+  const groups: ImpactGroup[] = saved.galleries.map((g) => {
+    // unique anchor ids (#celebrations), even when two titles match
+    let id = slug(g.title);
+    for (let n = 2; used.has(id); n++) id = `${slug(g.title)}-${n}`;
+    used.add(id);
+    const srcs = g.photos.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+    return {
+      id,
+      title: g.title,
+      caption: g.caption,
+      description: g.description,
+      photos: srcs.map((src, i) => builtInPhotos.get(src) ?? { src, alt: `${g.title} — photo ${i + 1}` }),
+    };
+  });
+  // sections without photos show as text only
+  return { intro, groups };
+}

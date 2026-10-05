@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import {
   Users, LayoutDashboard, Briefcase, GraduationCap, ShoppingBag,
@@ -22,7 +23,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("solutions", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Solutions — ready-to-build systems for your industry",
   description:
     "CRM, ERP, HRMS, LMS, e-commerce, POS, loan origination, healthcare, logistics, booking and more — production-proven solution patterns Ukvalley builds and customises for your business.",

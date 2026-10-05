@@ -6,6 +6,7 @@ import { GripVertical, Loader2 } from "lucide-react";
 import { reorderServicesAction } from "./actions";
 import { RowActions } from "./row-actions";
 import { toast } from "@/components/admin/toast";
+import { useFullOrder } from "@/components/admin/sortable-rows";
 
 export type SortableItem = {
   slug: string;
@@ -33,6 +34,7 @@ export function SortableList({
   /** True while a search/filter is active: reordering needs the full list. */
   locked: boolean;
 }) {
+  const fullOrder = useFullOrder();
   const [items, setItems] = useState(initial);
   const [dragging, setDragging] = useState<string | null>(null);
   // Index the dragged row would land at (0..n), shown as a line between rows.
@@ -98,7 +100,8 @@ export function SortableList({
     setItems(next);
     setError(undefined);
     start(async () => {
-      const r = await reorderServicesAction(next.map((s) => s.slug));
+      // the full order (other pages of the list keep their places)
+      const r = await reorderServicesAction(fullOrder(next.map((s) => s.slug)));
       if (!r.ok) {
         setItems(previous);
         setError(r.message);

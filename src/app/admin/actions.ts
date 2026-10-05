@@ -74,13 +74,12 @@ export async function loginAction(
   }
 
   // The owner account (env vars, or its reset password); otherwise a database user.
-  let user: SessionUser | null = await checkOwnerCredentials(email, password);
-  if (!user && hasDatabaseUrl()) {
-    try {
-      user = await authenticateUser(email, password);
-    } catch {
-      return { error: "Could not reach the database. Try again, or sign in as the owner.", email };
-    }
+  let user: SessionUser | null;
+  try {
+    user = await checkOwnerCredentials(email, password);
+    if (!user && hasDatabaseUrl()) user = await authenticateUser(email, password);
+  } catch {
+    return { error: "Could not reach the database. Try again in a moment.", email };
   }
   if (!user) {
     recordFail(ipKey);

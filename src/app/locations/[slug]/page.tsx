@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -42,11 +43,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const l = (await getLocations()).find((x) => x.slug === slug);
   if (!l) return {};
-  return {
-    title: `${l.city} — software development ${l.type === "Presence" ? "presence" : "office & delivery"} | Ukvalley`,
+  return withSharePreview({
+    title: `${l.city} — software development ${l.type === "Presence" ? "presence" : "office & delivery"}`,
     description: l.blurb,
     alternates: { canonical: `https://ukvalley.com/locations/${l.slug}` },
-  };
+  });
 }
 
 export default async function LocationPage({ params }: Props) {

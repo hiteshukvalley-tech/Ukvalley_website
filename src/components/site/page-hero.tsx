@@ -1556,12 +1556,14 @@ export async function PageHero({
           )}
         </Reveal>
 
-        {/* Below xl the artwork sits centred under the copy. Width leaves
-            room for the outer orbit ring (3.5rem each side) on phones. */}
+        {/* Below xl the artwork sits centred under the copy (tablets).
+            Phones (Android / iOS) skip it: hidden under md in portrait,
+            and in landscape via a short touch screen. Hidden with CSS, so
+            the lazy image isn't downloaded there either. */}
         {art && (
           <ImageCanvas
             art={art}
-            className="relative mx-auto mb-10 mt-20 w-[min(20rem,calc(100vw-9rem))] xl:hidden"
+            className="relative mx-auto mb-10 mt-20 w-[min(20rem,calc(100vw-9rem))] max-md:hidden xl:hidden [@media(pointer:coarse)_and_(max-height:500px)]:hidden"
           />
         )}
       </div>

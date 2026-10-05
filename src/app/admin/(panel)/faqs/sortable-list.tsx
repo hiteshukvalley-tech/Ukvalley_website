@@ -36,7 +36,7 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
       <div className="flex items-center gap-1.5">
         {pending && <Loader2 className="h-4 w-4 animate-spin text-uk-muted" aria-label="Working" />}
         {published && (
-          <Link draggable={false} href="/" target="_blank" className={btn} aria-label="View the home page" title="View the home page">
+          <Link draggable={false} href="/faq" target="_blank" className={btn} aria-label="View the FAQ page" title="View the FAQ page">
             <ExternalLink className="h-4 w-4" />
           </Link>
         )}

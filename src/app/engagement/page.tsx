@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
@@ -41,7 +42,9 @@ const fitGuide = [
   },
 ];
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("engagement", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Engagement models — fixed-bid, dedicated team, retainer, staff augmentation",
   description:
     "Four transparent ways to work with Ukvalley: fixed-bid projects, dedicated teams, monthly retainers and staff augmentation. Pick the model that fits your scope and budget.",

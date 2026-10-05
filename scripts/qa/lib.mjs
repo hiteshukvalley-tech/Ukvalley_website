@@ -47,6 +47,18 @@ export async function launch() {
 export async function newPage(browser, { width = 1366, height = 900 } = {}) {
   const page = await browser.newPage();
   await page.setViewport({ width, height });
+  // The admin asks "Are you sure?" in its own in-page dialog (not window.confirm,
+  // so page.on("dialog") never fires): answer it with its confirm button, like
+  // the suites expect.
+  await page.evaluateOnNewDocument(() => {
+    new MutationObserver(() => {
+      const d = document.querySelector("[data-confirm-dialog]");
+      if (d && !d.dataset.qaAnswered) {
+        d.dataset.qaAnswered = "1";
+        setTimeout(() => [...d.querySelectorAll("button")].pop()?.click(), 50);
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
   page.problems = [];
   page.on("pageerror", (e) => page.problems.push("pageerror: " + e.message.slice(0, 200)));
   page.on("console", (m) => {

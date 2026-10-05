@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -32,11 +33,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const p = (await getProducts()).find((x) => x.slug === slug);
   if (!p) return {};
-  return {
+  return withSharePreview({
     title: `${p.name} — ${p.tagline}`,
     description: p.description,
     alternates: { canonical: `https://ukvalley.com/products/${p.slug}` },
-  };
+  });
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -75,7 +76,7 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(productSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />
+      {faqSchema.mainEntity.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(faqSchema) }} />}
       <ScrollProgress />
       <Header />
       <main id="main">

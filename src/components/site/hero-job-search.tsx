@@ -134,7 +134,8 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
         {searching ? (
           filtered ? (
             <>
-              <span className="font-semibold text-uk-heading"><Tx>{results.length}</Tx></span> of {total} open role{total === 1 ? "" : "s"} match your search
+              <span className="font-semibold text-uk-heading"><Tx>{results.length}</Tx></span> <T>of</T> {total}{" "}
+              {total === 1 ? <T>open role matches your search</T> : <T>open roles match your search</T>}
             </>
           ) : (
             <>
@@ -179,7 +180,11 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
             href={allHref}
             className="flex items-center justify-center gap-1.5 border-t border-uk-line bg-uk-surface-2 px-4 py-3 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
           >
-            {results.length > SHOWN ? `See all ${results.length} ${filtered ? "matching " : ""}roles` : "See these roles in the full list"}
+            {results.length > SHOWN ? (
+              <><T>See all</T> {results.length} {filtered ? <T>matching roles</T> : <T>roles</T>}</>
+            ) : (
+              <T>See these roles in the full list</T>
+            )}
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>

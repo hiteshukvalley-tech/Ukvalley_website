@@ -228,7 +228,7 @@ function ApplicationForm({
         <span className="flex h-14 w-14 items-center justify-center rounded-full bg-uk-blue/15 text-uk-blue">
           <Check className="h-7 w-7" />
         </span>
-        <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">Thank you, {sentTo.name}! Your application is in.</h3>
+        <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading"><T>Thank you,</T> {sentTo.name}<T>! Your application is in.</T></h3>
         <p className="mt-2 max-w-md text-sm text-uk-body">
           <T>We&apos;ve received your application for</T> <span className="font-semibold text-uk-heading"><Tx>{sentTo.position}</Tx></span> <T>and
           sent a confirmation to</T> <span className="font-semibold text-uk-heading"><Tx>{sentTo.email}</Tx></span><T>. Our HR team will be in
@@ -379,7 +379,7 @@ function ApplicationForm({
               "No file chosen"
             )}
           </span>
-          <span className="w-full text-xs text-uk-muted">PDF only, up to {RESUME_MAX_BYTES / 1024 / 1024} MB.</span>
+          <span className="w-full text-xs text-uk-muted"><T>PDF only, up to</T> {RESUME_MAX_BYTES / 1024 / 1024} <T>MB.</T></span>
         </div>
       </Field>
 
@@ -412,7 +412,7 @@ function ApplicationForm({
         className="btn-sheen inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-uk-blue px-6 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright disabled:opacity-60"
       >
         {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-        {submitting ? "Submitting…" : "Submit Application"}
+        {submitting ? <T>Submitting…</T> : <T>Submit Application</T>}
         {!submitting && <ArrowRight className="h-4 w-4" />}
       </button>
     </form>

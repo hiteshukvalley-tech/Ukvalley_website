@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
 import { ScrollProgress } from "@/components/site/scroll-progress";
@@ -38,7 +39,9 @@ const criteria = [
   },
 ];
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("tech-stack", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Tech stack — the platforms we build on",
   description:
     "React, Next.js, Angular, Vue, Flutter, Kotlin, Node, Laravel, Django, Python, PHP, Java, MongoDB and PostgreSQL on AWS and Azure. We pick the stack that fits your team — not ours.",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import {
   ArrowRight, Award, Briefcase, Check, GraduationCap, Heart, MapPin, RotateCcw, Rocket, Sparkles,
   TrendingUp, UserCheck, Users,
@@ -22,7 +23,9 @@ import { ukText } from "@/lib/texts";
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("careers", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Careers at Ukvalley — find your next role",
   description:
     "Open roles at Ukvalley Technologies — Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",

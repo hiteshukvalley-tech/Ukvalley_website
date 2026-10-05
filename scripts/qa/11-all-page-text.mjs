@@ -57,8 +57,9 @@ body = await text(page);
 check("shows the page's heading", await page.evaluate(() => [...document.querySelectorAll("main ol textarea")].some((e) => e.value === "Privacy Policy")));
 check("shows a paragraph", await page.evaluate(() => [...document.querySelectorAll("main ol textarea")].some((e) => e.value === "What we collect")));
 const sectionCount = (await page.$$("main section[class*=overflow-hidden] > button")).length;
-check("text is grouped into collapsible sections", sectionCount >= 3, String(sectionCount));
-check("has Header and Footer groups", has(body, "Header (menu bar)") && has(body, "Footer"));
+check("text is grouped into collapsible sections", sectionCount >= 2, String(sectionCount));
+// Header and footer are edited once in their own editors (Overview → Header / Footer), not per page.
+check("no Header/Footer groups on a page", !has(body, "Header (menu bar)"));
 
 section("Edit text");
 check("heading field found", await setField("Privacy Policy", "QA Privacy Heading"));
@@ -129,7 +130,9 @@ check("bad image path is rejected", await (async () => {
   return true;
 })());
 
-section("An edit that cannot show is reported");
+// Form labels used to be built into the form and could not change; since the
+// October 2026 "editable text everywhere" pass they are editable like any text.
+section("Form labels can be edited");
 await go(page, editorPath("/contact"), { timeout: 180000 });
 const label = await page.$$eval("main ol > li", (ls) => ls.map((l) => ({ role: l.querySelector("span")?.innerText ?? "", val: l.querySelector("textarea,input")?.value ?? "" }))
   .find((r) => /label/i.test(r.role) && r.val.length > 2 && r.val.length < 40)?.val ?? null);
@@ -137,8 +140,12 @@ check("found a form label on /contact", !!label);
 if (label) {
   await setField(label, "QA form label");
   await clickButton("Save changes");
-  await waitForText("not showing on this page");
-  check("warned that the form label cannot be edited here", has(await text(page), "built into an interactive part"));
+  await page.waitForFunction(
+    () => /Checked on the live page|not showing on this page/.test(document.body.innerText), { timeout: 60000 }
+  );
+  check("the form label edit shows on the live page", has(await text(page), "Checked on the live page"));
+  body = await publicText("/contact");
+  check("form label replaced on /contact", has(body, "QA form label"));
 }
 
 section("Reset everything");

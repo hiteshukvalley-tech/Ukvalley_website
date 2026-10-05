@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { editableMetadata } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Target, Building2, CircleAlert, Layers, TrendingUp, Gauge } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -17,7 +18,9 @@ import { ukText } from "@/lib/texts";
 export const revalidate = 60;
 
 
-export const metadata: Metadata = {
+// Title and description can be replaced in Admin → Page text (SEO fields).
+export const generateMetadata = () => editableMetadata("case-studies", baseMetadata);
+const baseMetadata: Metadata = {
   title: "Case studies — software projects with measured results",
   description:
     "Eleven anonymised engagements across fintech, retail, healthcare, manufacturing, logistics, education and more. Each case study names the sector context, the challenge, what we built, the stack and the measured result.",
