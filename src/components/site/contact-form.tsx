@@ -120,7 +120,7 @@ export function ContactForm({
           <T>Thanks — we&apos;ve received your enquiry.</T>
         </h3>
         <p className="mt-2 text-sm text-uk-body">
-          <T>A software architect will reply within one business hour. Prefer to talk now? Call</T>{" "}
+          <T>A software architect will reply within one business day. Prefer to talk now? Call</T>{" "}
           <a
             href={`tel:${company.phonePrimary.replace(/\s+/g, "")}`}
             className="font-semibold text-uk-blue hover:text-uk-blue-bright"
@@ -157,7 +157,7 @@ export function ContactForm({
         </h3>
         <p className="mt-2 text-sm text-uk-body">
           <T>We&apos;ve written the email for you. Once it&apos;s sent, we reply
-          within one business hour.</T>
+          within one business day.</T>
         </p>
         <p className="mt-4 text-sm text-uk-body">
           <T>Email app didn&apos;t open? Write to</T>{" "}
@@ -315,7 +315,17 @@ export function ContactForm({
           className="mt-0.5 h-4 w-4 flex-none rounded border-uk-line-2 bg-uk-card text-uk-blue"
         />
         <span>
-          <T>I agree to be contacted about this enquiry. We never share your details.</T>
+          <T>I agree to be contacted about this enquiry. We use your details only to reply and never share them — see our</T>{" "}
+          {/* New tab, so a half-filled form (or the popup) isn't lost */}
+          <a
+            href="/privacy"
+            target="_blank"
+            rel="noopener"
+            className="font-medium text-uk-blue underline underline-offset-2 hover:text-uk-blue-bright"
+          >
+            <T>Privacy Policy</T>
+          </a>
+          .
           {errors.consent && (
             <span className="mt-1 flex items-center gap-1 text-destructive">
               <AlertCircle className="h-3.5 w-3.5" />
@@ -342,7 +352,7 @@ export function ContactForm({
       </Button>
 
       <p className="text-center text-xs text-uk-muted">
-        <T>Within 1 business hour: a reply. 3 days: a rough estimate. 7 days: a fixed proposal.</T>
+        <T>Within 1 business day: a reply. 3 days: a rough estimate. 7 days: a fixed proposal.</T>
       </p>
     </form>
   );

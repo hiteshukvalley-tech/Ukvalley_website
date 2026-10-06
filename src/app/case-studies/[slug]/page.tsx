@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { headlineTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = (await getCaseStudies()).find((x) => x.slug === slug);
   if (!c) return {};
   return withSharePreview({
-    title: `${c.title} — ${c.sector} case study`,
+    title: headlineTitle(c.title, `${c.title} — ${c.sector} case study`, `${c.title} — case study`),
     description: c.result,
     alternates: { canonical: `${SITE_URL}/case-studies/${c.slug}` },
     openGraph: {

@@ -8,7 +8,17 @@ import { useEffect, useState } from "react";
  * timeout). Route changes use the `template.tsx` entrance animation
  * instead, so this never flashes on navigation.
  */
-export function PageLoader() {
+export function PageLoader({
+  logo,
+  logoDark,
+  alt,
+}: {
+  /** The site logo (Admin → Header; the official logo unless another was uploaded). */
+  logo: string;
+  /** Optional dark-mode version of the logo. */
+  logoDark?: string;
+  alt: string;
+}) {
   const [done, setDone] = useState(false);
   const [hidden, setHidden] = useState(false);
 
@@ -44,17 +54,20 @@ export function PageLoader() {
       <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-uk-blue/15 blur-[120px]" aria-hidden />
 
       <div className="relative flex flex-col items-center gap-6">
-        <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-uk-blue to-uk-blue-bright shadow-glow-blue">
-          <span className="font-heading text-3xl font-bold text-uk-white">U</span>
-          <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-uk-yellow" />
-        </div>
-        <div className="flex flex-col items-center gap-2">
-          <span className="font-heading text-sm font-bold uppercase tracking-[0.32em] text-uk-heading">
-            Ukvalley
-          </span>
-          <div className="h-0.5 w-40 overflow-hidden rounded-full bg-uk-line">
-            <div className="loader-shimmer h-full w-full" />
-          </div>
+        {/* plain <img>: the logo can be /media/<id> or any https address; it must paint with the first HTML */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logo}
+          alt={alt}
+          fetchPriority="high"
+          className={`h-14 w-auto max-w-[15rem] object-contain sm:h-16 sm:max-w-[18rem] ${logoDark ? "dark:hidden" : ""}`}
+        />
+        {logoDark && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logoDark} alt={alt} className="hidden h-14 w-auto max-w-[15rem] object-contain sm:h-16 sm:max-w-[18rem] dark:block" />
+        )}
+        <div className="h-0.5 w-40 overflow-hidden rounded-full bg-uk-line">
+          <div className="loader-shimmer h-full w-full" />
         </div>
       </div>
     </div>

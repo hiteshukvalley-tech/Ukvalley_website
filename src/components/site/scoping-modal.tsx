@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Dialog } from "@base-ui/react/dialog";
 import { X, Phone, Clock, ShieldCheck, CalendarCheck, ChevronDown } from "lucide-react";
 import { ContactForm } from "./contact-form";
 import { company } from "@/lib/site-core";
@@ -18,9 +19,13 @@ import { T, Tx } from "@/components/site/texts-context";
  * opens this modal, which hosts the same "Tell us about your project" form
  * as the Contact page. The header CTA intentionally stays a normal link to
  * /contact — only this popup wraps the form elsewhere.
+ *
+ * Built on Base UI's Dialog so focus moves into the popup, Tab is trapped
+ * inside, the page behind is inert, Escape / backdrop click close it and
+ * focus returns to the button that opened it.
  */
 
-type ScopingContextValue = { open: () => void };
+type ScopingContextValue = { open: (trigger?: HTMLElement | null) => void };
 
 const ScopingContext = createContext<ScopingContextValue>({ open: () => {} });
 
@@ -28,7 +33,11 @@ export function useScoping() {
   return useContext(ScopingContext);
 }
 
-/** Button that opens the scoping-call popup (drops in for a /contact Link). */
+/**
+ * Opens the scoping-call popup. Rendered as a real link to /contact so a
+ * click before hydration (or with JS off) still reaches the form; once
+ * hydrated, a plain left-click is intercepted to open the popup instead.
+ */
 export function ScopingButton({
   className,
   children,
@@ -38,9 +47,19 @@ export function ScopingButton({
 }) {
   const { open } = useScoping();
   return (
-    <button type="button" onClick={open} className={`cursor-pointer ${className ?? ""}`}>
+    <a
+      href="/contact"
+      aria-haspopup="dialog"
+      onClick={(e) => {
+        // Let new-tab / new-window clicks follow the link as normal.
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        open(e.currentTarget);
+      }}
+      className={`cursor-pointer ${className ?? ""}`}
+    >
       {children}
-    </button>
+    </a>
   );
 }
 
@@ -58,38 +77,27 @@ export function ScopingProvider({
   const [showHint, setShowHint] = useState(false);
   const [progress, setProgress] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const open = useCallback(() => setOpen(true), []);
-  const close = useCallback(() => setOpen(false), []);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const open = useCallback((trigger?: HTMLElement | null) => {
+    triggerRef.current = trigger ?? null;
+    setProgress(0);
+    setOpen(true);
+  }, []);
 
-  // Escape closes the popup; lock page scroll behind it.
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("keydown", onKey);
-    // Lock <html> as well as <body>: iOS Safari ignores overflow on body
-    // alone, so the page kept scrolling behind the popup on iPhones.
-    const html = document.documentElement;
-    const prevBody = document.body.style.overflow;
-    const prevHtml = html.style.overflow;
-    document.body.style.overflow = "hidden";
-    html.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prevBody;
-      html.style.overflow = prevHtml;
-    };
-  }, [isOpen]);
+  // Escape, backdrop clicks and the page scroll lock are handled by the
+  // modal Dialog (its lock covers <html> too, so iOS Safari stays put).
 
   // Show the "scroll for more" pill only when the form actually overflows,
   // and hide it once the user reaches the bottom.
   useEffect(() => {
     if (!isOpen) return;
-    const el = scrollRef.current;
-    if (!el) return;
-    el.scrollTop = 0;
+    // Read the ref inside the timeout — the portalled panel mounts a beat
+    // after this effect runs.
     const measure = window.setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      el.scrollTop = 0;
       setShowHint(el.scrollHeight > el.clientHeight + 8);
     }, 60);
     return () => window.clearTimeout(measure);
@@ -109,23 +117,14 @@ export function ScopingProvider({
   return (
     <ScopingContext.Provider value={{ open }}>
       {children}
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Book a free scoping call"
-          className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto p-4 sm:p-6"
-        >
+      <Dialog.Root open={isOpen} onOpenChange={setOpen}>
+        <Dialog.Portal>
           {/* Backdrop — deep blur; pure black in dark mode (uk-heading
               turns light there, so it can't tint the dim layer) */}
-          <div
-            className="scoping-fade fixed inset-0 bg-uk-heading/50 backdrop-blur-md dark:bg-[#070511]/70"
-            onClick={close}
-            aria-hidden
-          />
+          <Dialog.Backdrop className="scoping-fade fixed inset-0 z-[90] bg-uk-heading/50 backdrop-blur-md dark:bg-[#070511]/70" />
+          <Dialog.Viewport className="fixed inset-0 z-[90] flex items-center justify-center overflow-y-auto p-4 sm:p-6">
           <div
             className="scoping-fade fixed left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-uk-blue/15 blur-[140px]"
-            onClick={close}
             aria-hidden
           />
 
@@ -133,7 +132,15 @@ export function ScopingProvider({
               only spacing, so top and bottom gaps are always identical.
               Panel max-height matches the padded area exactly, so centering
               never clips the top when the form is full-height. */}
-          <div className="scoping-pop relative w-full max-w-xl" data-lenis-prevent>
+          <Dialog.Popup
+            aria-label="Book a free scoping call"
+            initialFocus={closeRef}
+            // Return focus to the button that opened the popup (fall back
+            // to Base UI's default if it has since left the page).
+            finalFocus={() => (triggerRef.current?.isConnected ? triggerRef.current : true)}
+            className="scoping-pop relative w-full max-w-xl outline-none"
+            data-lenis-prevent
+          >
             {/* Soft halo behind the panel — glows deeper in dark mode */}
             <div
               className="pointer-events-none absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-uk-yellow/40 via-uk-blue/30 to-uk-blue-bright/40 opacity-90 blur-lg dark:opacity-100"
@@ -158,14 +165,13 @@ export function ScopingProvider({
             <div className="relative">
             {/* Close — pinned to the panel, NOT inside the scroll area, so it
                 stays visible while the form scrolls underneath */}
-            <button
-              type="button"
-              onClick={close}
+            <Dialog.Close
+              ref={closeRef}
               className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-uk-line bg-white/90 text-uk-muted shadow-float backdrop-blur transition-all duration-300 hover:rotate-90 hover:border-uk-blue/50 hover:text-uk-blue dark:bg-uk-card/90 dark:hover:border-uk-blue-bright"
               aria-label="Close"
             >
               <X className="h-4 w-4" />
-            </button>
+            </Dialog.Close>
             {/* The panel itself scrolls — Lenis hijacks wheel events on the
                 page, so data-lenis-prevent hands native scrolling back to
                 this container and overscroll-contain stops it leaking. */}
@@ -206,7 +212,7 @@ export function ScopingProvider({
                   </h3>
                   <p className="text-sm leading-relaxed text-uk-muted">
                     <T>Tell us about your project below. A reply within</T>{" "}
-                    <span className="font-semibold text-uk-heading"><T>1 business hour</T></span><T>,
+                    <span className="font-semibold text-uk-heading"><T>one business day</T></span><T>,
                     a rough estimate in 3 days, a fixed proposal in 7.</T>
                   </p>
 
@@ -214,7 +220,7 @@ export function ScopingProvider({
                   <div className="mt-1 flex flex-wrap gap-2">
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-white/80 px-3 py-1 text-xs font-medium text-uk-heading shadow-float backdrop-blur dark:bg-uk-card/80">
                       <Clock className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
-                      <T>Reply in 1 business hour</T>
+                      <T>Reply within 1 business day</T>
                     </span>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-uk-line bg-white/80 px-3 py-1 text-xs font-medium text-uk-heading shadow-float backdrop-blur dark:bg-uk-card/80">
                       <ShieldCheck className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
@@ -269,9 +275,10 @@ export function ScopingProvider({
               </div>
             )}
             </div>
-          </div>
-        </div>
-      )}
+          </Dialog.Popup>
+          </Dialog.Viewport>
+        </Dialog.Portal>
+      </Dialog.Root>
     </ScopingContext.Provider>
   );
 }

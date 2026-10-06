@@ -238,7 +238,7 @@ function DashboardView({ data, ck }: { data: typeof dashboardScreen; ck: number 
       <div key={`db-${ck}`} className="flex flex-1 flex-col gap-2.5 p-3 sm:flex-row lg:gap-3 lg:p-4">
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Pipeline</T></h3>
+            <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Pipeline</T></p>
             <TrendingUp className="h-3.5 w-3.5 text-uk-blue" />
           </div>
           <div className="flex flex-col gap-2.5">
@@ -247,7 +247,7 @@ function DashboardView({ data, ck }: { data: typeof dashboardScreen; ck: number 
         </div>
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><Tx>{data.listTitle}</Tx></h3>
+            <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><Tx>{data.listTitle}</Tx></p>
             <ChevronRight className="h-3.5 w-3.5 text-uk-muted/50 dark:text-white/30" />
           </div>
           <div className="flex flex-col gap-2">
@@ -295,7 +295,7 @@ function CrmView({ data, ck }: { data: typeof crmScreen; ck: number }) {
       </div>
       {/* Contact cards */}
       <div key={`cc-${ck}`} className="flex flex-1 flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Recent Contacts</T></h3>
+        <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Recent Contacts</T></p>
         {data.contacts.map((c, i) => (
           <AnimatedItem key={c.name} delay={i * 100 + 200}>
             <div className="flex items-center gap-3 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
@@ -335,7 +335,7 @@ function OrdersView({ data, ck }: { data: typeof ordersScreen; ck: number }) {
       </div>
       {/* Order table */}
       <div key={`ot-${ck}`} className="flex-1 p-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-2.5"><T>Recent Orders</T></h3>
+        <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-2.5"><T>Recent Orders</T></p>
         {/* Header */}
         <div className="hidden sm:grid grid-cols-[1fr_1fr_0.8fr_0.8fr_0.7fr] gap-2 text-[0.65rem] uppercase tracking-wider text-uk-muted dark:text-white/40 px-2.5 pb-1.5">
           <span><T>Order</T></span><span><T>Customer</T></span><span><T>Amount</T></span><span><T>Status</T></span><span><T>Date</T></span>
@@ -367,7 +367,7 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
       <div key={`rb-${ck}`} className="flex flex-1 flex-col gap-2.5 p-3 sm:flex-row lg:gap-3 lg:p-4">
         {/* Bar chart */}
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
-          <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3"><T>Monthly Revenue</T></h3>
+          <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3"><T>Monthly Revenue</T></p>
           <div className="flex items-end gap-2 h-[120px]">
             {data.bars.map((b, i) => (
               <AnimatedItem key={b.label} delay={i * 80 + 200}>
@@ -382,7 +382,7 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
         </div>
         {/* Donut */}
         <div className="flex-1 rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none lg:p-4">
-          <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3"><T>Revenue Split</T></h3>
+          <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60 mb-3"><T>Revenue Split</T></p>
           <div className="flex items-center gap-4">
             {/* Stacked bar as donut proxy */}
             <div className="flex flex-col gap-1.5 flex-1">
@@ -406,7 +406,7 @@ function ReportsView({ data, ck }: { data: typeof reportsScreen; ck: number }) {
 function MarketingView({ data, ck }: { data: typeof marketingScreen; ck: number }) {
   return (
     <div key={`mc-${ck}`} className="flex-1 flex flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-      <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Active Campaigns</T></h3>
+      <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Active Campaigns</T></p>
       {data.campaigns.map((c, i) => (
         <AnimatedItem key={c.name} delay={i * 100 + 100}>
           <div className="rounded-lg border border-uk-line bg-white dark:border-white/[0.06] dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
@@ -460,7 +460,7 @@ function SecurityView({ data, ck }: { data: typeof securityScreen; ck: number })
       </div>
       {/* Alerts */}
       <div key={`sa-${ck}`} className="flex-1 flex flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Recent Alerts</T></h3>
+        <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Recent Alerts</T></p>
         {data.alerts.map((a, i) => (
           <AnimatedItem key={a.msg} delay={i * 100 + 300}>
             <div className="flex items-start gap-2.5 rounded-lg border border-uk-line dark:border-white/[0.06] bg-white dark:bg-white/[0.04] p-3 shadow-float dark:shadow-none">
@@ -506,7 +506,7 @@ function SettingsView({ data, ck }: { data: typeof settingsScreen; ck: number })
       </div>
       {/* Integrations */}
       <div key={`si-${ck}`} className="flex-1 flex flex-col gap-2.5 p-3 lg:gap-3 lg:p-4">
-        <h3 className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Integrations</T></h3>
+        <p className="font-heading text-xs font-semibold uppercase tracking-wider text-uk-muted dark:text-white/60"><T>Integrations</T></p>
         <p className="text-[0.7rem] text-uk-muted dark:text-white/40 -mt-1"><Tx>{data.team.roles}</Tx></p>
         {data.integrations.map((ig, i) => {
           const Icon = ig.icon;
@@ -582,10 +582,14 @@ export function DashboardShowcase() {
             <span className="font-heading text-sm font-semibold text-uk-heading dark:text-white/90"><Tx>{screen.title}</Tx></span>
             <span className="rounded-full bg-uk-blue/12 px-2 py-0.5 text-[0.65rem] font-semibold text-uk-blue dark:bg-uk-blue/20"><Tx>{screen.subtitle}</Tx></span>
           </div>
-          {/* Decorative mock-up icons — not real controls, so not buttons */}
-          <div className="flex items-center gap-3 text-uk-muted dark:text-white/30" aria-hidden>
-            <Search className="h-4 w-4" />
-            <span className="relative"><Bell className="h-4 w-4" /><span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-uk-yellow" /></span>
+          <div className="flex items-center gap-3">
+            {/* Make it clear the figures are illustrative, not real clients' */}
+            <span className="rounded-full border border-uk-line px-2 py-0.5 text-[0.6rem] font-medium uppercase tracking-wider text-uk-muted dark:border-white/[0.08] dark:text-white/40"><T>Sample data</T></span>
+            {/* Decorative mock-up icons — not real controls, so not buttons */}
+            <div className="flex items-center gap-3 text-uk-muted dark:text-white/30" aria-hidden>
+              <Search className="h-4 w-4" />
+              <span className="relative"><Bell className="h-4 w-4" /><span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-uk-yellow" /></span>
+            </div>
           </div>
         </div>
 

@@ -163,15 +163,11 @@ export function splitFlagship(list: Product[]): { flagship?: Product; rest: Prod
   return { flagship, rest: flagship ? list.filter((p) => p !== flagship) : list };
 }
 
-/** How many cards fit in the column beside the flagship; the rest go in a grid below it. */
-export const FLAGSHIP_SIDE_CARDS = 4;
-
-/** Row template for the card column beside the flagship, sized to the card count. */
-export const flagshipRowsClass: Record<number, string> = {
-  1: "lg:grid-rows-1",
-  2: "lg:grid-rows-2",
-  3: "lg:grid-rows-3",
-  4: "lg:grid-rows-4",
-  5: "lg:grid-rows-5",
-  6: "lg:grid-rows-6",
-};
+/**
+ * Product grids use the Services section's bento layout: four columns of
+ * single-cell cards, with the flagship spanning two columns. Its content is
+ * taller than the services feature card, so it spans three rows, with
+ * FLAGSHIP_SIDE_CARDS cards (2 × 3) beside it; the rest fill full rows below.
+ */
+export const FLAGSHIP_SIDE_CARDS = 6;
+export const FLAGSHIP_SPAN = "sm:col-span-2 lg:row-span-3";

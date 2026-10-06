@@ -28,7 +28,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("about", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "About Ukvalley Technologies — software engineers since 2017",
+  title: "About us — software engineers since 2017",
   description:
     "Founded in 2017, Ukvalley Technologies builds custom software, CRM, ERP and mobile apps for Indian SMEs and global startups. Meet the team and the principles we build on.",
   alternates: { canonical: `${SITE_URL}/about` },
@@ -52,10 +52,10 @@ export default async function AboutPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
           title={
             <>{ukText("An engineering-led team building software that")}{" "}
-              <span className="text-gradient-blue">{ukText("earns its keep")}</span>{ukText("— since 2017.")}</>
+              <span className="text-gradient-blue">{ukText("earns its keep")}</span>{" "}{ukText("— since 2017.")}</>
           }
           description={
-            <>{ukText("Ukvalley Technologies is an unfunded, engineer-led software company headquartered in Maharashtra, India, with offices in Pune and Nagpur and presence in Dubai, Toronto and New York. We build, ship and support software for Indian SMEs and global startups — and we run our own products in production as proof.")}</>
+            <>{ukText("Ukvalley Technologies is an unfunded, engineer-led software company headquartered in Nashik, Maharashtra, India, with offices in Pune and Nagpur, a US office in Jersey City and presence in Dubai, Toronto and New York. We build, ship and support software for Indian SMEs and global startups — and we run our own products in production as proof.")}</>
           }
         />
 

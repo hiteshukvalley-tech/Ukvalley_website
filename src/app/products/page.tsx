@@ -12,7 +12,7 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { FlagshipProductCard } from "@/components/site/flagship-product-card";
 import { CtaBand } from "@/components/site/cta";
-import { FLAGSHIP_SIDE_CARDS, flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+import { FLAGSHIP_SPAN, getProducts, splitFlagship } from "@/lib/products-store";
 import type { Product } from "@/lib/site-data";
 import { ukText } from "@/lib/texts";
 
@@ -32,9 +32,6 @@ const baseMetadata: Metadata = {
 export default async function ProductsPage() {
   const products = await getProducts();
   const { flagship, rest } = splitFlagship(products);
-  // Without a flagship every card goes in the main grid.
-  const beside = flagship ? rest.slice(0, FLAGSHIP_SIDE_CARDS) : rest;
-  const below = flagship ? rest.slice(FLAGSHIP_SIDE_CARDS) : [];
   return (
     <>
       <ScrollProgress />
@@ -116,34 +113,17 @@ export default async function ProductsPage() {
 
         <section className="relative bg-uk-surface-2 section-py">
           <Container>
-            <div className={flagship ? "grid grid-cols-1 gap-5 lg:grid-cols-[1.6fr_1fr]" : "grid grid-cols-1"}>
-              {/* Featured — flagship card on the left */}
+            {/* Same bento grid and card sizes as the home Services section:
+                the flagship spans two columns and three rows, every product
+                is a single cell beside and below it. */}
+            <Reveal staggerChildren className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {flagship && (
-                <Reveal>
+                <div className={FLAGSHIP_SPAN}>
                   <FlagshipProductCard featured={flagship} />
-                </Reveal>
+                </div>
               )}
-
-              {/* Up to 4 cards stacked on the right, rows stretched to fill
-                  the flagship card's height so both sides stay even */}
-              <Reveal
-                staggerChildren
-                className={
-                  flagship
-                    ? `grid h-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1 ${flagshipRowsClass[beside.length] ?? ""}`
-                    : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
-                }
-              >
-                {beside.map((p) => <ProductCard key={p.slug} p={p} />)}
-              </Reveal>
-            </div>
-
-            {/* Everything else in a grid below */}
-            {below.length > 0 && (
-              <Reveal staggerChildren className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {below.map((p) => <ProductCard key={p.slug} p={p} />)}
-              </Reveal>
-            )}
+              {rest.map((p) => <ProductCard key={p.slug} p={p} />)}
+            </Reveal>
           </Container>
         </section>
 

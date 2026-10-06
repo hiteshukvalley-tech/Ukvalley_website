@@ -4,15 +4,16 @@ import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { FlagshipProductCard } from "./flagship-product-card";
 import { Marked } from "./marked";
-import { FLAGSHIP_SIDE_CARDS, flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+import { FLAGSHIP_SIDE_CARDS, FLAGSHIP_SPAN, getProducts, splitFlagship } from "@/lib/products-store";
 import type { HomeContent } from "@/lib/home-defaults";
 import { ukText } from "@/lib/texts";
 
 /** Cards come from Admin → Products; heading from Admin → Home page → Products. */
 export async function Products({ content: c }: { content: HomeContent["products"] }) {
   const { flagship, rest: all } = splitFlagship(await getProducts());
-  // The home page shows a preview; the full list is on /products.
-  const rest = all.slice(0, flagship ? FLAGSHIP_SIDE_CARDS : 6);
+  // The home page shows a preview — the cards beside the flagship plus one
+  // full row of four below it; the full list is on /products.
+  const rest = all.slice(0, flagship ? FLAGSHIP_SIDE_CARDS + 4 : 8);
   return (
     <section id="products" className="relative overflow-hidden bg-uk-surface-3 section-py">
       <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-uk-blue/12 blur-[120px]" aria-hidden />
@@ -26,24 +27,16 @@ export async function Products({ content: c }: { content: HomeContent["products"
           />
         </div>
 
-        <div className={flagship ? "mt-14 grid grid-cols-1 gap-5 lg:grid-cols-[1.6fr_1fr]" : "mt-14"}>
-          {/* Featured */}
+        {/* Bento grid with the same card sizes as the Services section: four
+            columns, the flagship spanning two columns (and FLAGSHIP_ROWS rows,
+            since its content is taller than the services feature card), the
+            products in single cells beside and below it. */}
+        <Reveal staggerChildren className="mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {flagship && (
-            <Reveal>
+            <div className={FLAGSHIP_SPAN}>
               <FlagshipProductCard featured={flagship} />
-            </Reveal>
+            </div>
           )}
-
-          {/* Rest grid — 4 cards stacked on the right, rows stretched to
-              fill the flagship card's height so both sides stay even */}
-          <Reveal
-            staggerChildren
-            className={
-              flagship
-                ? `grid h-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1 ${flagshipRowsClass[rest.length] ?? ""}`
-                : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
-            }
-          >
             {rest.map((p) => (
               <article
                 key={p.name}
@@ -79,7 +72,7 @@ export async function Products({ content: c }: { content: HomeContent["products"
                   </ul>
 
                   {/* platform + audience footer */}
-                  <div className="mt-auto flex items-center gap-4 border-t border-uk-line pt-3">
+                  <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-uk-line pt-3">
                     <span className="inline-flex items-center gap-1.5 text-xs text-uk-muted">
                       <MonitorSmartphone className="h-3.5 w-3.5" />
                       {ukText(p.platform)}
@@ -92,8 +85,7 @@ export async function Products({ content: c }: { content: HomeContent["products"
                 </div>
               </article>
             ))}
-          </Reveal>
-        </div>
+        </Reveal>
 
         <Reveal className="mt-10 flex justify-center">
           <Link

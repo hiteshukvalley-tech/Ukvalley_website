@@ -24,7 +24,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("locations", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Locations — where Ukvalley engineers and engages",
+  title: "Locations — where we engineer and engage",
   description:
     "Ukvalley's offices and delivery coverage: Maharashtra headquarters, Pune and Nagpur offices, and delivery coverage for Mumbai, Delhi NCR, Bengaluru, Hyderabad, Ahmedabad, Chennai, Dubai, Toronto and New York.",
   alternates: { canonical: `${SITE_URL}/locations` },

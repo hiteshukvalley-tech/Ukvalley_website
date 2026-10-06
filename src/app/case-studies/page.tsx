@@ -22,7 +22,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("case-studies", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Case studies — software projects with measured results",
+  title: "Case studies — projects with measured results",
   description:
     "Eleven anonymised engagements across fintech, retail, healthcare, manufacturing, logistics, education and more. Each case study names the sector context, the challenge, what we built, the stack and the measured result.",
   alternates: { canonical: `${SITE_URL}/case-studies` },

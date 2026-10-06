@@ -135,7 +135,7 @@ export default async function ProcessPage() {
           <Container>
             <Reveal className="mx-auto max-w-3xl rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-8 text-center sm:p-12">
               <span className="inline-flex items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-uk-blue">{ukText("What happens next")}</span>
-              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("A reply within 1 business hour.")}</h2>
+              <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("A reply within one business day.")}</h2>
               <p className="mt-3 text-uk-gray">{ukText("A rough estimate in 3 business days. A fixed proposal in 7. No charge, no obligation — and no “let's hop on a quick call” loops that go nowhere.")}</p>
               <div className="mt-7 flex justify-center">
                 <ScopingButton className="btn-sheen btn-lift group inline-flex h-13 cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-7 font-heading text-base font-bold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a free scoping call")}<ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />

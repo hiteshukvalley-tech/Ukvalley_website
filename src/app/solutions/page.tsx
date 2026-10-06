@@ -27,7 +27,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("solutions", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Solutions — ready-to-build systems for your industry",
+  title: "Solutions — ready-to-build industry systems",
   description:
     "CRM, ERP, HRMS, LMS, e-commerce, POS, loan origination, healthcare, logistics, booking and more — production-proven solution patterns Ukvalley builds and customises for your business.",
   alternates: { canonical: `${SITE_URL}/solutions` },

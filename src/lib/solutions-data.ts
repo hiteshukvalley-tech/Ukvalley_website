@@ -49,7 +49,7 @@ export const solutions: Solution[] = [
       "The real test isn't the demo, it's the Monday after go-live: one screen showing every lead, owner and next action; a website enquiry reaching a rep's queue within a minute, source tagged; a quotation out in five minutes; and a resigning rep's pipeline staying behind intact. We scope and demo against exactly those four checks.",
     ],
     metrics: [
-      { value: "0", label: "Leads dropped" },
+      { value: "Zero", label: "Leads dropped" },
       { value: "2.1×", label: "More follow-ups completed" },
       { value: "3 wks", label: "To working prototype" },
     ],

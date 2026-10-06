@@ -26,7 +26,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("team", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Our team — the people accountable for your project",
+  title: "Our team — accountable for your project",
   description:
     "Meet Ukvalley's leadership: named engineers and operators you can reach directly — a founder LinkedIn, not a generic contact form. Engineer-led, unfunded, accountable since 2017.",
   alternates: { canonical: `${SITE_URL}/team` },

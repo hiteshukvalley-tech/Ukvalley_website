@@ -21,7 +21,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("pricing", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Pricing — how Ukvalley quotes, honestly",
+  title: "Pricing — how we quote, honestly",
   description:
     "How Ukvalley quotes custom software: what actually drives cost, from a single-workflow tool to a multi-department platform, plus dedicated-developer and retainer models. Written estimates in 3 days.",
   alternates: { canonical: `${SITE_URL}/pricing` },
@@ -86,11 +86,11 @@ export default async function PricingPage() {
           eyebrow={ukText("Pricing")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Pricing" }]}
           title={
-            <>{ukText("Honest pricing logic —")}{" "}
+            <>{ukText("How we price —")}{" "}
               <span className="text-gradient-blue">{ukText("before you ever talk to us.")}</span>
             </>
           }
-          description={ukText("Custom software quotes for 'the same app' can differ by ten times or more. Here's why, and which tier your project actually falls in — published openly, because informed buyers make better clients.")}
+          description={ukText("Custom software quotes for 'the same app' can differ by ten times or more. Here's why, which tier your project falls in and how long each takes. Your exact, fixed price comes in a written proposal within 7 days of a free scoping call.")}
         />
 
         {/* The problem it solves */}
@@ -254,20 +254,21 @@ export default async function PricingPage() {
             </Reveal>
             <Reveal className="mt-10 overflow-x-auto">
               <table className="w-full min-w-[560px] border-separate border-spacing-0">
+                <caption className="sr-only">{ukText("Us vs. agency vs. freelancer")}</caption>
                 <thead>
                   <tr>
-                    <th className="rounded-tl-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-left font-heading text-sm font-bold text-uk-heading">{ukText("Guarantee")}</th>
-                    <th className="border-b border-uk-line bg-uk-blue/10 px-5 py-4 text-center font-heading text-sm font-bold text-uk-blue">{ukText("Ukvalley")}</th>
-                    <th className="border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">{ukText("Metro agency")}</th>
-                    <th className="rounded-tr-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">{ukText("Freelancer")}</th>
+                    <th scope="col" className="rounded-tl-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-left font-heading text-sm font-bold text-uk-heading">{ukText("Guarantee")}</th>
+                    <th scope="col" className="border-b border-uk-line bg-uk-blue/10 px-5 py-4 text-center font-heading text-sm font-bold text-uk-blue">{ukText("Ukvalley")}</th>
+                    <th scope="col" className="border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">{ukText("Metro agency")}</th>
+                    <th scope="col" className="rounded-tr-2xl border-b border-uk-line bg-uk-card px-5 py-4 text-center font-heading text-sm font-bold text-uk-heading">{ukText("Freelancer")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {compare.map((c, i) => (
                     <tr key={c.label}>
-                      <td className={`border-b border-uk-line bg-uk-card px-5 py-4 text-sm font-medium text-uk-heading ${i === compare.length - 1 ? "rounded-bl-2xl" : ""}`}>
+                      <th scope="row" className={`border-b border-uk-line bg-uk-card px-5 py-4 text-left text-sm font-medium text-uk-heading ${i === compare.length - 1 ? "rounded-bl-2xl" : ""}`}>
                         {ukText(c.label)}
-                      </td>
+                      </th>
                       {[c.us, c.agency, c.freelance].map((v, j) => (
                         <td
                           key={j}

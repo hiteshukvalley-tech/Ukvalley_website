@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ind = (await getIndustries()).find((i) => i.slug === slug);
   if (!ind) return {};
   return withSharePreview({
-    title: `${ind.name} software development`,
+    title: fitTitle(`${ind.name} software development`, `${ind.name} software`),
     description: ind.blurb,
     alternates: { canonical: `${SITE_URL}/industries/${ind.slug}` },
   });

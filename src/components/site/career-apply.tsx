@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { Dialog } from "@base-ui/react/dialog";
 import { AlertCircle, ArrowRight, Check, FileText, Loader2, Upload, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +20,7 @@ import { T, Tx, useT } from "@/components/site/texts-context";
  * position filled in. Submissions go to POST /careers/apply.
  */
 
-type ApplyContextValue = { open: (position?: string) => void };
+type ApplyContextValue = { open: (position?: string, trigger?: HTMLElement | null) => void };
 const ApplyContext = createContext<ApplyContextValue>({ open: () => {} });
 
 export function ApplyButton({
@@ -33,7 +34,7 @@ export function ApplyButton({
 }) {
   const { open } = useContext(ApplyContext);
   return (
-    <button type="button" onClick={() => open(position)} className={`cursor-pointer ${className ?? ""}`}>
+    <button type="button" onClick={(e) => open(position, e.currentTarget)} className={`cursor-pointer ${className ?? ""}`}>
       {children}
     </button>
   );
@@ -53,46 +54,30 @@ export function CareerApplyProvider({
   const isOpen = position !== null;
   const opener = useRef<HTMLElement | null>(null);
 
-  const open = useCallback((p?: string) => {
-    opener.current = document.activeElement as HTMLElement | null;
+  const open = useCallback((p?: string, trigger?: HTMLElement | null) => {
+    opener.current = trigger ?? (document.activeElement as HTMLElement | null);
     setPosition(p ?? "");
   }, []);
-  const close = useCallback(() => {
-    setPosition(null);
-    // Back to the button that opened the popup, for keyboard users.
-    setTimeout(() => opener.current?.focus(), 0);
-  }, []);
+  const close = useCallback(() => setPosition(null), []);
 
-  // Escape closes; the page behind can't scroll while the popup is open.
-  useEffect(() => {
-    if (!isOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKey);
-    const html = document.documentElement;
-    const prev = [document.body.style.overflow, html.style.overflow];
-    document.body.style.overflow = "hidden";
-    html.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      [document.body.style.overflow, html.style.overflow] = prev;
-    };
-  }, [isOpen, close]);
+  // The modal Dialog below handles Escape, backdrop clicks, the focus trap
+  // and the page scroll lock, and hands focus back to the opener on close.
 
   return (
     <ApplyContext.Provider value={{ open }}>
       {children}
-      {isOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="apply-title"
-          className="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-6"
-        >
-          <div className="scoping-fade fixed inset-0 bg-uk-heading/50 backdrop-blur-md dark:bg-[#070511]/70" onClick={close} aria-hidden />
-
-          <div className="scoping-pop relative w-full max-w-2xl" data-lenis-prevent>
+      <Dialog.Root open={isOpen} onOpenChange={(o) => !o && close()}>
+        <Dialog.Portal>
+        <Dialog.Backdrop className="scoping-fade fixed inset-0 z-[90] bg-uk-heading/50 backdrop-blur-md dark:bg-[#070511]/70" />
+        <Dialog.Viewport className="fixed inset-0 z-[90] flex items-center justify-center p-4 sm:p-6">
+          <Dialog.Popup
+            aria-labelledby="apply-title"
+            // Start on the first field; return to the button that opened it.
+            initialFocus={() => document.getElementById("apply-name") ?? true}
+            finalFocus={() => (opener.current?.isConnected ? opener.current : true)}
+            className="scoping-pop relative w-full max-w-2xl outline-none"
+            data-lenis-prevent
+          >
             <div
               className="pointer-events-none absolute -inset-2 rounded-[2rem] bg-gradient-to-br from-uk-yellow/40 via-uk-blue/30 to-uk-blue-bright/40 opacity-90 blur-lg dark:opacity-100"
               aria-hidden
@@ -100,14 +85,12 @@ export function CareerApplyProvider({
             <div className="scoping-ring pointer-events-none absolute -inset-[2px] rounded-[1.75rem]" aria-hidden />
 
             <div className="relative">
-              <button
-                type="button"
-                onClick={close}
+              <Dialog.Close
                 className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-uk-line bg-white/90 text-uk-muted shadow-float backdrop-blur transition-all duration-300 hover:rotate-90 hover:border-uk-blue/50 hover:text-uk-blue dark:bg-uk-card/90"
                 aria-label="Close"
               >
                 <X className="h-4 w-4" />
-              </button>
+              </Dialog.Close>
               <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-3xl border border-uk-line bg-uk-surface shadow-premium-lg sm:max-h-[calc(100dvh-3rem)]">
                 <div className="relative h-1.5 w-full overflow-hidden" aria-hidden>
                   <div className="absolute inset-0 bg-gradient-to-r from-uk-yellow via-uk-blue to-uk-blue-bright" />
@@ -134,9 +117,10 @@ export function CareerApplyProvider({
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </Dialog.Popup>
+        </Dialog.Viewport>
+        </Dialog.Portal>
+      </Dialog.Root>
     </ApplyContext.Provider>
   );
 }

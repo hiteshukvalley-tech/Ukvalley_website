@@ -61,7 +61,7 @@ export function Industries({
   heading = true,
   eyebrow = "Industry switchboard",
   title = DEFAULT_TITLE,
-  description = "We don't claim to serve everyone. These are the sectors where we have live, proven work — and the case studies to match.",
+  description = "We don't claim to serve everyone. These are the sectors where we have live, proven work — with case studies for many of them.",
   labels = DEFAULT_LABELS,
 }: {
   /** Published industries, in display order (from the admin-managed list). */

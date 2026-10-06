@@ -213,8 +213,8 @@ export const defaultHome: HomeContent = {
         detail: "ISO-grade process at SME pricing.",
       },
       {
-        title: "Verifiable & registered",
-        desc: "CIN, GSTIN and Udyam published on-site. A named contracting entity — not a Gmail and a stock photo.",
+        title: "A real, named company",
+        desc: "A named contracting entity with a real office and a salaried team — not a Gmail and a stock photo.",
         detail: "{registration}",
       },
     ],
@@ -236,7 +236,7 @@ export const defaultHome: HomeContent = {
   caseStudies: {
     eyebrow: "Case studies",
     title: "Results we're *accountable for* — with the numbers to prove it.",
-    description: "A few anonymized engagements. Named clients and detailed write-ups live on the full case-study pages.",
+    description: "A few anonymised engagements. Named clients and detailed write-ups live on the full case-study pages.",
     linkLabel: "All {count} case studies",
     footnote: "Every case study includes the constraint, the approach and the measured result.",
     challengeLabel: "Challenge —",
@@ -246,7 +246,7 @@ export const defaultHome: HomeContent = {
     eyebrow: "Industry switchboard",
     title: "Verticals where we have *shipped real systems.*",
     description:
-      "We don't claim to serve everyone. These are the sectors where we have live, proven work — and the case studies to match.",
+      "We don't claim to serve everyone. These are the sectors where we have live, proven work — with case studies for many of them.",
     buttonSuffix: "products & consulting",
     slowLabel: "What slows teams down",
     rulesLabel: "Built for the rules",
@@ -274,7 +274,7 @@ export const defaultHome: HomeContent = {
     eyebrow: "Testimonials",
     title: "What clients say after *the first sprint.*",
     description:
-      "Collected at project milestones — launch, first quarter and year one. Client names are anonymised at their request; the numbers behind each quote live in the case studies.",
+      "Collected at project milestones — launch, first quarter and year one. Company names are withheld at our clients' request; the numbers behind each quote live in the case studies.",
   },
   insights: {
     eyebrow: "Insights",
@@ -297,7 +297,7 @@ export const defaultHome: HomeContent = {
     badge: "Free · 30 minutes · No obligation",
     title: "Book a scoping call with a software architect — not a sales bot.",
     description:
-      "Within 1 business hour you'll get a reply. We'll send a rough estimate in 3 days and a fixed proposal in 7.",
+      "You'll get a reply within one business day. We'll send a rough estimate in 3 days and a fixed proposal in 7.",
     buttonLabel: "Book a free scoping call",
     note: "Prefer to talk first? Phone, email and office address are on the contact page.",
   },

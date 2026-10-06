@@ -28,6 +28,24 @@ const hostOf = (u: string) => {
 export const SITE_HOST = hostOf(SITE_URL);
 export const API_HOST = hostOf(API_URL);
 
+/** Test deployments search engines must never index: uat./staging./dev./test. subdomains, Render's own address, this machine. */
+const NON_PRODUCTION_HOST = /^(?:uat|staging|stage|dev|test)\.|\.onrender\.com$|^(?:localhost|127\.0\.0\.1|\[::1\])$/i;
+
+/**
+ * Whether search engines may index this deployment. Decided by the website
+ * address: only a production domain is indexable. NEXT_PUBLIC_ALLOW_INDEXING=1
+ * forces it on, =0 forces it off (read at build time). When false, robots.txt
+ * blocks everything, every page carries noindex, and src/proxy.ts sends an
+ * X-Robots-Tag: noindex header on every response.
+ */
+export function isIndexableHost(host: string, override = process.env.NEXT_PUBLIC_ALLOW_INDEXING): boolean {
+  const flag = (override ?? "").trim().toLowerCase();
+  if (flag === "1" || flag === "true") return true;
+  if (flag === "0" || flag === "false") return false;
+  return !!host && !NON_PRODUCTION_HOST.test(host);
+}
+export const SITE_INDEXABLE = isIndexableHost(SITE_HOST);
+
 const PUBLIC_HOST = /^(?:[a-z0-9-]+\.)?ukvalley\.com$|\.onrender\.com$/i;
 const LOCAL_HOST = /^(?:localhost|127\.0\.0\.1|\[::1\])$/i;
 

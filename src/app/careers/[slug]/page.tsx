@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -35,10 +35,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = (await getCareers()).find((x) => x.slug === slug);
   if (!c) return {};
   return withSharePreview({
-    title: `${c.role} — Careers`,
+    title: fitTitle(`${c.role} — Careers`, c.role),
     description: c.summary,
     alternates: { canonical: `${SITE_URL}/careers/${c.slug}` },
   });
+}
+
+/**
+ * The free-text "Type" field (e.g. "Full-time", "Contract", "Internship") as
+ * schema.org's employmentType values; anything unrecognised is left out.
+ */
+function employmentType(type: string): string | undefined {
+  const t = type.toLowerCase();
+  if (/intern/.test(t)) return "INTERN";
+  if (/contract|freelanc|consult/.test(t)) return "CONTRACTOR";
+  if (/temp/.test(t)) return "TEMPORARY";
+  if (/part[\s-]*time/.test(t)) return "PART_TIME";
+  if (/full[\s-]*time|permanent/.test(t)) return "FULL_TIME";
+  return undefined;
 }
 
 function ListCard({ icon: Icon, title, items }: { icon: typeof Check; title: string; items: string[] }) {
@@ -80,8 +94,14 @@ export default async function CareerPage({ params }: Props) {
     title: c.role,
     description: [c.summary, ...c.responsibilities, ...c.requirements].join(" "),
     datePosted: c.postedAt,
-    employmentType: c.type.toUpperCase().replace(/[\s-]+/g, "_"),
-    hiringOrganization: { "@type": "Organization", name: settings.name, sameAs: `${SITE_URL}` },
+    ...(employmentType(c.type) ? { employmentType: employmentType(c.type) } : {}),
+    // No closing date is stored for a role, so there's no validThrough.
+    hiringOrganization: {
+      "@type": "Organization",
+      name: settings.name,
+      url: `${SITE_URL}`,
+      logo: `${SITE_URL}/brand/ukvalley-logo.png`,
+    },
     directApply: true,
     ...(c.experienceMin > 0
       ? { experienceRequirements: { "@type": "OccupationalExperienceRequirements", monthsOfExperience: c.experienceMin * 12 } }

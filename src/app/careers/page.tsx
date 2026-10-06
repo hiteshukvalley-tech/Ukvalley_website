@@ -19,6 +19,7 @@ import { ApplyButton, CareerApplyProvider } from "@/components/site/career-apply
 import { CareersBoard } from "@/components/site/careers-board";
 import { HeroJobSearch } from "@/components/site/hero-job-search";
 import { roleInPlace } from "@/lib/careers-shared";
+import { jsonLd } from "@/lib/utils";
 import { ukText } from "@/lib/texts";
 
 // Re-render at least once a minute so admin text overrides always show up.
@@ -27,7 +28,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("careers", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Careers at Ukvalley — find your next role",
+  title: "Careers — find your next role",
   description:
     "Open roles at Ukvalley Technologies — Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",
   alternates: { canonical: `${SITE_URL}/careers` },
@@ -100,8 +101,26 @@ export default async function CareersPage() {
     ...l,
     count: careers.filter((c) => roleInPlace(l.city, c.location, c.mode)).length,
   }));
+  // Structured data: the open roles as a list, each linking to its job page.
+  const rolesSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "Careers at Ukvalley",
+    url: `${SITE_URL}/careers`,
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: careers.length,
+      itemListElement: careers.map((c, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        name: c.role,
+        url: `${SITE_URL}/careers/${c.slug}`,
+      })),
+    },
+  };
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(rolesSchema) }} />
       <ScrollProgress />
       <Header />
       <main id="main">

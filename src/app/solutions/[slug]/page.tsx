@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = (await getSolutions()).find((x) => x.slug === slug);
   if (!s) return {};
   return withSharePreview({
-    title: `${s.name} — built around your workflow`,
+    title: fitTitle(`${s.name} — built around your workflow`, s.name),
     description: s.description,
     alternates: { canonical: `${SITE_URL}/solutions/${s.slug}` },
   });

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/admin-auth";
-import { API_HOST, API_URL, SITE_HOST, SITE_URL } from "@/lib/site-origin";
+import { API_HOST, API_URL, SITE_HOST, SITE_INDEXABLE, SITE_URL } from "@/lib/site-origin";
 
 /** What the backend address (API_URL) serves itself; any other page there goes to the website. */
 const BACKEND_PATH = /^\/(?:admin(?:\/|$)|media\/|careers\/apply$|_next\/|brand\/|favicon\.ico$|icon\.png$|apple-icon\.png$|robots\.txt$)/i;
@@ -11,6 +11,17 @@ const requestHost = (request: NextRequest) =>
 const isAdminPath = (p: string) => /^\/admin(?:\/|$)/i.test(p);
 
 export async function proxy(request: NextRequest) {
+  const response = await route(request);
+  // Keep search engines out: of the admin always, of everything on a test
+  // deployment (see SITE_INDEXABLE). The header covers responses with no
+  // <meta name="robots"> — redirects, files, route handlers.
+  if (!SITE_INDEXABLE || isAdminPath(request.nextUrl.pathname)) {
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+  return response;
+}
+
+async function route(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const host = requestHost(request);
 

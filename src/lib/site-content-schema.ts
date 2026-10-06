@@ -205,7 +205,7 @@ export const defaultFooter: FooterContent = {
     { label: "Contact", href: "/contact" },
   ],
   contactTitle: "Get in touch",
-  contactText: "Talk to a software architect — not a sales bot. Reply within 1 business hour.",
+  contactText: "Talk to a software architect — not a sales bot. A reply within one business day.",
   contactLinkLabel: "Phone, email & office address", contactLinkHref: "/contact",
   buttonLabel: "Start a project", buttonHref: "/contact",
   copyright: "© {year} {name}. All rights reserved.",

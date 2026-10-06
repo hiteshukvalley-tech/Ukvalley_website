@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { SITE_URL } from "@/lib/site-origin";
+import { SITE_INDEXABLE, SITE_URL } from "@/lib/site-origin";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
@@ -8,6 +8,8 @@ import { ThemeProviderWrapper } from "@/components/site/theme-provider";
 import { SpotlightCursor } from "@/components/site/spotlight-cursor";
 import { ScopingProvider } from "@/components/site/scoping-modal";
 import { getSiteSettings } from "@/lib/settings";
+import { getChrome } from "@/lib/home-store";
+import { OFFICIAL_LOGO } from "@/lib/site-content-schema";
 import { AuroraBackground } from "@/components/site/aurora-background";
 import { SiteOnly } from "@/components/site/site-only";
 import { TextsProvider } from "@/components/site/texts-context";
@@ -57,8 +59,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(`${SITE_URL}`),
   title: {
-    default: "Ukvalley Technologies — Custom Software, CRM, ERP & Mobile Apps",
-    template: "%s | Ukvalley Technologies",
+    default: "Ukvalley — Custom Software, CRM, ERP & Mobile Apps",
+    template: "%s | Ukvalley",
   },
   description:
     "Custom software for Indian SMEs and global startups. Web, mobile, CRM, ERP, HRMS, cloud & cybersecurity — engineered to scale, supported for years.",
@@ -77,7 +79,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: `${SITE_URL}`,
     siteName: "Ukvalley Technologies",
-    title: "Ukvalley Technologies — Custom Software, CRM, ERP & Mobile Apps",
+    title: "Ukvalley — Custom Software, CRM, ERP & Mobile Apps",
     description:
       "Custom software for Indian SMEs and global startups. Engineered to scale, supported for years.",
   },
@@ -87,11 +89,12 @@ export const metadata: Metadata = {
     description:
       "Custom software, CRM, ERP & mobile apps — engineered to scale, supported for years.",
   },
-  robots: { index: true, follow: true },
+  // Test deployments (uat., *.onrender.com, localhost …) stay out of search results.
+  robots: SITE_INDEXABLE ? { index: true, follow: true } : { index: false, follow: false },
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const settings = await getSiteSettings();
+  const [settings, { header }] = await Promise.all([getSiteSettings(), getChrome()]);
   return (
     <html
       lang="en"
@@ -107,7 +110,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </SiteOnly>
         <TextsProvider map={textsSnapshot()}>
         <ThemeProviderWrapper>
-          <ScopingProvider email={settings.email} phone={settings.phonePrimary}>
+          {/* The booking modal's "call us" number is the Sales line listed on /contact */}
+          <ScopingProvider email={settings.email} phone={settings.sales.phone || settings.phonePrimary}>
             <SiteOnly>
               <SpotlightCursor />
             </SiteOnly>
@@ -118,9 +122,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
               {ukText("Skip to main content")}
             </a>
             <SmoothScroll>
-              <SiteOnly>
-                <PageLoader />
-              </SiteOnly>
+              {/* Logo loader on a hard reload — website and admin panel alike */}
+              <PageLoader
+                logo={header.logoImage || OFFICIAL_LOGO}
+                logoDark={header.logoImage ? header.logoImageDark : ""}
+                alt={`${header.logoName} ${header.logoSub}`.trim() || "Ukvalley Technologies"}
+              />
               {children}
             </SmoothScroll>
           </ScopingProvider>

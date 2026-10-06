@@ -9,7 +9,7 @@ import { fill } from "@/lib/home-schema";
 import type { HomeContent } from "@/lib/home-defaults";
 import { ukText } from "@/lib/texts";
 
-// The homepage previews a few engagements ("A few anonymized engagements");
+// The homepage previews a few engagements ("A few anonymised engagements");
 // the full set lives on /case-studies. Showing all of them made the home
 // page dozens of screens long on phones.
 const PREVIEW_COUNT = 4;

@@ -25,7 +25,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("clients", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Client success — 150+ businesses run on software we built",
+  title: "Client success — 150+ businesses on our software",
   description:
     "How Ukvalley clients measure our work: faster loan processing, multi-store POS rollouts, telephony costs cut by 60% and CRM pipelines with zero dropped leads. Names anonymised, numbers real.",
   alternates: { canonical: `${SITE_URL}/clients` },

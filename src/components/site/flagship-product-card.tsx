@@ -1,5 +1,5 @@
 import Link from "@/components/site/intent-link";
-import { ArrowUpRight, ArrowRight, Sparkles, Check, MonitorSmartphone, Users, LifeBuoy, UserCheck } from "lucide-react";
+import { ArrowUpRight, ArrowRight, Sparkles, Check, MonitorSmartphone, Users, LifeBuoy, UserCheck, Layers } from "lucide-react";
 import { MetricRing } from "./metric-ring";
 import type { Product } from "@/lib/site-data";
 import { ukText } from "@/lib/texts";
@@ -154,8 +154,30 @@ export function FlagshipProductCard({ featured }: { featured: Product }) {
         </ul>
       </div>
 
+      {/* Key features — from the product's own feature list (Admin → Products),
+          so the card's lower half carries real detail instead of empty space */}
+      {featured.features.length > 0 && (
+        <div className="relative mt-6">
+          <span className="inline-flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-uk-blue">
+            <Layers className="h-3.5 w-3.5" />{ukText("Key features")}</span>
+          <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {featured.features.slice(0, 4).map((f) => (
+              <li key={f.title} className="flex gap-3 rounded-xl border border-uk-line bg-white/60 p-3 dark:bg-uk-card/60">
+                <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-lg bg-uk-blue/10 text-uk-blue">
+                  <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
+                </span>
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-xs font-semibold text-uk-heading">{ukText(f.title)}</span>
+                  <span className="line-clamp-2 text-[0.7rem] leading-snug text-uk-muted">{ukText(f.desc)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {featured.metric && (
-        <div className="relative mt-8 flex flex-1 items-center gap-5 border-t border-uk-line py-6">
+        <div className="relative mt-6 flex flex-1 items-center gap-5 border-t border-uk-line py-6">
           <MetricRing
             value={parseInt(featured.metric.value, 10) || 0}
             label={ukText(featured.metric.label)}

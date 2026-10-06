@@ -21,7 +21,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("faq", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "FAQ — honest answers about working with Ukvalley",
+  title: "FAQ — honest answers about working with us",
   description:
     "Straight answers on IP and code ownership, pricing, timelines, response SLAs, vendor takeovers and technology choices — the questions buyers actually ask before signing.",
   alternates: { canonical: `${SITE_URL}/faq` },
@@ -251,7 +251,7 @@ export default async function FaqPage() {
           <Container>
             <Reveal className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-8 text-center">
               <h2 className="font-heading text-2xl font-bold text-uk-heading">{ukText("Still have a question?")}</h2>
-              <p className="text-uk-gray">{ukText("Ask it on a free 30-minute scoping call — a software architect answers, not a salesperson. A reply within 1 business hour.")}</p>
+              <p className="text-uk-gray">{ukText("Ask it on a free 30-minute scoping call — a software architect answers, not a salesperson. A reply within one business day.")}</p>
               <Link
                 href={ukText("/contact")}
                 className="btn-sheen group inline-flex items-center gap-2 rounded-full bg-uk-blue px-6 py-3 text-sm font-semibold text-white shadow-glow-blue-sm transition-all hover:bg-uk-blue-bright"

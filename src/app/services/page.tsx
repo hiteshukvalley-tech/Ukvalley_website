@@ -42,7 +42,7 @@ const toGlance = (services: Awaited<ReturnType<typeof getServices>>) => services
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("services", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Services — web, mobile, CRM, ERP, cloud & cybersecurity",
+  title: "Services — web, mobile, CRM, ERP & cloud",
   description:
     "Service lines under one accountable team: web & mobile apps, custom CRM/ERP/HRMS, cloud & DevOps, digital marketing, managed IT, blockchain and brand design.",
   alternates: { canonical: `${SITE_URL}/services` },

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = (await getProducts()).find((x) => x.slug === slug);
   if (!p) return {};
   return withSharePreview({
-    title: `${p.name} — ${p.tagline}`,
+    title: fitTitle(`${p.name} — ${p.tagline}`, p.name),
     description: p.description,
     alternates: { canonical: `${SITE_URL}/products/${p.slug}` },
   });

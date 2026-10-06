@@ -22,7 +22,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("industries", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Industries — fourteen sectors, production-proven software",
+  title: "Industries — software for fourteen sectors",
   description:
     "From NBFC lending to agri supply chains: the fourteen verticals where Ukvalley runs live systems today — each with measured outcomes and the case study to back it.",
   alternates: { canonical: `${SITE_URL}/industries` },

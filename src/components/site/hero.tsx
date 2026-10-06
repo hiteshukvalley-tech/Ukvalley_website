@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "@/components/site/intent-link";
-import { ArrowRight, CheckCircle2, ShieldCheck, Star } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatCounter } from "./stat-counter";
 import { SplitHeading } from "./split-heading";
@@ -93,11 +93,8 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
             </span>
           )}
           {c.ratingNote && <span className="inline-flex items-center gap-2">
-            <span className="flex" aria-hidden>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star key={i} className="h-4 w-4 fill-uk-yellow text-uk-yellow drop-shadow-[0_1px_0_rgba(31,41,55,0.15)] dark:drop-shadow-[0_1px_0_rgba(0,0,0,0.4)]" />
-              ))}
-            </span>
+            {/* a plain check, not rating stars: there is no review source to cite */}
+            <CheckCircle2 className="h-4 w-4 text-uk-blue" aria-hidden />
             <Tx>{c.ratingNote}</Tx>
           </span>}
         </div>

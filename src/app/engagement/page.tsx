@@ -46,7 +46,7 @@ const fitGuide = [
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("engagement", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Engagement models — fixed-bid, dedicated team, retainer, staff augmentation",
+  title: "Engagement models — fixed-bid, team or retainer",
   description:
     "Four transparent ways to work with Ukvalley: fixed-bid projects, dedicated teams, monthly retainers and staff augmentation. Pick the model that fits your scope and budget.",
   alternates: { canonical: `${SITE_URL}/engagement` },

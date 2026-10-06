@@ -23,7 +23,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("why-ukvalley", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Why Ukvalley — code you own, SLA in writing, engineers who scope it",
+  title: "Why choose us — code you own, SLA in writing",
   description:
     "What makes Ukvalley different from typical agencies: code ownership from day one, a 24-hour response SLA in every contract, thin-slice delivery by week three and product-grade engineering discipline.",
   alternates: { canonical: `${SITE_URL}/why-ukvalley` },

@@ -14,7 +14,7 @@ export const stats = [
   { value: "150+", label: "Satisfied clients", sub: "Across India & overseas" },
   { value: "1,550+", label: "Projects delivered", sub: "Web, mobile & enterprise" },
   { value: `${coreYears}+`, label: "Years in business", sub: `Building since ${coreCompany.foundedYear}` },
-  { value: "10+", label: "Awards & recognitions", sub: "For delivery excellence" },
+  { value: "100%", label: "In-house engineers", sub: "No freelancers or subcontractors" },
 ];
 
 
@@ -943,7 +943,7 @@ export const caseStudies: CaseStudy[] = [
       "A custom broker CRM with lead scoring, site-visit scheduling and document workflows from enquiry to registration.",
     metrics: [
       { value: "2.1×", label: "More site visits" },
-      { value: "0", label: "Leads dropped" },
+      { value: "Zero", label: "Leads dropped" },
       { value: "30%", label: "Faster closure" },
     ],
     stack: ["Next.js", "Node", "PostgreSQL"],
@@ -1613,7 +1613,7 @@ export const industries: Industry[] = [
     ],
     proof: [
       { value: "2.1×", label: "More site visits" },
-      { value: "0", label: "Leads dropped" },
+      { value: "Zero", label: "Leads dropped" },
       { value: "30%", label: "Faster closure" },
     ],
     featuredCase: {
@@ -2082,7 +2082,7 @@ export type Testimonial = {
 export const testimonials: Testimonial[] = [
   {
     quote:
-      "Ukvalley replaced three spreadsheets and a WhatsApp group with one CRM that actually mirrors our sales process. Demo starts are up and we finally have an audit trail.",
+      "Ukvalley replaced three spreadsheets and a WhatsApp group with one CRM that actually mirrors our sales process. Demo bookings are up, and we finally have an audit trail.",
     name: "Rohit Sharma",
     title: "VP Sales",
     company: "Industrial supplies, Pune",
@@ -2249,7 +2249,7 @@ export const insights: Insight[] = [
     category: "Buyer's guide",
     title: "Choosing a POS for your Indian store: the questions vendors hope you skip",
     excerpt:
-      "Offline billing, GST receipts, RTO of trust: the five questions that separate a POS that survives peak hours from one your staff bypass with paper bills.",
+      "Offline billing, GST receipts, data ownership: the five questions that separate a POS that survives peak hours from one your staff bypass with paper bills.",
     readTime: "6 min read",
     date: "2026-09-22",
     body: [
@@ -2777,7 +2777,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     metrics: [
       { value: "12", label: "Proven solution patterns" },
       { value: "1 day", label: "Payroll cycle after HRMS rollout" },
-      { value: "0", label: "Leads dropped after CRM go-live" },
+      { value: "Zero", label: "Leads dropped after CRM go-live" },
     ],
     whyUs: [
       { title: "We shadow your team first", desc: "The scoping week maps how work actually happens — lead sources, approvals, exceptions — before a single screen is designed." },

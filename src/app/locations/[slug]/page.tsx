@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
@@ -45,7 +45,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const l = (await getLocations()).find((x) => x.slug === slug);
   if (!l) return {};
   return withSharePreview({
-    title: `${l.city} — software development ${l.type === "Presence" ? "presence" : "office & delivery"}`,
+    title: fitTitle(
+      `${l.city} — software development ${l.type === "Presence" ? "presence" : "office & delivery"}`,
+      `${l.city} — software development`,
+      l.city,
+    ),
     description: l.blurb,
     alternates: { canonical: `${SITE_URL}/locations/${l.slug}` },
   });
@@ -216,7 +220,7 @@ export default async function LocationPage({ params }: Props) {
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("In or around ")}{ukText(l.city)}{ukText("? Let's talk.")}</h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("A reply within 1 business hour — from an architect, not a sales bot.")}</p>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A reply within one business day — from an architect, not a sales bot.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>

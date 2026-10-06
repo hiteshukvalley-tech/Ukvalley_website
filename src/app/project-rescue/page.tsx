@@ -20,7 +20,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("project-rescue", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Project rescue — when your software project is failing",
+  title: "Project rescue — when your software is failing",
   description:
     "The vendor disappeared, the code is undocumented and every change breaks something. Ukvalley's audit-first rescue sequence stabilises inherited codebases — ownership first, then a written audit, then fixes.",
   alternates: { canonical: `${SITE_URL}/project-rescue` },

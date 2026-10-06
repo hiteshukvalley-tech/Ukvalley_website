@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, ShieldCheck, ChevronRight, Target, Gauge } from "lucide-react";
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const r = (await getHireRoles()).find((x) => x.slug === slug);
   if (!r) return {};
   return withSharePreview({
-    title: `Hire ${r.title} — dedicated, verified, code you own`,
+    title: fitTitle(`Hire ${r.title} — dedicated, code you own`, `Hire dedicated ${r.title}`, `Hire ${r.title}`),
     description: r.description,
     alternates: { canonical: `${SITE_URL}/hire/${r.slug}` },
   });

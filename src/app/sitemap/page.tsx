@@ -27,7 +27,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("sitemap", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Sitemap — every page of the Ukvalley website",
+  title: "Sitemap — every page of this website",
   description: "A readable list of every page on the Ukvalley Technologies website, grouped by section.",
   alternates: { canonical: `${SITE_URL}/sitemap` },
 };

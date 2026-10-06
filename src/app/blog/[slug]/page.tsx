@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
-import { withSharePreview } from "@/lib/page-metadata";
+import { headlineTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import { ArrowRight, ArrowLeft, Clock, BookOpen, Layers } from "lucide-react";
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = (await getPosts()).find((p) => p.slug === slug);
   if (!post) return {};
   return withSharePreview({
-    title: post.title,
+    title: headlineTitle(post.title),
     description: post.excerpt,
     alternates: { canonical: `${SITE_URL}/blog/${post.slug}` },
     openGraph: {

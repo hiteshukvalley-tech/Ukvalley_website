@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Dialog } from "@base-ui/react/dialog";
 import { ChevronLeft, ChevronRight, Maximize2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Tx } from "@/components/site/texts-context";
@@ -23,6 +24,7 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
   const [reduced, setReduced] = useState(false);
   const count = photos.length;
   const touchX = useRef<number | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
 
   const go = useCallback((i: number) => setIndex(((i % count) + count) % count), [count]);
 
@@ -43,29 +45,13 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
     return () => window.clearInterval(t);
   }, [count, paused, viewer, reduced, index]);
 
-  // Viewer: keys + no page scroll behind it.
-  useEffect(() => {
-    if (!viewer) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setViewer(false);
-      else if (e.key === "ArrowRight") setIndex((i) => (i + 1) % count);
-      else if (e.key === "ArrowLeft") setIndex((i) => (i - 1 + count) % count);
-    };
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      document.body.style.overflow = prev;
-    };
-  }, [viewer, count]);
-
   const arrow =
     "absolute top-1/2 z-10 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-black/80 sm:h-11 sm:w-11";
 
   return (
     <>
       <div
+        ref={carouselRef}
         className="relative mx-auto mt-8 w-full max-w-6xl overflow-hidden rounded-2xl border border-uk-line bg-uk-surface-2 shadow-premium-lg"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
@@ -95,6 +81,7 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
               <button
                 type="button"
                 tabIndex={i === index ? 0 : -1}
+                data-viewer-open
                 onClick={() => setViewer(true)}
                 aria-label={`Open ${p.alt} full size`}
                 className="group block h-full w-full cursor-zoom-in"
@@ -149,22 +136,30 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
         </div>
       </div>
 
-      {viewer && (
-        <div
-          role="dialog"
-          aria-modal="true"
+      <Dialog.Root open={viewer} onOpenChange={setViewer}>
+        <Dialog.Portal>
+        <Dialog.Popup
           aria-label={photos[index].alt}
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-4"
+          // Back to the current slide's "open full size" button — the one
+          // that opened the viewer may have been swapped out by the arrows.
+          finalFocus={() =>
+            carouselRef.current?.querySelector<HTMLElement>('[data-viewer-open][tabindex="0"]') ?? true
+          }
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/90 p-4 outline-none"
           onClick={() => setViewer(false)}
+          // Arrow keys flip photos (focus is always inside the viewer). Escape,
+          // the focus trap and the page scroll lock come from the Dialog.
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight") go(index + 1);
+            else if (e.key === "ArrowLeft") go(index - 1);
+          }}
         >
-          <button
-            type="button"
+          <Dialog.Close
             aria-label="Close"
-            onClick={() => setViewer(false)}
             className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
           >
             <X className="h-5 w-5" />
-          </button>
+          </Dialog.Close>
           {count > 1 && (
             <>
               <button
@@ -201,8 +196,9 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
           <p className="absolute bottom-4 left-1/2 -translate-x-1/2 text-sm text-white/80">
             {index + 1} / {count}
           </p>
-        </div>
-      )}
+        </Dialog.Popup>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   );
 }

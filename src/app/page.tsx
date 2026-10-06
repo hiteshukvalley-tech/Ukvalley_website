@@ -45,15 +45,22 @@ const buildOrganizationSchema = (company: Awaited<ReturnType<typeof getSiteSetti
   "@type": "Organization",
   name: company.name,
   url: `${SITE_URL}`,
+  logo: `${SITE_URL}/brand/ukvalley-logo.png`,
   foundingDate: String(company.foundedYear),
   description:
     "Custom software development company in India. Web, mobile, CRM, ERP, HRMS, cloud and cybersecurity services.",
   email: company.email,
+  ...((company.sales.phone || company.phonePrimary) ? { telephone: company.sales.phone || company.phonePrimary } : {}),
+  // The Nashik head office, as on the Contact page (offices in site-data.ts
+  // and its LocalBusiness schema).
   address: {
     "@type": "PostalAddress",
+    streetAddress: "Plot No 10, Near Samraat Nucleus, Dr. Homi Bhabha Nagar, Mumbai Naka",
+    addressLocality: "Nashik",
+    addressRegion: "Maharashtra",
     addressCountry: "IN",
   },
-  sameAs: Object.values(company.social).filter(Boolean),
+  sameAs: Object.values(company.social).map((u) => u.trim()).filter(Boolean),
 });
 
 const buildFaqSchema = (faqs: Awaited<ReturnType<typeof getFaqs>>) => ({

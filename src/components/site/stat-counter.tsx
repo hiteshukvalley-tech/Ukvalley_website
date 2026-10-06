@@ -66,5 +66,6 @@ export function StatCounter({
     return () => ctx.revert();
   }, [value, duration]);
 
-  return <span ref={ref} className={className}>0{parseStat(value)?.suffix ?? ""}</span>;
+  const parsed = parseStat(value);
+  return <span ref={ref} className={className}>{parsed ? `0${parsed.suffix}` : value}</span>;
 }

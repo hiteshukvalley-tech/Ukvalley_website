@@ -23,7 +23,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("support-maintenance", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Support & maintenance — a 24-hour SLA, stated in writing",
+  title: "Support & maintenance — 24-hour SLA in writing",
   description:
     "Ukvalley's support and maintenance plans: 24-hour response SLA, 24×7 monitoring, patching, backups with tested restores and monthly health reports for the systems we build — and ones we didn't.",
   alternates: { canonical: `${SITE_URL}/support-maintenance` },

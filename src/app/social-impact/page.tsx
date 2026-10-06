@@ -20,7 +20,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("social-impact", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Our Social Impact — giving back through technology",
+  title: "Social impact — giving back through technology",
   description:
     "How Ukvalley Technologies gives back: tree plantation drives, sports days, celebrations and AI workshops that build digital skills in the communities we serve.",
   alternates: { canonical: `${SITE_URL}/social-impact` },

@@ -805,6 +805,46 @@ html.dark { color-scheme: dark; }
   }
   .link-ink:hover { background-size: 100% 2px; }
 
+  /* Footer links — on hover/focus the text turns blue and slides right while a
+     short accent dash grows in from the left (no underline, so links that wrap
+     onto two lines look as clean as one-line ones). */
+  .footer-link {
+    position: relative;
+    transition: color 0.25s ease, transform 0.35s var(--ease-out-expo);
+  }
+  .footer-link::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -0.9rem;
+    width: 0.55rem;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #3100ff, #287bff);
+    opacity: 0;
+    transform: translateY(-50%) scaleX(0);
+    transform-origin: left center;
+    transition: opacity 0.25s ease, transform 0.35s var(--ease-out-expo);
+  }
+  .footer-link:hover,
+  .footer-link:focus-visible {
+    transform: translateX(0.9rem);
+  }
+  .footer-link:hover::before,
+  .footer-link:focus-visible::before {
+    opacity: 1;
+    transform: translateY(-50%) scaleX(1);
+  }
+  .dark .footer-link::before {
+    background: linear-gradient(90deg, #684dff, #8a70ff);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .footer-link,
+    .footer-link::before { transition: color 0.2s ease, opacity 0.2s ease; }
+    .footer-link:hover,
+    .footer-link:focus-visible { transform: none; }
+  }
+
   /* Live console (hero) */
   .console {
     font-family: var(--font-mono), ui-monospace, monospace;

@@ -39,7 +39,7 @@ export async function Footer() {
   return (
     <footer className="relative border-t border-uk-line bg-uk-surface-2 bg-aurora">
       <div className="mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] py-12 pb-[max(3rem,env(safe-area-inset-bottom))] sm:py-16 lg:px-8">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-12 md:grid-cols-4 md:gap-x-12 md:gap-y-12 lg:grid-cols-[1.25fr_1.1fr_1fr_0.95fr_1.4fr] lg:gap-x-14">
           {/* Brand */}
           <div className="col-span-2 flex flex-col gap-5 lg:col-span-1">
             <Link href={ukText("/")} className="flex items-center gap-2.5" aria-label={`${header.logoName} ${header.logoSub} home`.trim()}>
@@ -80,9 +80,11 @@ export async function Footer() {
             {f.contactLinkLabel && (
               <SmartLink
                 href={ukText(f.contactLinkHref)}
-                className="link-ink group inline text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright max-sm:py-2"
+                className="group inline text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright max-sm:py-2"
               >
                 {ukText(f.contactLinkLabel)}
+                {/* word joiner keeps the arrow on the same line as the last word */}
+                {"⁠"}
                 <ArrowRight className="ml-1 inline h-4 w-4 align-text-bottom transition-transform group-hover:translate-x-0.5" />
               </SmartLink>
             )}
@@ -106,7 +108,7 @@ export async function Footer() {
         )}
 
         {/* bottom bar */}
-        <div className="mt-8 flex flex-col items-center justify-between gap-4 border-t border-uk-line pt-7 text-xs text-uk-muted sm:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-uk-line pt-8 text-xs text-uk-muted sm:mt-14 sm:flex-row">
           <p>{ukText(fill(f.copyright, { year: new Date().getFullYear(), name: company.name }))}</p>
           <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 sm:gap-y-2">
             {f.bottomLinks.map((l) => (
@@ -126,12 +128,12 @@ const humanLink = (href: string) => (href === "/sitemap.xml" ? "/sitemap" : href
 
 function FooterCol({ title, links }: { title: string; links: NavLink[] }) {
   return (
-    <div className="flex min-w-0 flex-col gap-3 sm:gap-4">
+    <div className="flex min-w-0 flex-col gap-3 sm:gap-5">
       <h3 className="font-heading text-sm font-bold uppercase tracking-wider text-uk-heading">{ukText(title)}</h3>
-      <ul className="flex flex-col gap-0.5 sm:gap-2.5">
+      <ul className="flex flex-col gap-2 sm:gap-3.5">
         {links.map((l) => (
           <li key={l.href + l.label}>
-            <SmartLink href={ukText(humanLink(l.href))} className="link-ink inline-flex min-h-10 items-center text-sm text-uk-muted transition-colors hover:text-uk-blue sm:min-h-0">
+            <SmartLink href={ukText(humanLink(l.href))} className="footer-link inline-flex min-h-10 items-center text-sm leading-snug text-uk-muted hover:text-uk-blue focus-visible:text-uk-blue sm:min-h-0">
               {ukText(l.label)}
             </SmartLink>
           </li>

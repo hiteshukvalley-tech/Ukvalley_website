@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "@/components/site/intent-link";
 import { ArrowRight, Home, Compass } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -6,6 +7,13 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { getServices } from "@/lib/services-store";
 import { ukText } from "@/lib/texts";
+
+// Its own title instead of the home page's; never indexed.
+export const metadata: Metadata = {
+  title: "Page not found",
+  description: "The page you're looking for moved, was renamed, or never existed. Try our services, case studies or contact page instead.",
+  robots: { index: false, follow: false },
+};
 
 export default async function NotFound() {
   const services = await getServices();

@@ -56,6 +56,25 @@ service that runs `npm ci && npm run build`, then `npm start`.
    pages opened on the backend go to the website. The values are read at build
    time: after changing them, redeploy.
 
+### Search engines and the launch checklist
+
+A test address (`uat.`, `staging.`, `dev.` or `test.` subdomain, `*.onrender.com`,
+`localhost`) is kept out of search results: `robots.txt` is `Disallow: /`, every
+page carries `noindex, nofollow` and every response an `X-Robots-Tag: noindex`
+header. Only a production domain is indexable. `NEXT_PUBLIC_ALLOW_INDEXING=1`
+forces indexing on, `=0` forces it off (read at build time). The admin panel
+always sends `noindex`.
+
+To launch on the production domain:
+
+1. Set `NEXT_PUBLIC_SITE_URL` and `NEXT_PUBLIC_API_URL` to the production
+   domain (e.g. `https://ukvalley.com`) in Render (and `render.yaml`).
+2. Redeploy (the values are read at build time).
+3. Check `/robots.txt` shows `Allow: /` and the production `Sitemap:` line,
+   `/sitemap.xml` lists production URLs, and a page's
+   `<link rel="canonical">` and `<meta name="robots">` (`index, follow`) are
+   right. Then submit the sitemap in Google Search Console.
+
 ### Platform notes
 
 - Render runs one long-lived Node server, so the MongoDB connection pool and
