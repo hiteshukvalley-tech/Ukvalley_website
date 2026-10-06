@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/admin-session";
+import { canUseArea } from "@/lib/admin-access";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { leadStatusLabel, listAllLeads } from "@/lib/leads-store";
 
@@ -13,8 +14,12 @@ function cell(value: string): string {
 
 export async function GET() {
   // The proxy already gates /admin, but a file download deserves its own check.
-  if (!(await getSession())) {
+  const session = await getSession();
+  if (!session) {
     return new Response("Unauthorized", { status: 401 });
+  }
+  if (!canUseArea(session.role, session.access, "leads")) {
+    return new Response("Forbidden", { status: 403 });
   }
   if (!hasDatabaseUrl()) {
     return new Response("Database is not connected.", { status: 503 });

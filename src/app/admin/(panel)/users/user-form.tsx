@@ -5,7 +5,9 @@ import { useActionState, useState, useTransition } from "react";
 import { Loader2, Save, Trash2 } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect } from "@/components/admin/form";
 import { ADMIN_ROLES } from "@/lib/admin-auth";
-import { EMAIL_MAX, PASSWORD_HINT, PASSWORD_MAX, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
+import { ACCESS_AREAS } from "@/lib/admin-access";
+import { EMAIL_MAX, PASSWORD_HINT, PASSWORD_MAX, TITLE_MAX, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
+import { cn } from "@/lib/utils";
 import { createUserAction, deleteUserAction, updateUserAction, type UserFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 import { toast } from "@/components/admin/toast";
@@ -56,15 +58,21 @@ export function UserForm({
             autoComplete="off"
             hint={mode === "edit" ? "The email can't be changed after creation." : "They sign in with this address."}
           />
-          <FormSelect
-            label="Role"
-            name="role"
-            required
-            full
-            defaultValue={values.role}
-            error={errors.role}
-            options={roleOptions}
-            hint={isSelf ? "You can't change your own role." : undefined}
+          <FormField
+            label="Job title"
+            name="title"
+            defaultValue={values.title}
+            maxLength={TITLE_MAX}
+            error={errors.title}
+            autoComplete="off"
+            hint="Optional — e.g. HR, Junior HR, Content writer. Shown in the panel."
+          />
+          <RoleAndAccess
+            initialRole={values.role}
+            initialAccess={values.access}
+            roleError={errors.role}
+            accessError={errors.access}
+            isSelf={isSelf}
           />
           {mode === "edit" && (
             <FormCheckbox
@@ -150,5 +158,121 @@ export function UserForm({
         </section>
       )}
     </div>
+  );
+}
+
+const GROUPS = ["Overview", "Website", "Careers & leads"] as const;
+
+/**
+ * The role select and, for a team member, the sections they may use. Lives
+ * inside the form so it resets with it after each save.
+ */
+function RoleAndAccess({
+  initialRole, initialAccess, roleError, accessError, isSelf,
+}: {
+  initialRole: string;
+  initialAccess: string[];
+  roleError?: string;
+  accessError?: string;
+  isSelf: boolean;
+}) {
+  const [role, setRole] = useState(initialRole);
+  const [picked, setPicked] = useState(() => new Set(initialAccess));
+  const toggle = (key: string, on: boolean) =>
+    setPicked((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  const setGroup = (group: string, on: boolean) =>
+    setPicked((prev) => {
+      const next = new Set(prev);
+      for (const a of ACCESS_AREAS) {
+        if (a.group !== group) continue;
+        if (on) next.add(a.key);
+        else next.delete(a.key);
+      }
+      return next;
+    });
+
+  return (
+    <>
+      <FormSelect
+        label="Role"
+        name="role"
+        required
+        full
+        defaultValue={initialRole}
+        error={roleError}
+        options={roleOptions}
+        onChange={setRole}
+        hint={isSelf ? "You can't change your own role." : undefined}
+      />
+      {role === "editor" ? (
+        <fieldset className="space-y-4 sm:col-span-2" aria-describedby={accessError ? "access-err" : "access-hint"}>
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <legend className="text-sm font-medium text-uk-heading">
+              Sections this person can use<span className="text-destructive" aria-hidden> *</span>
+            </legend>
+            <span className="text-xs tabular-nums text-uk-muted">{picked.size} of {ACCESS_AREAS.length} selected</span>
+          </div>
+          <p id="access-hint" className="-mt-2 text-xs text-uk-muted">
+            Their sidebar shows only these, and every other section is closed to them. The dashboard and their own
+            account page are always available.
+          </p>
+          {GROUPS.map((group) => {
+            const areas = ACCESS_AREAS.filter((a) => a.group === group);
+            const all = areas.every((a) => picked.has(a.key));
+            return (
+              <div key={group} className="rounded-xl border border-uk-line bg-uk-surface p-4">
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-uk-muted">{group}</span>
+                  <button
+                    type="button"
+                    onClick={() => setGroup(group, !all)}
+                    className="text-xs font-medium text-uk-blue hover:underline"
+                  >
+                    {all ? "Clear" : "Select all"}
+                  </button>
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                  {areas.map((a) => {
+                    const on = picked.has(a.key);
+                    return (
+                      <label
+                        key={a.key}
+                        className={cn(
+                          "flex cursor-pointer items-start gap-2.5 rounded-lg border px-3 py-2 text-sm transition-colors",
+                          on ? "border-uk-blue/40 bg-uk-blue/[0.06]" : "border-uk-line hover:bg-uk-surface-2"
+                        )}
+                      >
+                        <input
+                          type="checkbox"
+                          name="access"
+                          value={a.key}
+                          checked={on}
+                          onChange={(e) => toggle(a.key, e.target.checked)}
+                          className="mt-0.5 h-4 w-4 shrink-0 accent-uk-blue"
+                        />
+                        <span className="min-w-0">
+                          <span className="block font-medium text-uk-heading">{a.label}</span>
+                          {a.hint && <span className="block text-xs text-uk-muted">{a.hint}</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+          {accessError && <p id="access-err" role="alert" className="text-xs font-medium text-destructive">{accessError}</p>}
+        </fieldset>
+      ) : (
+        <p className="rounded-lg border border-uk-line bg-uk-surface px-3 py-2 text-xs text-uk-muted sm:col-span-2">
+          Admins can use every section, including users and site settings.
+        </p>
+      )}
+    </>
   );
 }

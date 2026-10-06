@@ -32,7 +32,7 @@ export async function updateLeadAction(
   formData: FormData
 ): Promise<LeadFormState> {
   id = String(id);
-  await requireAdmin();
+  await requireAdmin("leads");
   const status = String(formData.get("status") ?? "");
   const note = String(formData.get("note") ?? "").trim();
   const values = { status, note };
@@ -58,7 +58,7 @@ export async function updateLeadAction(
 
 export async function deleteLeadAction(id: string): Promise<ActionResult> {
   id = String(id);
-  await requireAdmin();
+  await requireAdmin("leads");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteLead(String(id));

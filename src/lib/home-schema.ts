@@ -21,6 +21,8 @@ export type FieldDef =
   | (BaseField & { kind: "textarea"; max: number; rows?: number })
   /** An image: a /media/<id> path from the library, or a full https:// link. `aspect` as on SubField. */
   | (BaseField & { kind: "image"; max?: number; aspect?: string })
+  /** A number picked with a slider (e.g. a logo size in %). Stored as a string, like every other value. */
+  | (BaseField & { kind: "range"; min: number; max: number; step: number; unit: string })
   /** A list of one-line strings (chips, logos, steps…). */
   | (BaseField & { kind: "list"; itemLabel: string; max: number; minItems: number; maxItems: number })
   /** A list of cards, each with the same small set of fields. */
@@ -406,7 +408,12 @@ export function validateSection(
 
   for (const f of def.fields) {
     const v = input[f.key];
-    if (f.kind === "text" || f.kind === "textarea" || f.kind === "image") {
+    if (f.kind === "range") {
+      const n = Number(str(v));
+      if (!str(v) || !Number.isFinite(n)) errors[f.key] = `${f.label}: enter a number.`;
+      else if (n < f.min || n > f.max) errors[f.key] = `${f.label} must be between ${f.min} and ${f.max}${f.unit}.`;
+      value[f.key] = Number.isFinite(n) ? String(Math.round(n / f.step) * f.step) : str(v);
+    } else if (f.kind === "text" || f.kind === "textarea" || f.kind === "image") {
       const s = str(v);
       checkText(f.key, s, f.kind === "image" ? { ...f, max: f.max ?? 300, link: true } : f);
       value[f.key] = s;

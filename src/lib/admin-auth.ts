@@ -20,6 +20,13 @@ export type SessionUser = {
   role: AdminRole;
   /** the user's session version; bumping it signs out their other sessions */
   sv: number;
+  /**
+   * Admin sections a team member may open (see admin-access.ts). Undefined =
+   * every content section (admins, and accounts made before per-section access).
+   */
+  access?: string[];
+  /** Job title from Admin → Users (database users only; not stored in the cookie) */
+  title?: string;
 };
 
 export const ENV_USER_ID = "env";
@@ -105,7 +112,12 @@ export async function checkCredentials(email: string, password: string) {
 
 export async function createSessionToken(user: SessionUser): Promise<string> {
   const body = bytesToB64url(
-    enc.encode(JSON.stringify({ u: user.id, e: user.email, r: user.role, v: user.sv, x: Date.now() + SESSION_TTL_MS }))
+    enc.encode(JSON.stringify({
+      u: user.id, e: user.email, r: user.role, v: user.sv, x: Date.now() + SESSION_TTL_MS,
+      // Sections, so proxy.ts can refuse other pages without a database call.
+      // Changing a user's access bumps their session version, so this can't go stale.
+      ...(user.access ? { a: user.access } : {}),
+    }))
   );
   return `${body}.${await sign(body)}`;
 }
@@ -118,12 +130,13 @@ export async function verifySessionToken(token?: string): Promise<SessionUser | 
   try {
     if (!(await safeEqual(sig, await sign(body)))) return null;
     const p = JSON.parse(dec.decode(b64urlToBytes(body))) as {
-      u?: unknown; e?: unknown; r?: unknown; v?: unknown; x?: unknown;
+      u?: unknown; e?: unknown; r?: unknown; v?: unknown; x?: unknown; a?: unknown;
     };
     if (typeof p.x !== "number" || p.x < Date.now()) return null;
     if (typeof p.u !== "string" || typeof p.e !== "string") return null;
     if (p.r !== "admin" && p.r !== "editor") return null;
-    return { id: p.u, email: p.e, role: p.r, sv: typeof p.v === "number" ? p.v : 0 };
+    const access = Array.isArray(p.a) ? p.a.filter((k): k is string => typeof k === "string") : undefined;
+    return { id: p.u, email: p.e, role: p.r, sv: typeof p.v === "number" ? p.v : 0, ...(access ? { access } : {}) };
   } catch {
     return null;
   }

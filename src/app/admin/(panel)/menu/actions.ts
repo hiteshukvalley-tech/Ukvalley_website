@@ -33,7 +33,7 @@ const dbMsg = (e: unknown) => (e instanceof Error ? e.message : "database error"
 
 /** Saves the whole menu: order, names, visibility and links. */
 export async function saveMenuAction(payload: string): Promise<MenuState> {
-  await requireAdmin();
+  await requireAdmin("menu");
   const nonce = Date.now();
   let raw: unknown;
   try {
@@ -55,7 +55,7 @@ export async function saveMenuAction(payload: string): Promise<MenuState> {
 }
 
 export async function resetMenuAction(): Promise<MenuState> {
-  await requireAdmin();
+  await requireAdmin("menu");
   const nonce = Date.now();
   if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, nonce };
   try {
@@ -70,7 +70,7 @@ export async function resetMenuAction(): Promise<MenuState> {
 
 /** Adds a main section after the existing ones (so beside Insights) and opens its editor. */
 export async function createMainSectionAction(_prev: MenuState, formData: FormData): Promise<MenuState> {
-  await requireAdmin();
+  await requireAdmin("menu");
   const nonce = Date.now();
   const name = String(formData.get("name") ?? "").trim();
   const kind = String(formData.get("kind") ?? "page") as NewSectionKind;
@@ -96,7 +96,7 @@ export async function createMainSectionAction(_prev: MenuState, formData: FormDa
 }
 
 export async function saveMainPageAction(slug: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("menu");
   const nonce = Date.now();
   if (!isMainPageSlug(slug)) return { status: "error", message: "Unknown page.", nonce };
   let parsed: { values?: unknown };
@@ -124,7 +124,7 @@ export async function saveMainPageAction(slug: string, _prev: HomeSectionState, 
 }
 
 export async function deleteMainPageAction(slug: string): Promise<MenuState> {
-  await requireAdmin();
+  await requireAdmin("menu");
   const nonce = Date.now();
   if (!isMainPageSlug(slug)) return { status: "error", message: "Unknown page.", nonce };
   if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, nonce };

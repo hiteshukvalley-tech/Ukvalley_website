@@ -1,4 +1,5 @@
 import { getSession } from "@/lib/admin-session";
+import { canUseArea } from "@/lib/admin-access";
 import { openResume } from "@/lib/applications-store";
 
 export const dynamic = "force-dynamic";
@@ -6,7 +7,9 @@ export const dynamic = "force-dynamic";
 /** An applicant's resume (PDF). Signed-in admins only — never public. */
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   // The proxy already gates /admin, but personal data deserves its own check.
-  if (!(await getSession())) return new Response("Unauthorized", { status: 401 });
+  const session = await getSession();
+  if (!session) return new Response("Unauthorized", { status: 401 });
+  if (!canUseArea(session.role, session.access, "applications")) return new Response("Forbidden", { status: 403 });
   const { id } = await params;
 
   let resume;

@@ -38,7 +38,7 @@ export async function createServiceAction(
   _prev: ServiceFormState,
   formData: FormData
 ): Promise<ServiceFormState> {
-  await requireAdmin();
+  await requireAdmin("services");
   const values = readServiceValues(formData);
   const nonce = Date.now();
 
@@ -72,7 +72,7 @@ export async function updateServiceAction(
   formData: FormData
 ): Promise<ServiceFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("services");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readServiceValues(formData), slug };
   const nonce = Date.now();
@@ -94,7 +94,7 @@ export async function updateServiceAction(
 }
 
 export async function importServicesAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("services");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInServices();
@@ -109,7 +109,7 @@ export async function importServicesAction(): Promise<ActionResult> {
 export async function setPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("services");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setServicePublished(slug, published);
@@ -122,7 +122,7 @@ export async function setPublishedAction(slug: string, published: boolean): Prom
 
 export async function moveServiceAction(slug: string, direction: "up" | "down"): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("services");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await moveService(slug, direction);
@@ -134,7 +134,7 @@ export async function moveServiceAction(slug: string, direction: "up" | "down"):
 }
 
 export async function reorderServicesAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("services");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -151,7 +151,7 @@ export async function reorderServicesAction(slugs: string[]): Promise<ActionResu
 
 export async function deleteServiceAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("services");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteService(slug);

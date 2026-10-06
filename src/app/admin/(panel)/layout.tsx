@@ -10,5 +10,9 @@ export const metadata: Metadata = {
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   // Re-checks the user in the database, so a disabled account is signed out here.
   const user = await requireAdmin();
-  return <AdminShell user={{ email: user.email, role: user.role }}>{children}</AdminShell>;
+  return (
+    <AdminShell user={{ email: user.email, role: user.role, access: user.access, title: user.title }}>
+      {children}
+    </AdminShell>
+  );
 }

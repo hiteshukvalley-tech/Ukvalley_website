@@ -43,7 +43,7 @@ function refreshPublicSite() {
 }
 
 export async function createSolutionAction(_prev: SolutionFormState, formData: FormData): Promise<SolutionFormState> {
-  await requireAdmin();
+  await requireAdmin("solutions");
   const values = readSolutionValues(formData);
   const nonce = Date.now();
 
@@ -77,7 +77,7 @@ export async function updateSolutionAction(
   formData: FormData
 ): Promise<SolutionFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("solutions");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readSolutionValues(formData), slug };
   const nonce = Date.now();
@@ -99,7 +99,7 @@ export async function updateSolutionAction(
 }
 
 export async function importSolutionsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("solutions");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInSolutions();
@@ -114,7 +114,7 @@ export async function importSolutionsAction(): Promise<ActionResult> {
 export async function setSolutionPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("solutions");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setSolutionPublished(String(slug), Boolean(published));
@@ -126,7 +126,7 @@ export async function setSolutionPublishedAction(slug: string, published: boolea
 }
 
 export async function reorderSolutionsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("solutions");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -143,7 +143,7 @@ export async function reorderSolutionsAction(slugs: string[]): Promise<ActionRes
 
 export async function deleteSolutionAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("solutions");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteSolution(String(slug));

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, verifySessionToken } from "@/lib/admin-auth";
+import { canOpenPath } from "@/lib/admin-access";
 import { API_HOST, API_URL, SITE_HOST, SITE_INDEXABLE, SITE_URL } from "@/lib/site-origin";
 
 /** What the backend address (API_URL) serves itself; any other page there goes to the website. */
@@ -63,6 +64,11 @@ async function route(request: NextRequest) {
     // On the real domain, send people to its own login address (request.url can
     // carry the server's internal host behind the host's proxy).
     return NextResponse.redirect(host && host === API_HOST ? `${API_URL}/admin/login` : new URL("/admin/login", request.url));
+  }
+  // Team members only open the sections ticked for them in Admin → Users
+  // (the cookie carries the list; server actions re-check it in the database).
+  if (!canOpenPath(authed.role, authed.access, pathname)) {
+    return NextResponse.redirect(host && host === API_HOST ? `${API_URL}/admin?denied=1` : new URL("/admin?denied=1", request.url));
   }
   return NextResponse.next();
 }

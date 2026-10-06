@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: PageProps<"/admin/pages/[page
 }
 
 export default async function PageTextEditor({ params }: PageProps<"/admin/pages/[page]">) {
-  await requireAdmin();
+  await requireAdmin("pages");
   const key = (await params).page;
   if (!isPageKey(key)) notFound();
   const info = pageInfo(key)!;

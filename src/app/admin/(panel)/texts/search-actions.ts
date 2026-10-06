@@ -37,7 +37,7 @@ const SNIPPET = 70;
  * index (called when the search box gets focus, so the first real search is quick).
  */
 export async function searchAllTextAction(query: string, refresh = false): Promise<SearchResult> {
-  await requireAdmin();
+  await requireAdmin("texts");
   const q = String(query ?? "").trim().slice(0, 100).toLowerCase();
   const pages = await getSearchIndex(refresh === true);
   const empty: SearchResult = { pages: [], hits: [], more: 0, searched: pages.length };

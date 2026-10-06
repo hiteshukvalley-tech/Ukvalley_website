@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createTeamAction(_prev: TeamFormState, formData: FormData): Promise<TeamFormState> {
-  await requireAdmin();
+  await requireAdmin("team");
   const values = readTeamValues(formData);
   const nonce = Date.now();
 
@@ -58,7 +58,7 @@ export async function updateTeamAction(
   formData: FormData
 ): Promise<TeamFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("team");
   const values = readTeamValues(formData);
   const nonce = Date.now();
 
@@ -79,7 +79,7 @@ export async function updateTeamAction(
 }
 
 export async function importTeamAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("team");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInTeam();
@@ -94,7 +94,7 @@ export async function importTeamAction(): Promise<ActionResult> {
 export async function setTeamPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("team");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setTeamPublished(String(slug), Boolean(published));
@@ -106,7 +106,7 @@ export async function setTeamPublishedAction(slug: string, published: boolean): 
 }
 
 export async function reorderTeamAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("team");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -123,7 +123,7 @@ export async function reorderTeamAction(slugs: string[]): Promise<ActionResult> 
 
 export async function deleteTeamAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("team");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteTeamMember(String(slug));

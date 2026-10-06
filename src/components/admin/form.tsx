@@ -212,7 +212,7 @@ export function FormTextarea({
 
 /** Native select styled to match Input. */
 export function FormSelect({
-  label, name, defaultValue, error, hint, options, required, full,
+  label, name, defaultValue, error, hint, options, required, full, onChange,
 }: {
   label: string;
   name: string;
@@ -222,6 +222,8 @@ export function FormSelect({
   options: { value: string; label: string }[];
   required?: boolean;
   full?: boolean;
+  /** Optional: react to the choice (the select stays uncontrolled). */
+  onChange?: (value: string) => void;
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
   return (
@@ -235,6 +237,7 @@ export function FormSelect({
         name={name}
         defaultValue={defaultValue}
         required={required}
+        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
         className="h-10 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive dark:bg-input/30"

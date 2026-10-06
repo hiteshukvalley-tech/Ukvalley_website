@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 // Overview of every page. A page opened through its old address
 // (/admin/texts?path=…) goes to its own section: /admin/texts/<section>?path=…
 export default async function TextsPage({ searchParams }: { searchParams: Promise<{ path?: string; q?: string }> }) {
-  await requireAdmin();
+  await requireAdmin("texts");
   const { path = "", q = "" } = await searchParams;
   if (path && isScanPath(path)) {
     const info = await describePath(path);

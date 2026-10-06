@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createCaseAction(_prev: CaseFormState, formData: FormData): Promise<CaseFormState> {
-  await requireAdmin();
+  await requireAdmin("case-studies");
   const values = readCaseValues(formData);
   const nonce = Date.now();
 
@@ -67,7 +67,7 @@ export async function updateCaseAction(
   formData: FormData
 ): Promise<CaseFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("case-studies");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readCaseValues(formData), slug };
   const nonce = Date.now();
@@ -89,7 +89,7 @@ export async function updateCaseAction(
 }
 
 export async function importCasesAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("case-studies");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInCases();
@@ -104,7 +104,7 @@ export async function importCasesAction(): Promise<ActionResult> {
 export async function setCasePublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("case-studies");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setCasePublished(String(slug), Boolean(published));
@@ -116,7 +116,7 @@ export async function setCasePublishedAction(slug: string, published: boolean): 
 }
 
 export async function reorderCasesAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("case-studies");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -133,7 +133,7 @@ export async function reorderCasesAction(slugs: string[]): Promise<ActionResult>
 
 export async function deleteCaseAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("case-studies");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteCase(String(slug));

@@ -31,6 +31,13 @@ function refresh() {
  * demoting them) would leave nobody able to manage users: no other active
  * admin and no owner account configured in the environment.
  */
+/** Whether a save keeps the same role and sections (otherwise the user is signed out). */
+function sameAccess(before: { role: string; access?: string[] }, after: { role: string; access?: string[] }) {
+  if (before.role !== after.role) return false;
+  if (after.role === "admin") return true;
+  return JSON.stringify(before.access ?? null) === JSON.stringify(after.access ?? null);
+}
+
 async function wouldLockOutAdmins(id: string): Promise<boolean> {
   if (envUser()) return false;
   return (await countOtherActiveAdmins(id)) === 0;
@@ -122,6 +129,7 @@ export async function updateUserAction(
     }
     const found = await updateUser(id, {
       name: value.name, role: value.role, active: value.active, password: value.password,
+      title: value.title, access: value.access,
     });
     if (!found) return { status: "error", message: "This user no longer exists.", values, nonce };
   } catch (e) {
@@ -130,7 +138,11 @@ export async function updateUserAction(
   refresh();
   return {
     status: "saved",
-    message: value.password ? "User saved. The password was changed and they were signed out." : "User saved.",
+    message: value.password
+      ? "User saved. The password was changed and they were signed out."
+      : sameAccess(existing, value)
+        ? "User saved."
+        : "User saved. Their access changed, so they were signed out — they see the new sections when they sign in again.",
     values,
     nonce,
   };

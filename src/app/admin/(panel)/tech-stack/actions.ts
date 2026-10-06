@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createTechCategoryAction(_prev: TechCategoryFormState, formData: FormData): Promise<TechCategoryFormState> {
-  await requireAdmin();
+  await requireAdmin("tech-stack");
   const values = readTechCategoryValues(formData);
   const nonce = Date.now();
 
@@ -58,7 +58,7 @@ export async function updateTechCategoryAction(
   formData: FormData
 ): Promise<TechCategoryFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("tech-stack");
   const values = readTechCategoryValues(formData);
   const nonce = Date.now();
 
@@ -79,7 +79,7 @@ export async function updateTechCategoryAction(
 }
 
 export async function importTechCategoriesAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("tech-stack");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInTechCategories();
@@ -94,7 +94,7 @@ export async function importTechCategoriesAction(): Promise<ActionResult> {
 export async function setTechCategoryPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("tech-stack");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setTechCategoryPublished(String(slug), Boolean(published));
@@ -106,7 +106,7 @@ export async function setTechCategoryPublishedAction(slug: string, published: bo
 }
 
 export async function reorderTechCategoriesAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("tech-stack");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -123,7 +123,7 @@ export async function reorderTechCategoriesAction(slugs: string[]): Promise<Acti
 
 export async function deleteTechCategoryAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("tech-stack");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteTechCategory(String(slug));

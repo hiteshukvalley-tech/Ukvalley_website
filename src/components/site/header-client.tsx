@@ -254,7 +254,9 @@ export function HeaderClient({
         <div
           className={cn(
             "mx-auto flex max-w-7xl items-center justify-between gap-6 pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] lg:px-8",
-            scrolled ? "h-14 lg:h-16" : "h-16 lg:h-18"
+            // min-height (not a fixed height): a logo enlarged in Admin → Header
+            // makes the bar taller instead of spilling out of it
+            scrolled ? "min-h-14 py-1 lg:min-h-16" : "min-h-16 py-1 lg:min-h-18"
           )}
         >
           {/* Logo */}

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Main section page" };
 
 export default async function MainSectionPage({ params }: PageProps<"/admin/menu/[slug]">) {
-  await requireAdmin();
+  await requireAdmin("menu");
   const slug = (await params).slug;
   if (!isMainPageSlug(slug)) notFound();
   const { content, updatedAt, dbError } = await getMainPageForAdmin(slug);

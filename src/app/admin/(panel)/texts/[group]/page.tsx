@@ -19,7 +19,7 @@ export default async function TextsGroupPage({
   params: Promise<{ group: string }>;
   searchParams: Promise<{ path?: string; q?: string }>;
 }) {
-  await requireAdmin();
+  await requireAdmin("texts");
   const { group } = await params;
   if (!groupBySlug(group)) notFound();
   const { path = "", q = "" } = await searchParams;

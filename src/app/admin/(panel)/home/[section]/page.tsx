@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/admin/home/[secti
 }
 
 export default async function HomeSectionPage({ params }: PageProps<"/admin/home/[section]">) {
-  await requireAdmin();
+  await requireAdmin("home");
   const key = canonicalSectionKey((await params).section);
   const { page, updated, dbError } = await getHomeForAdmin();
 

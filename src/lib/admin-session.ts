@@ -11,6 +11,7 @@ import {
   type SessionUser,
 } from "./admin-auth";
 import { hasDatabaseUrl } from "./db/client";
+import { canUseArea } from "./admin-access";
 import { getOwner } from "./owner-password";
 import { getUserDoc } from "./users-store";
 
@@ -38,17 +39,27 @@ export const getSession = cache(async function getSession(): Promise<SessionUser
   try {
     const user = await getUserDoc(session.id);
     if (!user || !user.active || user.sessionVersion !== session.sv) return null;
-    // Role comes from the database, not the cookie.
-    return { id: user._id, email: user.email, role: user.role, sv: user.sessionVersion };
+    // Role and section access come from the database, not the cookie.
+    return {
+      id: user._id, email: user.email, role: user.role, sv: user.sessionVersion,
+      ...(user.role !== "admin" && user.access ? { access: user.access } : {}),
+      ...(user.title ? { title: user.title } : {}),
+    };
   } catch {
     return null;
   }
 });
 
-/** Any signed-in admin or editor. Redirects to the login page otherwise. */
-export async function requireAdmin(): Promise<SessionUser> {
+/**
+ * Any signed-in admin or team member. Redirects to the login page otherwise.
+ * With `area` (a key from admin-access.ts), the user must also have that
+ * section — every server action passes its section, so a team member can't
+ * save to a section they weren't given, even by calling the action directly.
+ */
+export async function requireAdmin(area?: string): Promise<SessionUser> {
   const session = await getSession();
   if (!session) redirect("/admin/login");
+  if (area && !canUseArea(session.role, session.access, area)) redirect("/admin?denied=1");
   return session;
 }
 

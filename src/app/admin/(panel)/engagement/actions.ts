@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createEngagementModelAction(_prev: EngagementModelFormState, formData: FormData): Promise<EngagementModelFormState> {
-  await requireAdmin();
+  await requireAdmin("engagement");
   const values = readEngagementModelValues(formData);
   const nonce = Date.now();
 
@@ -58,7 +58,7 @@ export async function updateEngagementModelAction(
   formData: FormData
 ): Promise<EngagementModelFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("engagement");
   const values = readEngagementModelValues(formData);
   const nonce = Date.now();
 
@@ -79,7 +79,7 @@ export async function updateEngagementModelAction(
 }
 
 export async function importEngagementModelsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("engagement");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInEngagementModels();
@@ -94,7 +94,7 @@ export async function importEngagementModelsAction(): Promise<ActionResult> {
 export async function setEngagementModelPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("engagement");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setEngagementModelPublished(String(slug), Boolean(published));
@@ -106,7 +106,7 @@ export async function setEngagementModelPublishedAction(slug: string, published:
 }
 
 export async function reorderEngagementModelsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("engagement");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -123,7 +123,7 @@ export async function reorderEngagementModelsAction(slugs: string[]): Promise<Ac
 
 export async function deleteEngagementModelAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("engagement");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteEngagementModel(String(slug));

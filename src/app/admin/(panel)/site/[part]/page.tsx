@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: PageProps<"/admin/site/[part]
 }
 
 export default async function SiteChromePage({ params }: PageProps<"/admin/site/[part]">) {
-  await requireAdmin();
+  await requireAdmin("site");
   const part = (await params).part;
   if (!isChromeKey(part)) notFound();
   const def = CHROME_DEFS[part];

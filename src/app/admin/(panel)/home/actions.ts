@@ -37,7 +37,7 @@ export async function saveHomeSectionAction(
   _prev: HomeSectionState,
   formData: FormData
 ): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("home");
   const nonce = Date.now();
   const custom = isCustomKey(key);
   const def: SectionDef | undefined = custom ? CUSTOM_SECTION_DEF : homeSectionDef(key);
@@ -79,7 +79,7 @@ export async function saveHomeSectionAction(
 
 /** Deletes the saved copy, so the section shows its original text again. */
 export async function resetHomeSectionAction(key: string): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("home");
   const nonce = Date.now();
   if (!isHomeSectionKey(key)) return { status: "error", message: "Unknown section.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);
@@ -96,7 +96,7 @@ export type LayoutState = { status?: "saved" | "error" | "reset"; message?: stri
 
 /** Saves the order the home page shows its sections in. */
 export async function saveHomeOrderAction(order: string[]): Promise<LayoutState> {
-  await requireAdmin();
+  await requireAdmin("home");
   const nonce = Date.now();
   if (!Array.isArray(order) || order.some((x) => typeof x !== "string")) {
     return { status: "error", message: "Could not read the new order.", nonce };
@@ -113,7 +113,7 @@ export async function saveHomeOrderAction(order: string[]): Promise<LayoutState>
 
 /** Creates a custom section (placed after Insights) and opens its editor. */
 export async function createCustomSectionAction(_prev: LayoutState, formData: FormData): Promise<LayoutState> {
-  await requireAdmin();
+  await requireAdmin("home");
   const nonce = Date.now();
   const name = String(formData.get("name") ?? "").trim();
   if (!name) return { status: "error", message: "Give the new section a name.", nonce };
@@ -130,7 +130,7 @@ export async function createCustomSectionAction(_prev: LayoutState, formData: Fo
 }
 
 export async function deleteCustomSectionAction(id: string): Promise<LayoutState> {
-  await requireAdmin();
+  await requireAdmin("home");
   const nonce = Date.now();
   if (!isCustomKey(id)) return { status: "error", message: "Only sections you added can be deleted.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);

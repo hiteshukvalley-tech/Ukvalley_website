@@ -123,8 +123,10 @@ export function ImageInput({
           style={aspect ? { aspectRatio: aspect.replace(":", "/"), width: "auto", minWidth: "3rem", maxWidth: "8rem" } : undefined}
         >
           {value ? (
+            // A field with a website frame previews as that crop; free-shape
+            // images (logos, banners) are shown whole so nothing looks cut off.
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={value} alt="" className="h-full w-full object-cover" />
+            <img src={value} alt="" className={cn("h-full w-full", aspect ? "object-cover" : "object-contain p-1")} />
           ) : (
             <ImageIcon className="h-5 w-5" />
           )}
@@ -417,6 +419,47 @@ function Field({
         hint={f.hint}
         aspect={f.aspect}
       />
+    );
+  }
+
+  if (f.kind === "range") {
+    const current = typeof value === "string" && value !== "" ? value : String(f.min);
+    const err = errors[f.key];
+    return (
+      <div className="space-y-2 sm:col-span-2">
+        <div className="flex items-center justify-between gap-3">
+          <Label htmlFor={id} className="text-uk-heading">{f.label}</Label>
+          <span className="flex items-center gap-1.5">
+            <Input
+              type="number"
+              aria-label={`${f.label} (${f.unit})`}
+              min={f.min}
+              max={f.max}
+              step={f.step}
+              value={current}
+              onChange={(e) => onChange(e.target.value)}
+              className="h-8 w-20 text-right tabular-nums"
+            />
+            <span className="text-sm text-uk-muted">{f.unit}</span>
+          </span>
+        </div>
+        <input
+          id={id}
+          type="range"
+          min={f.min}
+          max={f.max}
+          step={f.step}
+          value={Number(current) || f.min}
+          onChange={(e) => onChange(e.target.value)}
+          aria-invalid={err ? true : undefined}
+          className="w-full accent-uk-blue"
+        />
+        <div className="flex justify-between text-[11px] text-uk-muted" aria-hidden>
+          <span>{f.min}{f.unit} · smaller</span>
+          <span>larger · {f.max}{f.unit}</span>
+        </div>
+        <Footer id={id} error={err} hint={f.hint} />
+      </div>
     );
   }
 

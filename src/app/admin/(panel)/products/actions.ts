@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createProductAction(_prev: ProductFormState, formData: FormData): Promise<ProductFormState> {
-  await requireAdmin();
+  await requireAdmin("products");
   const values = readProductValues(formData);
   const nonce = Date.now();
 
@@ -67,7 +67,7 @@ export async function updateProductAction(
   formData: FormData
 ): Promise<ProductFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("products");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readProductValues(formData), slug };
   const nonce = Date.now();
@@ -89,7 +89,7 @@ export async function updateProductAction(
 }
 
 export async function importProductsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("products");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInProducts();
@@ -104,7 +104,7 @@ export async function importProductsAction(): Promise<ActionResult> {
 export async function setProductPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("products");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setProductPublished(String(slug), Boolean(published));
@@ -116,7 +116,7 @@ export async function setProductPublishedAction(slug: string, published: boolean
 }
 
 export async function reorderProductsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("products");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -133,7 +133,7 @@ export async function reorderProductsAction(slugs: string[]): Promise<ActionResu
 
 export async function deleteProductAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("products");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteProduct(String(slug));

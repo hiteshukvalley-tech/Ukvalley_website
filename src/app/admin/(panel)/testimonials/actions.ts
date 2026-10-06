@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createTestimonialAction(_prev: TestimonialFormState, formData: FormData): Promise<TestimonialFormState> {
-  await requireAdmin();
+  await requireAdmin("testimonials");
   const values = readTestimonialValues(formData);
   const nonce = Date.now();
 
@@ -58,7 +58,7 @@ export async function updateTestimonialAction(
   formData: FormData
 ): Promise<TestimonialFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("testimonials");
   const values = readTestimonialValues(formData);
   const nonce = Date.now();
 
@@ -79,7 +79,7 @@ export async function updateTestimonialAction(
 }
 
 export async function importTestimonialsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("testimonials");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInTestimonials();
@@ -94,7 +94,7 @@ export async function importTestimonialsAction(): Promise<ActionResult> {
 export async function setTestimonialPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("testimonials");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setTestimonialPublished(String(slug), Boolean(published));
@@ -106,7 +106,7 @@ export async function setTestimonialPublishedAction(slug: string, published: boo
 }
 
 export async function reorderTestimonialsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("testimonials");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -123,7 +123,7 @@ export async function reorderTestimonialsAction(slugs: string[]): Promise<Action
 
 export async function deleteTestimonialAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("testimonials");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteTestimonial(String(slug));

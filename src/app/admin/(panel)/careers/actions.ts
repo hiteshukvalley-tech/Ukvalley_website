@@ -34,7 +34,7 @@ function refreshPublicSite() {
 }
 
 export async function createCareerAction(_prev: CareerFormState, formData: FormData): Promise<CareerFormState> {
-  await requireAdmin();
+  await requireAdmin("careers");
   const values = readCareerValues(formData);
   // Slug left blank: make it from the role name (a taken one gets -2, -3 … in createCareer).
   const derivedSlug = !values.slug && Boolean(values.role);
@@ -71,7 +71,7 @@ export async function updateCareerAction(
   formData: FormData
 ): Promise<CareerFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("careers");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readCareerValues(formData), slug };
   const nonce = Date.now();
@@ -93,7 +93,7 @@ export async function updateCareerAction(
 }
 
 export async function importCareersAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("careers");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInCareers();
@@ -108,7 +108,7 @@ export async function importCareersAction(): Promise<ActionResult> {
 export async function setCareerPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("careers");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setCareerPublished(String(slug), Boolean(published));
@@ -120,7 +120,7 @@ export async function setCareerPublishedAction(slug: string, published: boolean)
 }
 
 export async function reorderCareersAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("careers");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -137,7 +137,7 @@ export async function reorderCareersAction(slugs: string[]): Promise<ActionResul
 
 export async function deleteCareerAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("careers");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteCareer(String(slug));

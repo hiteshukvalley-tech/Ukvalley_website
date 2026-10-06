@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createProcessStepAction(_prev: ProcessStepFormState, formData: FormData): Promise<ProcessStepFormState> {
-  await requireAdmin();
+  await requireAdmin("process");
   const values = readProcessStepValues(formData);
   const nonce = Date.now();
 
@@ -58,7 +58,7 @@ export async function updateProcessStepAction(
   formData: FormData
 ): Promise<ProcessStepFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("process");
   const values = readProcessStepValues(formData);
   const nonce = Date.now();
 
@@ -79,7 +79,7 @@ export async function updateProcessStepAction(
 }
 
 export async function importProcessStepsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("process");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInProcessSteps();
@@ -94,7 +94,7 @@ export async function importProcessStepsAction(): Promise<ActionResult> {
 export async function setProcessStepPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("process");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setProcessStepPublished(String(slug), Boolean(published));
@@ -106,7 +106,7 @@ export async function setProcessStepPublishedAction(slug: string, published: boo
 }
 
 export async function reorderProcessStepsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("process");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -123,7 +123,7 @@ export async function reorderProcessStepsAction(slugs: string[]): Promise<Action
 
 export async function deleteProcessStepAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("process");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteProcessStep(String(slug));

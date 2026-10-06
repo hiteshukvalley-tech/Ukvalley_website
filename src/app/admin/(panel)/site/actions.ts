@@ -19,7 +19,7 @@ const noDb = (nonce: number): HomeSectionState => ({
 });
 
 export async function saveChromeAction(part: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("site");
   const nonce = Date.now();
   if (!isChromeKey(part)) return { status: "error", message: "Unknown part of the site.", nonce };
   let parsed: { values?: unknown };
@@ -41,7 +41,7 @@ export async function saveChromeAction(part: string, _prev: HomeSectionState, fo
 }
 
 export async function resetChromeAction(part: string): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("site");
   const nonce = Date.now();
   if (!isChromeKey(part)) return { status: "error", message: "Unknown part of the site.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);

@@ -7,6 +7,7 @@ import { envUser } from "@/lib/admin-auth";
 import { requireRole } from "@/lib/admin-session";
 import { listUsers } from "@/lib/users-store";
 import { roleLabel } from "@/lib/users-validation";
+import { ACCESS_AREAS } from "@/lib/admin-access";
 import { FlashToast } from "@/components/admin/toast";
 
 export const metadata = { title: "Users" };
@@ -29,7 +30,7 @@ export default async function UsersAdminPage({ searchParams }: Props) {
       <PageHeader
         title="Users"
         crumbs={[{ label: "Users" }]}
-        description="People who can sign in to this admin panel. Admins can do everything; editors can manage content, leads and media but not users or site settings."
+        description="People who can sign in to this admin panel. Admins can do everything; team members (e.g. HR, Junior HR) see only the sections ticked for them."
         action={
           <Link
             href="/admin/users/new"
@@ -86,12 +87,16 @@ export default async function UsersAdminPage({ searchParams }: Props) {
                     >
                       {roleLabel[u.role]}
                     </span>
+                    {u.title && <span className="text-xs font-medium text-uk-body">{u.title}</span>}
                     {!u.active && (
                       <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[0.7rem] font-semibold text-destructive">Disabled</span>
                     )}
                     {me.id === u.id && <span className="text-xs text-uk-muted">(you)</span>}
                   </div>
                   <p className="mt-0.5 truncate text-xs text-uk-muted">{u.email}</p>
+                  {u.role !== "admin" && (
+                    <p className="mt-0.5 truncate text-xs text-uk-muted">{accessSummary(u.access)}</p>
+                  )}
                 </div>
                 <p className="shrink-0 text-xs text-uk-muted">Last sign-in: {when(u.lastLoginAt)}</p>
               </Link>
@@ -108,4 +113,13 @@ export default async function UsersAdminPage({ searchParams }: Props) {
       </section>
     </>
   );
+}
+
+/** "Sections: Job openings, Job applications" — or "All sections" for older accounts. */
+function accessSummary(access?: string[]): string {
+  if (!access) return "Sections: all content sections";
+  const names = ACCESS_AREAS.filter((a) => access.includes(a.key)).map((a) => a.label);
+  if (names.length === ACCESS_AREAS.length) return "Sections: all content sections";
+  const shown = names.slice(0, 4).join(", ");
+  return `Sections: ${shown}${names.length > 4 ? ` +${names.length - 4} more` : ""}`;
 }

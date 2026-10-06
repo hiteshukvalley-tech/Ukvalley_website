@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createLocationAction(_prev: LocationFormState, formData: FormData): Promise<LocationFormState> {
-  await requireAdmin();
+  await requireAdmin("locations");
   const values = readLocationValues(formData);
   const nonce = Date.now();
 
@@ -67,7 +67,7 @@ export async function updateLocationAction(
   formData: FormData
 ): Promise<LocationFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("locations");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readLocationValues(formData), slug };
   const nonce = Date.now();
@@ -89,7 +89,7 @@ export async function updateLocationAction(
 }
 
 export async function importLocationsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("locations");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInLocations();
@@ -104,7 +104,7 @@ export async function importLocationsAction(): Promise<ActionResult> {
 export async function setLocationPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("locations");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setLocationPublished(String(slug), Boolean(published));
@@ -116,7 +116,7 @@ export async function setLocationPublishedAction(slug: string, published: boolea
 }
 
 export async function reorderLocationsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("locations");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -133,7 +133,7 @@ export async function reorderLocationsAction(slugs: string[]): Promise<ActionRes
 
 export async function deleteLocationAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("locations");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteLocation(String(slug));

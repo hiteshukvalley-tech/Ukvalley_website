@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createIndustryAction(_prev: IndustryFormState, formData: FormData): Promise<IndustryFormState> {
-  await requireAdmin();
+  await requireAdmin("industries");
   const values = readIndustryValues(formData);
   const nonce = Date.now();
 
@@ -67,7 +67,7 @@ export async function updateIndustryAction(
   formData: FormData
 ): Promise<IndustryFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("industries");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readIndustryValues(formData), slug };
   const nonce = Date.now();
@@ -89,7 +89,7 @@ export async function updateIndustryAction(
 }
 
 export async function importIndustriesAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("industries");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInIndustries();
@@ -104,7 +104,7 @@ export async function importIndustriesAction(): Promise<ActionResult> {
 export async function setIndustryPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("industries");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setIndustryPublished(String(slug), Boolean(published));
@@ -116,7 +116,7 @@ export async function setIndustryPublishedAction(slug: string, published: boolea
 }
 
 export async function reorderIndustriesAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("industries");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -133,7 +133,7 @@ export async function reorderIndustriesAction(slugs: string[]): Promise<ActionRe
 
 export async function deleteIndustryAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("industries");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteIndustry(String(slug));

@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createFaqAction(_prev: FaqFormState, formData: FormData): Promise<FaqFormState> {
-  await requireAdmin();
+  await requireAdmin("faqs");
   const values = readFaqValues(formData);
   const nonce = Date.now();
 
@@ -58,7 +58,7 @@ export async function updateFaqAction(
   formData: FormData
 ): Promise<FaqFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("faqs");
   const values = readFaqValues(formData);
   const nonce = Date.now();
 
@@ -79,7 +79,7 @@ export async function updateFaqAction(
 }
 
 export async function importFaqsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("faqs");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInFaqs();
@@ -94,7 +94,7 @@ export async function importFaqsAction(): Promise<ActionResult> {
 export async function setFaqPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("faqs");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setFaqPublished(String(slug), Boolean(published));
@@ -106,7 +106,7 @@ export async function setFaqPublishedAction(slug: string, published: boolean): P
 }
 
 export async function reorderFaqsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("faqs");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -123,7 +123,7 @@ export async function reorderFaqsAction(slugs: string[]): Promise<ActionResult> 
 
 export async function deleteFaqAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("faqs");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteFaq(String(slug));

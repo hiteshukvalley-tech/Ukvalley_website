@@ -1,17 +1,21 @@
 import { ADMIN_ROLES, type AdminRole } from "./admin-auth";
+import { cleanAccess } from "./admin-access";
 import type { FieldErrors } from "./list-utils";
 
 export type { FieldErrors };
 
 export const roleLabel: Record<AdminRole, string> = {
   admin: "Admin",
-  editor: "Editor",
+  // Stored as "editor"; a team member only sees the sections ticked for them.
+  editor: "Team member",
 };
 
 export const roleHelp: Record<AdminRole, string> = {
   admin: "Full access, including users and site settings.",
-  editor: "Can manage all content, leads and media. Cannot manage users or site settings.",
+  editor: "Only the sections you tick below. Never users, site settings or migration.",
 };
+
+export const TITLE_MAX = 60;
 
 export const PASSWORD_MIN = 10;
 export const PASSWORD_MAX = 128;
@@ -59,13 +63,19 @@ export type UserValues = {
   name: string;
   email: string;
   role: string;
+  /** job title, e.g. "HR" or "Junior HR" (optional) */
+  title: string;
+  /** admin-access.ts keys ticked in the Access checklist (team members) */
+  access: string[];
   /** only used to set or reset a password; never sent back to the form */
   password: string;
   /** "on" when the Active checkbox is ticked, otherwise "" */
   active: string;
 };
 
-export const emptyUserValues = (): UserValues => ({ name: "", email: "", role: "editor", password: "", active: "on" });
+export const emptyUserValues = (): UserValues => ({
+  name: "", email: "", role: "editor", title: "", access: [], password: "", active: "on",
+});
 
 export function readUserValues(formData: FormData): UserValues {
   const get = (k: string) => String(formData.get(k) ?? "");
@@ -73,13 +83,20 @@ export function readUserValues(formData: FormData): UserValues {
     name: get("name").trim(),
     email: get("email").trim().toLowerCase(),
     role: get("role").trim(),
+    title: get("title").trim(),
+    access: formData.getAll("access").map(String),
     // Passwords are taken exactly as typed — no trimming.
     password: get("password"),
     active: formData.get("active") ? "on" : "",
   };
 }
 
-export type UserInput = { name: string; email: string; role: AdminRole; active: boolean; password?: string };
+export type UserInput = {
+  name: string; email: string; role: AdminRole; active: boolean; password?: string;
+  title?: string;
+  /** Team members only: the sections they may open */
+  access?: string[];
+};
 
 /**
  * Validates the create (`isNew`) or edit form. On create the password is
@@ -100,6 +117,11 @@ export function validateUser(
     if (!EMAIL.test(v.email) || v.email.length > EMAIL_MAX) e.email = "Enter a valid email address.";
   }
   if (!(ADMIN_ROLES as readonly string[]).includes(v.role)) e.role = "Choose one of the listed roles.";
+  if (v.title.length > TITLE_MAX) e.title = `Job title must be ${TITLE_MAX} characters or fewer.`;
+
+  // Team members need at least one section, or their panel would be empty.
+  const access = cleanAccess(v.access);
+  if (v.role === "editor" && access.length === 0) e.access = "Tick at least one section this person can use.";
 
   if (isNew || v.password) {
     const msg = v.password ? passwordError(v.password, mail) : "A password is required.";
@@ -114,6 +136,8 @@ export function validateUser(
       email: mail,
       role: v.role as AdminRole,
       active: v.active === "on",
+      ...(v.title ? { title: v.title } : {}),
+      ...(v.role === "editor" ? { access } : {}),
       ...(v.password ? { password: v.password } : {}),
     },
   };

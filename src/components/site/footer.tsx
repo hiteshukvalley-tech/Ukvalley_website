@@ -43,7 +43,7 @@ export async function Footer() {
           {/* Brand */}
           <div className="col-span-2 flex flex-col gap-5 lg:col-span-1">
             <Link href={ukText("/")} className="flex items-center gap-2.5" aria-label={`${header.logoName} ${header.logoSub} home`.trim()}>
-              <SiteLogo content={header} text={ukText} />
+              <SiteLogo content={header} text={ukText} place="footer" />
             </Link>
             {f.brandText && <p className="max-w-xs text-sm leading-relaxed text-uk-muted">{ukText(f.brandText)}</p>}
             <div className="flex flex-wrap gap-2.5">

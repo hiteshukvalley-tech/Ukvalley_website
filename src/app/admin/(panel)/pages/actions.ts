@@ -20,7 +20,7 @@ const noDb = (nonce: number): HomeSectionState => ({
 });
 
 export async function savePageAction(key: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("pages");
   const nonce = Date.now();
   if (!isPageKey(key)) return { status: "error", message: "Unknown page.", nonce };
   let parsed: { values?: unknown };
@@ -45,7 +45,7 @@ export async function savePageAction(key: string, _prev: HomeSectionState, formD
 }
 
 export async function resetPageAction(key: string): Promise<HomeSectionState> {
-  await requireAdmin();
+  await requireAdmin("pages");
   const nonce = Date.now();
   if (!isPageKey(key)) return { status: "error", message: "Unknown page.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);

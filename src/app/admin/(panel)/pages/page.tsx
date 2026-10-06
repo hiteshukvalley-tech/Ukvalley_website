@@ -9,7 +9,7 @@ export const metadata = { title: "Page text" };
 export const dynamic = "force-dynamic";
 
 export default async function PagesAdminPage() {
-  await requireAdmin();
+  await requireAdmin("pages");
   const { byKey, dbError } = await getPagesForAdmin();
   return (
     <>

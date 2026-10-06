@@ -24,6 +24,8 @@ import { countNewApplications } from "@/lib/applications-store";
 import { getTeam } from "@/lib/team-store";
 import { getCareers } from "@/lib/careers-store";
 import { getLocations } from "@/lib/locations-store";
+import { requireAdmin } from "@/lib/admin-session";
+import { canOpenPath, canUseArea } from "@/lib/admin-access";
 
 export const metadata = { title: "Dashboard" };
 // Reads env vars / live data on each request.
@@ -77,6 +79,10 @@ async function getStatusChecks(): Promise<Check[]> {
 
 export default async function AdminHome({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {
   const { denied } = await searchParams;
+  // Team members see only what belongs to their sections (Admin → Users).
+  const me = await requireAdmin();
+  const isAdmin = me.role === "admin";
+  const can = (area: string) => canUseArea(me.role, me.access, area);
   // Every read is independent, so run them together: one round trip to the
   // database instead of ~15 in a row.
   const [
@@ -87,7 +93,8 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
     getIndustries(), getHireRoles(), getLocations(), getTeam(), getCareers(), getTestimonials(),
     getFaqs(), countNewLeads(), countNewApplications(), /* countMedia(), */ getHomeForAdmin(),
   ]);
-  const cards = content(services.length, posts.length, cases.length, products.length, solutions.length, industries.length, hireRoles.length, locations.length, team.length, careers.length, testimonials.length, faqs.length);
+  const cards = content(services.length, posts.length, cases.length, products.length, solutions.length, industries.length, hireRoles.length, locations.length, team.length, careers.length, testimonials.length, faqs.length)
+    .filter((c) => canOpenPath(me.role, me.access, c.href));
   const editedHome = HOME_SECTIONS.filter((s) => home.updated[s.key]).length;
   const recentPosts = posts.slice(0, 5);
   const total = cards.reduce((n, c) => n + c.value, 0);
@@ -96,7 +103,11 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
     <>
       <PageHeader
         title="Dashboard"
-        description={`${total} content items across ${cards.length} sections. Counts are read from the site's current content.`}
+        description={
+          cards.length
+            ? `${total} content item${total === 1 ? "" : "s"} across ${cards.length} section${cards.length === 1 ? "" : "s"}. Counts are read from the site's current content.`
+            : "Your sections are in the menu on the left."
+        }
         action={
           <Link
             href="/"
@@ -111,15 +122,17 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
       {denied && (
         <div role="alert" className="mb-6 flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
           <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>That page is for admins only. Ask an admin if you need access.</span>
+          <span>That section isn't available for your account. Ask an admin if you need access.</span>
         </div>
       )}
 
+      {(can("leads") || can("applications")) && (
       <section aria-labelledby="leads-heading" className="mb-8">
         <h2 id="leads-heading" className="mb-3 font-heading text-lg font-semibold text-uk-heading">
           Inbox
         </h2>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+          {can("leads") && (
           <StatCard
             label="New leads"
             value={newLeads ?? "—"}
@@ -127,6 +140,8 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             href="/admin/leads"
             hint={newLeads === null ? "Database not connected" : newLeads === 0 ? "All caught up" : "Waiting for a reply"}
           />
+          )}
+          {can("applications") && (
           <StatCard
             label="New job applications"
             value={newApplications ?? "—"}
@@ -134,6 +149,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             href="/admin/applications"
             hint={newApplications === null ? "Database not connected" : newApplications === 0 ? "All reviewed" : "Waiting for review"}
           />
+          )}
           {/* Media is hidden from the admin panel for now (see nav.ts).
           <StatCard
             label="Media files"
@@ -144,7 +160,9 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
           /> */}
         </div>
       </section>
+      )}
 
+      {cards.length > 0 && (
       <section aria-labelledby="content-heading">
         <h2 id="content-heading" className="mb-3 font-heading text-lg font-semibold text-uk-heading">
           Content overview
@@ -155,8 +173,11 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
           ))}
         </div>
       </section>
+      )}
 
+      {(can("blog") || isAdmin) && (
       <div className="mt-8 grid gap-5 lg:grid-cols-3">
+        {can("blog") && (
         <section className="rounded-2xl border border-uk-line bg-uk-card p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-heading text-lg font-semibold text-uk-heading">Latest blog posts</h2>
@@ -186,7 +207,10 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             ))}
           </ul>
         </section>
+        )}
 
+        {/* database, owner login and mail set-up: for admins */}
+        {isAdmin && (
         <section className="rounded-2xl border border-uk-line bg-uk-card p-6">
           <h2 className="mb-4 font-heading text-lg font-semibold text-uk-heading">System status</h2>
           <ul className="space-y-4">
@@ -207,8 +231,11 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
             ))}
           </ul>
         </section>
+        )}
       </div>
+      )}
 
+      {can("home") && (
       <section aria-labelledby="home-heading" className="mt-8 rounded-2xl border border-uk-line bg-uk-card p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
@@ -243,6 +270,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
           })}
         </div>
       </section>
+      )}
     </>
   );
 }

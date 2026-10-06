@@ -98,6 +98,14 @@ export const HEADER_DEF: SectionDef = {
       key: "logoImageDark", label: "Logo image for dark mode (optional)", kind: "image", max: 300,
       hint: "A light-coloured version for the dark theme. Leave empty to use the logo above in both themes.",
     },
+    {
+      key: "logoSize", label: "Logo size in the header", kind: "range", min: 60, max: 160, step: 5, unit: "%",
+      hint: "100% is the standard size. Larger logos make the header bar a little taller so nothing is cut off.",
+    },
+    {
+      key: "footerLogoSize", label: "Logo size in the footer", kind: "range", min: 60, max: 160, step: 5, unit: "%",
+      hint: "100% is the standard size.",
+    },
     { key: "logoMark", label: "Logo letter (only used if the logo image can't load)", kind: "text", max: 2, required: true },
     { key: "logoName", label: "Company name (the logo's description for screen readers)", kind: "text", max: 30, required: true },
     { key: "logoSub", label: "Company name — second part", kind: "text", max: 30 },
@@ -113,6 +121,8 @@ export type HeaderContent = {
   logoMark: string; logoName: string; logoSub: string;
   /** optional logo pictures (/media/<id> or https://); when set they replace the text logo */
   logoImage: string; logoImageDark: string;
+  /** logo height as a % of the standard size (Admin → Header sliders), e.g. "100" */
+  logoSize: string; footerLogoSize: string;
   ctaLabel: string; ctaHref: string; menuTitle: string;
 };
 
@@ -144,6 +154,7 @@ export const OFFICIAL_LOGO = "/brand/ukvalley-logo.png";
 export const defaultHeader: HeaderContent = {
   logoMark: "U", logoName: "Ukvalley", logoSub: "Technologies",
   logoImage: OFFICIAL_LOGO, logoImageDark: "",
+  logoSize: "100", footerLogoSize: "100",
   ctaLabel: "Book a scoping call", ctaHref: "/contact", menuTitle: "Menu",
 };
 

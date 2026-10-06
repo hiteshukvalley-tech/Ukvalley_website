@@ -9,7 +9,7 @@ export type ActionResult = { ok: boolean; message?: string };
 
 export async function deleteMediaAction(id: string): Promise<ActionResult> {
   id = String(id);
-  await requireAdmin();
+  await requireAdmin("media");
   if (!hasDatabaseUrl()) return { ok: false, message: "Database is not connected (MONGODB_URI missing)." };
   let removed: boolean;
   try {

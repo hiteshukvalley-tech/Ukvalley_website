@@ -10,6 +10,10 @@ export type UserDoc = {
   email: string;
   name: string;
   role: AdminRole;
+  /** Job title shown in the panel, e.g. "HR" or "Junior HR" (optional) */
+  title?: string;
+  /** Sections a team member may open (admin-access.ts keys); unset = all content sections */
+  access?: string[];
   passwordHash: string;
   active: boolean;
   /** bumped on password change/reset so older sessions stop working */
@@ -82,13 +86,17 @@ export async function countOtherActiveAdmins(excludeId: string): Promise<number>
 
 export async function createUser(input: {
   name: string; email: string; role: AdminRole; active: boolean; password: string;
+  title?: string; access?: string[];
 }): Promise<"created" | "exists"> {
   await ensureIndex();
-  const { password, ...rest } = input;
+  const { password, title, access, ...rest } = input;
   try {
     await col().insertOne({
       _id: randomUUID(),
       ...rest,
+      ...(title ? { title } : {}),
+      // Admins always have everything; only team members store a section list.
+      ...(rest.role !== "admin" && access ? { access } : {}),
       passwordHash: await hashPassword(password),
       sessionVersion: 1,
       createdAt: new Date(),
@@ -101,22 +109,34 @@ export async function createUser(input: {
 }
 
 /**
- * Updates name, role and active state, and optionally resets the password
- * (which also signs the user out everywhere). Returns false when the user no
- * longer exists.
+ * Updates name, title, role, section access and active state, and optionally
+ * resets the password (which also signs the user out everywhere). A change of
+ * role or sections also signs them out, so their next sign-in carries the new
+ * access. Returns false when the user no longer exists.
  */
 export async function updateUser(
   id: string,
-  patch: { name: string; role: AdminRole; active: boolean; password?: string }
+  patch: { name: string; role: AdminRole; active: boolean; password?: string; title?: string; access?: string[] }
 ): Promise<boolean> {
-  const { password, ...fields } = patch;
-  const update: Record<string, unknown> = { $set: { ...fields, updatedAt: new Date() } };
+  const { password, title, access, ...fields } = patch;
+  const before = await col().findOne({ _id: id }, { projection: { role: 1, access: 1 } });
+  if (!before) return false;
+  const nextAccess = fields.role === "admin" ? undefined : access;
+  const set: Record<string, unknown> = { ...fields, updatedAt: new Date() };
+  const unset: Record<string, ""> = {};
+  if (title) set.title = title; else unset.title = "";
+  if (nextAccess) set.access = nextAccess; else unset.access = "";
+  const accessChanged =
+    before.role !== fields.role || JSON.stringify(before.access ?? null) !== JSON.stringify(nextAccess ?? null);
+  const update: Record<string, unknown> = { $set: set };
+  if (Object.keys(unset).length) update.$unset = unset;
   if (password) {
-    (update.$set as Record<string, unknown>).passwordHash = await hashPassword(password);
+    set.passwordHash = await hashPassword(password);
     update.$inc = { sessionVersion: 1 };
-  } else if (!fields.active) {
+  } else if (!fields.active || accessChanged) {
     // Disabled users are cut off immediately by the active check; also drop
-    // their sessions so re-enabling later doesn't revive an old cookie.
+    // their sessions so re-enabling later doesn't revive an old cookie. New
+    // access: their next sign-in gets a cookie with the new section list.
     update.$inc = { sessionVersion: 1 };
   }
   const res = await col().updateOne({ _id: id }, update);
@@ -150,5 +170,8 @@ export async function authenticateUser(email: string, password: string): Promise
   const ok = await verifyPassword(password, doc?.passwordHash ?? DUMMY_HASH);
   if (!doc || !ok || !doc.active) return null;
   await col().updateOne({ _id: doc._id }, { $set: { lastLoginAt: new Date() } });
-  return { id: doc._id, email: doc.email, role: doc.role, sv: doc.sessionVersion };
+  return {
+    id: doc._id, email: doc.email, role: doc.role, sv: doc.sessionVersion,
+    ...(doc.role !== "admin" && doc.access ? { access: doc.access } : {}),
+  };
 }

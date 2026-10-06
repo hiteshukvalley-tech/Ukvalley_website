@@ -65,7 +65,7 @@ export function mergeValues(def: SectionDef, base: SectionValues, saved: Section
   const out: SectionValues = { ...base };
   for (const f of def.fields) {
     const v = saved[f.key];
-    if (f.kind === "text" || f.kind === "textarea" || f.kind === "image") {
+    if (f.kind === "text" || f.kind === "textarea" || f.kind === "image" || f.kind === "range") {
       if (typeof v === "string") out[f.key] = v;
     } else if (Array.isArray(v)) {
       out[f.key] =

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { HeaderContent } from "@/lib/site-content-schema";
 
 /**
@@ -8,27 +8,40 @@ import type { HeaderContent } from "@/lib/site-content-schema";
  * badge, name, sub-line) is only a fallback for content without an image.
  * `text` renders a line of text, so the caller decides how it is translated.
  */
+/** A size from Admin → Header ("100" = standard) as a scale factor, kept within the slider's range. */
+function logoScale(size: string | undefined): number {
+  const n = Number(size);
+  return Number.isFinite(n) && n > 0 ? Math.min(160, Math.max(60, n)) / 100 : 1;
+}
+
 export function SiteLogo({
   content: c,
   text,
   pulse = false,
+  place = "header",
 }: {
   content: HeaderContent;
   text: (s: string) => ReactNode;
   /** the animated yellow dot on the letter badge (header only) */
   pulse?: boolean;
+  /** which size setting applies (Admin → Header: logo size in the header / footer) */
+  place?: "header" | "footer";
 }) {
   if (c.logoImage) {
     const alt = `${c.logoName} ${c.logoSub}`.trim();
-    const cls = "h-10 w-auto max-w-[10.5rem] object-contain sm:h-11 sm:max-w-[13rem]";
+    // Standard size 48px tall on phones, 56px from sm — scaled by the admin's
+    // size setting, with the width cap growing in step so wide logos keep their shape.
+    const cls =
+      "h-[calc(3rem*var(--logo-scale))] w-auto max-w-[calc(13rem*var(--logo-scale))] object-contain sm:h-[calc(3.5rem*var(--logo-scale))] sm:max-w-[calc(16rem*var(--logo-scale))]";
+    const style = { "--logo-scale": logoScale(place === "footer" ? c.footerLogoSize : c.logoSize) } as CSSProperties;
     return (
       <>
         {/* plain <img>: the admin can point this at /media/<id> or any https address */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={c.logoImage} alt={alt} className={c.logoImageDark ? `${cls} dark:hidden` : cls} />
+        <img src={c.logoImage} alt={alt} style={style} className={c.logoImageDark ? `${cls} dark:hidden` : cls} />
         {c.logoImageDark && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={c.logoImageDark} alt={alt} className={`${cls} hidden dark:block`} />
+          <img src={c.logoImageDark} alt={alt} style={style} className={`${cls} hidden dark:block`} />
         )}
       </>
     );

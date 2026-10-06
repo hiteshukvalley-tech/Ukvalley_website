@@ -13,7 +13,7 @@ const fmt = (iso: string) =>
   new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });
 
 export default async function HomeSectionsPage() {
-  await requireAdmin();
+  await requireAdmin("home");
   const { page, updated, dbError } = await getHomeForAdmin();
 
   const rows: SectionRow[] = page.order.flatMap((id): SectionRow[] => {

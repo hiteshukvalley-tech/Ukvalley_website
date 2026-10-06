@@ -33,7 +33,7 @@ export async function updateApplicationAction(
   formData: FormData
 ): Promise<ApplicationFormState> {
   id = String(id);
-  await requireAdmin();
+  await requireAdmin("applications");
   const status = String(formData.get("status") ?? "");
   const note = String(formData.get("note") ?? "").trim();
   const values = { status, note };
@@ -59,7 +59,7 @@ export async function updateApplicationAction(
 
 export async function deleteApplicationAction(id: string): Promise<ActionResult> {
   id = String(id);
-  await requireAdmin();
+  await requireAdmin("applications");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteApplication(id);

@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createPostAction(_prev: BlogFormState, formData: FormData): Promise<BlogFormState> {
-  await requireAdmin();
+  await requireAdmin("blog");
   const values = readBlogValues(formData);
   const nonce = Date.now();
 
@@ -67,7 +67,7 @@ export async function updatePostAction(
   formData: FormData
 ): Promise<BlogFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("blog");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readBlogValues(formData), slug };
   const nonce = Date.now();
@@ -89,7 +89,7 @@ export async function updatePostAction(
 }
 
 export async function importPostsAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("blog");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInPosts();
@@ -104,7 +104,7 @@ export async function importPostsAction(): Promise<ActionResult> {
 export async function setPostPublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("blog");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setPostPublished(String(slug), Boolean(published));
@@ -116,7 +116,7 @@ export async function setPostPublishedAction(slug: string, published: boolean): 
 }
 
 export async function reorderPostsAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("blog");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -133,7 +133,7 @@ export async function reorderPostsAction(slugs: string[]): Promise<ActionResult>
 
 export async function deletePostAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("blog");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deletePost(String(slug));

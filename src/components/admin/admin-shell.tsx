@@ -11,6 +11,8 @@ import { adminNav, isActive, type AdminNavEntry, type AdminNavLink } from "./nav
 import { Toaster } from "./toast";
 import { ConfirmHost } from "./confirm-dialog";
 import type { AdminRole } from "@/lib/admin-auth";
+import { canOpenPath, canUseArea, type Access } from "@/lib/admin-access";
+import { roleLabel } from "@/lib/users-validation";
 import { cn } from "@/lib/utils";
 import { OFFICIAL_LOGO } from "@/lib/site-content-schema";
 
@@ -81,7 +83,7 @@ function NavSection({
   );
 }
 
-function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => void }) {
+function NavList({ role, access, onNavigate }: { role: AdminRole; access: Access; onNavigate?: () => void }) {
   const pathname = usePathname();
   // Which section's dropdown is open: one at a time. Opening another section,
   // or going to any other tab, closes the previous one.
@@ -94,14 +96,16 @@ function NavList({ role, onNavigate }: { role: AdminRole; onNavigate?: () => voi
     setSeenPath(pathname);
     setOpenSection(sectionHolding(pathname));
   }
-  // Editors never see admin-only pages (the pages themselves refuse them too).
-  const allowed = (l: AdminNavLink) => !l.adminOnly || role === "admin";
+  // Team members see only the sections ticked for them in Admin → Users, and
+  // never admin-only pages (proxy.ts and the pages' own checks refuse them too).
+  const allowed = (l: AdminNavLink) => (!l.adminOnly || role === "admin") && canOpenPath(role, access, l.href);
   const groups = adminNav
     .map((g) => ({
       ...g,
       items: g.items
-        .filter(allowed)
-        .map((i) => (i.children ? { ...i, children: i.children.filter(allowed) } : i)),
+        .map((i) => (i.children ? { ...i, children: i.children.filter(allowed) } : i))
+        // a dropdown with nothing left in it disappears
+        .filter((i) => (i.children ? i.children.length > 0 : allowed(i))),
     }))
     .filter((g) => g.items.length > 0);
   return (
@@ -156,7 +160,7 @@ export function AdminShell({
   user,
 }: {
   children: React.ReactNode;
-  user: { email: string; role: AdminRole };
+  user: { email: string; role: AdminRole; access?: string[]; title?: string };
 }) {
   const [open, setOpen] = useState(false);
 
@@ -167,7 +171,7 @@ export function AdminShell({
         <div className="border-b border-uk-line px-5 py-4">
           <Brand />
         </div>
-        <NavList role={user.role} />
+        <NavList role={user.role} access={user.access} />
       </aside>
 
       {/* Mobile drawer */}
@@ -189,7 +193,7 @@ export function AdminShell({
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <NavList role={user.role} onNavigate={() => setOpen(false)} />
+            <NavList role={user.role} access={user.access} onNavigate={() => setOpen(false)} />
           </aside>
         </div>
       )}
@@ -203,7 +207,8 @@ export function AdminShell({
           >
             <Menu className="h-4 w-4" />
           </button>
-          <GlobalSearch />
+          {/* searches every page's text, so only for people with "Pages & text" */}
+          {canUseArea(user.role, user.access, "texts") ? <GlobalSearch /> : null}
           <div className="flex-1" />
           <Link
             href="/"
@@ -220,7 +225,7 @@ export function AdminShell({
           >
             <UserRound className="h-4 w-4 shrink-0" />
             <span className="truncate">{user.email}</span>
-            <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-[10px] font-semibold capitalize text-uk-muted">{user.role}</span>
+            <span className="shrink-0 whitespace-nowrap rounded-full bg-uk-surface-3 px-2 py-0.5 text-[10px] font-semibold text-uk-muted">{user.title || roleLabel[user.role]}</span>
           </Link>
           <form action={logoutAction}>
             <button

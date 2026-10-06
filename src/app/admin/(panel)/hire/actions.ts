@@ -33,7 +33,7 @@ function refreshPublicSite() {
 }
 
 export async function createHireAction(_prev: HireFormState, formData: FormData): Promise<HireFormState> {
-  await requireAdmin();
+  await requireAdmin("hire");
   const values = readHireValues(formData);
   const nonce = Date.now();
 
@@ -67,7 +67,7 @@ export async function updateHireAction(
   formData: FormData
 ): Promise<HireFormState> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("hire");
   // The slug is the record id and cannot be changed, so never trust the form's copy.
   const values = { ...readHireValues(formData), slug };
   const nonce = Date.now();
@@ -89,7 +89,7 @@ export async function updateHireAction(
 }
 
 export async function importHireAction(): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("hire");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     const n = await importBuiltInHire();
@@ -104,7 +104,7 @@ export async function importHireAction(): Promise<ActionResult> {
 export async function setHirePublishedAction(slug: string, published: boolean): Promise<ActionResult> {
   slug = String(slug);
   published = published === true;
-  await requireAdmin();
+  await requireAdmin("hire");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await setHirePublished(String(slug), Boolean(published));
@@ -116,7 +116,7 @@ export async function setHirePublishedAction(slug: string, published: boolean): 
 }
 
 export async function reorderHireAction(slugs: string[]): Promise<ActionResult> {
-  await requireAdmin();
+  await requireAdmin("hire");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   if (!Array.isArray(slugs) || slugs.some((s) => typeof s !== "string")) {
     return { ok: false, message: "Invalid order." };
@@ -133,7 +133,7 @@ export async function reorderHireAction(slugs: string[]): Promise<ActionResult> 
 
 export async function deleteHireAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
-  await requireAdmin();
+  await requireAdmin("hire");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
     await deleteHire(String(slug));

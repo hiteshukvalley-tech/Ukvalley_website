@@ -8,7 +8,7 @@ export const metadata = { title: "Main menu" };
 export const dynamic = "force-dynamic";
 
 export default async function MenuAdminPage() {
-  await requireAdmin();
+  await requireAdmin("menu");
   const { items, updatedAt, pages, dbError } = await getMenuForAdmin();
   const pageNames = Object.fromEntries(pages.map((p) => [p.slug, p.name]));
   return (
