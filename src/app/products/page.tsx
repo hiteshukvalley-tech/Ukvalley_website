@@ -12,7 +12,8 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { FlagshipProductCard } from "@/components/site/flagship-product-card";
 import { CtaBand } from "@/components/site/cta";
-import { flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+import { FLAGSHIP_SIDE_CARDS, flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+import type { Product } from "@/lib/site-data";
 import { ukText } from "@/lib/texts";
 
 // Re-render at least once a minute so admin text overrides always show up.
@@ -24,13 +25,16 @@ export const generateMetadata = () => editableMetadata("products", baseMetadata)
 const baseMetadata: Metadata = {
   title: "Products — our own IP in production",
   description:
-    "TeleValley, Script Magix, Mediline Website, HR Agency Management System and Emailz.ca — software products Ukvalley built and runs in production. Proof most service firms can't offer.",
+    "TeleValley, Ezzu CRM, Custom ERP, LMS, Evento, Emailz and more — software products and platforms Ukvalley designed, built and runs in production.",
   alternates: { canonical: `${SITE_URL}/products` },
 };
 
 export default async function ProductsPage() {
   const products = await getProducts();
   const { flagship, rest } = splitFlagship(products);
+  // Without a flagship every card goes in the main grid.
+  const beside = flagship ? rest.slice(0, FLAGSHIP_SIDE_CARDS) : rest;
+  const below = flagship ? rest.slice(FLAGSHIP_SIDE_CARDS) : [];
   return (
     <>
       <ScrollProgress />
@@ -60,8 +64,8 @@ export default async function ProductsPage() {
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why we build and run our own products, not just yours")}</h2>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every dev shop claims it can build production software. Most have never had to operate what they built — no on-call rotation, no paying users at 2am, no P&L riding on their own uptime. That's a different discipline, and it never shows up in a portfolio screenshot.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The gap becomes obvious over time: an agency that only ever ships and hands off never has to live with its own architecture debt or its own scaling mistakes, so those lessons never make it into your project. A system built to be delivered once and never touched again quietly accumulates decisions nobody had to defend under real load.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("TeleValley, Script Magix, Mediline Website, the HR Agency Management System and Emailz.ca are proof of the opposite: five products we designed, built, deployed and still operate today, with our own money and our own users depending on them. The architects who maintain these products review the code on yours.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every product started the same way: a real operational problem inside our own business, solved first for ourselves and then hardened enough to hand to a paying customer. TeleValley began as our own sales floor's telephony bill; the HR Agency Management System began as the candidate-and-client backbone a recruitment agency needed built from nothing. That origin is why the FAQs on each product page read like operator questions, not marketing copy — because they were, the first time someone asked them.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("TeleValley, Ezzu CRM, our Custom ERP, the LMS, Evento, Emailz and the rest of this portfolio are proof of the opposite: products and platforms we designed, built, deployed and still support today, with real users depending on them. The architects who maintain these products review the code on yours.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every product started the same way: a real operational problem inside our own business, solved first for ourselves and then hardened enough to hand to a paying customer. TeleValley began as our own sales floor's telephony bill; HR Agency Management began as the candidate-and-client backbone a recruitment agency needed built from nothing. That origin is why the FAQs on each product page read like operator questions, not marketing copy — because they were, the first time someone asked them.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -120,43 +124,26 @@ export default async function ProductsPage() {
                 </Reveal>
               )}
 
-              {/* Rest — 4 cards stacked on the right, rows stretched to
-                  fill the flagship card's height so both sides stay even */}
+              {/* Up to 4 cards stacked on the right, rows stretched to fill
+                  the flagship card's height so both sides stay even */}
               <Reveal
                 staggerChildren
                 className={
                   flagship
-                    ? `grid h-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1 ${flagshipRowsClass[rest.length] ?? ""}`
+                    ? `grid h-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-1 ${flagshipRowsClass[beside.length] ?? ""}`
                     : "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
                 }
               >
-                {rest.map((p) => (
-                  <Link
-                    key={p.slug}
-                    href={ukText(`/products/${p.slug}`)}
-                    className="group relative flex h-full flex-col gap-2.5 overflow-hidden rounded-2xl border border-uk-line bg-uk-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-heading text-xl font-bold text-uk-heading">{ukText(p.name)}</h3>
-                        <p className="text-sm text-uk-blue">{ukText(p.tagline)}</p>
-                      </div>
-                      <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-uk-surface-blue text-uk-blue transition-all group-hover:bg-uk-blue group-hover:text-uk-white">
-                        <ArrowUpRight className="h-4 w-4" />
-                      </span>
-                    </div>
-                    <p className="text-sm leading-relaxed text-uk-gray">{ukText(p.description)}</p>
-                    <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
-                      {p.highlights.map((h) => (
-                        <span key={h} className="rounded-md bg-uk-surface-blue px-2 py-1 text-[0.7rem] font-medium text-uk-body">
-                          {ukText(h)}
-                        </span>
-                      ))}
-                    </div>
-                  </Link>
-                ))}
+                {beside.map((p) => <ProductCard key={p.slug} p={p} />)}
               </Reveal>
             </div>
+
+            {/* Everything else in a grid below */}
+            {below.length > 0 && (
+              <Reveal staggerChildren className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {below.map((p) => <ProductCard key={p.slug} p={p} />)}
+              </Reveal>
+            )}
           </Container>
         </section>
 
@@ -165,5 +152,32 @@ export default async function ProductsPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+function ProductCard({ p }: { p: Product }) {
+  return (
+    <Link
+      href={ukText(`/products/${p.slug}`)}
+      className="group relative flex h-full flex-col gap-2.5 overflow-hidden rounded-2xl border border-uk-line bg-uk-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h3 className="font-heading text-xl font-bold text-uk-heading">{ukText(p.name)}</h3>
+          <p className="text-sm text-uk-blue">{ukText(p.tagline)}</p>
+        </div>
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-uk-surface-blue text-uk-blue transition-all group-hover:bg-uk-blue group-hover:text-uk-white">
+          <ArrowUpRight className="h-4 w-4" />
+        </span>
+      </div>
+      <p className="text-sm leading-relaxed text-uk-gray">{ukText(p.description)}</p>
+      <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
+        {p.highlights.map((h) => (
+          <span key={h} className="rounded-md bg-uk-surface-blue px-2 py-1 text-[0.7rem] font-medium text-uk-body">
+            {ukText(h)}
+          </span>
+        ))}
+      </div>
+    </Link>
   );
 }

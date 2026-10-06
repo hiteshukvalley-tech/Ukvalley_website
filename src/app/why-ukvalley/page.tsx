@@ -47,7 +47,7 @@ const contrasts = [
     them: "A salesperson scopes it; a rotating pool of juniors builds it.",
   },
   {
-    us: "We run our own products in production — TeleValley, Script Magix and more.",
+    us: "We run our own products in production — TeleValley, Ezzu CRM and more.",
     them: "Capability slides with no software of their own to show.",
   },
   {

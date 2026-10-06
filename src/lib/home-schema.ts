@@ -9,14 +9,18 @@ export type HomeSectionKey =
   | "testimonials" | "insights" | "faq" | "cta";
 
 type BaseField = { key: string; label: string; hint?: string; required?: boolean };
-/** `images`: several pictures, stored as one image address per line (keeps a card's values plain strings). */
-type SubField = BaseField & { kind: "text" | "textarea" | "image" | "images"; max: number; link?: boolean; maxImages?: number };
+/**
+ * `images`: several pictures, stored as one image address per line (keeps a card's values plain strings).
+ * `aspect` (image/images only): the shape of the frame the picture fills on the website, e.g. "16/10".
+ * The admin's image editor preselects it, so a cropped picture fits that frame exactly.
+ */
+type SubField = BaseField & { kind: "text" | "textarea" | "image" | "images"; max: number; link?: boolean; maxImages?: number; aspect?: string };
 
 export type FieldDef =
   | (BaseField & { kind: "text"; max: number; link?: boolean })
   | (BaseField & { kind: "textarea"; max: number; rows?: number })
-  /** An image: a /media/<id> path from the library, or a full https:// link. */
-  | (BaseField & { kind: "image"; max?: number })
+  /** An image: a /media/<id> path from the library, or a full https:// link. `aspect` as on SubField. */
+  | (BaseField & { kind: "image"; max?: number; aspect?: string })
   /** A list of one-line strings (chips, logos, steps…). */
   | (BaseField & { kind: "list"; itemLabel: string; max: number; minItems: number; maxItems: number })
   /** A list of cards, each with the same small set of fields. */

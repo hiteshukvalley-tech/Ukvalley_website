@@ -76,10 +76,10 @@ const FOUNDER_FIELDS: SectionDef["fields"] = [
   { key: "founderName", label: "Owner — name", kind: "text", max: 80, hint: KEEP },
   { key: "founderRole", label: "Owner — role", kind: "text", max: 80, hint: KEEP },
   { key: "founderDescription", label: "Owner — description", kind: "textarea", max: 1500, rows: 6, hint: `${KEEP} Press Enter twice for a new paragraph.` },
-  { key: "founderImage", label: "Owner — photo", kind: "image", max: 300, hint: KEEP },
+  { key: "founderImage", label: "Owner — photo", kind: "image", max: 300, hint: KEEP, aspect: "4/5" },
   { key: "founderImageAlt", label: "Owner — photo description", kind: "text", max: 140 },
   { key: "companyDescription", label: "Company — description", kind: "textarea", max: 1500, rows: 6, hint: KEEP },
-  { key: "workImage", label: "“Where the work happens” — image", kind: "image", max: 300, hint: KEEP },
+  { key: "workImage", label: "“Where the work happens” — image", kind: "image", max: 300, hint: KEEP, aspect: "4/3" },
   { key: "workImageAlt", label: "“Where the work happens” — image description", kind: "text", max: 140 },
   {
     key: "founderFacts",
@@ -98,7 +98,7 @@ const FOUNDER_FIELDS: SectionDef["fields"] = [
 
 /** Our team page: the image beside "How the team is built". */
 const TEAM_FIELDS: SectionDef["fields"] = [
-  { key: "workImage", label: "“How the team is built” — image", kind: "image", max: 300, hint: KEEP },
+  { key: "workImage", label: "“How the team is built” — image", kind: "image", max: 300, hint: KEEP, aspect: "4/3" },
   { key: "workImageAlt", label: "“How the team is built” — image description", kind: "text", max: 140 },
 ];
 
@@ -123,7 +123,7 @@ const SOCIAL_FIELDS: SectionDef["fields"] = [
       { key: "title", label: "Title", kind: "text", max: 80, required: true },
       { key: "caption", label: "Badge on the photos (e.g. Tree Plantation)", kind: "text", max: 40 },
       { key: "description", label: "Text", kind: "textarea", max: 1500 },
-      { key: "photos", label: "Photos (optional — leave empty for a text-only section)", kind: "images", max: 12000, maxImages: 40 },
+      { key: "photos", label: "Photos (optional — leave empty for a text-only section)", kind: "images", max: 12000, maxImages: 40, aspect: "3/2" },
     ],
   },
 ];

@@ -13,8 +13,11 @@
 # testing
 /coverage
 
-# next.js
+# next.js — also any NEXT_DIST_DIR build folder (.next-test, .next-verify …).
+# Tailwind scans every non-ignored file, and the binary caches inside these
+# folders produce junk class names that break globals.css.
 /.next/
+/.next-*/
 /out/
 
 # production
@@ -58,3 +61,4 @@ next-env.d.ts
 /.shots/
 /.next-test/
 /.claude/settings.local.json
+/backups/

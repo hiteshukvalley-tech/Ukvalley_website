@@ -2,8 +2,9 @@
 
 import { useActionState, useEffect, useState, useTransition } from "react";
 import {
-  ArrowDown, ArrowUp, Eye, EyeOff, ImageIcon, Loader2, Plus, RotateCcw, Save, Trash2, Upload,
+  ArrowDown, ArrowUp, Crop, Eye, EyeOff, ImageIcon, Loader2, Plus, RotateCcw, Save, Trash2, Upload,
 } from "lucide-react";
+import { ImageEditor } from "@/components/admin/image-editor";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -73,37 +74,54 @@ function TextInput({
   );
 }
 
-/** An image field: paste a link, or upload a file to the media library (stored as /media/<id>). */
+/** Uploads one file to the media library; returns its /media/<id> address or an error message. */
+async function uploadImage(file: File): Promise<{ src: string } | { error: string }> {
+  try {
+    const body = new FormData();
+    body.append("files", file);
+    const res = await fetch("/admin/media/upload", { method: "POST", body });
+    const data = (await res.json().catch(() => ({}))) as { error?: string; results?: { ok: boolean; id?: string; error?: string }[] };
+    const r = data.results?.[0];
+    if (r?.ok && r.id) return { src: `/media/${r.id}` };
+    return { error: r?.error ?? data.error ?? "Upload failed." };
+  } catch {
+    return { error: "Upload failed. Check your connection and try again." };
+  }
+}
+
+/**
+ * An image field: paste a link, or upload a file to the media library (stored
+ * as /media/<id>). Picking a file opens the image editor (crop, zoom, rotate,
+ * resize); "Adjust image" reopens it for the current picture. `aspect` is the
+ * shape of the frame the picture fills on the website, e.g. "16/10".
+ */
 export function ImageInput({
-  id, label, value, onChange, error, hint,
-}: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string }) {
+  id, label, value, onChange, error, hint, aspect,
+}: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string; aspect?: string }) {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState("");
+  const [editing, setEditing] = useState<File | string | null>(null);
 
-  async function upload(file: File | undefined) {
-    if (!file) return;
+  async function upload(file: File): Promise<string | null> {
     setBusy(true);
     setProblem("");
-    try {
-      const body = new FormData();
-      body.append("files", file);
-      const res = await fetch("/admin/media/upload", { method: "POST", body });
-      const data = (await res.json().catch(() => ({}))) as { error?: string; results?: { ok: boolean; id?: string; error?: string }[] };
-      const r = data.results?.[0];
-      if (r?.ok && r.id) onChange(`/media/${r.id}`);
-      else setProblem(r?.error ?? data.error ?? "Upload failed.");
-    } catch {
-      setProblem("Upload failed. Check your connection and try again.");
-    } finally {
-      setBusy(false);
+    const r = await uploadImage(file);
+    setBusy(false);
+    if ("src" in r) {
+      onChange(r.src);
+      return null;
     }
+    return r.error;
   }
 
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="text-uk-heading">{label}</Label>
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-uk-line bg-uk-surface-2 text-uk-muted">
+        <div
+          className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-uk-line bg-uk-surface-2 text-uk-muted"
+          style={aspect ? { aspectRatio: aspect.replace(":", "/"), width: "auto", minWidth: "3rem", maxWidth: "8rem" } : undefined}
+        >
           {value ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={value} alt="" className="h-full w-full object-cover" />
@@ -131,11 +149,22 @@ export function ImageInput({
                 className="sr-only"
                 disabled={busy}
                 onChange={(e) => {
-                  void upload(e.target.files?.[0]);
+                  const file = e.target.files?.[0];
+                  if (file) setEditing(file);
                   e.target.value = "";
                 }}
               />
             </label>
+            {value && (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => setEditing(value)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-uk-line px-3 text-xs font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading disabled:opacity-50"
+              >
+                <Crop className="h-3.5 w-3.5" /> Adjust image
+              </button>
+            )}
             {value && (
               <button type="button" onClick={() => onChange("")} className="text-xs font-medium text-uk-muted hover:text-destructive">
                 Remove image
@@ -147,50 +176,69 @@ export function ImageInput({
       {error || problem ? (
         <p role="alert" className="text-xs font-medium text-destructive">{error || problem}</p>
       ) : (
-        <p className="text-xs text-uk-muted">{hint ?? "PNG, JPG, GIF, WebP or AVIF, up to 4 MB. Files are kept in Admin → Media."}</p>
+        <p className="text-xs text-uk-muted">{hint ?? IMAGE_HINT}</p>
+      )}
+      {editing && (
+        <ImageEditor
+          source={editing}
+          aspect={aspect}
+          onClose={() => setEditing(null)}
+          onSave={upload}
+          onUseOriginal={typeof editing === "string" ? undefined : () => upload(editing)}
+        />
       )}
     </div>
   );
 }
+
+const IMAGE_HINT =
+  "PNG, JPG, GIF, WebP or AVIF. After choosing a file you can crop, zoom and resize it; large photos are made smaller to fit. Files are kept in Admin → Media.";
 
 /**
  * Several pictures (a photo gallery). The value is one image address per line;
  * pictures can be uploaded (several at once), pasted as a link, reordered and removed.
  */
 function ImagesInput({
-  id, label, value, onChange, error, hint, maxImages = 40,
-}: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string; maxImages?: number }) {
+  id, label, value, onChange, error, hint, maxImages = 40, aspect,
+}: { id: string; label: string; value: string; onChange: (v: string) => void; error?: string; hint?: string; maxImages?: number; aspect?: string }) {
   const list = value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState("");
   const [link, setLink] = useState("");
+  /** The picture open in the editor: a new file (added at the end) or an existing one by index. */
+  const [editing, setEditing] = useState<{ source: File | string; index: number | null } | null>(null);
   const set = (next: string[]) => onChange(next.join("\n"));
 
   async function upload(files: FileList | null) {
     if (!files?.length) return;
     const room = maxImages - list.length;
     if (room <= 0) return setProblem(`This gallery is full (${maxImages} pictures).`);
+    // A single picture opens the editor; several are uploaded as they are.
+    if (files.length === 1) return setEditing({ source: files[0], index: null });
     setBusy(true);
     setProblem("");
     const added: string[] = [];
     const failed: string[] = [];
     // one file per request (the upload route's limit)
     for (const file of Array.from(files).slice(0, room)) {
-      try {
-        const body = new FormData();
-        body.append("files", file);
-        const res = await fetch("/admin/media/upload", { method: "POST", body });
-        const data = (await res.json().catch(() => ({}))) as { error?: string; results?: { ok: boolean; id?: string; error?: string }[] };
-        const r = data.results?.[0];
-        if (r?.ok && r.id) added.push(`/media/${r.id}`);
-        else failed.push(`${file.name}: ${r?.error ?? data.error ?? "upload failed"}`);
-      } catch {
-        failed.push(`${file.name}: upload failed`);
-      }
+      const r = await uploadImage(file);
+      if ("src" in r) added.push(r.src);
+      else failed.push(`${file.name}: ${r.error}`);
     }
     if (added.length) set([...list, ...added]);
     if (failed.length) setProblem(failed.join(" · "));
     setBusy(false);
+  }
+
+  /** Saves an edited (or original) file into the slot being edited. */
+  async function saveEdited(file: File, index: number | null): Promise<string | null> {
+    setBusy(true);
+    setProblem("");
+    const r = await uploadImage(file);
+    setBusy(false);
+    if (!("src" in r)) return r.error;
+    set(index === null ? [...list, r.src] : list.map((src, i) => (i === index ? r.src : src)));
+    return null;
   }
 
   return (
@@ -203,9 +251,19 @@ function ImagesInput({
           {list.map((src, i) => (
             <li key={`${i}-${src}`} className="overflow-hidden rounded-lg border border-uk-line bg-uk-surface-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt={`Picture ${i + 1}`} className="aspect-[4/3] w-full object-cover" />
+              <img src={src} alt={`Picture ${i + 1}`} className="w-full object-cover" style={{ aspectRatio: aspect ?? "4/3" }} />
               <div className="flex items-center justify-between gap-1 p-1.5">
                 <span className="pl-1 text-xs font-semibold text-uk-muted">{i + 1}</span>
+                <button
+                  type="button"
+                  className={cn(iconBtn, "ml-auto")}
+                  disabled={busy}
+                  onClick={() => setEditing({ source: src, index: i })}
+                  aria-label={`Adjust picture ${i + 1}`}
+                  title="Adjust (crop, zoom, resize)"
+                >
+                  <Crop className="h-3.5 w-3.5" />
+                </button>
                 <RowTools
                   index={i}
                   count={list.length}
@@ -259,8 +317,20 @@ function ImagesInput({
         <p role="alert" className="text-xs font-medium text-destructive">{error || problem}</p>
       ) : (
         <p className="text-xs text-uk-muted">
-          {list.length} of up to {maxImages}. {hint ?? "PNG, JPG, GIF, WebP or AVIF, up to 4 MB each."}
+          {list.length} of up to {maxImages}.{" "}
+          {hint ?? "PNG, JPG, GIF, WebP or AVIF, up to 4 MB each. Pick one picture to crop and resize it first, or use the crop button on any picture."}
         </p>
+      )}
+      {editing && (
+        <ImageEditor
+          source={editing.source}
+          aspect={aspect}
+          onClose={() => setEditing(null)}
+          onSave={(file) => saveEdited(file, editing.index)}
+          onUseOriginal={
+            typeof editing.source === "string" ? undefined : () => saveEdited(editing.source as File, editing.index)
+          }
+        />
       )}
     </fieldset>
   );
@@ -345,6 +415,7 @@ function Field({
         onChange={onChange}
         error={errors[f.key]}
         hint={f.hint}
+        aspect={f.aspect}
       />
     );
   }
@@ -430,6 +501,7 @@ function Field({
                       error={errors[`${f.key}.${i}.${sf.key}`]}
                       hint={sf.hint}
                       maxImages={sf.maxImages}
+                      aspect={sf.aspect}
                     />
                   ) : sf.kind === "image" ? (
                     <ImageInput
@@ -439,6 +511,7 @@ function Field({
                       onChange={(v) => onChange(rows.map((r, j) => (j === i ? { ...r, [sf.key]: v } : r)))}
                       error={errors[`${f.key}.${i}.${sf.key}`]}
                       hint={sf.hint}
+                      aspect={sf.aspect}
                     />
                   ) : (
                     <TextInput

@@ -76,7 +76,7 @@ export const defaultHome: HomeContent = {
   },
   trust: {
     label: "Trusted by 150+ businesses · Products & platforms in production",
-    brands: ["Script Magix", "TeleValley", "Mediline", "HR Agency System", "Emailz.ca", "AgriChain", "MediCore", "RetailOne", "BuildRight", "LogiFlow"],
+    brands: ["TeleValley", "Ezzu CRM", "Emailz", "Evento", "Cube Capital", "Voie Canada", "Mediline", "Ezukate", "Brightways", "Wellness Global"],
   },
   explore: {
     eyebrow: "Explore",
@@ -204,7 +204,7 @@ export const defaultHome: HomeContent = {
       },
       {
         title: "Real product portfolio",
-        desc: "TeleValley, Script Magix, Emailz.ca and more — proof we build and maintain our own IP, not just billable hours.",
+        desc: "TeleValley, Ezzu CRM, Emailz and more — proof we build and maintain our own IP, not just billable hours.",
         detail: "{products} products in production right now.",
       },
       {

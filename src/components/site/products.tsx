@@ -4,13 +4,15 @@ import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
 import { FlagshipProductCard } from "./flagship-product-card";
 import { Marked } from "./marked";
-import { flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
+import { FLAGSHIP_SIDE_CARDS, flagshipRowsClass, getProducts, splitFlagship } from "@/lib/products-store";
 import type { HomeContent } from "@/lib/home-defaults";
 import { ukText } from "@/lib/texts";
 
 /** Cards come from Admin → Products; heading from Admin → Home page → Products. */
 export async function Products({ content: c }: { content: HomeContent["products"] }) {
-  const { flagship, rest } = splitFlagship(await getProducts());
+  const { flagship, rest: all } = splitFlagship(await getProducts());
+  // The home page shows a preview; the full list is on /products.
+  const rest = all.slice(0, flagship ? FLAGSHIP_SIDE_CARDS : 6);
   return (
     <section id="products" className="relative overflow-hidden bg-uk-surface-3 section-py">
       <div className="absolute -left-20 top-10 h-72 w-72 rounded-full bg-uk-blue/12 blur-[120px]" aria-hidden />

@@ -42,7 +42,10 @@
     ".next/claude-check/types/**/*.ts",
     ".next/claude-check/dev/types/**/*.ts",
     ".next-qa-careers/types/**/*.ts",
-    ".next-qa-careers/dev/types/**/*.ts"
+    ".next-qa-careers/dev/types/**/*.ts",
+    "next.config.mjs",
+    ".next-build/types/**/*.ts",
+    ".next-build/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

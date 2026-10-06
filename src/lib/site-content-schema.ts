@@ -34,7 +34,7 @@ export const CUSTOM_SECTION_DEF: SectionDef = {
       minItems: 0,
       maxItems: 12,
       fields: [
-        { key: "image", label: "Image (optional)", kind: "image", max: 300 },
+        { key: "image", label: "Image (optional)", kind: "image", max: 300, aspect: "16/10" },
         { key: "title", label: "Title", kind: "text", max: 80, required: true },
         { key: "text", label: "Text", kind: "textarea", max: 400 },
         { key: "linkLabel", label: "Link text (optional)", kind: "text", max: 40 },

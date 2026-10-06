@@ -163,6 +163,9 @@ export function splitFlagship(list: Product[]): { flagship?: Product; rest: Prod
   return { flagship, rest: flagship ? list.filter((p) => p !== flagship) : list };
 }
 
+/** How many cards fit in the column beside the flagship; the rest go in a grid below it. */
+export const FLAGSHIP_SIDE_CARDS = 4;
+
 /** Row template for the card column beside the flagship, sized to the card count. */
 export const flagshipRowsClass: Record<number, string> = {
   1: "lg:grid-rows-1",

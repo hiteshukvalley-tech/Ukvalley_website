@@ -1,6 +1,8 @@
-import type { NextConfig } from "next";
+// Plain JavaScript (not TypeScript): a host without Next's native compiler
+// can load this file as-is, without compiling it first.
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Lets a test/CI build run beside `next dev` without sharing its .next folder.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   // Pin Turbopack's workspace root to this app so the build stops warning about

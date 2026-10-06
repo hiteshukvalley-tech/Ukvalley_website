@@ -38,7 +38,7 @@ export function TeamForm({
         <FormField label="Role" name="role" required defaultValue={values.role} error={errors.role} hint="e.g. COO / Managing Director" />
         <FormField label="Focus" name="focus" required full defaultValue={values.focus} error={errors.focus} hint="Short tag, e.g. Delivery & Process" />
         <div className="sm:col-span-2">
-          <ImageInput id="team-image" label="Photo" value={image} onChange={setImage} error={errors.image} hint="Upload a photo or paste a link. A square-ish head-and-shoulders photo works best. Leave empty to show initials." />
+          <ImageInput id="team-image" label="Photo" value={image} onChange={setImage} error={errors.image} aspect="1/1" hint="Upload a photo or paste a link. The website shows it as a square, so crop it to a head-and-shoulders square when the editor opens. Leave empty to show initials." />
           <input type="hidden" name="image" value={image} />
         </div>
         <FormTextarea label="Bio" name="bio" required full rows={4} defaultValue={values.bio} error={errors.bio} hint="Up to 400 characters." />

@@ -40,7 +40,7 @@ export function ProductForm({
           hint={
             mode === "edit"
               ? "The slug can't be changed after creation."
-              : "Made from the name as you type; edit it if you like, e.g. script-magix. Becomes /products/<slug>."
+              : "Made from the name as you type; edit it if you like, e.g. ezzu-crm-saas. Becomes /products/<slug>."
           }
         />
         <FormField label="Tagline" name="tagline" required full defaultValue={values.tagline} error={errors.tagline} hint="One short line, e.g. “SIM-based sales engagement”." />
