@@ -16,6 +16,18 @@ const nextConfig = {
   // fades and the menu, popup and animations stay dead on mobile.
   // Private LAN ranges only; this has no effect on production builds.
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
+  // Brand files (logo, share image) in public/brand: let browsers keep them a
+  // day and refresh in the background, instead of re-checking on every visit
+  // (public files are served with max-age=0 by default). Build output under
+  // /_next/static is already cached for a year by Next itself.
+  async headers() {
+    return [
+      {
+        source: "/brand/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" }],
+      },
+    ];
+  },
   images: {
     // Next 16 only allows quality 75 by default. 95 is used for the
     // circular page-hero artwork, where fine detail must stay crisp.

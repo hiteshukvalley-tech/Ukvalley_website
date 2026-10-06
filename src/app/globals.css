@@ -1230,14 +1230,26 @@ html.lenis body {
   overflow: hidden;
 }
 
-/* First-paint loader failsafe (components/site/page-loader.tsx): if the
-   JS that normally fades the loader never runs, this CSS-only animation
-   still hides it after 3.2s so the page is never trapped behind it. */
+/* First-paint loader (components/site/page-loader.tsx): a short logo flash.
+   It fades out on its own with CSS shortly after the first paint, without
+   waiting for the JavaScript — on a phone the page's scripts can take several
+   seconds to start, and the server-rendered page underneath is already
+   complete and readable. The component removes it from the DOM once it runs. */
 .page-loader-failsafe {
-  animation: loader-failsafe 0.5s ease 3.2s forwards;
+  animation: loader-out 0.35s ease 0.45s forwards;
 }
-@keyframes loader-failsafe {
+@keyframes loader-out {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* Phones and tablets: stop the endless decorative motion (huge blurred glows
+   and the aurora blobs drifting behind every page). Animating large blurred
+   layers keeps a phone's GPU busy on every frame, which makes scrolling and
+   taps feel slow; static, they look the same. */
+@media (max-width: 1023px), (pointer: coarse) {
+  /* html … raises specificity above the .aurora-blob rule further down */
+  html .glow-drift,
+  html .aurora-blob { animation: none; }
 }
 
 /* Scoping-call popup entrance (see components/site/scoping-modal.tsx) */

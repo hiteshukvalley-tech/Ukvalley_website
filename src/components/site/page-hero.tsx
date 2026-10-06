@@ -1,4 +1,5 @@
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
+import { preload as preloadResource } from "react-dom";
 import Link from "@/components/site/intent-link";
 import { BrainCircuit, Server, Users, Newspaper, Blocks, UserPlus, ArrowRight } from "lucide-react";
 import { Reveal } from "./reveal";
@@ -366,7 +367,31 @@ function Sparkle({ x, y, size, className }: { x: number; y: number; size: number
    wash pull the artwork onto the site palette. Pure CSS, so the original
    files stay untouched. `className` places the frame: beside the copy on
    wide screens, centred under it on narrower ones. */
+/** Props shared by the hero artwork <Image> and its desktop-only preload. */
+const artImageProps = (art: HeroArtwork) => ({
+  src: ukText(art.src),
+  alt: "",
+  fill: true,
+  sizes: "(min-width: 1280px) 64rem, 48rem",
+  quality: 95,
+});
+
 function ImageCanvas({ art, className, preload }: { art: HeroArtwork; className: string; preload?: boolean }) {
+  // The beside-the-title copy only shows from xl (1280px). Preload it for those
+  // screens only: next/image's own `preload` has no media query, so phones and
+  // tablets — where this copy is display:none — downloaded a ~2300px, quality-95
+  // picture they never showed. Without the preload the <Image> stays lazy, and a
+  // lazy image inside a hidden element is not fetched at all.
+  if (preload) {
+    const { props } = getImageProps(artImageProps(art));
+    preloadResource(props.src, {
+      as: "image",
+      imageSrcSet: props.srcSet,
+      imageSizes: props.sizes,
+      fetchPriority: "high",
+      media: "(min-width: 1280px)",
+    });
+  }
   return (
     <div className={cn("pointer-events-none aspect-square", className)} aria-hidden>
       {/* soft brand glow behind the frame — indigo core, yellow edge */}
@@ -389,13 +414,9 @@ function ImageCanvas({ art, className, preload }: { art: HeroArtwork; className:
               full-resolution file (no upscaling blur on Retina screens),
               and quality 95 keeps fine lines and text crisp. */}
           <Image
-            src={ukText(art.src)}
+            {...artImageProps(art)}
             alt=""
-            fill
-            sizes="(min-width: 1280px) 64rem, 48rem"
-            quality={95}
             className={`hero-image-drift object-cover ${art.focus} ${art.grade}`}
-            preload={preload}
           />
           {/* brand tint — soft-light keeps the artwork's own contrast and
               detail while nudging its colours toward indigo/blue (a

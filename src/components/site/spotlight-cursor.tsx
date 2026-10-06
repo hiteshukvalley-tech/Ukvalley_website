@@ -14,6 +14,10 @@ import { useEffect } from "react";
  */
 export function SpotlightCursor() {
   useEffect(() => {
+    // A hover effect: phones and tablets have no cursor, and a pointermove
+    // handler there only runs layout reads (getBoundingClientRect) during
+    // finger drags and scrolls.
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
     let current: HTMLElement | null = null;
 
     const onMove = (e: PointerEvent) => {
