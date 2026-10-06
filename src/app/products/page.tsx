@@ -12,7 +12,7 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { FlagshipProductCard } from "@/components/site/flagship-product-card";
 import { CtaBand } from "@/components/site/cta";
-import { FLAGSHIP_SPAN, getProducts, splitFlagship } from "@/lib/products-store";
+import { FLAGSHIP_SIDE_CARDS, FLAGSHIP_SPAN, getProducts, splitFlagship } from "@/lib/products-store";
 import type { Product } from "@/lib/site-data";
 import { ukText } from "@/lib/texts";
 
@@ -122,7 +122,11 @@ export default async function ProductsPage() {
                   <FlagshipProductCard featured={flagship} />
                 </div>
               )}
-              {rest.map((p) => <ProductCard key={p.slug} p={p} />)}
+              {rest.map((p, i) => (
+                // The cards beside the flagship are stretched to its height;
+                // they fill that spare room with key features.
+                <ProductCard key={p.slug} p={p} withFeatures={Boolean(flagship) && i < FLAGSHIP_SIDE_CARDS} />
+              ))}
             </Reveal>
           </Container>
         </section>
@@ -135,7 +139,7 @@ export default async function ProductsPage() {
   );
 }
 
-function ProductCard({ p }: { p: Product }) {
+function ProductCard({ p, withFeatures = false }: { p: Product; withFeatures?: boolean }) {
   return (
     <Link
       href={ukText(`/products/${p.slug}`)}
@@ -151,6 +155,24 @@ function ProductCard({ p }: { p: Product }) {
         </span>
       </div>
       <p className="text-sm leading-relaxed text-uk-gray">{ukText(p.description)}</p>
+      {withFeatures && p.features.length > 0 && (
+        // Fills only the spare height (see .pc-features in globals.css).
+        <div className="relative min-h-0 flex-1">
+          <div className="pc-features absolute inset-0 overflow-hidden">
+            <div className="pc-feat-block">
+              <span className="block text-[0.65rem] font-semibold uppercase leading-4 tracking-[0.18em] text-uk-blue">{ukText("Key features")}</span>
+              <ul className="mt-1.5 flex flex-col gap-1">
+                {p.features.slice(0, 4).map((f) => (
+                  <li key={f.title} className="pc-feat h-5 items-center gap-2 text-xs leading-5 text-uk-body">
+                    <Check className="h-3.5 w-3.5 flex-none text-uk-blue" strokeWidth={2.5} />
+                    <span className="truncate">{ukText(f.title)}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mt-auto flex flex-wrap gap-1.5 pt-2">
         {p.highlights.map((h) => (
           <span key={h} className="rounded-md bg-uk-surface-blue px-2 py-1 text-[0.7rem] font-medium text-uk-body">

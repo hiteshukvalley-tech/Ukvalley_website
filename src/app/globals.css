@@ -805,6 +805,21 @@ html.dark { color-scheme: dark; }
   }
   .link-ink:hover { background-size: 100% 2px; }
 
+  /* Product cards beside the flagship (/products): a key-features list that
+     fills only the card's spare height. The box is absolutely positioned (adds
+     no height of its own) and a size container, so each line appears only when
+     there is room for it — the card never grows. */
+  .pc-features { container-type: size; }
+  .pc-features .pc-feat-block,
+  .pc-features .pc-feat { display: none; }
+  @container (min-height: 2.9rem) {
+    .pc-features .pc-feat-block { display: block; }
+    .pc-features .pc-feat:nth-child(1) { display: flex; }
+  }
+  @container (min-height: 4.4rem) { .pc-features .pc-feat:nth-child(2) { display: flex; } }
+  @container (min-height: 5.9rem) { .pc-features .pc-feat:nth-child(3) { display: flex; } }
+  @container (min-height: 7.4rem) { .pc-features .pc-feat:nth-child(4) { display: flex; } }
+
   /* Footer links — on hover/focus the text turns blue and slides right while a
      short accent dash grows in from the left (no underline, so links that wrap
      onto two lines look as clean as one-line ones). */
