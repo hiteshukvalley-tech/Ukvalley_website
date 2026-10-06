@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getPageContent } from "@/lib/pages-store";
 import { ukText } from "@/lib/texts";
-import { SITE_INDEXABLE } from "@/lib/site-origin";
+import { SHARE_IMAGE, SITE_INDEXABLE } from "@/lib/site-origin";
 
 /** Room for a page title before the root layout's " | Ukvalley" (60 characters in all). */
 const TITLE_ROOM = 60 - " | Ukvalley".length;
@@ -35,8 +35,9 @@ export function headlineTitle(headline: string, ...fuller: string[]): Metadata["
 
 /**
  * Gives a page its own share preview (Open Graph / Twitter) from its title,
- * description and canonical address. Without this every page inherits the
- * home page's preview from the root layout. Fields the page sets itself win.
+ * description and canonical address, with the logo picture. Next replaces the
+ * root layout's openGraph/twitter objects wholesale (images included), so the
+ * picture must be set here too. Fields the page sets itself win.
  */
 export function withSharePreview(meta: Metadata): Metadata {
   const title =
@@ -52,9 +53,10 @@ export function withSharePreview(meta: Metadata): Metadata {
       title,
       description,
       ...(url ? { url } : {}),
+      images: [SHARE_IMAGE],
       ...meta.openGraph,
     },
-    twitter: { card: "summary_large_image", title, description, ...meta.twitter },
+    twitter: { card: "summary_large_image", title, description, images: [SHARE_IMAGE], ...meta.twitter },
     // A page's own robots setting can't make a test deployment indexable.
     ...(SITE_INDEXABLE ? {} : { robots: { index: false, follow: false } }),
   };

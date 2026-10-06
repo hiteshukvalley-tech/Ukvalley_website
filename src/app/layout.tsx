@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { SITE_INDEXABLE, SITE_URL } from "@/lib/site-origin";
+import { SHARE_IMAGE, SITE_INDEXABLE, SITE_URL } from "@/lib/site-origin";
 import localFont from "next/font/local";
 import "./globals.css";
 import { SmoothScroll } from "@/components/site/smooth-scroll";
@@ -82,12 +82,14 @@ export const metadata: Metadata = {
     title: "Ukvalley — Custom Software, CRM, ERP & Mobile Apps",
     description:
       "Custom software for Indian SMEs and global startups. Engineered to scale, supported for years.",
+    images: [SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "Ukvalley Technologies",
     description:
       "Custom software, CRM, ERP & mobile apps — engineered to scale, supported for years.",
+    images: [SHARE_IMAGE],
   },
   // Test deployments (uat., *.onrender.com, localhost …) stay out of search results.
   robots: SITE_INDEXABLE ? { index: true, follow: true } : { index: false, follow: false },

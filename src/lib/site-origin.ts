@@ -26,6 +26,20 @@ const hostOf = (u: string) => {
   }
 };
 export const SITE_HOST = hostOf(SITE_URL);
+
+/**
+ * The link-preview picture every page uses (WhatsApp, LinkedIn, Facebook, X…):
+ * the logo centred on 1200×630, so square crops keep it whole. Built by
+ * scripts/build-brand-assets.mjs. Change the file name when the picture
+ * changes — chat apps cache previews by address.
+ */
+export const SHARE_IMAGE = {
+  url: `${SITE_URL}/brand/share-image.png`,
+  width: 1200,
+  height: 630,
+  alt: "Ukvalley Technologies logo",
+  type: "image/png",
+};
 export const API_HOST = hostOf(API_URL);
 
 /** Test deployments search engines must never index: uat./staging./dev./test. subdomains, Render's own address, this machine. */
