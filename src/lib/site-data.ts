@@ -7,7 +7,7 @@
 export { company, heroStats, processSteps, techStack, nav, yearsInBusiness } from "./site-core";
 import { company as coreCompany, yearsInBusiness as coreYears } from "./site-core";
 export type { TechCategory, NavLink } from "./site-core";
-import { DEFAULT_HIRING_PROCESS, type HiringStep, type JobMode } from "./careers-shared";
+import { DEFAULT_HIRING_PROCESS, withTechnicalRound, type HiringStep, type JobMode, type JobType } from "./careers-shared";
 
 
 export const stats = [
@@ -24,8 +24,8 @@ export const trustedBy = [
   "TeleValley",
   "Ezzu CRM",
   "Emailz",
-  "Evento",
-  "Cube Capital",
+  "EventoValley",
+  "Cubez Capital",
   "Voie Canada",
   "Mediline",
   "Ezukate",
@@ -46,7 +46,7 @@ export const services: Service[] = [
     icon: "code",
     title: "Web & Web App Development",
     blurb:
-      "Static, dynamic, e-commerce and custom web apps built on React, Next.js, Angular and Vue — fast, SEO-ready and scalable.",
+      "Static, dynamic, e-commerce and custom web apps built on React, Next.js, Angular and Vue, fast, SEO-ready and scalable.",
     bullets: ["Custom web apps", "E-commerce platforms", "Progressive web apps", "Admin dashboards", "API integrations", "SEO optimization", "CMS development", "Performance auditing"],
     href: "/services/web-development",
   },
@@ -54,7 +54,7 @@ export const services: Service[] = [
     icon: "smartphone",
     title: "Mobile App Development",
     blurb:
-      "Native iOS & Android plus cross-platform Flutter and React Native apps — engineered for performance and a polished UX.",
+      "Native iOS & Android plus cross-platform Flutter and React Native apps, engineered for performance and a polished UX.",
     bullets: ["iOS & Android", "Flutter / React Native", "App store delivery", "Push notifications", "Offline-first sync"],
     href: "/services/mobile-app-development",
   },
@@ -62,7 +62,7 @@ export const services: Service[] = [
     icon: "layoutDashboard",
     title: "Custom Software · CRM · ERP · HRMS",
     blurb:
-      "Business automation systems built around how your operations actually run — replacing spreadsheets and WhatsApp with one accountable platform.",
+      "Business automation systems built around how your operations actually run, replacing spreadsheets and WhatsApp with one accountable platform.",
     bullets: ["CRM & ERP", "HRMS & payroll", "Business automation", "Role-based dashboards", "Workflow engines"],
     href: "/services/custom-software",
   },
@@ -70,7 +70,7 @@ export const services: Service[] = [
     icon: "cloud",
     title: "Cloud & DevOps Engineering",
     blurb:
-      "Cloud migration, CI/CD pipelines, container orchestration and observability — so your platform ships faster and stays up without surprise bills.",
+      "Cloud migration, CI/CD pipelines, container orchestration and observability, so your platform ships faster and stays up without surprise bills.",
     bullets: ["Cloud migration", "CI/CD & containers", "Observability & IaC", "Auto-scaling", "Cost optimization"],
     href: "/services/cloud-devops",
   },
@@ -78,7 +78,7 @@ export const services: Service[] = [
     icon: "megaphone",
     title: "Digital Marketing",
     blurb:
-      "SEO, performance marketing, social and content that turns your website into a lead engine — not a brochure no one visits.",
+      "SEO, performance marketing, social and content that turns your website into a lead engine, not a brochure no one visits.",
     bullets: ["SEO & local SEO", "Performance ads", "Content & social", "Analytics & reporting"],
     href: "/services/digital-marketing",
   },
@@ -86,18 +86,19 @@ export const services: Service[] = [
     icon: "shieldCheck",
     title: "Managed IT · Cloud · Cybersecurity",
     blurb:
-      "Cloud migration on AWS/Azure, 24×7 monitoring, hardening and incident response — secure infrastructure your business can rely on.",
+      "Cloud migration on AWS/Azure, 24×7 monitoring, hardening and incident response, secure infrastructure your business can rely on.",
     bullets: ["Cloud migration", "24×7 monitoring", "Security hardening", "Incident response", "Compliance audits"],
     href: "/services/managed-it",
   },
-  {
-    icon: "blocks",
-    title: "Blockchain & DeFi Development",
-    blurb:
-      "Smart contracts, decentralized ledgers and secure DeFi platforms — audited, tested and built for real transactional volume.",
-    bullets: ["Smart contracts", "DeFi platforms", "Security audits", "Token economics"],
-    href: "/services/blockchain",
-  },
+  // Hidden for now — uncomment to bring the Blockchain card back (also uncomment it in nav.services in site-core.ts).
+  // {
+  //   icon: "blocks",
+  //   title: "Blockchain & DeFi Development",
+  //   blurb:
+  //     "Smart contracts, decentralized ledgers and secure DeFi platforms — audited, tested and built for real transactional volume.",
+  //   bullets: ["Smart contracts", "DeFi platforms", "Security audits", "Token economics"],
+  //   href: "/services/blockchain",
+  // },
   {
     icon: "palette",
     title: "Graphic & Brand Design",
@@ -138,7 +139,7 @@ export const products: Product[] = [
     slug: "televalley",
     tagline: "SIM-based sales engagement",
     description:
-      "Replaces expensive cloud telephony with reps' own SIM cards — full call tracking, recording and analytics at a fraction of the cost.",
+      "Replaces expensive cloud telephony with reps' own SIM cards, full call tracking, recording and analytics at a fraction of the cost.",
     highlights: ["Call tracking & recording", "Live analytics", "CRM-ready", "SIM-based routing"],
     featured: true,
     metric: { value: "60%", label: "Lower telephony cost" },
@@ -146,14 +147,14 @@ export const products: Product[] = [
     audience: "B2B sales teams, call centers, brokerages",
     problem: [
       "Cloud telephony charges every sales seat a monthly rental just to log and record calls, and the moment a rep dials from a personal SIM the call disappears from the record entirely. Managers end up coaching from CRM notes typed after the fact, not from what was actually said on the call.",
-      "The cost compounds fast. A single seat of cloud telephony runs close to ₹8,400 a month before a rep has closed anything, and every call made off-platform is a customer relationship the business doesn't truly own — when a rep resigns, their numbers, their rapport and their pipeline history resign with them.",
-      "TeleValley closes both gaps at once: reps keep their own SIMs and numbers, but every call is logged, recorded and pushed into the CRM automatically, with disposition captured in one tap. Telephony cost per seat typically falls 60% in the first month — and it's the exact system our own sales team runs on every day, not a demo built to sell you one.",
+      "The cost compounds fast. A single seat of cloud telephony runs close to ₹8,400 a month before a rep has closed anything, and every call made off-platform is a customer relationship the business doesn't truly own, when a rep resigns, their numbers, their rapport and their pipeline history resign with them.",
+      "TeleValley closes both gaps at once: reps keep their own SIMs and numbers, but every call is logged, recorded and pushed into the CRM automatically, with disposition captured in one tap. Telephony cost per seat typically falls 60% in the first month, and it's the exact system our own sales team runs on every day, not a demo built to sell you one.",
     ],
     features: [
       { title: "SIM-based call routing", desc: "Reps call from their own numbers; every call is logged to a central server automatically." },
       { title: "Call recording with consent", desc: "Encrypted recordings with retention rules, consent prompts and role-based playback." },
       { title: "Live disposition capture", desc: "One-tap outcome tagging after each call feeds the pipeline stage and next action." },
-      { title: "CRM sync", desc: "Two-way sync with the CRM the team already uses — leads, notes and follow-ups stay in one place." },
+      { title: "CRM sync", desc: "Two-way sync with the CRM the team already uses, leads, notes and follow-ups stay in one place." },
       { title: "Manager analytics", desc: "Talk time, connect rate, outcomes per rep and per campaign, with recordings one click away." },
       { title: "Admin console & audit logs", desc: "Team setup, number management, export controls and a full audit trail for compliance." },
     ],
@@ -161,7 +162,7 @@ export const products: Product[] = [
       "Telephony cost per seat typically falls by 60% in the first month",
       "Every sales call is logged and recorded, not just the ones placed through a dialler",
       "Managers coach from real recordings; connect rate and conversion improve within a quarter",
-      "Zero hardware to install — reps keep their SIMs, their numbers and their customer relationships",
+      "Zero hardware to install, reps keep their SIMs, their numbers and their customer relationships",
     ],
     useCases: [
       "Inside-sales and telemarketing floors replacing per-seat cloud telephony",
@@ -173,8 +174,8 @@ export const products: Product[] = [
     faqs: [
       { q: "Does TeleValley work on iPhone?", a: "TeleValley runs on Android, because iOS does not allow apps to record or route native calls. Most Indian sales floors are Android-first, and we supply a manager web dashboard that works on any device." },
       { q: "Is call recording legal for our team?", a: "Recording business calls with consent is permitted in India. TeleValley plays a configurable consent prompt and lets you set retention and access rules, so your policy is enforced by the software rather than by memory." },
-      { q: "Can it sync with our existing CRM?", a: "Yes — TeleValley integrates with common CRMs over REST and can be mapped to a custom one during onboarding. Leads, dispositions and notes flow both ways." },
-      { q: "How is it priced?", a: "A flat deployment fee plus a modest per-team support plan — no per-seat telephony rental. Onboarding, rep training and ongoing product updates are included." },
+      { q: "Can it sync with our existing CRM?", a: "Yes, TeleValley integrates with common CRMs over REST and can be mapped to a custom one during onboarding. Leads, dispositions and notes flow both ways." },
+      { q: "How is it priced?", a: "A flat deployment fee plus a modest per-team support plan, no per-seat telephony rental. Onboarding, rep training and ongoing product updates are included." },
     ],
   },
   {
@@ -191,7 +192,7 @@ export const products: Product[] = [
       "Our custom ERP replaces that patchwork with one system built around how your business actually works. Data is entered once, approvals move on their own, and management sees live numbers from every department instead of waiting for month-end reports.",
     ],
     features: [
-      { title: "Custom business process management", desc: "Modules modelled on your real processes — sales, purchase, inventory, production, finance — not a generic template." },
+      { title: "Custom business process management", desc: "Modules modelled on your real processes, sales, purchase, inventory, production, finance, not a generic template." },
       { title: "Centralized data and operations", desc: "One database for every department, so figures match everywhere and nothing is entered twice." },
       { title: "Role-based access control", desc: "Each user sees and changes only what their role allows, with a record of who did what." },
       { title: "Automated workflows and approvals", desc: "Purchase requests, expenses and orders route to the right approver automatically, with reminders." },
@@ -212,9 +213,9 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "REST API", "Relational database", "Role-based access", "Cloud hosting"],
     faqs: [
-      { q: "Is this an off-the-shelf ERP?", a: "No — it is built around your processes. We start with the modules you need most and add more as the business grows." },
-      { q: "Can it connect to our existing software?", a: "Yes — accounting packages, payment gateways and other tools can be integrated over APIs during the build." },
-      { q: "Can we move our existing data across?", a: "Yes — masters and opening balances can be imported from spreadsheets or your current system during onboarding." },
+      { q: "Is this an off-the-shelf ERP?", a: "No, it is built around your processes. We start with the modules you need most and add more as the business grows." },
+      { q: "Can it connect to our existing software?", a: "Yes, accounting packages, payment gateways and other tools can be integrated over APIs during the build." },
+      { q: "Can we move our existing data across?", a: "Yes, masters and opening balances can be imported from spreadsheets or your current system during onboarding." },
     ],
   },
   {
@@ -252,9 +253,9 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "Document storage", "Relational database", "Role-based access", "Email notifications"],
     faqs: [
-      { q: "Can we import our existing candidates?", a: "Yes — candidates and clients can be imported from spreadsheets during onboarding, with duplicates flagged for review." },
+      { q: "Can we import our existing candidates?", a: "Yes, candidates and clients can be imported from spreadsheets during onboarding, with duplicates flagged for review." },
       { q: "Who can see candidate details?", a: "Access is role-based: you decide which recruiters, managers and admins can view contact details, notes and documents." },
-      { q: "Does it handle contract staff as well as permanent hiring?", a: "Yes — both placement types are supported, including ongoing employee records for contract staff." },
+      { q: "Does it handle contract staff as well as permanent hiring?", a: "Yes, both placement types are supported, including ongoing employee records for contract staff." },
     ],
   },
   {
@@ -292,9 +293,9 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "Transactional email API", "Queue workers", "Relational database", "SPF / DKIM / DMARC"],
     faqs: [
-      { q: "Can I import my existing contact list?", a: "Yes — upload a CSV file and map the columns to contact fields." },
-      { q: "Is unsubscribe handled automatically?", a: "Yes — every campaign includes an unsubscribe link, and unsubscribed contacts are excluded from future sends." },
-      { q: "Can I schedule campaigns in advance?", a: "Yes — pick a date and time and Emailz sends the campaign automatically." },
+      { q: "Can I import my existing contact list?", a: "Yes, upload a CSV file and map the columns to contact fields." },
+      { q: "Is unsubscribe handled automatically?", a: "Yes, every campaign includes an unsubscribe link, and unsubscribed contacts are excluded from future sends." },
+      { q: "Can I schedule campaigns in advance?", a: "Yes, pick a date and time and Emailz sends the campaign automatically." },
     ],
   },
   {
@@ -308,7 +309,7 @@ export const products: Product[] = [
     audience: "International businesses & organizations",
     problem: [
       "A business selling to a global audience is judged by its website before anyone makes contact. A slow, dated or hard-to-use site loses visitors who will never say why they left.",
-      "We have designed and built websites for organizations across healthcare, education, wellness and professional services — including Mediline, Ezukate, Brightways, Wellness Global, Global Nurse Mentor, Brodwaam, Cangell, Keytoze and Care-Ezlearning. Each one is built around the brand, fast on every device and structured so search engines and visitors find what they need.",
+      "We have designed and built websites for organizations across healthcare, education, wellness and professional services, including Mediline, Ezukate, Brightways, Wellness Global, Global Nurse Mentor, Brodwaam, Cangell, Keytoze and Care-Ezlearning. Each one is built around the brand, fast on every device and structured so search engines and visitors find what they need.",
     ],
     features: [
       { title: "Responsive international websites", desc: "Layouts that work on every screen size, from low-cost phones to large desktops." },
@@ -333,12 +334,12 @@ export const products: Product[] = [
     stack: ["Responsive web design", "Headless or managed CMS", "SEO metadata", "Performance optimization", "Cross-browser testing"],
     faqs: [
       { q: "Which websites are part of this portfolio?", a: "Mediline, Ezukate, Brightways, Wellness Global, Global Nurse Mentor, Brodwaam, Cangell, Keytoze and Care-Ezlearning." },
-      { q: "Can you build a website for our market?", a: "Yes — we design for your audience, language and region, and structure the site for search in the markets you target." },
-      { q: "Can we update the content ourselves?", a: "Yes — sites can be built on a content management system so your team can edit pages without a developer." },
+      { q: "Can you build a website for our market?", a: "Yes, we design for your audience, language and region, and structure the site for search in the markets you target." },
+      { q: "Can we update the content ourselves?", a: "Yes, sites can be built on a content management system so your team can edit pages without a developer." },
     ],
   },
   {
-    name: "Evento",
+    name: "EventoValley",
     slug: "evento",
     tagline: "Event entry management",
     description:
@@ -348,7 +349,7 @@ export const products: Product[] = [
     audience: "Event organizers, venues, institutions",
     problem: [
       "At most events, entry is the bottleneck: printed lists, long queues at the gate and no reliable count of who has actually arrived. Fake or shared passes slip through, and organizers only learn the real attendance after the event is over.",
-      "Evento handles the whole journey from registration to the gate. Attendees register online and receive a unique code, staff scan it at entry in seconds, and organizers watch live entry numbers on a dashboard while the event is running.",
+      "EventoValley handles the whole journey from registration to the gate. Attendees register online and receive a unique code, staff scan it at entry in seconds, and organizers watch live entry numbers on a dashboard while the event is running.",
     ],
     features: [
       { title: "Online event registration", desc: "Custom registration forms with confirmation messages sent to every attendee." },
@@ -372,9 +373,9 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "Mobile scanning app", "QR code generation", "Real-time updates", "Relational database"],
     faqs: [
-      { q: "Do staff need special scanners?", a: "No — entry codes can be scanned with a smartphone camera." },
-      { q: "Can it handle several entry gates?", a: "Yes — multiple staff can scan at different gates at the same time, and the counts stay in sync." },
-      { q: "Can we export the attendee list?", a: "Yes — registrations and check-ins can be exported for follow-up and reporting." },
+      { q: "Do staff need special scanners?", a: "No, entry codes can be scanned with a smartphone camera." },
+      { q: "Can it handle several entry gates?", a: "Yes, multiple staff can scan at different gates at the same time, and the counts stay in sync." },
+      { q: "Can we export the attendee list?", a: "Yes, registrations and check-ins can be exported for follow-up and reporting." },
     ],
   },
   {
@@ -388,7 +389,7 @@ export const products: Product[] = [
     audience: "SMEs, sales teams, service businesses",
     problem: [
       "Leads arrive from the website, calls, WhatsApp and walk-ins, and most of them end up in personal notebooks or spreadsheets. Follow-ups are missed, and when a salesperson leaves, their customer history goes with them.",
-      "Ezzu CRM puts every lead and customer in one shared system. Each lead moves through a clear pipeline, follow-ups come up as reminders, and managers see what the team is working on and what is likely to close — on a subscription, with no servers to manage.",
+      "Ezzu CRM puts every lead and customer in one shared system. Each lead moves through a clear pipeline, follow-ups come up as reminders, and managers see what the team is working on and what is likely to close, on a subscription, with no servers to manage.",
     ],
     features: [
       { title: "Lead and customer management", desc: "Capture leads from every source and keep the full customer history on one record." },
@@ -396,7 +397,7 @@ export const products: Product[] = [
       { title: "Task and follow-up management", desc: "Reminders for calls, meetings and follow-ups so no lead goes cold." },
       { title: "Team management", desc: "Assign leads, set roles and see each team member's activity." },
       { title: "Reports and analytics", desc: "Conversion rates, pipeline value and team performance in clear reports." },
-      { title: "SaaS-ready architecture", desc: "Multi-tenant subscription platform — sign up and start, with updates delivered automatically." },
+      { title: "SaaS-ready architecture", desc: "Multi-tenant subscription platform, sign up and start, with updates delivered automatically." },
     ],
     outcomes: [
       "Every lead captured and followed up",
@@ -412,9 +413,9 @@ export const products: Product[] = [
     ],
     stack: ["Multi-tenant SaaS", "Web application", "REST API", "Relational database", "Role-based access"],
     faqs: [
-      { q: "Do we need to install anything?", a: "No — Ezzu CRM runs in the browser as a subscription service." },
-      { q: "Can we import our existing leads?", a: "Yes — leads and customers can be imported from a spreadsheet." },
-      { q: "Can it be customised for our sales process?", a: "Yes — pipeline stages, fields and user roles can be configured to match how your team sells." },
+      { q: "Do we need to install anything?", a: "No, Ezzu CRM runs in the browser as a subscription service." },
+      { q: "Can we import our existing leads?", a: "Yes, leads and customers can be imported from a spreadsheet." },
+      { q: "Can it be customised for our sales process?", a: "Yes, pipeline stages, fields and user roles can be configured to match how your team sells." },
     ],
   },
   {
@@ -453,12 +454,12 @@ export const products: Product[] = [
     stack: ["Web application", "Secure REST API", "Relational database", "Encryption in transit", "Role-based access"],
     faqs: [
       { q: "How is financial data protected?", a: "Data travels over encrypted connections, access is role-based and sensitive actions are logged." },
-      { q: "Can users download their reports?", a: "Yes — statements and reports can be downloaded from the dashboard." },
-      { q: "Can it be adapted to our products?", a: "Yes — account types, workflows and reports can be configured for your business." },
+      { q: "Can users download their reports?", a: "Yes, statements and reports can be downloaded from the dashboard." },
+      { q: "Can it be adapted to our products?", a: "Yes, account types, workflows and reports can be configured for your business." },
     ],
   },
   {
-    name: "Tik – Business Branding Tool",
+    name: "Business Branding Tool Tik",
     slug: "tik-business-branding-tool",
     tagline: "Digital brand management for businesses",
     description:
@@ -492,8 +493,8 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "Mobile app", "Image processing", "Cloud storage", "REST API"],
     faqs: [
-      { q: "Do I need design skills to use Tik?", a: "No — Tik is built for business owners and uses your saved brand assets to keep content consistent." },
-      { q: "Can my team use the same brand assets?", a: "Yes — assets are stored centrally so everyone works from the same logo, colours and images." },
+      { q: "Do I need design skills to use Tik?", a: "No, Tik is built for business owners and uses your saved brand assets to keep content consistent." },
+      { q: "Can my team use the same brand assets?", a: "Yes, assets are stored centrally so everyone works from the same logo, colours and images." },
       { q: "Can I manage more than one business?", a: "This can be configured for teams or agencies that manage several brands." },
     ],
   },
@@ -507,7 +508,7 @@ export const products: Product[] = [
     platform: "Web",
     audience: "Institutions, training providers, event organizers",
     problem: [
-      "Issuing certificates by hand means editing names one at a time, printing, signing and posting — and keeping no reliable record of what was issued. Fake or altered certificates are hard to spot because there is no simple way to check them.",
+      "Issuing certificates by hand means editing names one at a time, printing, signing and posting, and keeping no reliable record of what was issued. Fake or altered certificates are hard to spot because there is no simple way to check them.",
       "The Certificate Management System creates certificates from templates in bulk, issues them digitally and gives each one a unique ID and QR code. Anyone can verify a certificate online in seconds, and the organization keeps a complete record of every certificate it has issued.",
     ],
     features: [
@@ -533,48 +534,48 @@ export const products: Product[] = [
     stack: ["Web application", "PDF generation", "QR code generation", "Email delivery", "Relational database"],
     faqs: [
       { q: "How does verification work?", a: "Each certificate has a unique ID and QR code. Scanning the code or entering the ID opens a page that confirms the certificate's details." },
-      { q: "Can we use our own certificate design?", a: "Yes — templates can be built around your existing design, logo and signatures." },
-      { q: "Can a lost certificate be reissued?", a: "Yes — every certificate is stored, so it can be found and resent at any time." },
+      { q: "Can we use our own certificate design?", a: "Yes, templates can be built around your existing design, logo and signatures." },
+      { q: "Can a lost certificate be reissued?", a: "Yes, every certificate is stored, so it can be found and resent at any time." },
     ],
   },
   {
-    name: "Cube Capital",
-    slug: "cube-capital",
-    tagline: "Financial and investment platform",
+    name: "Cubez Capital",
+    slug: "cubez-capital",
+    tagline: "Corporate website for a financial firm",
     description:
-      "A professional financial and investment-oriented digital platform designed to provide users with a structured and intuitive experience for managing financial information and services.",
-    highlights: ["Financial dashboard", "Customer management", "Data visualization", "Secure user access"],
-    platform: "Web",
-    audience: "Investment firms, financial advisors",
+      "A professional, responsive website developed for Cubez Capital, presenting the firm's financial and investment services with a clear structure, a trustworthy design and a strong focus on enquiries.",
+    highlights: ["Responsive website", "Professional finance branding", "Service pages", "SEO-ready"],
+    platform: "Web · Responsive",
+    audience: "Financial and investment firms",
     problem: [
-      "Investment and financial firms handle large amounts of client and portfolio information, and when that lives in spreadsheets and emails, clients wait for updates and advisors spend time compiling reports by hand.",
-      "Cube Capital gives the firm and its clients a structured, secure platform. Customer records and investment information are organised in one place, dashboards and charts make the numbers easy to understand, and reports are available whenever they are needed.",
+      "In finance, trust is decided before the first conversation. Prospective clients check a firm's website to judge whether it is credible, and a dated, cluttered or slow site makes them look elsewhere before they ever get in touch.",
+      "We designed and built the Cubez Capital website to earn that trust: a clean, professional design that reflects the brand, clear pages that explain each service, simple routes to make an enquiry, and a fast, search-friendly build that works well on every device.",
     ],
     features: [
-      { title: "Financial dashboard", desc: "Key figures and activity summarised on one clear screen." },
-      { title: "Customer management", desc: "Complete client profiles with their accounts, documents and history." },
-      { title: "Investment-related information", desc: "Organised details of investments and services for each client." },
-      { title: "Data visualization", desc: "Charts and graphs that make performance and trends easy to read." },
-      { title: "Secure user access", desc: "Role-based logins for staff and clients, with sensitive actions logged." },
-      { title: "Reporting and analytics", desc: "Ready reports for clients and management, available on demand." },
+      { title: "Responsive website experience", desc: "A consistent, fast experience on phones, tablets and desktops." },
+      { title: "Professional finance branding", desc: "A clean, credible visual identity suited to a financial services firm." },
+      { title: "Service information pages", desc: "Clear, well-organised pages for each service, easy to keep up to date." },
+      { title: "Enquiry and contact flow", desc: "Contact forms and calls to action placed where visitors decide to get in touch." },
+      { title: "User-friendly navigation", desc: "Menus and page flow that help visitors find what they need quickly." },
+      { title: "SEO-ready structure", desc: "Clean markup, metadata and fast pages to support search visibility." },
     ],
     outcomes: [
-      "Clients see their information without waiting for an email",
-      "Advisors spend less time preparing reports",
-      "A professional, trustworthy digital experience",
-      "Client data kept secure and organised",
+      "A credible, professional first impression for prospective clients",
+      "Visitors who understand the firm's services quickly",
+      "More enquiries through clear contact routes",
+      "A solid foundation for search visibility",
     ],
     useCases: [
       "Investment and wealth management firms",
       "Financial advisors and distributors",
       "Capital and lending businesses",
-      "Firms modernising client reporting",
+      "Finance brands refreshing an outdated website",
     ],
-    stack: ["Web application", "Charting and data visualization", "Secure REST API", "Relational database", "Role-based access"],
+    stack: ["Responsive web design", "Content management", "SEO metadata", "Performance optimization", "Cross-browser testing"],
     faqs: [
-      { q: "Can clients log in to see their own information?", a: "Yes — clients get secure access to their own data only." },
-      { q: "Is the data secure?", a: "Yes — connections are encrypted, access is role-based and sensitive actions are logged." },
-      { q: "Can reports be branded with our firm's identity?", a: "Yes — dashboards and reports can carry your branding." },
+      { q: "Is the site designed for mobile users?", a: "Yes, every page is optimized for phones as well as desktops." },
+      { q: "Can the service information be updated easily?", a: "Yes, service pages are structured so content can be updated without rebuilding the site." },
+      { q: "Can you build a similar website for our firm?", a: "Yes, we tailor the design, content structure and SEO to your brand and the clients you want to reach." },
     ],
   },
   {
@@ -612,9 +613,9 @@ export const products: Product[] = [
     ],
     stack: ["Responsive web design", "Content management", "SEO metadata", "Performance optimization", "Accessibility best practices"],
     faqs: [
-      { q: "Is the site designed for mobile users?", a: "Yes — every page is optimized for phones as well as desktops." },
-      { q: "Can the service information be updated easily?", a: "Yes — service pages are structured so content can be updated without rebuilding the site." },
-      { q: "Can you build a similar platform for another market?", a: "Yes — we tailor branding, content structure and SEO to the market you are targeting." },
+      { q: "Is the site designed for mobile users?", a: "Yes, every page is optimized for phones as well as desktops." },
+      { q: "Can the service information be updated easily?", a: "Yes, service pages are structured so content can be updated without rebuilding the site." },
+      { q: "Can you build a similar platform for another market?", a: "Yes, we tailor branding, content structure and SEO to the market you are targeting." },
     ],
   },
   {
@@ -653,8 +654,8 @@ export const products: Product[] = [
     stack: ["Landing page builder", "Form handling", "Email automation", "Analytics and tracking", "CRM integration"],
     faqs: [
       { q: "What does 'done for you' include?", a: "We plan, design and build the landing pages, forms, follow-up journey and tracking, then hand you a working funnel." },
-      { q: "Can it connect to our CRM?", a: "Yes — captured leads can be sent to your CRM or email platform." },
-      { q: "Can you improve the funnel after launch?", a: "Yes — tracking shows where visitors drop off, and pages and calls to action can be refined over time." },
+      { q: "Can it connect to our CRM?", a: "Yes, captured leads can be sent to your CRM or email platform." },
+      { q: "Can you improve the funnel after launch?", a: "Yes, tracking shows where visitors drop off, and pages and calls to action can be refined over time." },
     ],
   },
   {
@@ -692,9 +693,9 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "Video and file hosting", "Assessment engine", "Relational database", "Role-based access"],
     faqs: [
-      { q: "Can learners use it on their phones?", a: "Yes — the platform works in mobile browsers so learners can study anywhere." },
-      { q: "Are quizzes graded automatically?", a: "Yes — objective questions are graded instantly, and results are recorded against each learner." },
-      { q: "Can we issue our own branded certificates?", a: "Yes — certificates carry your branding and are issued when a learner completes a course." },
+      { q: "Can learners use it on their phones?", a: "Yes, the platform works in mobile browsers so learners can study anywhere." },
+      { q: "Are quizzes graded automatically?", a: "Yes, objective questions are graded instantly, and results are recorded against each learner." },
+      { q: "Can we issue our own branded certificates?", a: "Yes, certificates carry your branding and are issued when a learner completes a course." },
     ],
   },
   {
@@ -732,9 +733,9 @@ export const products: Product[] = [
     ],
     stack: ["Web application", "REST API", "Relational database", "Role-based access", "Cloud hosting"],
     faqs: [
-      { q: "Is the software built for our processes?", a: "Yes — it is custom software, designed around how your operations work." },
-      { q: "Can access be restricted by role?", a: "Yes — every user is given a role that controls what they can see and change." },
-      { q: "Can new features be added later?", a: "Yes — the architecture is built so new modules and workflows can be added as needs grow." },
+      { q: "Is the software built for our processes?", a: "Yes, it is custom software, designed around how your operations work." },
+      { q: "Can access be restricted by role?", a: "Yes, every user is given a role that controls what they can see and change." },
+      { q: "Can new features be added later?", a: "Yes, the architecture is built so new modules and workflows can be added as needs grow." },
     ],
   },
 ];
@@ -776,7 +777,7 @@ export const caseStudies: CaseStudy[] = [
     sector: "FinTech",
     title: "Loan origination rebuilt from spreadsheet to disbursal",
     problem:
-      "A 30-person lending team ran applications on Excel and WhatsApp — slow, error-prone and impossible to audit.",
+      "A 30-person lending team ran applications on Excel and WhatsApp, slow, error-prone and impossible to audit.",
     result:
       "We delivered Dream Loans: a unified origination, KYC and disbursal platform with a live operations dashboard.",
     metrics: [
@@ -794,11 +795,11 @@ export const caseStudies: CaseStudy[] = [
       "Migrated 18 months of historical applications so the team started with continuity, not a blank system.",
     ],
     industryContext:
-      "Indian NBFC lending runs under RBI's digital-lending guidelines: every KYC pull, credit decision and disbursal has to be traceable, and every deviation from policy approved on record. Teams that run on spreadsheets pass audits by reconstruction — slow, expensive and fragile — and lose files the moment two officers edit the same sheet.",
+      "Indian NBFC lending runs under RBI's digital-lending guidelines: every KYC pull, credit decision and disbursal has to be traceable, and every deviation from policy approved on record. Teams that run on spreadsheets pass audits by reconstruction, slow, expensive and fragile, and lose files the moment two officers edit the same sheet.",
     challenges: [
       "Applications logged in Excel with no version history; two officers regularly overwrote each other's status updates",
       "KYC documents shared over WhatsApp, so audit preparation meant scrolling through months of chat threads",
-      "Credit decisions taken from memory of the policy, not a configured rule set — inconsistent across officers",
+      "Credit decisions taken from memory of the policy, not a configured rule set, inconsistent across officers",
       "Disbursal and repayment schedules kept in a second spreadsheet that never reconciled with the first",
     ],
     solution:
@@ -819,7 +820,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     integrations: ["CIBIL bureau API", "Aadhaar e-KYC", "PAN verification", "Razorpay", "SMS gateway", "Tally"],
     testimonial: {
-      quote: "They shipped our loan platform in eight weeks. The code is ours, the documentation is real, and the team responds within hours — not days.",
+      quote: "They shipped our loan platform in eight weeks. The code is ours, the documentation is real, and the team responds within hours, not days.",
       name: "Anita Desai",
       role: "Founder, NBFC",
     },
@@ -851,7 +852,7 @@ export const caseStudies: CaseStudy[] = [
       "Quick-service restaurant margins live on stock accuracy and counter speed. With 200 outlets, a weekly manual stock count meant HQ always saw last week's truth, reorders were guesses, and any internet outage at a store froze billing in the middle of the lunch rush.",
     challenges: [
       "Stock counted by hand once a week per store; shrinkage and stock-outs were discovered days after they happened",
-      "Cloud POS that stopped billing whenever a store's broadband dropped — usually at peak hours",
+      "Cloud POS that stopped billing whenever a store's broadband dropped, usually at peak hours",
       "Reorder quantities decided by store managers on instinct, with no demand data behind them",
       "HQ reporting assembled from 200 emailed spreadsheets, three days after month-end",
     ],
@@ -867,13 +868,13 @@ export const caseStudies: CaseStudy[] = [
     ],
     results: [
       "Stock-out time per store fell 40% within the first quarter of full rollout.",
-      "Month-end reporting moved from three days of spreadsheet consolidation to a same-day dashboard — three times faster.",
+      "Month-end reporting moved from three days of spreadsheet consolidation to a same-day dashboard, three times faster.",
       "All 200 stores were onboarded in 14 weeks, region by region, with no store losing a day of billing.",
       "Reorder quantities are now data-driven, cutting emergency purchases and reducing wastage on perishables.",
     ],
     integrations: ["Thermal receipt printers", "Barcode scanners", "UPI & card terminals", "Tally", "WhatsApp Business API"],
     testimonial: {
-      quote: "Store managers stopped calling HQ about stock. The dashboard answers before they ask — and billing hasn't stopped once since we switched.",
+      quote: "Store managers stopped calling HQ about stock. The dashboard answers before they ask, and billing hasn't stopped once since we switched.",
       name: "Vikram Rao",
       role: "Head of Operations, QSR chain",
     },
@@ -899,7 +900,7 @@ export const caseStudies: CaseStudy[] = [
       "Designed a SIM-routing layer that logs every call to a central server without per-seat telephony rentals.",
       "Added call recording, live disposition capture and a CRM sync the sales team already used.",
       "Shipped a live analytics dashboard so managers could coach from real call data.",
-      "ROI was visible in the first month — the product became one of our own portfolio lines.",
+      "ROI was visible in the first month, the product became one of our own portfolio lines.",
     ],
     industryContext:
       "Outbound B2B sales in India runs on phone calls, and cloud telephony vendors charge per seat per month for the privilege of tracking them. For a growing sales floor that rental becomes the single largest line after salaries, while managers still cannot hear the calls that matter.",
@@ -910,7 +911,7 @@ export const caseStudies: CaseStudy[] = [
       "Switching numbers on onboarding meant reps lost the customer relationships attached to their existing SIMs",
     ],
     solution:
-      "We built TeleValley: an Android app that routes and logs calls through each rep's own SIM, records them with consent, captures live disposition and syncs to the CRM the team already used. A Django backend stores call metadata and recordings, and a manager dashboard surfaces call volume, talk time, outcomes and recordings for coaching — with no per-seat telephony rental.",
+      "We built TeleValley: an Android app that routes and logs calls through each rep's own SIM, records them with consent, captures live disposition and syncs to the CRM the team already used. A Django backend stores call metadata and recordings, and a manager dashboard surfaces call volume, talk time, outcomes and recordings for coaching, with no per-seat telephony rental.",
     modules: [
       { title: "SIM-based call routing", desc: "Calls placed and received on the rep's own number, logged automatically to the central server." },
       { title: "Call recording & storage", desc: "Consent-aware recording, encrypted storage, retention rules and role-based playback." },
@@ -938,7 +939,7 @@ export const caseStudies: CaseStudy[] = [
     sector: "Real Estate",
     title: "Lead-to-closure CRM for a multi-city developer",
     problem:
-      "Site visits, broker leads and follow-ups lived in spreadsheets — 40% of enquiries were never contacted a second time.",
+      "Site visits, broker leads and follow-ups lived in spreadsheets, 40% of enquiries were never contacted a second time.",
     result:
       "A custom broker CRM with lead scoring, site-visit scheduling and document workflows from enquiry to registration.",
     metrics: [
@@ -950,7 +951,7 @@ export const caseStudies: CaseStudy[] = [
     timeline: "6 weeks to MVP · 12 weeks to all-city rollout",
     team: "1 architect · 2 backend · 1 frontend · 1 QA",
     approach: [
-      "Mapped the full enquiry journey — broker walk-ins, digital leads and repeat visitors — into one pipeline.",
+      "Mapped the full enquiry journey, broker walk-ins, digital leads and repeat visitors, into one pipeline.",
       "Built automated follow-up cadences so no lead aged without a scheduled next action.",
       "Added site-visit scheduling with mobile check-in so managers saw conversion per project.",
       "Digitized agreement and document workflows so sales and legal worked off the same record.",
@@ -959,7 +960,7 @@ export const caseStudies: CaseStudy[] = [
       "Property sales is a follow-up business. Enquiries arrive from portals, hoardings, brokers and walk-ins, and a developer selling across several cities can lose almost half of them simply because nobody owns the second call. RERA disclosures and construction-linked payment plans add a document trail that has to be right.",
     challenges: [
       "Leads from 99acres, MagicBricks, the website and broker networks landed in five inboxes and three spreadsheets",
-      "40% of enquiries were never contacted a second time — there was no owner and no due date",
+      "40% of enquiries were never contacted a second time, there was no owner and no due date",
       "Site visits were booked over the phone and forgotten; conversion per project was unknown",
       "Agreements, demand letters and registration status moved between sales and legal on WhatsApp",
     ],
@@ -1005,12 +1006,12 @@ export const caseStudies: CaseStudy[] = [
     team: "5 people",
     approach: [
       "Integrated all three biometric device protocols into one attendance stream with automated exception reports.",
-      "Configured shift, overtime and leave rules as data — unit-wise, editable by HR without code changes.",
+      "Configured shift, overtime and leave rules as data, unit-wise, editable by HR without code changes.",
       "Ran one full parallel payroll, reconciled line by line, and trained HR on their own data before cutover.",
       "Delivered employee self-service (payslips, leave, reimbursements) on mobile, cutting HR walk-ups.",
     ],
     industryContext:
-      "Indian manufacturing payroll is a compliance exercise as much as an accounting one: Factories Act overtime rules, shift allowances, PF, ESI and professional tax across states — computed for hundreds of workers from attendance data that arrives from biometric devices, paper registers and WhatsApp groups. Month-end is where most HRMS implementations quietly fail.",
+      "Indian manufacturing payroll is a compliance exercise as much as an accounting one: Factories Act overtime rules, shift allowances, PF, ESI and professional tax across states, computed for hundreds of workers from attendance data that arrives from biometric devices, paper registers and WhatsApp groups. Month-end is where most HRMS implementations quietly fail.",
     challenges: [
       "Three factories ran three different biometric brands, and HR consolidated their logs by hand for two days every month",
       "Leave requests lived in a WhatsApp group; approvals were remembered, not recorded",
@@ -1060,7 +1061,7 @@ export const caseStudies: CaseStudy[] = [
     approach: [
       "Moved booking to a central system with per-branch calendars, dentist schedules and treatment-slot rules.",
       "Automated WhatsApp confirmations and T-24h/T-2h reminders with one-tap reschedule links.",
-      "Unified patient history — prescriptions, X-rays, treatment notes — across all nine branches.",
+      "Unified patient history, prescriptions, X-rays, treatment notes, across all nine branches.",
       "Gave each reception a live queue view with walk-in handling, keeping phone bookings as a fallback.",
     ],
     industryContext:
@@ -1100,9 +1101,9 @@ export const caseStudies: CaseStudy[] = [
     sector: "Retail / D2C",
     title: "Cutting COD returns by a third without touching revenue",
     problem:
-      "Cash on delivery drove 58% of orders — and 31% of them returned to origin. Blanket COD fees were being considered; the brand wanted the revenue without the risk.",
+      "Cash on delivery drove 58% of orders, and 31% of them returned to origin. Blanket COD fees were being considered; the brand wanted the revenue without the risk.",
     result:
-      "Risk-segmented checkout: WhatsApp order confirmation, pincode-level rules from their own courier history and prepaid nudges — RTO down by a third with conversion roughly flat.",
+      "Risk-segmented checkout: WhatsApp order confirmation, pincode-level rules from their own courier history and prepaid nudges, RTO down by a third with conversion roughly flat.",
     metrics: [
       { value: "31% → 21%", label: "COD RTO" },
       { value: "+8%", label: "Prepaid share" },
@@ -1112,16 +1113,16 @@ export const caseStudies: CaseStudy[] = [
     timeline: "8 weeks",
     team: "4 people",
     approach: [
-      "Built pincode risk scores from 18 months of the brand's own courier return data — not generic blacklists.",
+      "Built pincode risk scores from 18 months of the brand's own courier return data, not generic blacklists.",
       "Added WhatsApp order confirmation for COD orders with a two-hour response window before dispatch.",
       "Introduced prepaid nudges (small discount, UPI-first checkout) funded by the RTO savings.",
       "Built a returns dashboard the ops team actually uses: refusal flags, pincode trends and courier SLA tracking.",
     ],
     industryContext:
-      "Cash on delivery is a third of Indian e-commerce and most of its risk. COD orders convert far better than prepaid and return to origin far more often; every RTO costs two-way shipping, packaging and a week of working capital. The naive fixes — disabling COD or blanket fees — trade real revenue for a small reduction in risk.",
+      "Cash on delivery is a third of Indian e-commerce and most of its risk. COD orders convert far better than prepaid and return to origin far more often; every RTO costs two-way shipping, packaging and a week of working capital. The naive fixes, disabling COD or blanket fees, trade real revenue for a small reduction in risk.",
     challenges: [
       "58% of orders were COD and 31% of those returned to origin, absorbing most of the brand's logistics budget",
-      "No visibility into which pincodes, products or customers drove returns — decisions were made on anecdote",
+      "No visibility into which pincodes, products or customers drove returns, decisions were made on anecdote",
       "Orders shipped without confirmation, so refusals were discovered only when the courier gave up",
       "Prepaid checkout was clunky enough that customers defaulted to COD even when they intended to pay",
     ],
@@ -1143,7 +1144,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     integrations: ["Razorpay", "Shiprocket API", "WhatsApp Business API", "Meta & Google product feeds", "Google Analytics 4"],
     testimonial: {
-      quote: "We kept COD and cut returns by a third. The dashboard changed how our ops team talks about pincodes — it's numbers now, not gut feel.",
+      quote: "We kept COD and cut returns by a third. The dashboard changed how our ops team talks about pincodes, it's numbers now, not gut feel.",
       name: "Aisha Khan",
       role: "Co-founder, D2C apparel brand",
     },
@@ -1152,7 +1153,7 @@ export const caseStudies: CaseStudy[] = [
     slug: "school-lms-fees-automation",
     client: "K-12 school group, 4 campuses",
     sector: "Education",
-    title: "An LMS that parents actually open — and fees that reconcile themselves",
+    title: "An LMS that parents actually open: and fees that reconcile themselves",
     problem:
       "Three disconnected tools (one per campus), fee collection tracked in spreadsheets, and homework/announcements on WhatsApp groups parents muted.",
     result:
@@ -1169,7 +1170,7 @@ export const caseStudies: CaseStudy[] = [
       "Consolidated four campuses into one data model with per-campus branding, roles and calendars.",
       "Engineered for low-bandwidth parents: offline-first homework views and lightweight notifications.",
       "Automated fee schedules, receipts, reminders and reconciliation against the bank statement.",
-      "Trained teachers in small groups on their own classes — adoption was 100% within three weeks.",
+      "Trained teachers in small groups on their own classes, adoption was 100% within three weeks.",
     ],
     industryContext:
       "School groups accumulate tools the way they accumulate campuses: one LMS per acquisition, fees in spreadsheets, and homework on WhatsApp groups parents mute. Most parents are on mid-range Android phones with patchy 4G, so an app that assumes fibre and a laptop simply goes unopened.",
@@ -1197,7 +1198,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     integrations: ["Razorpay", "WhatsApp Business API", "Push notifications (FCM)", "Bank statement import", "Zoom / Google Meet"],
     testimonial: {
-      quote: "Parents open the app every day now — that never happened with our old tools. And fees reconcile themselves, which our accounts team still finds hard to believe.",
+      quote: "Parents open the app every day now, that never happened with our old tools. And fees reconcile themselves, which our accounts team still finds hard to believe.",
       name: "Meera Iyer",
       role: "Group Administrator, K-12 school group",
     },
@@ -1210,7 +1211,7 @@ export const caseStudies: CaseStudy[] = [
     problem:
       "Clients demanded temperature proof per trip. Drivers' phones lost signal on highway stretches; trip sheets were photographed and emailed, and disputes were settled by whoever's paperwork looked better.",
     result:
-      "An offline-first driver app that buffers GPS and temperature readings without signal, syncing on reconnect — with a client-facing portal showing live trips and immutable proof trails.",
+      "An offline-first driver app that buffers GPS and temperature readings without signal, syncing on reconnect, with a client-facing portal showing live trips and immutable proof trails.",
     metrics: [
       { value: "100%", label: "Trips with temp proof" },
       { value: "-70%", label: "Delivery disputes" },
@@ -1223,7 +1224,7 @@ export const caseStudies: CaseStudy[] = [
       "Built offline-first capture: GPS and temperature buffered locally, chunked uploads with idempotent sync.",
       "Integrated reefer temperature sensors so readings are machine-captured, not driver-reported.",
       "Shipped a client portal with live trip maps, ETA and downloadable per-trip compliance reports.",
-      "Added exception alerts — temperature excursions and route deviations reach ops in under a minute.",
+      "Added exception alerts, temperature excursions and route deviations reach ops in under a minute.",
     ],
     industryContext:
       "Cold-chain logistics sells proof, not just transport. Pharma and food clients demand a temperature record for every trip, but highway dead zones break phone-based tracking, and paper trip sheets photographed at delivery settle disputes in favour of whoever's paperwork looks better.",
@@ -1264,7 +1265,7 @@ export const caseStudies: CaseStudy[] = [
     problem:
       "Aggregator commissions took 28–30% of order value. The chain's own website converted poorly, and phone orders had no payment capture or order history.",
     result:
-      "A direct-ordering PWA plus POS integration across 22 outlets: WhatsApp reordering, UPI checkout, loyalty and kitchen tickets — direct orders now a third of revenue.",
+      "A direct-ordering PWA plus POS integration across 22 outlets: WhatsApp reordering, UPI checkout, loyalty and kitchen tickets, direct orders now a third of revenue.",
     metrics: [
       { value: "32% of revenue", label: "Direct orders (was 6%)" },
       { value: "₹0", label: "Commission on those orders" },
@@ -1274,13 +1275,13 @@ export const caseStudies: CaseStudy[] = [
     timeline: "12 weeks",
     team: "5 people",
     approach: [
-      "Built an install-free PWA with two-tap reordering from WhatsApp — no app-store friction for repeat customers.",
+      "Built an install-free PWA with two-tap reordering from WhatsApp, no app-store friction for repeat customers.",
       "Integrated directly with outlet POS/KOT printers so direct orders enter the same kitchen flow as walk-ins.",
       "Launched a points-based loyalty program redeemable across all outlets, with UPI-first checkout.",
       "Ran outlet-level rollout with QR table cards and staff incentives; each outlet went live in one day.",
     ],
     industryContext:
-      "Food aggregators take 25–30% of every order and own the customer relationship. A direct channel doesn't replace them, but every order that moves to it is margin and data the restaurant keeps — provided the ordering experience is faster than opening the aggregator app.",
+      "Food aggregators take 25–30% of every order and own the customer relationship. A direct channel doesn't replace them, but every order that moves to it is margin and data the restaurant keeps, provided the ordering experience is faster than opening the aggregator app.",
     challenges: [
       "Aggregator commissions consumed 28–30% of order value on the majority of delivery revenue",
       "The chain's own website converted poorly: slow on phones, no saved addresses, no repeat ordering",
@@ -1305,7 +1306,7 @@ export const caseStudies: CaseStudy[] = [
     ],
     integrations: ["Razorpay", "Existing POS / KOT printers", "WhatsApp Business API", "Google Maps", "GST invoicing"],
     testimonial: {
-      quote: "A third of our delivery revenue now comes in with no commission attached. Regulars reorder from WhatsApp in two taps — they don't even open the aggregator apps.",
+      quote: "A third of our delivery revenue now comes in with no commission attached. Regulars reorder from WhatsApp in two taps, they don't even open the aggregator apps.",
       name: "Farhan Sheikh",
       role: "Owner, QSR chain",
     },
@@ -1372,7 +1373,7 @@ export const caseStudies: CaseStudy[] = [
     problem:
       "A growing SaaS platform's cloud costs had doubled in a year. Nobody owned the bill: forgotten staging environments, oversized instances and cross-region chatter inflated it monthly.",
     result:
-      "A one-week cost audit plus structural fixes — right-sizing, lifecycle rules, transfer routing and budget alerts — recovering a third of spend, with monitoring and backup verification added immediately after.",
+      "A one-week cost audit plus structural fixes, right-sizing, lifecycle rules, transfer routing and budget alerts, recovering a third of spend, with monitoring and backup verification added immediately after.",
     metrics: [
       { value: "-34%", label: "Monthly cloud spend" },
       { value: "1 week", label: "Audit to fixes" },
@@ -1396,7 +1397,7 @@ export const caseStudies: CaseStudy[] = [
       "Backups existed but had never been restore-tested; monitoring was limited to a health-check ping",
     ],
     solution:
-      "We ran a one-week cost audit — inventorying every resource against an owner, checking 30-day utilisation and tracing data-transfer charges — then applied structural fixes: shut down orphaned environments, right-sized instances, storage lifecycle policies and rerouted cross-region service traffic. In the following weeks we codified the setup in Terraform, enforced tagging in CI, added budget alerts and built Grafana dashboards with on-call routing, and restore-tested every backup.",
+      "We ran a one-week cost audit, inventorying every resource against an owner, checking 30-day utilisation and tracing data-transfer charges, then applied structural fixes: shut down orphaned environments, right-sized instances, storage lifecycle policies and rerouted cross-region service traffic. In the following weeks we codified the setup in Terraform, enforced tagging in CI, added budget alerts and built Grafana dashboards with on-call routing, and restore-tested every backup.",
     modules: [
       { title: "Cost audit & inventory", desc: "Every resource mapped to an owner and purpose; orphaned assets flagged and retired." },
       { title: "Right-sizing & lifecycle", desc: "Instances resized to real utilisation; hot, cool and archive tiers applied to storage." },
@@ -1446,11 +1447,11 @@ export const industries: Industry[] = [
     slug: "fintech-lending",
     icon: "landmark",
     blurb:
-      "Loan origination, KYC, scoring and disbursal platforms built for Indian regulatory reality — audit-ready by design, not as an afterthought.",
+      "Loan origination, KYC, scoring and disbursal platforms built for Indian regulatory reality, audit-ready by design, not as an afterthought.",
     overview: [
-      "Indian lending runs on tight timelines and tighter scrutiny. We build origination, underwriting and servicing platforms that automate KYC and bureau pulls, enforce maker-checker controls on every money movement, and keep an immutable audit trail your auditor — and the regulator's — can walk end to end.",
+      "Indian lending runs on tight timelines and tighter scrutiny. We build origination, underwriting and servicing platforms that automate KYC and bureau pulls, enforce maker-checker controls on every money movement, and keep an immutable audit trail your auditor, and the regulator's, can walk end to end.",
       "Running on spreadsheets instead costs lenders at the worst moment: a file stuck in manual KYC for days loses the customer to a faster competitor, disbursal and collection data scattered across sheets means nobody can produce a clean NPA number on demand, and audit prep that takes weeks pulls the credit team off lending just to answer a sampling request.",
-      "We've shipped this exact discipline for an NBFC client — so co-applicants, deviation approvals, part-disbursals and NPA classification arrive already solved. A thin slice from application to decision is typically live in three weeks, and processing time falls by 65% once the pipeline replaces the spreadsheet.",
+      "We've shipped this exact discipline for an NBFC client, so co-applicants, deviation approvals, part-disbursals and NPA classification arrive already solved. A thin slice from application to decision is typically live in three weeks, and processing time falls by 65% once the pipeline replaces the spreadsheet.",
     ],
     challenges: [
       "Manual KYC and bureau checks stalling every file",
@@ -1473,9 +1474,9 @@ export const industries: Industry[] = [
       { title: "Customer app & servicing", desc: "Statements, payments, foreclosure requests and document downloads on the borrower's phone." },
     ],
     faqs: [
-      { q: "Can you build for RBI digital-lending guidelines?", a: "Yes — consent logging, disclosure screens, maker-checker on every money movement and immutable audit trails are architectural defaults in our lending builds, not add-ons." },
+      { q: "Can you build for RBI digital-lending guidelines?", a: "Yes, consent logging, disclosure screens, maker-checker on every money movement and immutable audit trails are architectural defaults in our lending builds, not add-ons." },
       { q: "Do you integrate with bureaus and KYC providers?", a: "CIBIL and Experian pulls, Aadhaar and PAN verification, e-sign and NACH mandates are standard integrations we have shipped in production." },
-      { q: "How long does an origination platform take?", a: "A thin slice — application to KYC to decision — is live by week three; a full origination-to-disbursal platform typically reaches production in 8–12 weeks." },
+      { q: "How long does an origination platform take?", a: "A thin slice, application to KYC to decision, is live by week three; a full origination-to-disbursal platform typically reaches production in 8–12 weeks." },
     ],
     proof: [
       { value: "65%", label: "Faster loan processing" },
@@ -1492,9 +1493,9 @@ export const industries: Industry[] = [
     slug: "healthcare",
     icon: "heartPulse",
     blurb:
-      "Clinic management, appointments, EMR and telemedicine platforms built around patient-data privacy — access-controlled, audit-logged and compliant with Indian data-protection expectations.",
+      "Clinic management, appointments, EMR and telemedicine platforms built around patient-data privacy, access-controlled, audit-logged and compliant with Indian data-protection expectations.",
     overview: [
-      "Clinical software fails when it fights the way doctors actually work. We build clinic management, EMR and telemedicine systems around real consultation workflows — fast to use between patients, access-controlled by role, and audit-logged so patient data stays private and provable.",
+      "Clinical software fails when it fights the way doctors actually work. We build clinic management, EMR and telemedicine systems around real consultation workflows, fast to use between patients, access-controlled by role, and audit-logged so patient data stays private and provable.",
       "The alternative costs clinics in idle chairs and exposed data: a third of appointments go unattended when there's no reminder chain, a patient's history at one branch is invisible at another so every consultation restarts from zero, and records kept in paper files and WhatsApp photos are exactly what a DPDP audit or a privacy complaint finds first.",
       "We go live with the appointment queue and EMR first, because that's the path staff touch every hour, then bring labs, pharmacy, billing and telemedicine onto the same patient record. Clinics typically see no-shows fall by a third within the first quarter, with every record view and edit logged from day one.",
     ],
@@ -1518,9 +1519,9 @@ export const industries: Industry[] = [
       { title: "Pharmacy, billing & TPA", desc: "Stock-linked billing, insurance workflows and GST-compliant invoicing." },
     ],
     faqs: [
-      { q: "How do you protect patient data?", a: "Role-scoped access, audit logs on every record view and edit, encryption at rest and in transit, and deployment on infrastructure you own — privacy is architectural, not a policy page." },
+      { q: "How do you protect patient data?", a: "Role-scoped access, audit logs on every record view and edit, encryption at rest and in transit, and deployment on infrastructure you own, privacy is architectural, not a policy page." },
       { q: "Can you integrate with our lab analysers?", a: "Where analysers expose HL7 or vendor interfaces we integrate directly; otherwise a fast worklist screen keeps results digital end to end." },
-      { q: "Do you support multiple branches?", a: "Yes — shared patient records with per-branch calendars, queues and reporting; doctors can see history from any branch with permission." },
+      { q: "Do you support multiple branches?", a: "Yes, shared patient records with per-branch calendars, queues and reporting; doctors can see history from any branch with permission." },
     ],
     proof: [
       { value: "35%", label: "Fewer no-shows" },
@@ -1537,11 +1538,11 @@ export const industries: Industry[] = [
     slug: "retail-ecommerce",
     icon: "shoppingBag",
     blurb:
-      "POS, inventory and storefronts that keep stock and sales in one accountable system — offline-first terminals, automated reorder thresholds and HQ-level visibility across every store.",
+      "POS, inventory and storefronts that keep stock and sales in one accountable system, offline-first terminals, automated reorder thresholds and HQ-level visibility across every store.",
     overview: [
-      "Retail margins live and die on stock accuracy. We build POS, inventory and storefront systems where every counter, warehouse and channel reads from one ledger — offline-first billing that survives outages, automated reorder thresholds and HQ dashboards that surface shrinkage before month-end does.",
+      "Retail margins live and die on stock accuracy. We build POS, inventory and storefront systems where every counter, warehouse and channel reads from one ledger, offline-first billing that survives outages, automated reorder thresholds and HQ dashboards that surface shrinkage before month-end does.",
       "Running counters and channels as separate systems bleeds margin quietly: a cloud-only POS that stops billing the moment the internet drops turns an evening rush into a queue of frustrated customers, stock counted by hand weekly means shrinkage is discovered days after it happened, and orders reconciled manually across marketplace, POS and website is how a stock-out looks like healthy inventory on paper.",
-      "Our terminals keep billing, printing and decrementing stock locally through any outage and sync the moment the line returns — the only test that actually matters at the counter. A 200-store rollout cut stock-out time by 40% and moved month-end reporting from three days of spreadsheets to a same-day dashboard.",
+      "Our terminals keep billing, printing and decrementing stock locally through any outage and sync the moment the line returns, the only test that actually matters at the counter. A 200-store rollout cut stock-out time by 40% and moved month-end reporting from three days of spreadsheets to a same-day dashboard.",
     ],
     challenges: [
       "Stock counts differing between store, godown and online",
@@ -1563,9 +1564,9 @@ export const industries: Industry[] = [
       { title: "Marketplace & order sync", desc: "Amazon, Flipkart and website orders reconciled into one order-management system." },
     ],
     faqs: [
-      { q: "What happens to billing when the internet drops?", a: "Nothing — our POS terminals bill, print and decrement stock locally, then sync with conflict-safe reconciliation when the line returns." },
-      { q: "Can you cut our COD returns?", a: "Yes — confirmation workflows, pincode risk rules from your own courier history and prepaid nudges typically reduce RTO by a third without hurting conversion." },
-      { q: "Do you work with our existing hardware?", a: "Usually — standard Windows and Android terminals, thermal printers, scanners and weighing scales are supported, so most counters need nothing new." },
+      { q: "What happens to billing when the internet drops?", a: "Nothing, our POS terminals bill, print and decrement stock locally, then sync with conflict-safe reconciliation when the line returns." },
+      { q: "Can you cut our COD returns?", a: "Yes, confirmation workflows, pincode risk rules from your own courier history and prepaid nudges typically reduce RTO by a third without hurting conversion." },
+      { q: "Do you work with our existing hardware?", a: "Usually, standard Windows and Android terminals, thermal printers, scanners and weighing scales are supported, so most counters need nothing new." },
     ],
     proof: [
       { value: "40%", label: "Less stock-out time" },
@@ -1582,10 +1583,10 @@ export const industries: Industry[] = [
     slug: "real-estate",
     icon: "building",
     blurb:
-      "Listing, lead and CRM platforms that move a property from enquiry to closure — lead scoring, site-visit scheduling and document workflows in one pipeline.",
+      "Listing, lead and CRM platforms that move a property from enquiry to closure, lead scoring, site-visit scheduling and document workflows in one pipeline.",
     overview: [
       "Property sales is a follow-up game, and most CRMs lose the thread after enquiry #3. We build lead-to-closure platforms that score and route every enquiry, schedule site visits that actually happen, and keep agreement-to-registration documents moving through checkpoints nobody can skip.",
-      "Four enquiries in ten never get a second call when nobody owns the lead — and each one cost real marketing rupees to generate from a portal or a hoarding. Site visits booked over the phone and forgotten mean the buyer who does turn up meets nobody, and broker commissions reconciled from memory every month sour the exact channel that brings the leads in.",
+      "Four enquiries in ten never get a second call when nobody owns the lead, and each one cost real marketing rupees to generate from a portal or a hoarding. Site visits booked over the phone and forgotten mean the buyer who does turn up meets nobody, and broker commissions reconciled from memory every month sour the exact channel that brings the leads in.",
       "Our rule is simple: no lead exists without a next action and a due date, enforced by the system rather than a manager's memory. A multi-city developer saw 2.1× more site visits and zero dropped leads within weeks of rolling the pipeline out to real leads.",
     ],
     challenges: [
@@ -1607,9 +1608,9 @@ export const industries: Industry[] = [
       { title: "Project websites & virtual tours", desc: "SEO-ready project sites with lead capture, 3D walkthroughs and RERA disclosures." },
     ],
     faqs: [
-      { q: "Do you pull leads from 99acres and MagicBricks automatically?", a: "Yes — portal leads arrive via API or email parsing, deduplicated and scored, so your team works one list instead of six dashboards." },
-      { q: "Can brokers see their own leads?", a: "Yes — a channel-partner portal shows submission status, visit outcomes and commissions, which keeps partners engaged and honest." },
-      { q: "Do you handle RERA and construction-linked payments?", a: "Yes — RERA-aligned disclosures, milestone-based demand generation and Tally sync are standard in our real-estate builds." },
+      { q: "Do you pull leads from 99acres and MagicBricks automatically?", a: "Yes, portal leads arrive via API or email parsing, deduplicated and scored, so your team works one list instead of six dashboards." },
+      { q: "Can brokers see their own leads?", a: "Yes, a channel-partner portal shows submission status, visit outcomes and commissions, which keeps partners engaged and honest." },
+      { q: "Do you handle RERA and construction-linked payments?", a: "Yes, RERA-aligned disclosures, milestone-based demand generation and Tally sync are standard in our real-estate builds." },
     ],
     proof: [
       { value: "2.1×", label: "More site visits" },
@@ -1626,16 +1627,16 @@ export const industries: Industry[] = [
     slug: "manufacturing",
     icon: "factory",
     blurb:
-      "Production tracking, inventory and ERP modules that replace shop-floor paperwork — machine-wise output, BOM-level traceability and quality gates your supervisors actually use.",
+      "Production tracking, inventory and ERP modules that replace shop-floor paperwork, machine-wise output, BOM-level traceability and quality gates your supervisors actually use.",
     overview: [
-      "Shop floors generate the truth; most systems never capture it. We build production, HRMS and maintenance systems that record machine output, shift attendance and quality checks at the source — so planning runs on live numbers, payroll closes in days, and every rework has a reason code.",
+      "Shop floors generate the truth; most systems never capture it. We build production, HRMS and maintenance systems that record machine output, shift attendance and quality checks at the source, so planning runs on live numbers, payroll closes in days, and every rework has a reason code.",
       "Re-keying paper into spreadsheets is where the truth gets lost: a stock number that disagrees between the register and the godown is discovered at the annual count, payroll that closes late every month because three biometric brands never talk to each other costs HR two days a cycle, and a quality escape with no reason code repeats itself because nobody can trace where it started.",
       "We integrate every device protocol into one attendance stream and turn shift, overtime and credit rules into configuration your team edits directly. A three-factory rollout cut the payroll cycle from two days to one with zero errors across the first six live runs.",
     ],
     challenges: [
       "Production data re-keyed from paper into spreadsheets",
       "Payroll and shift compliance closing late every month",
-      "Maintenance reactive — breakdowns schedule the day",
+      "Maintenance reactive, breakdowns schedule the day",
       "Quality escapes that trace back to nothing",
     ],
     compliance: [
@@ -1652,9 +1653,9 @@ export const industries: Industry[] = [
       { title: "Quality & maintenance", desc: "Inspection checklists, quality gates and preventive-maintenance schedules supervisors actually use." },
     ],
     faqs: [
-      { q: "Can the ERP work alongside Tally?", a: "Yes — operations run in the ERP and vouchers sync to Tally for statutory books, or we migrate you off Tally entirely. Your CA's workflow decides." },
-      { q: "Do you integrate biometric devices and machines?", a: "Yes — we have integrated multiple biometric protocols and machine counters into single data streams, with exception reports for gaps." },
-      { q: "How do you roll out without stopping production?", a: "Unit by unit, with a parallel run on real data and role-wise training on the floor before cutover — the same approach that closed a three-factory payroll in one day." },
+      { q: "Can the ERP work alongside Tally?", a: "Yes, operations run in the ERP and vouchers sync to Tally for statutory books, or we migrate you off Tally entirely. Your CA's workflow decides." },
+      { q: "Do you integrate biometric devices and machines?", a: "Yes, we have integrated multiple biometric protocols and machine counters into single data streams, with exception reports for gaps." },
+      { q: "How do you roll out without stopping production?", a: "Unit by unit, with a parallel run on real data and role-wise training on the floor before cutover, the same approach that closed a three-factory payroll in one day." },
     ],
     proof: [
       { value: "30%", label: "Less machine downtime" },
@@ -1671,9 +1672,9 @@ export const industries: Industry[] = [
     slug: "logistics",
     icon: "truck",
     blurb:
-      "Fleet, route and dispatch systems with live tracking and proof-of-delivery — one dashboard for fleet owners, drivers and the customers waiting on their consignments.",
+      "Fleet, route and dispatch systems with live tracking and proof-of-delivery, one dashboard for fleet owners, drivers and the customers waiting on their consignments.",
     overview: [
-      "Cold chain and last-mile run on proof, not promises. We build fleet-tracking and delivery platforms with GPS telematics, temperature probes and geofenced proof-of-delivery — every trip carries an evidence trail and every exception surfaces while the vehicle is still moving, not at invoice time.",
+      "Cold chain and last-mile run on proof, not promises. We build fleet-tracking and delivery platforms with GPS telematics, temperature probes and geofenced proof-of-delivery, every trip carries an evidence trail and every exception surfaces while the vehicle is still moving, not at invoice time.",
       "Running dispatch by phone call costs an operator on every trip: twenty 'where is my load' calls a day is a dispatcher who isn't dispatching, a proof of delivery photographed and emailed days later loses a detention dispute to whoever's paperwork looks better, and fuel, toll and expenses reconciled at month-end mean a losing route stays invisible until the damage is done.",
       "We build the driver app offline-first, because a dead zone is the first thing it has to survive, then layer in a dispatch workbench, customer tracking links and per-trip profitability on top. A cold-chain operator now tracks 98% on-time dispatch with fleet costs down 20%.",
     ],
@@ -1697,8 +1698,8 @@ export const industries: Industry[] = [
       { title: "Warehouse & trip profitability", desc: "Inbound, put-away and dispatch flows plus fuel, toll and expense capture per trip." },
     ],
     faqs: [
-      { q: "Do we need GPS devices in every vehicle?", a: "No — the driver app reports location on its own. GPS devices add precision where phones fail; we support both and mixed fleets." },
-      { q: "Can you capture temperature for cold chain?", a: "Yes — we integrate reefer sensors so readings are machine-captured, buffered offline and attached to each trip as an immutable proof trail." },
+      { q: "Do we need GPS devices in every vehicle?", a: "No, the driver app reports location on its own. GPS devices add precision where phones fail; we support both and mixed fleets." },
+      { q: "Can you capture temperature for cold chain?", a: "Yes, we integrate reefer sensors so readings are machine-captured, buffered offline and attached to each trip as an immutable proof trail." },
       { q: "How do customers track consignments?", a: "A shareable link shows live status and proof of delivery, with automatic alerts on exceptions. It usually removes most 'where is my load' calls." },
     ],
     proof: [
@@ -1716,10 +1717,10 @@ export const industries: Industry[] = [
     slug: "agriculture",
     icon: "wheat",
     blurb:
-      "Supply-chain and traceability platforms connecting farms, aggregators and buyers — batch-level tracking from field to fork, with price and demand signals for every node.",
+      "Supply-chain and traceability platforms connecting farms, aggregators and buyers, batch-level tracking from field to fork, with price and demand signals for every node.",
     overview: [
       "Agri value chains lose margin in the gaps between farmer, aggregator and buyer. We build procurement and traceability platforms that capture lots at the source, track quality and weight through every hand-off, and give both sides price and demand signals they can act on before the season decides for them.",
-      "Without that visibility, provenance disappears the moment produce leaves the field, procurement weights and grades get disputed at every scale because there's no shared record, and working-capital decisions get made blind to real demand — while scheme and subsidy reports are compiled by hand, quarter after quarter.",
+      "Without that visibility, provenance disappears the moment produce leaves the field, procurement weights and grades get disputed at every scale because there's no shared record, and working-capital decisions get made blind to real demand, while scheme and subsidy reports are compiled by hand, quarter after quarter.",
       "We design for the field first: offline-first capture on low-end Android so lots, weights and photos sync the moment signal returns, with vernacular UI that doesn't assume a smartphone expert on the other end. The result is batch-level traceability from farm gate to buyer and typically 20% less post-harvest loss.",
     ],
     challenges: [
@@ -1741,9 +1742,9 @@ export const industries: Industry[] = [
       { title: "Warehouse & cold-storage systems", desc: "Warehouse receipts, inventory by lot and quality, and dispatch scheduling." },
     ],
     faqs: [
-      { q: "Do your apps work in areas with poor connectivity?", a: "Yes — field capture is offline-first: lots, weights and photos are stored on the device and sync when signal returns, with no data lost." },
-      { q: "Can you support FSSAI and mandi record formats?", a: "Yes — batch traceability aligned to FSSAI needs, and export formats compatible with mandi records and eNAM data are built into our agri work." },
-      { q: "Can farmers with basic phones use the system?", a: "Yes — we design for mid-range Android with vernacular UI, large touch targets, and WhatsApp or SMS notifications for those who prefer them." },
+      { q: "Do your apps work in areas with poor connectivity?", a: "Yes, field capture is offline-first: lots, weights and photos are stored on the device and sync when signal returns, with no data lost." },
+      { q: "Can you support FSSAI and mandi record formats?", a: "Yes, batch traceability aligned to FSSAI needs, and export formats compatible with mandi records and eNAM data are built into our agri work." },
+      { q: "Can farmers with basic phones use the system?", a: "Yes, we design for mid-range Android with vernacular UI, large touch targets, and WhatsApp or SMS notifications for those who prefer them." },
     ],
     proof: [
       { value: "100%", label: "Batch traceability" },
@@ -1756,11 +1757,11 @@ export const industries: Industry[] = [
     slug: "construction",
     icon: "hardHat",
     blurb:
-      "Project, site and procurement systems that keep contractors, BOQs and timelines accountable end to end — daily progress, material reconciliation and safety compliance in one place.",
+      "Project, site and procurement systems that keep contractors, BOQs and timelines accountable end to end, daily progress, material reconciliation and safety compliance in one place.",
     overview: [
-      "Construction overrun is booked quietly — in extra site days, unreconciled material and labour claims that surface at closure. We build project and site systems where daily progress, material issue and safety check-ins are captured on the site itself, and BOQ versus actual is visible while there's still time to act.",
+      "Construction overrun is booked quietly, in extra site days, unreconciled material and labour claims that surface at closure. We build project and site systems where daily progress, material issue and safety check-ins are captured on the site itself, and BOQ versus actual is visible while there's still time to act.",
       "Progress reported by phone and verified never is how a two-week delay becomes a two-month one before anyone raises a flag, material pilferage stays invisible until the stock audit finds a gap nobody can explain, and client billing held up by missing measurement records means cash flow suffers for work that's already been done.",
-      "Site engineers capture progress, material issue and safety checklists from a phone app that works offline and syncs later — no laptop required on site. BOQ-versus-actual tracking surfaces overruns early, and measurement-book data flows straight into RA bills and GST works-contract invoices.",
+      "Site engineers capture progress, material issue and safety checklists from a phone app that works offline and syncs later, no laptop required on site. BOQ-versus-actual tracking surfaces overruns early, and measurement-book data flows straight into RA bills and GST works-contract invoices.",
     ],
     challenges: [
       "Progress reported by phone and verified never",
@@ -1782,9 +1783,9 @@ export const industries: Industry[] = [
       { title: "Client billing & measurement books", desc: "Measurement records, RA bills and GST works-contract invoicing from site data." },
     ],
     faqs: [
-      { q: "Can site engineers use it without a laptop?", a: "Yes — daily progress, material issue and safety check-ins are captured on a phone app that works offline on site and syncs later." },
-      { q: "Does it handle BOQ versus actual?", a: "Yes — BOQ quantities, indents, GRNs and consumption are tracked per site so overruns show while there is still time to act." },
-      { q: "Can it generate RA bills?", a: "Yes — measurement books and running-account bills are produced from recorded quantities, with GST works-contract invoicing." },
+      { q: "Can site engineers use it without a laptop?", a: "Yes, daily progress, material issue and safety check-ins are captured on a phone app that works offline on site and syncs later." },
+      { q: "Does it handle BOQ versus actual?", a: "Yes, BOQ quantities, indents, GRNs and consumption are tracked per site so overruns show while there is still time to act." },
+      { q: "Can it generate RA bills?", a: "Yes, measurement books and running-account bills are produced from recorded quantities, with GST works-contract invoicing." },
     ],
     proof: [
       { value: "20%", label: "Fewer delays" },
@@ -1797,11 +1798,11 @@ export const industries: Industry[] = [
     slug: "education-edtech",
     icon: "graduationCap",
     blurb:
-      "Learning management, admissions and institute-operations platforms built for low-bandwidth learners — attendance, fee workflows and online classrooms that work on the devices students actually own.",
+      "Learning management, admissions and institute-operations platforms built for low-bandwidth learners, attendance, fee workflows and online classrooms that work on the devices students actually own.",
     overview: [
       "Learning platforms fail when they assume bandwidth and attention students don't have. We build LMS, admissions and institute-operations systems that stream and download cleanly on low-end devices, automate the fee and attendance workflows offices drown in, and give parents a portal they open voluntarily.",
       "A video that buffers on a real 4G connection is a course a student quietly stops opening, fees reconciled across cash, UPI and bank statements by hand every term means defaulters are found weeks late, and report cards compiled per class in Excel cost teaching staff days that should have gone to students instead.",
-      "We build the daily-use path first — low-bandwidth video, offline-first attendance and homework, lightweight notifications — before layering in fees and admissions on top. A four-campus school group now sees daily parent-app engagement and collects 94% of fees on time.",
+      "We build the daily-use path first, low-bandwidth video, offline-first attendance and homework, lightweight notifications, before layering in fees and admissions on top. A four-campus school group now sees daily parent-app engagement and collects 94% of fees on time.",
     ],
     challenges: [
       "Fees reconciled across cash, UPI and bank statements by hand",
@@ -1822,9 +1823,9 @@ export const industries: Industry[] = [
       { title: "Parent & student apps", desc: "Attendance, homework, notices and results on the family's phone, offline-first." },
     ],
     faqs: [
-      { q: "Will video work for students on slow connections?", a: "Yes — adaptive bitrate streaming, 360p-first defaults and downloadable lessons, tested on real mid-range Android devices rather than office Wi-Fi." },
-      { q: "Can it run multiple campuses or centres?", a: "Yes — one data model with per-campus branding, calendars, fee structures and reporting, as we did for a four-campus school group." },
-      { q: "Does it handle instalment fees and reminders?", a: "Yes — instalment schedules, automated reminders, payment links and defaulter lists are a core module with automatic bank-statement reconciliation." },
+      { q: "Will video work for students on slow connections?", a: "Yes, adaptive bitrate streaming, 360p-first defaults and downloadable lessons, tested on real mid-range Android devices rather than office Wi-Fi." },
+      { q: "Can it run multiple campuses or centres?", a: "Yes, one data model with per-campus branding, calendars, fee structures and reporting, as we did for a four-campus school group." },
+      { q: "Does it handle instalment fees and reminders?", a: "Yes, instalment schedules, automated reminders, payment links and defaulter lists are a core module with automatic bank-statement reconciliation." },
     ],
     proof: [
       { value: "3×", label: "More course completions" },
@@ -1841,7 +1842,7 @@ export const industries: Industry[] = [
     slug: "travel-hospitality",
     icon: "plane",
     blurb:
-      "Booking engines, property management and guest-experience platforms — real-time availability, dynamic pricing and one dashboard for front desk, housekeeping and owners.",
+      "Booking engines, property management and guest-experience platforms, real-time availability, dynamic pricing and one dashboard for front desk, housekeeping and owners.",
     overview: [
       "Every empty room and idle slot is margin gone. We build booking engines, property-management and guest-experience platforms with real-time availability across counters and channels, dynamic pricing you control, and one dashboard where front desk, housekeeping and owners see the same truth.",
       "Availability that's out of sync between the OTA, the website and the front desk produces double bookings patched by apology and a refund, guest history trapped in a PMS nobody opens means a returning guest is treated like a stranger, and OTA commission reconciliation left to pile up at month-end quietly erodes a margin nobody's actually measuring.",
@@ -1866,9 +1867,9 @@ export const industries: Industry[] = [
       { title: "Guest experience apps", desc: "Pre-arrival check-in, WhatsApp concierge, feedback and loyalty for repeat guests." },
     ],
     faqs: [
-      { q: "Can you sync availability with OTAs?", a: "Yes — website, front desk and OTA channels read one availability ledger, so double bookings stop and commission reconciliation becomes a report." },
-      { q: "Do you build for sports venues and turfs too?", a: "Yes — a turf-booking platform we built runs 1,800 paid bookings a month across a venue network with dynamic peak pricing and WhatsApp reminders." },
-      { q: "Does it handle GST and C-Form requirements?", a: "Yes — room-tariff GST rules, invoice formats and foreign-guest reporting are built into our hospitality work." },
+      { q: "Can you sync availability with OTAs?", a: "Yes, website, front desk and OTA channels read one availability ledger, so double bookings stop and commission reconciliation becomes a report." },
+      { q: "Do you build for sports venues and turfs too?", a: "Yes, a turf-booking platform we built runs 1,800 paid bookings a month across a venue network with dynamic peak pricing and WhatsApp reminders." },
+      { q: "Does it handle GST and C-Form requirements?", a: "Yes, room-tariff GST rules, invoice formats and foreign-guest reporting are built into our hospitality work." },
     ],
     proof: [
       { value: "25%", label: "More direct bookings" },
@@ -1885,7 +1886,7 @@ export const industries: Industry[] = [
     slug: "media-entertainment",
     icon: "clapperboard",
     blurb:
-      "Streaming, publishing and creator platforms built for traffic spikes — CDN-backed video, subscription billing, content workflows and analytics that hold up on release day.",
+      "Streaming, publishing and creator platforms built for traffic spikes, CDN-backed video, subscription billing, content workflows and analytics that hold up on release day.",
     overview: [
       "Release day is a load test you get one shot at. We build streaming, publishing and creator platforms on CDN-backed delivery with adaptive bitrate, subscription billing that survives card failures gracefully, and content workflows that keep schedules honest as the catalogue grows.",
       "Playback that buffers exactly when traffic peaks is the moment a subscriber decides the service isn't worth it, a silently failed card renewal is churn nobody notices until the retention report runs, and rights and licensing tracked in spreadsheets means a royalty dispute takes days just to locate the paperwork for.",
@@ -1910,9 +1911,9 @@ export const industries: Industry[] = [
       { title: "Creator & audience platforms", desc: "Creator dashboards, engagement products around live events and audience analytics you can programme against." },
     ],
     faqs: [
-      { q: "Can the platform handle a release-day traffic spike?", a: "Yes — CDN-backed delivery, load-tested launches and autoscaling are standard, with a rollback plan in place before go-live." },
+      { q: "Can the platform handle a release-day traffic spike?", a: "Yes, CDN-backed delivery, load-tested launches and autoscaling are standard, with a rollback plan in place before go-live." },
       { q: "How do you reduce subscription churn?", a: "UPI autopay, retry logic on failed renewals, dunning messages on WhatsApp and clear plan management typically recover a large share of silent cancellations." },
-      { q: "Do you support DRM and content protection?", a: "Yes — DRM-protected playback, signed URLs and watermarking are available depending on the content's licensing requirements." },
+      { q: "Do you support DRM and content protection?", a: "Yes, DRM-protected playback, signed URLs and watermarking are available depending on the content's licensing requirements." },
     ],
     proof: [
       { value: "99.9%", label: "Uptime on peaks" },
@@ -1925,11 +1926,11 @@ export const industries: Industry[] = [
     slug: "energy-utilities",
     icon: "zap",
     blurb:
-      "Metering, billing and field-service platforms for distribution and solar operators — consumption analytics, outage tracking and consumer portals that cut billing disputes.",
+      "Metering, billing and field-service platforms for distribution and solar operators, consumption analytics, outage tracking and consumer portals that cut billing disputes.",
     overview: [
-      "Distribution losses hide in unmetered corners. We build metering, billing and field-service platforms that stream consumption readings, flag outage and tamper events in real time, and give consumers a portal that answers its own questions — so your call centre stops being the billing department.",
-      "Manual meter reading delays entire billing cycles, AT&C losses stay unmapped by feeder and consumer until the annual audit forces the question, and field crews dispatched without job context waste a truck roll on a job they arrive unprepared for — while every consumer dispute gets settled on paper-trail memory instead of shared data.",
-      "We ingest readings from smart meters or legacy sources via mobile capture, and give consumers the same consumption and tariff breakdown your team sees — most disputes end the moment both sides look at the same numbers. Utilities running this model report 18% lower AT&C losses and 30% fewer billing disputes.",
+      "Distribution losses hide in unmetered corners. We build metering, billing and field-service platforms that stream consumption readings, flag outage and tamper events in real time, and give consumers a portal that answers its own questions, so your call centre stops being the billing department.",
+      "Manual meter reading delays entire billing cycles, AT&C losses stay unmapped by feeder and consumer until the annual audit forces the question, and field crews dispatched without job context waste a truck roll on a job they arrive unprepared for, while every consumer dispute gets settled on paper-trail memory instead of shared data.",
+      "We ingest readings from smart meters or legacy sources via mobile capture, and give consumers the same consumption and tariff breakdown your team sees, most disputes end the moment both sides look at the same numbers. Utilities running this model report 18% lower AT&C losses and 30% fewer billing disputes.",
     ],
     challenges: [
       "Billing cycles delayed by manual meter reading",
@@ -1950,9 +1951,9 @@ export const industries: Industry[] = [
       { title: "Solar & renewable operations", desc: "Plant monitoring, generation reports and obligation reporting for solar operators." },
     ],
     faqs: [
-      { q: "Can you integrate with our existing meters?", a: "Yes — we work with DLMS and AMI meter data standards and can ingest legacy meter readings via mobile capture where smart meters are not yet deployed." },
-      { q: "How do consumer portals reduce disputes?", a: "By showing consumption history, tariff breakdown and payment records the consumer can verify — most disputes end when both sides see the same data." },
-      { q: "Do you handle regulatory reporting formats?", a: "Yes — tariff and billing formats, and renewable-purchase obligation reports, are mapped during scoping and generated from the same data." },
+      { q: "Can you integrate with our existing meters?", a: "Yes, we work with DLMS and AMI meter data standards and can ingest legacy meter readings via mobile capture where smart meters are not yet deployed." },
+      { q: "How do consumer portals reduce disputes?", a: "By showing consumption history, tariff breakdown and payment records the consumer can verify, most disputes end when both sides see the same data." },
+      { q: "Do you handle regulatory reporting formats?", a: "Yes, tariff and billing formats, and renewable-purchase obligation reports, are mapped during scoping and generated from the same data." },
     ],
     proof: [
       { value: "30%", label: "Fewer billing disputes" },
@@ -1965,9 +1966,9 @@ export const industries: Industry[] = [
     slug: "non-profit",
     icon: "heartHandshake",
     blurb:
-      "Donor, beneficiary and program-impact platforms that make every rupee traceable — donation flows, beneficiary registries and impact dashboards your funders can trust.",
+      "Donor, beneficiary and program-impact platforms that make every rupee traceable, donation flows, beneficiary registries and impact dashboards your funders can trust.",
     overview: [
-      "Funders fund what they can trace. We build donor, beneficiary and program platforms where every rupee maps to an activity, beneficiary registries dedupe across programs, and impact dashboards export in the exact format your next proposal — or your FCRA audit — asks for.",
+      "Funders fund what they can trace. We build donor, beneficiary and program platforms where every rupee maps to an activity, beneficiary registries dedupe across programs, and impact dashboards export in the exact format your next proposal, or your FCRA audit, asks for.",
       "Program data trapped in offline spreadsheets per field office means head office reports last quarter's reality at best, donation receipts and 80G records compiled by hand at year-end invite exactly the kind of error an FCRA audit flags, and beneficiary duplication across programs quietly overstates the reach a funder was promised.",
       "Field staff capture activities and beneficiary updates offline on mobile, synced the moment connectivity returns, so head office works from the same data the field just recorded. Fund traceability reaches 100%, and impact reporting that used to take weeks becomes a same-day export.",
     ],
@@ -1991,8 +1992,8 @@ export const industries: Industry[] = [
       { title: "Compliance reporting", desc: "FCRA, CSR-1 and fund-utilisation reports exported in the formats funders and auditors ask for." },
     ],
     faqs: [
-      { q: "Can field staff capture data offline?", a: "Yes — programme activities and beneficiary updates are captured on mobile offline and synced later, which is essential for rural field offices." },
-      { q: "Do you support 80G receipts and FCRA reporting?", a: "Yes — receipt generation, donor records and fund-utilisation trails are structured so FCRA and 80G reporting becomes an export rather than a reconstruction." },
+      { q: "Can field staff capture data offline?", a: "Yes, programme activities and beneficiary updates are captured on mobile offline and synced later, which is essential for rural field offices." },
+      { q: "Do you support 80G receipts and FCRA reporting?", a: "Yes, receipt generation, donor records and fund-utilisation trails are structured so FCRA and 80G reporting becomes an export rather than a reconstruction." },
       { q: "Is there NGO-friendly pricing?", a: "We scope non-profit work carefully to the essentials, and phase builds so the highest-value module lands first within the budget you have." },
     ],
     proof: [
@@ -2006,9 +2007,9 @@ export const industries: Industry[] = [
     slug: "professional-services",
     icon: "briefcase",
     blurb:
-      "Practice management for CA firms, law offices and consultancies — engagement tracking, document vaults, billing and compliance calendars in one accountable system.",
+      "Practice management for CA firms, law offices and consultancies, engagement tracking, document vaults, billing and compliance calendars in one accountable system.",
     overview: [
-      "A practice sells time and judgment; both leak without a system. We build practice-management platforms for CA, law and consulting firms — engagement and deadline tracking, document vaults with version control, and time-and-billing that captures work where it happens instead of reconstructing it at invoice time.",
+      "A practice sells time and judgment; both leak without a system. We build practice-management platforms for CA, law and consulting firms, engagement and deadline tracking, document vaults with version control, and time-and-billing that captures work where it happens instead of reconstructing it at invoice time.",
       "Billable time reconstructed from calendar memory at month-end is billable time quietly under-invoiced, deadlines tracked per partner rather than per firm mean a missed statutory date is discovered by the client instead of the practice, and client documents scattered across email and personal drives are a confidentiality incident waiting to happen.",
       "Compliance calendars generate due dates per client and engagement type automatically, with ownership and completion evidence recorded as work happens rather than reconstructed later. Practices running this system report realisation rates they can see in real time and roughly 15 hours saved per week that used to go to admin.",
     ],
@@ -2031,9 +2032,9 @@ export const industries: Industry[] = [
       { title: "Compliance calendars", desc: "Statutory due dates per client with reminders, ownership and completion evidence." },
     ],
     faqs: [
-      { q: "Can it track statutory deadlines across all clients?", a: "Yes — compliance calendars generate due dates per client and engagement type, assign owners and record completion evidence for the firm." },
-      { q: "Do you handle confidentiality and conflict checks?", a: "Yes — role-scoped access, matter-level permissions and conflict-check workflows are built in for law and audit practices." },
-      { q: "Can clients access their own documents?", a: "Yes — a client portal shares approved documents, invoices and status updates, which reduces email traffic and phone calls." },
+      { q: "Can it track statutory deadlines across all clients?", a: "Yes, compliance calendars generate due dates per client and engagement type, assign owners and record completion evidence for the firm." },
+      { q: "Do you handle confidentiality and conflict checks?", a: "Yes, role-scoped access, matter-level permissions and conflict-check workflows are built in for law and audit practices." },
+      { q: "Can clients access their own documents?", a: "Yes, a client portal shares approved documents, invoices and status updates, which reduces email traffic and phone calls." },
     ],
     proof: [
       { value: "15 hrs", label: "Saved per week" },
@@ -2059,7 +2060,7 @@ export const engagementModels = [
   },
   {
     name: "Monthly retainer",
-    desc: "A set number of hours each month for new features, fixes and support — predictable spend, flexible priorities.",
+    desc: "A set number of hours each month for new features, fixes and support, predictable spend, flexible priorities.",
     best: "Maintain & grow",
     bullets: ["Predictable monthly cost", "Flexible priorities", "Bug fixes included", "Priority response SLA"],
   },
@@ -2089,7 +2090,7 @@ export const testimonials: Testimonial[] = [
   },
   {
     quote:
-      "They shipped our loan platform in eight weeks. The code is ours, the documentation is real, and the team responds within hours — not days.",
+      "They shipped our loan platform in eight weeks. The code is ours, the documentation is real, and the team responds within hours, not days.",
     name: "Anita Desai",
     title: "Founder",
     company: "NBFC, Mumbai",
@@ -2130,8 +2131,8 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-07-18",
     body: [
-      "Most SMEs we meet bought a CRM when they actually needed an ERP, or an ERP when their real bottleneck was sales follow-up. The confusion is understandable — both store customer data, both have dashboards, and vendors happily sell either as the answer to everything.",
-      "A simple rule: if your pain is losing deals in the pipeline, you need a CRM. If your pain is not knowing what stock, cash or orders you have across the business, you need an ERP. If the answer is both, you need them integrated — not one bloated tool trying to do both badly.",
+      "Most SMEs we meet bought a CRM when they actually needed an ERP, or an ERP when their real bottleneck was sales follow-up. The confusion is understandable, both store customer data, both have dashboards, and vendors happily sell either as the answer to everything.",
+      "A simple rule: if your pain is losing deals in the pipeline, you need a CRM. If your pain is not knowing what stock, cash or orders you have across the business, you need an ERP. If the answer is both, you need them integrated, not one bloated tool trying to do both badly.",
       "Start from the bottleneck, not the brand. List the three most frequent operational mistakes you make in a month. If two of three are about sales follow-up, start with a CRM. If two of three are about inventory, accounting or order accuracy, start with an ERP.",
       "Finally, budget for adoption, not just licensing. The cheapest software is the one your team actually uses. A ₹50,000 system everyone logs into beats a ₹5,00,000 system no one touches.",
     ],
@@ -2139,16 +2140,16 @@ export const insights: Insight[] = [
   {
     slug: "excel-to-production-8-weeks",
     category: "Engineering",
-    title: "From Excel to a production system in 8 weeks — how we do it",
+    title: "From Excel to a production system in 8 weeks: how we do it",
     excerpt:
       "Our thin-slice approach: ship real software in week three, not slides. A look at the process behind Dream Loans.",
     readTime: "5 min read",
     date: "2026-05-14",
     body: [
       "The most common failure mode we see in custom software is the six-month build with a big-bang launch that misses the mark. By the time anyone sees working software, the requirements have drifted and the budget is gone.",
-      "Our answer is the thin slice: in week three we ship one end-to-end flow — for Dream Loans, that was application to KYC to decision. It's not the whole product, but it's real software running against a real database, not a slide deck.",
+      "Our answer is the thin slice: in week three we ship one end-to-end flow, for Dream Loans, that was application to KYC to decision. It's not the whole product, but it's real software running against a real database, not a slide deck.",
       "This works because working software settles arguments. Stakeholders who disagree on requirements instantly agree once they can click through the actual flow. The feedback loop collapses from months to a weekly demo.",
-      "From there we build outward in two-week sprints, demoing every week. By week eight the core system is in production, and the remaining weeks are about hardening, integrations and scale — not discovering what to build.",
+      "From there we build outward in two-week sprints, demoing every week. By week eight the core system is in production, and the remaining weeks are about hardening, integrations and scale, not discovering what to build.",
     ],
   },
   {
@@ -2156,14 +2157,14 @@ export const insights: Insight[] = [
     category: "Buyer's guide",
     title: "What does custom software cost in India in 2026? An honest breakdown",
     excerpt:
-      "Why quotes range from ₹2 lakh to ₹2 crore for 'the same app' — and how to know which band your project actually falls in.",
+      "Why quotes range from ₹2 lakh to ₹2 crore for 'the same app'and how to know which band your project actually falls in.",
     readTime: "7 min read",
     date: "2026-08-20",
     body: [
-      "Ask five vendors what a custom CRM costs and you'll get five answers between ₹2 lakh and ₹2 crore. Everyone is quoting honestly — they're just quoting different things. The price is driven by three variables: how many distinct user roles need different screens, how many external systems must be integrated, and how much of the workflow is genuinely custom versus standard.",
-      "A useful rule of thumb: a single-workflow tool with one admin role and no integrations lives in the ₹2–6 lakh band. A departmental system — say a CRM with Tally sync and role-based access — typically lands in ₹8–20 lakh. A multi-department ERP or a customer-facing platform with payments, mobile apps and audit requirements starts around ₹25 lakh and scales with integrations, not with screens.",
-      "The most expensive line item is almost never the coding — it's the ambiguity. Every 'we'll figure it out later' is a change request waiting to happen. That's why we push for a written scope and a thin-slice prototype before full build: the prototype prices out the unknowns while they're still cheap to change.",
-      "Beware the per-developer-month quote without a scope behind it. 4 engineers × 6 months tells you nothing about what you'll receive. Ask instead for the deliverable list at each milestone, who signs off, and what happens to the price when scope changes — in writing.",
+      "Ask five vendors what a custom CRM costs and you'll get five answers between ₹2 lakh and ₹2 crore. Everyone is quoting honestly, they're just quoting different things. The price is driven by three variables: how many distinct user roles need different screens, how many external systems must be integrated, and how much of the workflow is genuinely custom versus standard.",
+      "A useful rule of thumb: a single-workflow tool with one admin role and no integrations lives in the ₹2–6 lakh band. A departmental system, say a CRM with Tally sync and role-based access, typically lands in ₹8–20 lakh. A multi-department ERP or a customer-facing platform with payments, mobile apps and audit requirements starts around ₹25 lakh and scales with integrations, not with screens.",
+      "The most expensive line item is almost never the coding, it's the ambiguity. Every 'we'll figure it out later' is a change request waiting to happen. That's why we push for a written scope and a thin-slice prototype before full build: the prototype prices out the unknowns while they're still cheap to change.",
+      "Beware the per-developer-month quote without a scope behind it. 4 engineers × 6 months tells you nothing about what you'll receive. Ask instead for the deliverable list at each milestone, who signs off, and what happens to the price when scope changes, in writing.",
       "Finally, budget 15–20% of the build cost per year for hosting, maintenance and small improvements. Software is a living system; the cheapest project is the one that's still worth using in year three.",
     ],
   },
@@ -2172,15 +2173,15 @@ export const insights: Insight[] = [
     category: "Engineering",
     title: "Flutter vs React Native in 2026: what we actually choose and why",
     excerpt:
-      "Both frameworks are mature now. Here's the decision framework we use on real client projects — and when neither is the answer.",
+      "Both frameworks are mature now. Here's the decision framework we use on real client projects, and when neither is the answer.",
     readTime: "6 min read",
     date: "2026-08-05",
     body: [
-      "We ship both Flutter and React Native in production, so this isn't a fan war. The honest answer is that in 2026 the two are closer than ever — and the decision matters less than the team and the architecture around them. But there are still real differences that show up in specific projects.",
+      "We ship both Flutter and React Native in production, so this isn't a fan war. The honest answer is that in 2026 the two are closer than ever, and the decision matters less than the team and the architecture around them. But there are still real differences that show up in specific projects.",
       "Flutter wins when visual consistency and animation-heavy UI matter: custom-drawn interfaces, offline-first field apps with dense forms, or products that must look identical on Android and iOS. Its rendering engine doesn't lean on platform widgets, which is a strength for brand-heavy apps and occasionally a liability when you want a platform-native feel.",
-      "React Native wins when your team already knows React, when the app lives beside a large web codebase, or when you want native modules and hot updates with a mature JS ecosystem. For apps that are mostly lists, forms and API calls — which is most business software — the difference in day-to-day development is small.",
-      "Where neither is the answer: hardware-heavy apps (camera pipelines, BLE with strict timing, background processing) and apps that must squeeze every millisecond of launch time. There we go native — Kotlin or Swift — and accept two codebases as the price of doing it properly.",
-      "Our default for business apps in 2026: Flutter when the UI is custom and design-led, React Native when the team and surrounding ecosystem are React-shaped. Write down why you chose — because in three years, that reasoning matters more than the framework name.",
+      "React Native wins when your team already knows React, when the app lives beside a large web codebase, or when you want native modules and hot updates with a mature JS ecosystem. For apps that are mostly lists, forms and API calls, which is most business software, the difference in day-to-day development is small.",
+      "Where neither is the answer: hardware-heavy apps (camera pipelines, BLE with strict timing, background processing) and apps that must squeeze every millisecond of launch time. There we go native, Kotlin or Swift, and accept two codebases as the price of doing it properly.",
+      "Our default for business apps in 2026: Flutter when the UI is custom and design-led, React Native when the team and surrounding ecosystem are React-shaped. Write down why you chose, because in three years, that reasoning matters more than the framework name.",
     ],
   },
   {
@@ -2188,14 +2189,14 @@ export const insights: Insight[] = [
     category: "Buyer's guide",
     title: "Fixed-bid vs dedicated team: choosing the engagement model honestly",
     excerpt:
-      "Vendors push the model that suits their cash flow. Here's what each model is actually good for — and the hybrid we recommend most.",
+      "Vendors push the model that suits their cash flow. Here's what each model is actually good for, and the hybrid we recommend most.",
     readTime: "5 min read",
     date: "2026-07-02",
     body: [
-      "Fixed-bid and dedicated-team are both legitimate models — the trick is matching them to how well you know what you want. Fixed-bid works when the scope is genuinely defined: you can describe every screen, every rule and every integration in writing, and you're buying execution, not discovery.",
-      "The dedicated-team model works when the product is still being discovered: priorities shift monthly, the backlog is fed by user feedback, and what you're really buying is a team's capacity, not a feature list. Trying to run discovery work on a fixed bid produces either padded prices or change-request fights — usually both.",
+      "Fixed-bid and dedicated-team are both legitimate models, the trick is matching them to how well you know what you want. Fixed-bid works when the scope is genuinely defined: you can describe every screen, every rule and every integration in writing, and you're buying execution, not discovery.",
+      "The dedicated-team model works when the product is still being discovered: priorities shift monthly, the backlog is fed by user feedback, and what you're really buying is a team's capacity, not a feature list. Trying to run discovery work on a fixed bid produces either padded prices or change-request fights, usually both.",
       "The model we recommend most often is a hybrid: a fixed-bid phase one that delivers a thin slice to production, followed by a dedicated team working from a prioritized backlog. The fixed phase prices out the unknowns and proves the vendor can ship; the ongoing phase keeps incentives aligned with outcomes instead of change orders.",
-      "Whichever model you choose, insist on two things in the contract: you own all code and credentials from day one, and there's a stated response SLA. Those two clauses protect you in every model — their absence is the actual risk, not the billing structure.",
+      "Whichever model you choose, insist on two things in the contract: you own all code and credentials from day one, and there's a stated response SLA. Those two clauses protect you in every model, their absence is the actual risk, not the billing structure.",
     ],
   },
   {
@@ -2203,12 +2204,12 @@ export const insights: Insight[] = [
     category: "Engineering",
     title: "A cloud-migration checklist for SMEs (that doesn't require downtime)",
     excerpt:
-      "The 12 things we check before moving any SME workload to AWS or Azure — learned from migrations that went well and a few that didn't.",
+      "The 12 things we check before moving any SME workload to AWS or Azure, learned from migrations that went well and a few that didn't.",
     readTime: "6 min read",
     date: "2026-06-11",
     body: [
-      "Most cloud migrations fail in boring ways: nobody inventoried the cron jobs, the DNS TTL was a week long, or the database was bigger than anyone had measured. Before touching a single server, we produce three documents — a complete asset inventory, a dependency map, and a rollback plan. If any of the three can't be written, the migration isn't ready to start.",
-      "Inventory means everything: servers, cron jobs, scheduled tasks, that one PowerShell script on someone's desktop, and the SMTP credentials nobody remembers setting up. Dependencies matter more than assets — the app often survives a move, but the hard-coded internal IP in its config file doesn't.",
+      "Most cloud migrations fail in boring ways: nobody inventoried the cron jobs, the DNS TTL was a week long, or the database was bigger than anyone had measured. Before touching a single server, we produce three documents, a complete asset inventory, a dependency map, and a rollback plan. If any of the three can't be written, the migration isn't ready to start.",
+      "Inventory means everything: servers, cron jobs, scheduled tasks, that one PowerShell script on someone's desktop, and the SMTP credentials nobody remembers setting up. Dependencies matter more than assets, the app often survives a move, but the hard-coded internal IP in its config file doesn't.",
       "For the cutover itself, the pattern that works is parallel running: replicate data to the new environment, keep both in sync, switch traffic in small percentages with a DNS change whose TTL you lowered days earlier. Rollback is then a one-line DNS revert, not a restore-from-backup prayer.",
       "Post-migration is where the savings are won or lost. Right-size instances against real utilization after two weeks, set up budget alerts on day one, and turn on autoscaling only after you've watched real traffic patterns. A migration that ends at 'it works' usually leaves 30–40% of the cost savings on the table.",
     ],
@@ -2223,7 +2224,7 @@ export const insights: Insight[] = [
     date: "2026-05-28",
     body: [
       "SMEs often invest in SEO content while the site itself is quietly unrankable: client-rendered pages that search engines partially see, LCP above four seconds on mobile, and no structured data at all. Content published on that foundation underperforms no matter how good it is.",
-      "Three technical fixes come first. Server-side rendering or static generation so every page is fully visible to crawlers. Core Web Vitals in the green — LCP under 2.5 seconds on a mid-range Android, not on your office laptop. And structured data (Organization, Service, FAQ, Article schema) so search engines can understand what you actually offer.",
+      "Three technical fixes come first. Server-side rendering or static generation so every page is fully visible to crawlers. Core Web Vitals in the green, LCP under 2.5 seconds on a mid-range Android, not on your office laptop. And structured data (Organization, Service, FAQ, Article schema) so search engines can understand what you actually offer.",
       "After the foundation, the content strategy is simpler than most agencies make it: one page per service, one per industry you serve, and answers to the questions your sales team hears weekly. Each page targets a real search query, links to its neighbours, and has one clear next step.",
       "Then measure honestly: rankings are a vanity number until they produce enquiries. Track form submissions and calls per landing page per month. The pages that produce enquiries get improved; the pages that don't get rewritten or retired. That feedback loop is the entire SEO strategy.",
     ],
@@ -2237,11 +2238,11 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-04-16",
     body: [
-      "The instinct when a project is failing is to rewrite it from scratch. Sometimes that's right — but more often the rewrite takes longer than expected, loses business logic nobody documented, and lands in the same place eighteen months later. The rescue sequence we use starts with an audit, not a rebuild.",
-      "Week one: get the code, the database and every credential under your ownership. We've seen rescues stall for weeks because the old vendor held the deployment access. Ownership first, always — and it should have been yours from day one.",
+      "The instinct when a project is failing is to rewrite it from scratch. Sometimes that's right, but more often the rewrite takes longer than expected, loses business logic nobody documented, and lands in the same place eighteen months later. The rescue sequence we use starts with an audit, not a rebuild.",
+      "Week one: get the code, the database and every credential under your ownership. We've seen rescues stall for weeks because the old vendor held the deployment access. Ownership first, always, and it should have been yours from day one.",
       "Weeks two and three: a written audit. What the system actually does, which parts are load-bearing, where the tests are (usually: nowhere), and which three changes would stabilise it most. The output is a ranked list, not a 60-page report nobody reads.",
       "Then stabilise before you extend: automated backups you've actually restored, monitoring with alerts, a deploy process that doesn't require heroics, and regression tests on the flows that make you money. New features come only after the floor stops moving.",
-      "The rewrite question gets re-asked after stabilisation, with real information. Roughly a third of the time the answer is still yes — but now it's a planned rewrite with a migration path, not an escape from a fire. The other two-thirds of systems turn out to be worth keeping.",
+      "The rewrite question gets re-asked after stabilisation, with real information. Roughly a third of the time the answer is still yes, but now it's a planned rewrite with a migration path, not an escape from a fire. The other two-thirds of systems turn out to be worth keeping.",
     ],
   },
   {
@@ -2253,11 +2254,11 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-09-22",
     body: [
-      "A POS demo always looks perfect — the vendor's machine, their network, their happy path. The failures start on your shop floor: a billing rush when the internet drops, a return without the original bill, a weighing-scale item at the vegetable counter, and a cashier who discovers the discount button needs four taps.",
+      "A POS demo always looks perfect, the vendor's machine, their network, their happy path. The failures start on your shop floor: a billing rush when the internet drops, a return without the original bill, a weighing-scale item at the vegetable counter, and a cashier who discovers the discount button needs four taps.",
       "Ask the offline question first and make them prove it: pull the network cable during the demo. If billing stops, the system is cloud-dependent and your shop goes dark exactly when it's busiest. Offline-first terminals that sync on reconnect are the difference between an outage being a non-event and a revenue leak.",
-      "Second: how does it handle GST on mixed carts — HSN-wise items, tax slabs per category, and a printed or WhatsApp receipt your CA can reconcile? If the demo glosses over tax setup, month-end reconciliation will be your problem, not theirs.",
-      "Third, ask who owns the data and where it lives. Cloud POS that holds your sales history hostage at cancellation is more common than anyone admits. Fourth, check multi-store reality: live consolidation across branches with per-store stock and day-close reporting — not a nightly CSV export someone emails you.",
-      "Finally, count the taps. The staff at your counter will make 200+ bills a day at peak. Watch them use the vendor's system at demo speed, not leisurely showroom speed. The POS your team bypasses with paper bills is worse than no POS at all — it just costs more.",
+      "Second: how does it handle GST on mixed carts, HSN-wise items, tax slabs per category, and a printed or WhatsApp receipt your CA can reconcile? If the demo glosses over tax setup, month-end reconciliation will be your problem, not theirs.",
+      "Third, ask who owns the data and where it lives. Cloud POS that holds your sales history hostage at cancellation is more common than anyone admits. Fourth, check multi-store reality: live consolidation across branches with per-store stock and day-close reporting, not a nightly CSV export someone emails you.",
+      "Finally, count the taps. The staff at your counter will make 200+ bills a day at peak. Watch them use the vendor's system at demo speed, not leisurely showroom speed. The POS your team bypasses with paper bills is worse than no POS at all, it just costs more.",
     ],
   },
   {
@@ -2265,13 +2266,13 @@ export const insights: Insight[] = [
     category: "Buyer's guide",
     title: "HRMS in India: what actually breaks at month-end (and how to avoid it)",
     excerpt:
-      "Payroll is only as good as its attendance inputs. Where Indian HRMS implementations really fail — and the parallel-run test that catches it before go-live.",
+      "Payroll is only as good as its attendance inputs. Where Indian HRMS implementations really fail, and the parallel-run test that catches it before go-live.",
     readTime: "7 min read",
     date: "2026-09-18",
     body: [
-      "Every HRMS demos beautifully. The failure arrives at month-end, when attendance data from three biometric devices, a WhatsApp leave group and a manual shift roster has to become compliant payslips — with PF, ESI, professional tax and TDS computed correctly, for every state you employ in.",
-      "The root cause is almost always inputs, not the payroll engine. Attendance that needs manual consolidation, leave policies that live in someone's memory, and shift rules that vary by unit — these turn the payroll run into a two-day Excel reconciliation. Fix the inputs first: biometric and mobile capture integrated directly, leave and shift policies configured as rules, and reconciliation automated.",
-      "Insist on a parallel run before cutover: one full payroll computed in both your existing process and the new system, compared line by line. Any vendor unwilling to do this is asking you to trust their demo instead of your numbers. We run the parallel as standard — it's the fastest way to build (or lose) trust.",
+      "Every HRMS demos beautifully. The failure arrives at month-end, when attendance data from three biometric devices, a WhatsApp leave group and a manual shift roster has to become compliant payslips, with PF, ESI, professional tax and TDS computed correctly, for every state you employ in.",
+      "The root cause is almost always inputs, not the payroll engine. Attendance that needs manual consolidation, leave policies that live in someone's memory, and shift rules that vary by unit, these turn the payroll run into a two-day Excel reconciliation. Fix the inputs first: biometric and mobile capture integrated directly, leave and shift policies configured as rules, and reconciliation automated.",
+      "Insist on a parallel run before cutover: one full payroll computed in both your existing process and the new system, compared line by line. Any vendor unwilling to do this is asking you to trust their demo instead of your numbers. We run the parallel as standard, it's the fastest way to build (or lose) trust.",
       "Check the statutory layer against your actual filings: PT slabs per state of employment, LWF, gratuity and bonus act treatment, and whether registers and challans are generated ready-to-file or as screenshots you re-type. And budget for the employee side: self-service payslips, leave requests and reimbursements on their phones is what actually frees your HR team from data entry.",
     ],
   },
@@ -2280,14 +2281,14 @@ export const insights: Insight[] = [
     category: "Buyer's guide",
     title: "Custom CRM vs off-the-shelf: the decision framework (and the hybrid)",
     excerpt:
-      "Off-the-shelf wins on speed and price; custom wins on fit and ownership. The three tests that decide which side you're on — and the hybrid most SMEs should choose.",
+      "Off-the-shelf wins on speed and price; custom wins on fit and ownership. The three tests that decide which side you're on, and the hybrid most SMEs should choose.",
     readTime: "6 min read",
     date: "2026-09-15",
     body: [
       "Off-the-shelf CRMs are right when your sales process is close to the standard funnel: leads in, stages, follow-ups, close. If your team can adopt the tool's workflow without fighting it daily, the subscription is cheaper than any build and the integrations already exist.",
-      "The case for custom appears when your process is genuinely different: quotation-heavy industrial sales, broker and channel-partner networks, site-visit scheduling, or regulatory capture steps that no template anticipates. The test isn't 'do we want custom fields' — every CRM has those. It's: when our process and the tool disagree, who changes?",
-      "Run three tests before deciding. First, the adoption test: if your team won't follow the tool's process, no feature list saves it. Second, the integration test: does it connect to Tally, your WhatsApp, your portals — natively or with glue you'll maintain? Third, the ownership test: who holds your lead history if you leave?",
-      "The hybrid we recommend most often: start on the shelf, but only after mapping your process honestly. If within a quarter you're maintaining spreadsheets beside the CRM — the classic signal — the fit has failed, and a custom build starts from a process you now understand well. The expensive mistake is buying custom before you've documented the process, or fighting shelf software for two years out of sunk cost.",
+      "The case for custom appears when your process is genuinely different: quotation-heavy industrial sales, broker and channel-partner networks, site-visit scheduling, or regulatory capture steps that no template anticipates. The test isn't 'do we want custom fields'every CRM has those. It's: when our process and the tool disagree, who changes?",
+      "Run three tests before deciding. First, the adoption test: if your team won't follow the tool's process, no feature list saves it. Second, the integration test: does it connect to Tally, your WhatsApp, your portals, natively or with glue you'll maintain? Third, the ownership test: who holds your lead history if you leave?",
+      "The hybrid we recommend most often: start on the shelf, but only after mapping your process honestly. If within a quarter you're maintaining spreadsheets beside the CRM, the classic signal, the fit has failed, and a custom build starts from a process you now understand well. The expensive mistake is buying custom before you've documented the process, or fighting shelf software for two years out of sunk cost.",
     ],
   },
   {
@@ -2295,14 +2296,14 @@ export const insights: Insight[] = [
     category: "Growth",
     title: "Cutting COD RTO without killing your COD revenue",
     excerpt:
-      "Cash on delivery is a third of Indian e-commerce and most of its risk. The levers that reduce return-to-origin — and the one metric to watch instead of return rate.",
+      "Cash on delivery is a third of Indian e-commerce and most of its risk. The levers that reduce return-to-origin, and the one metric to watch instead of return rate.",
     readTime: "6 min read",
     date: "2026-09-12",
     body: [
-      "Every D2C founder learns the same arithmetic: COD orders convert 2–3× better than prepaid, and return to origin 2–3× more often. The naive responses — disabling COD or charging blanket COD fees — trade a real revenue stream for a small risk reduction. The better play is risk-segmentation.",
+      "Every D2C founder learns the same arithmetic: COD orders convert 2–3× better than prepaid, and return to origin 2–3× more often. The naive responses, disabling COD or charging blanket COD fees, trade a real revenue stream for a small risk reduction. The better play is risk-segmentation.",
       "The levers that actually move RTO: order confirmation before dispatch (a WhatsApp confirm beats a robocall), pincode-level risk rules learned from your own courier data, repeat-refuser flags with prepaid nudges, partial COD fees for high-risk pincodes only, and address validation at checkout. Each is small; stacked, they typically cut RTO by a third without touching conversion much.",
-      "Track net revenue per order, not return rate. A store with 25% RTO but strong confirmation discipline often nets more than a store with 15% RTO and depressed prepaid conversion. The metric tells you whether a lever is working — return rate alone just tells you the weather.",
-      "Finally, give customers a reason to prepay: UPI-first checkout makes prepaid painless, small prepaid discounts funded by saved RTO costs, and wallet cashback for repeat prepaid buyers. The goal isn't eliminating COD — it's shifting the margin distribution so COD orders you do accept are the profitable ones.",
+      "Track net revenue per order, not return rate. A store with 25% RTO but strong confirmation discipline often nets more than a store with 15% RTO and depressed prepaid conversion. The metric tells you whether a lever is working, return rate alone just tells you the weather.",
+      "Finally, give customers a reason to prepay: UPI-first checkout makes prepaid painless, small prepaid discounts funded by saved RTO costs, and wallet cashback for repeat prepaid buyers. The goal isn't eliminating COD, it's shifting the margin distribution so COD orders you do accept are the profitable ones.",
     ],
   },
   {
@@ -2310,13 +2311,13 @@ export const insights: Insight[] = [
     category: "Growth",
     title: "WhatsApp Business API: the ops channel Indian SMEs underuse",
     excerpt:
-      "Beyond marketing broadcasts: order capture, booking confirmations, payment links and support — what the API can legally do and how to wire it into real systems.",
+      "Beyond marketing broadcasts: order capture, booking confirmations, payment links and support, what the API can legally do and how to wire it into real systems.",
     readTime: "5 min read",
     date: "2026-09-08",
     body: [
-      "Most SMEs use WhatsApp as a document graveyard: order screenshots, address changes and payment confirmations living in a chat nobody can search. The WhatsApp Business API turns that same channel into structured data — inbound messages become leads and orders; outbound becomes confirmations, payment links and delivery updates.",
-      "The compliant pattern matters. Marketing broadcasts need opt-in and template approval; transactional messages (order confirmations, OTPs, receipts) have their own templates and are far easier to keep approved. Build the flow so that customer replies land in your CRM with source attribution — that's the structured-data win, not the broadcast blast.",
-      "The integrations that pay off first for most businesses: enquiry capture into the CRM, booking confirmations with reschedule links, COD order confirmations that cut RTO, payment links with payment-verified status, and delivery notifications with tracking. Each replaces a phone-call workflow — measurable in staff minutes and drop-off rates.",
+      "Most SMEs use WhatsApp as a document graveyard: order screenshots, address changes and payment confirmations living in a chat nobody can search. The WhatsApp Business API turns that same channel into structured data, inbound messages become leads and orders; outbound becomes confirmations, payment links and delivery updates.",
+      "The compliant pattern matters. Marketing broadcasts need opt-in and template approval; transactional messages (order confirmations, OTPs, receipts) have their own templates and are far easier to keep approved. Build the flow so that customer replies land in your CRM with source attribution, that's the structured-data win, not the broadcast blast.",
+      "The integrations that pay off first for most businesses: enquiry capture into the CRM, booking confirmations with reschedule links, COD order confirmations that cut RTO, payment links with payment-verified status, and delivery notifications with tracking. Each replaces a phone-call workflow, measurable in staff minutes and drop-off rates.",
     ],
   },
   {
@@ -2329,9 +2330,9 @@ export const insights: Insight[] = [
     date: "2026-09-05",
     body: [
       "India's Digital Personal Data Protection Act moved privacy from a policy page to an engineering requirement: consent that's specific and logged, purpose limitation, data minimisation, breach notification and deletion rights. For SMEs, the practical question is what these change in the codebase.",
-      "Six practices carry most of the weight. Consent captured per purpose with a timestamped log. Role-scoped access so employees see only the data their function needs. Audit logs on sensitive record views, not just edits. Encryption at rest and in transit as defaults. A deletion workflow that actually purges on request. And data inventory — you can't protect what no one has listed.",
-      "None of these require enterprise budgets; they require decisions made early. Retrofitting audit logging after a breach is archaeology; building it in is one middleware layer. The same is true for consent records — retrofitting consent is legally awkward; capturing it at intake is trivial.",
-      "Where we see SMEs exposed most: shared admin logins, exported Excel reports circulating on personal WhatsApp, and test environments loaded with production customer data. All three are cheap to fix and are exactly what an auditor (or a breach) will find first. Privacy architecture is cheaper than privacy incidents — always has been.",
+      "Six practices carry most of the weight. Consent captured per purpose with a timestamped log. Role-scoped access so employees see only the data their function needs. Audit logs on sensitive record views, not just edits. Encryption at rest and in transit as defaults. A deletion workflow that actually purges on request. And data inventory, you can't protect what no one has listed.",
+      "None of these require enterprise budgets; they require decisions made early. Retrofitting audit logging after a breach is archaeology; building it in is one middleware layer. The same is true for consent records, retrofitting consent is legally awkward; capturing it at intake is trivial.",
+      "Where we see SMEs exposed most: shared admin logins, exported Excel reports circulating on personal WhatsApp, and test environments loaded with production customer data. All three are cheap to fix and are exactly what an auditor (or a breach) will find first. Privacy architecture is cheaper than privacy incidents, always has been.",
     ],
   },
   {
@@ -2343,10 +2344,10 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-09-01",
     body: [
-      "An app that works on the office Wi-Fi and fails in the field isn't finished — it's untested. Field teams work in basements and highway dead zones, on mid-range Androids with 40% battery. Offline-first isn't a feature you add; it's the architecture you start with.",
-      "The pattern that works: a local database (SQLite/Hive/Drift) as the primary read and write surface, with a background sync layer that queues changes and reconciles when connectivity returns. Every write gets a client ID and timestamp; the server, not the client, resolves conflicts by rule — last-write-wins is only safe when you've decided which fields it's safe for.",
-      "Design the sync for partial failure: a day of offline work syncing over 2 bars of signal means chunked uploads, resumable transfers and idempotent operations — the same record syncing twice must not double-count. This is unglamorous engineering that determines whether field staff trust the app in month two.",
-      "Test like the field: airplane-mode mid-form, kill the app mid-sync, let a 4-hour queue drain on a 2G connection. If your demo can't survive those three, your delivery app is a demo. The teams that do this testing ship apps field staff actually use — the others get screenshots instead of data.",
+      "An app that works on the office Wi-Fi and fails in the field isn't finished, it's untested. Field teams work in basements and highway dead zones, on mid-range Androids with 40% battery. Offline-first isn't a feature you add; it's the architecture you start with.",
+      "The pattern that works: a local database (SQLite/Hive/Drift) as the primary read and write surface, with a background sync layer that queues changes and reconciles when connectivity returns. Every write gets a client ID and timestamp; the server, not the client, resolves conflicts by rule, last-write-wins is only safe when you've decided which fields it's safe for.",
+      "Design the sync for partial failure: a day of offline work syncing over 2 bars of signal means chunked uploads, resumable transfers and idempotent operations, the same record syncing twice must not double-count. This is unglamorous engineering that determines whether field staff trust the app in month two.",
+      "Test like the field: airplane-mode mid-form, kill the app mid-sync, let a 4-hour queue drain on a 2G connection. If your demo can't survive those three, your delivery app is a demo. The teams that do this testing ship apps field staff actually use, the others get screenshots instead of data.",
     ],
   },
   {
@@ -2358,9 +2359,9 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-08-28",
     body: [
-      "Integrations fail in boring, predictable ways: a webhook that never arrived, a payload field that changed shape, a rate limit hit during your busiest hour. The systems that survive treat every external call as if it will fail — because eventually it will.",
-      "Four patterns carry the load. Idempotency: attach a request ID so a retried payment or webhook can't double-charge or double-count. Retries with backoff and a dead-letter queue: failures get stored, not lost, and a human inspects them. Contract tests: when a vendor changes a payload, your test suite — not your customers — finds out. And reconciliation jobs that compare your records against the vendor's daily, catching silent drift.",
-      "Webhooks specifically deserve distrust: they're dropped, duplicated and delivered out of order. The robust pattern is treating webhooks as hints and pulling the authoritative state on receipt — a small API cost that eliminates a whole class of missing-event bugs.",
+      "Integrations fail in boring, predictable ways: a webhook that never arrived, a payload field that changed shape, a rate limit hit during your busiest hour. The systems that survive treat every external call as if it will fail, because eventually it will.",
+      "Four patterns carry the load. Idempotency: attach a request ID so a retried payment or webhook can't double-charge or double-count. Retries with backoff and a dead-letter queue: failures get stored, not lost, and a human inspects them. Contract tests: when a vendor changes a payload, your test suite, not your customers, finds out. And reconciliation jobs that compare your records against the vendor's daily, catching silent drift.",
+      "Webhooks specifically deserve distrust: they're dropped, duplicated and delivered out of order. The robust pattern is treating webhooks as hints and pulling the authoritative state on receipt, a small API cost that eliminates a whole class of missing-event bugs.",
       "Finally, observability: every integration gets structured logs, a latency metric and an alert when its error rate moves. When Razorpay changes something at 11 a.m. on your biggest sale day, the difference between a two-minute fix and a two-day apology is whether your monitoring spoke first.",
     ],
   },
@@ -2369,14 +2370,14 @@ export const insights: Insight[] = [
     category: "Engineering",
     title: "Audit trails: the boring feature that wins enterprise deals",
     excerpt:
-      "Who changed what, when and why — the ledger most SMEs skip until a client, auditor or dispute demands it. How to build it without drowning in noise.",
+      "Who changed what, when and why, the ledger most SMEs skip until a client, auditor or dispute demands it. How to build it without drowning in noise.",
     readTime: "5 min read",
     date: "2026-08-24",
     body: [
-      "An SME wins its first enterprise contract and immediately meets the requirement nobody scoped: the client's procurement team wants to know who changed the price, when, and who approved it. Systems without audit trails answer that question with a shrug — and lose the deal.",
-      "A useful audit trail is three things, no more: who, what changed (before and after), and when — plus a reason field where approvals matter. Append-only, never editable, with the same retention as your business records. It sounds heavy; it's actually one table, one middleware layer and the discipline of writing events instead of mutating silently.",
-      "The design mistake is logging everything: every read, every hover, every list view. That's noise nobody reads and storage you pay for. Log state changes on entities that matter — orders, approvals, prices, permissions — and skip the noise. The test: if a dispute arrived tomorrow, could you answer 'what happened' from the log alone?",
-      "In regulated work — lending, healthcare, payroll — the trail is also your inspection armour: maker-checker approvals, immutable timestamps and exportable trails turn an audit from archaeology into a query. We build it into every business system we ship, because the enterprise deal you don't know you're pursuing yet is the one it wins.",
+      "An SME wins its first enterprise contract and immediately meets the requirement nobody scoped: the client's procurement team wants to know who changed the price, when, and who approved it. Systems without audit trails answer that question with a shrug, and lose the deal.",
+      "A useful audit trail is three things, no more: who, what changed (before and after), and when, plus a reason field where approvals matter. Append-only, never editable, with the same retention as your business records. It sounds heavy; it's actually one table, one middleware layer and the discipline of writing events instead of mutating silently.",
+      "The design mistake is logging everything: every read, every hover, every list view. That's noise nobody reads and storage you pay for. Log state changes on entities that matter, orders, approvals, prices, permissions, and skip the noise. The test: if a dispute arrived tomorrow, could you answer 'what happened' from the log alone?",
+      "In regulated work, lending, healthcare, payroll, the trail is also your inspection armour: maker-checker approvals, immutable timestamps and exportable trails turn an audit from archaeology into a query. We build it into every business system we ship, because the enterprise deal you don't know you're pursuing yet is the one it wins.",
     ],
   },
   {
@@ -2384,14 +2385,14 @@ export const insights: Insight[] = [
     category: "Engineering",
     title: "MongoDB or PostgreSQL in 2026: choose by access pattern, not fashion",
     excerpt:
-      "The database war ended years ago — both are excellent. What actually decides it: your query shapes, your consistency needs and your team's fluency.",
+      "The database war ended years ago, both are excellent. What actually decides it: your query shapes, your consistency needs and your team's fluency.",
     readTime: "6 min read",
     date: "2026-08-22",
     body: [
-      "Picking between MongoDB and PostgreSQL isn't a religion question anymore — both are mature, both scale, both have healthy ecosystems. The real question is narrower: what shape are your reads and writes, and who maintains this after launch?",
-      "PostgreSQL wins on relational truth: invoices that must balance, ledgers that must reconcile, joins across well-modelled entities, and the decade of tooling around it (migrations, analytics, extensions). If your domain has entities with invariants — most business software does — Postgres is the safe default.",
+      "Picking between MongoDB and PostgreSQL isn't a religion question anymore, both are mature, both scale, both have healthy ecosystems. The real question is narrower: what shape are your reads and writes, and who maintains this after launch?",
+      "PostgreSQL wins on relational truth: invoices that must balance, ledgers that must reconcile, joins across well-modelled entities, and the decade of tooling around it (migrations, analytics, extensions). If your domain has entities with invariants, most business software does, Postgres is the safe default.",
       "MongoDB wins when the data is genuinely document-shaped and schema-flexible: event logs, content with varying fields, ingest-heavy pipelines, or early-stage products whose data model is still being discovered. Aggregation pipelines cover most analytics; change streams cover most realtime needs.",
-      "The tiebreakers in practice: your team's fluency (a team that knows Postgres will build better on Postgres than on MongoDB they're learning under deadline), transactional needs across documents, and the operational tooling you'll rely on at 2 a.m. We use both in production — the choice is documented per project, because in year three the reasoning matters more than the name.",
+      "The tiebreakers in practice: your team's fluency (a team that knows Postgres will build better on Postgres than on MongoDB they're learning under deadline), transactional needs across documents, and the operational tooling you'll rely on at 2 a.m. We use both in production, the choice is documented per project, because in year three the reasoning matters more than the name.",
     ],
   },
   {
@@ -2403,10 +2404,10 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-08-19",
     body: [
-      "Most LMS platforms are built on campus fibre and tested on laptops. Indian learners are on mid-range Androids, intermittent 4G and monthly data caps — and they abandon platforms that don't respect those constraints, no matter how good the content is.",
-      "Three engineering decisions carry most of the outcome. Adaptive bitrate video with 360p-first defaults, because smooth beats sharp on a patchy connection. Downloadable lessons with resumable transfers, because a commute shouldn't cost a full re-download. And a UI that stays responsive on 2GB RAM devices — which in practice means lean bundles, cached lists and discipline over animation.",
+      "Most LMS platforms are built on campus fibre and tested on laptops. Indian learners are on mid-range Androids, intermittent 4G and monthly data caps, and they abandon platforms that don't respect those constraints, no matter how good the content is.",
+      "Three engineering decisions carry most of the outcome. Adaptive bitrate video with 360p-first defaults, because smooth beats sharp on a patchy connection. Downloadable lessons with resumable transfers, because a commute shouldn't cost a full re-download. And a UI that stays responsive on 2GB RAM devices, which in practice means lean bundles, cached lists and discipline over animation.",
       "The product decisions matter as much: WhatsApp-friendly notifications instead of email dependency, offline-first attendance and homework for teachers in low-connectivity schools, and assessments that tolerate a dropped connection mid-test without losing answers.",
-      "The proof is in completion rates: platforms engineered this way routinely see 2–3× course completion versus generic LMS deployments with identical content. The lesson generalises beyond education: in India, the low-end device is the median user, and designing for it is not charity — it's just correct engineering for the actual audience.",
+      "The proof is in completion rates: platforms engineered this way routinely see 2–3× course completion versus generic LMS deployments with identical content. The lesson generalises beyond education: in India, the low-end device is the median user, and designing for it is not charity, it's just correct engineering for the actual audience.",
     ],
   },
   {
@@ -2414,14 +2415,14 @@ export const insights: Insight[] = [
     category: "Engineering",
     title: "Technical debt for non-engineers: what it is and when it's actually fine",
     excerpt:
-      "Debt isn't dirt — it's borrowed speed. The kinds that compound, the kinds that never matter, and the conversation to have with your dev team about it.",
+      "Debt isn't dirt, it's borrowed speed. The kinds that compound, the kinds that never matter, and the conversation to have with your dev team about it.",
     readTime: "5 min read",
     date: "2026-08-14",
     body: [
-      "Every software decision trades speed now against ease later. Ship fast with shortcuts and you've borrowed time — that's technical debt. Debt isn't automatically bad: the loan that carried your product to its first paying customers was worth it. The trouble is debt nobody tracked.",
-      "Debt that compounds: missing tests on money flows, undocumented business logic that lives in one person's head, hand-configured servers nobody can reproduce, and copy-pasted modules that fix one bug in five places. These get more expensive every month, invisibly — until a launch or an audit surfaces the bill.",
+      "Every software decision trades speed now against ease later. Ship fast with shortcuts and you've borrowed time, that's technical debt. Debt isn't automatically bad: the loan that carried your product to its first paying customers was worth it. The trouble is debt nobody tracked.",
+      "Debt that compounds: missing tests on money flows, undocumented business logic that lives in one person's head, hand-configured servers nobody can reproduce, and copy-pasted modules that fix one bug in five places. These get more expensive every month, invisibly, until a launch or an audit surfaces the bill.",
       "Debt that never matters: the ugly naming in a module you'll delete, the slightly hacky one-off report, the 'temporary' script that's run twice a year for three years. Chasing perfection here is spending real money to feel tidy.",
-      "The conversation to have with your team is simple: which parts of the system make money, and what's their debt? For revenue-critical flows, schedule repayment deliberately — tests, docs, refactors as line items, not favours. For the rest, leave it alone. And when you inherit a codebase, an audit that separates the compounding debt from the cosmetic kind is the first £/₹ you should spend on it.",
+      "The conversation to have with your team is simple: which parts of the system make money, and what's their debt? For revenue-critical flows, schedule repayment deliberately, tests, docs, refactors as line items, not favours. For the rest, leave it alone. And when you inherit a codebase, an audit that separates the compounding debt from the cosmetic kind is the first £/₹ you should spend on it.",
     ],
   },
   {
@@ -2429,14 +2430,14 @@ export const insights: Insight[] = [
     category: "Engineering",
     title: "Your cloud bill doubled and nobody knows why: an SME cost-audit playbook",
     excerpt:
-      "The four places cloud money hides — forgotten environments, oversized instances, egress and logs — and the one-day audit that usually recovers 20–40%.",
+      "The four places cloud money hides, forgotten environments, oversized instances, egress and logs, and the one-day audit that usually recovers 20–40%.",
     readTime: "6 min read",
     date: "2026-08-11",
     body: [
       "Cloud bills grow the way unused gym memberships do: slowly, invisibly, and with excellent explanations available for every line item. The four usual suspects, in order of size: forgotten environments (the staging setup from a finished project), oversized instances provisioned for a traffic spike that never repeated, storage nobody lifecycle-managed, and data-transfer patterns that charge you for architecture decisions made years ago.",
-      "The audit takes a day. Inventory every resource against its owner and purpose — anything with neither gets flagged. Check instance utilisation over 30 days; anything under 20% average is a right-sizing candidate. Apply lifecycle rules to storage (hot → cool → archive). And trace your transfer charges: cross-region chatter between services is often the single biggest fixable line.",
-      "Then make the savings structural, not a one-time cleanup: budget alerts at 80% of plan, tagging enforced in CI so every resource is born owned, and a monthly cost review with one owner. Autoscaling comes last — after you've watched real traffic patterns, not before.",
-      "We run this audit as a standard first step on managed engagements, and it typically recovers 20–40% on overspend accounts. The savings fund the monitoring and backup work that actually keeps the system safe — which is the correct order of operations.",
+      "The audit takes a day. Inventory every resource against its owner and purpose, anything with neither gets flagged. Check instance utilisation over 30 days; anything under 20% average is a right-sizing candidate. Apply lifecycle rules to storage (hot → cool → archive). And trace your transfer charges: cross-region chatter between services is often the single biggest fixable line.",
+      "Then make the savings structural, not a one-time cleanup: budget alerts at 80% of plan, tagging enforced in CI so every resource is born owned, and a monthly cost review with one owner. Autoscaling comes last, after you've watched real traffic patterns, not before.",
+      "We run this audit as a standard first step on managed engagements, and it typically recovers 20–40% on overspend accounts. The savings fund the monitoring and backup work that actually keeps the system safe, which is the correct order of operations.",
     ],
   },
   {
@@ -2444,14 +2445,14 @@ export const insights: Insight[] = [
     category: "Process",
     title: "MVP scope slicing: how to cut a 6-month plan into a 6-week launch",
     excerpt:
-      "Every MVP plan contains one slice that proves the idea and ten that don't. The exercise that finds it — and what to do with everything you cut.",
+      "Every MVP plan contains one slice that proves the idea and ten that don't. The exercise that finds it, and what to do with everything you cut.",
     readTime: "5 min read",
     date: "2026-08-07",
     body: [
-      "Write down your six-month feature list. Now answer one question: which single feature, if it worked, would make a real user come back a second time? Not the admin panel. Not the settings page. The one loop that delivers the promise. That's your thin slice — and it's usually 15% of the plan.",
-      "The resistance to slicing is emotional, not technical: nobody wants to ship 'the product without the features'. But scope-cut MVPs have a track record — they reach users early, and users tell you which of the cut features actually mattered, in order, with their behaviour instead of their opinions.",
-      "The discipline that makes it work: every cut feature goes on a visible backlog with a one-line hypothesis of why it matters. When the data proves a cut feature matters, it comes back into a sprint with its priority earned, not assumed. Half the time it never comes back — which is the whole saving.",
-      "The second-order benefit is honesty: a thin slice in production by week three means the conversation about what to build next happens with real users and real data — which is a fundamentally better meeting than the one where six stakeholders argue about wireframes.",
+      "Write down your six-month feature list. Now answer one question: which single feature, if it worked, would make a real user come back a second time? Not the admin panel. Not the settings page. The one loop that delivers the promise. That's your thin slice, and it's usually 15% of the plan.",
+      "The resistance to slicing is emotional, not technical: nobody wants to ship 'the product without the features'. But scope-cut MVPs have a track record, they reach users early, and users tell you which of the cut features actually mattered, in order, with their behaviour instead of their opinions.",
+      "The discipline that makes it work: every cut feature goes on a visible backlog with a one-line hypothesis of why it matters. When the data proves a cut feature matters, it comes back into a sprint with its priority earned, not assumed. Half the time it never comes back, which is the whole saving.",
+      "The second-order benefit is honesty: a thin slice in production by week three means the conversation about what to build next happens with real users and real data, which is a fundamentally better meeting than the one where six stakeholders argue about wireframes.",
     ],
   },
   {
@@ -2464,8 +2465,8 @@ export const insights: Insight[] = [
     date: "2026-08-03",
     body: [
       "A demo every week changes the physics of a software project. Requirements arguments that would have consumed a week of email resolve in ten minutes once both sides can click the actual thing. Misunderstandings surface in week two instead of month four. And the client's confidence stops being an act of faith.",
-      "The demo also disciplines the vendor in ways status reports can't. You can't demo slides you already shipped; you can only demo software that actually runs. A team that demos weekly is structurally incapable of disappearing for two months — the rhythm makes silence impossible.",
-      "It's also the cheapest possible course-correction mechanism. Every change caught in a Friday demo costs hours; the same change caught at launch costs weeks and a change-request invoice. The demo isn't ceremony — it's the steering wheel.",
+      "The demo also disciplines the vendor in ways status reports can't. You can't demo slides you already shipped; you can only demo software that actually runs. A team that demos weekly is structurally incapable of disappearing for two months, the rhythm makes silence impossible.",
+      "It's also the cheapest possible course-correction mechanism. Every change caught in a Friday demo costs hours; the same change caught at launch costs weeks and a change-request invoice. The demo isn't ceremony, it's the steering wheel.",
       "The question to ask any vendor you're evaluating: 'Can you show me working software every week, and what happens in a week where there's nothing to show?' Vendors with real delivery discipline say yes easily. Vendors with waterfall habits will explain why demos don't suit agile. That answer tells you everything.",
     ],
   },
@@ -2474,14 +2475,14 @@ export const insights: Insight[] = [
     category: "FinTech",
     title: "Inside a lending platform's stack: what NBFC-grade software actually requires",
     excerpt:
-      "Bureau integrations, maker-checker controls, audit logs and NPA classification — the requirements that separate lending software from a pretty form.",
+      "Bureau integrations, maker-checker controls, audit logs and NPA classification, the requirements that separate lending software from a pretty form.",
     readTime: "7 min read",
     date: "2026-07-29",
     body: [
       "Lending software looks like forms. It isn't. The moment an NBFC signs up, the requirements multiply: bureau pulls with consent logs, KYC verification with document trails, configurable credit policies, maker-checker approvals, immutable audit logs, disbursal controls and repayment schedules that classify NPA automatically. Miss any of these and the platform fails at its first inspection, not its first demo.",
-      "The architectural decisions follow from the regulatory shape. Every state change gets an append-only log entry — user, time, before, after. Approval chains are configuration, not code, because credit policy changes quarterly. And the data model separates the application (what was true at decision time) from the customer (what is true now) — a distinction auditors probe and lazy schemas blur.",
-      "Integration depth is where most builds underestimate: CIBIL and Experian pulls, Aadhaar/PAN verification, e-sign, payment and NACH flows, SMS/WhatsApp customer communication — each with retries, reconciliation jobs and consent records. A lending MVP that ignores reconciliation is a demo with a database.",
-      "We know this stack intimately because we built and run our own lending product. That's the practical advantage we offer fintech clients: the edge cases — part disbursements, deviation approvals, foreclosure math, co-lending splits — are already solved, so your build starts at 'customise' rather than 'discover'.",
+      "The architectural decisions follow from the regulatory shape. Every state change gets an append-only log entry, user, time, before, after. Approval chains are configuration, not code, because credit policy changes quarterly. And the data model separates the application (what was true at decision time) from the customer (what is true now), a distinction auditors probe and lazy schemas blur.",
+      "Integration depth is where most builds underestimate: CIBIL and Experian pulls, Aadhaar/PAN verification, e-sign, payment and NACH flows, SMS/WhatsApp customer communication, each with retries, reconciliation jobs and consent records. A lending MVP that ignores reconciliation is a demo with a database.",
+      "We know this stack intimately because we built and run our own lending product. That's the practical advantage we offer fintech clients: the edge cases, part disbursements, deviation approvals, foreclosure math, co-lending splits, are already solved, so your build starts at 'customise' rather than 'discover'.",
     ],
   },
   {
@@ -2493,10 +2494,10 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-07-25",
     body: [
-      "The failed ERP follows a script: a big-bang go-live covering everything at once, master data migrated in a weekend, users trained in a two-hour session, and a floor that responds by keeping the spreadsheets running in parallel — unofficially, forever. The ERP becomes the system of record for nobody.",
-      "The rollout order that works is deliberately boring. Inventory and invoicing first — the daily-use path where value is immediate. Purchase and approvals second. Production or job-work third. Reports and dashboards once the data underneath them is clean enough to trust. Each stage stabilises before the next begins.",
-      "The non-negotiables: master data cleaned before migration (garbage in, garbage forever), a parallel-run window where old and new systems are compared line by line, and training delivered role-by-role on the company's real data — not a demo company's fake data.",
-      "One more thing buyers underweight: the floor supervisor's opinion is the adoption truth. If the people entering the data prefer the old way, no dashboard will save the project. Build with them in the room from scoping week — the software that survives is the one they helped design.",
+      "The failed ERP follows a script: a big-bang go-live covering everything at once, master data migrated in a weekend, users trained in a two-hour session, and a floor that responds by keeping the spreadsheets running in parallel, unofficially, forever. The ERP becomes the system of record for nobody.",
+      "The rollout order that works is deliberately boring. Inventory and invoicing first, the daily-use path where value is immediate. Purchase and approvals second. Production or job-work third. Reports and dashboards once the data underneath them is clean enough to trust. Each stage stabilises before the next begins.",
+      "The non-negotiables: master data cleaned before migration (garbage in, garbage forever), a parallel-run window where old and new systems are compared line by line, and training delivered role-by-role on the company's real data, not a demo company's fake data.",
+      "One more thing buyers underweight: the floor supervisor's opinion is the adoption truth. If the people entering the data prefer the old way, no dashboard will save the project. Build with them in the room from scoping week, the software that survives is the one they helped design.",
     ],
   },
   {
@@ -2504,14 +2505,14 @@ export const insights: Insight[] = [
     category: "Buyer's guide",
     title: "Hiring dedicated developers: the questions that separate vendors from body shops",
     excerpt:
-      "Everyone promises 'dedicated developers'. Six questions that reveal whether you're getting a verified engineer with backup — or a CV that visited the interview.",
+      "Everyone promises 'dedicated developers'. Six questions that reveal whether you're getting a verified engineer with backup, or a CV that visited the interview.",
     readTime: "6 min read",
     date: "2026-07-21",
     body: [
-      "'Dedicated developer' has become a pricing label, not a delivery guarantee. The difference between a vendor and a body shop shows up in six questions — ask all six, and listen for what they can't answer.",
-      "First: 'Can I see apps this engineer has shipped?' — live store links, not portfolios. Second: 'Who reviews their code?' — a named senior architect, or 'we have quality processes'. Third: 'What happens if they resign or underperform?' — a replace-in-days guarantee in writing, or a shrug.",
-      "Fourth: 'Who owns the repositories?' — your org from day one, or 'we'll discuss handover later'. Fifth: 'What's the notice period to scale or pause?' — a week is reasonable; six months is a lease. Sixth: 'What happens in week one?' — a documented onboarding with access, context and a first task, or 'they're great, you'll see'.",
-      "The pattern behind all six: vendors with an engineering culture can answer specifically because the mechanisms exist. Body shops answer generally because the mechanisms don't. And when the answers are specific, verify them — ask for the store link, the SLA clause, the replacement guarantee in the draft contract before you sign anything.",
+      "'Dedicated developer' has become a pricing label, not a delivery guarantee. The difference between a vendor and a body shop shows up in six questions, ask all six, and listen for what they can't answer.",
+      "First: 'Can I see apps this engineer has shipped?'live store links, not portfolios. Second: 'Who reviews their code?'a named senior architect, or 'we have quality processes'. Third: 'What happens if they resign or underperform?'a replace-in-days guarantee in writing, or a shrug.",
+      "Fourth: 'Who owns the repositories?'your org from day one, or 'we'll discuss handover later'. Fifth: 'What's the notice period to scale or pause?'a week is reasonable; six months is a lease. Sixth: 'What happens in week one?'a documented onboarding with access, context and a first task, or 'they're great, you'll see'.",
+      "The pattern behind all six: vendors with an engineering culture can answer specifically because the mechanisms exist. Body shops answer generally because the mechanisms don't. And when the answers are specific, verify them, ask for the store link, the SLA clause, the replacement guarantee in the draft contract before you sign anything.",
     ],
   },
   {
@@ -2523,10 +2524,10 @@ export const insights: Insight[] = [
     readTime: "6 min read",
     date: "2026-07-16",
     body: [
-      "The scary part of any migration isn't moving the data — it's that the business keeps operating while you do. The pattern that works is parallel running: replicate data to the new system, keep both in sync, and move traffic in small slices with a rollback that's one command, not a restore-from-backup prayer.",
+      "The scary part of any migration isn't moving the data, it's that the business keeps operating while you do. The pattern that works is parallel running: replicate data to the new system, keep both in sync, and move traffic in small slices with a rollback that's one command, not a restore-from-backup prayer.",
       "The setup matters more than the cutover. Dual writes (or a change-data-capture stream) keep both systems current; a reconciliation job compares records hourly and reports drift; and the DNS TTL gets lowered days before cutover so traffic shifts are minutes, not days. If any of these three can't be built, the migration isn't ready.",
-      "Cutover by slice: internal users first, then one region or one store, then the rest — with a checkpoint after each slice. Every slice has a defined rollback: flip the flag back, and the old system picks up exactly where it left off. Practice the rollback in staging until it's boring.",
-      "The last mile is the honest one: freeze a write window only for the final delta (usually minutes), reconcile one last time, and run both systems read-only in parallel for a week as insurance. Migrations fail from impatience far more often than from technology — the parallel run is how you buy the patience.",
+      "Cutover by slice: internal users first, then one region or one store, then the rest, with a checkpoint after each slice. Every slice has a defined rollback: flip the flag back, and the old system picks up exactly where it left off. Practice the rollback in staging until it's boring.",
+      "The last mile is the honest one: freeze a write window only for the final delta (usually minutes), reconcile one last time, and run both systems read-only in parallel for a week as insurance. Migrations fail from impatience far more often than from technology, the parallel run is how you buy the patience.",
     ],
   },
 ];
@@ -2534,7 +2535,7 @@ export const insights: Insight[] = [
 export const faqs = [
   {
     q: "Do we own the code?",
-    a: "Yes — from day one. All source code, documentation and credentials are handed over and belong to you. We work under a signed NDA and IP assignment before any work begins, and you retain access to your own repositories throughout.",
+    a: "Yes, from day one. All source code, documentation and credentials are handed over and belong to you. We work under a signed NDA and IP assignment before any work begins, and you retain access to your own repositories throughout.",
   },
   {
     q: "How much does a custom software project cost?",
@@ -2550,11 +2551,11 @@ export const faqs = [
   },
   {
     q: "Can you take over a project from another vendor?",
-    a: "Yes. We regularly inherit codebases — we start with a code audit and a written assessment, then propose a stabilization plan before any new feature work. You keep ownership throughout and can exit cleanly at any point.",
+    a: "Yes. We regularly inherit codebases, we start with a code audit and a written assessment, then propose a stabilization plan before any new feature work. You keep ownership throughout and can exit cleanly at any point.",
   },
   {
     q: "What technologies do you work with?",
-    a: "React, Next.js, Angular, Vue, Flutter, Kotlin, Node, Laravel, Django, Python, PHP, Java, MongoDB and PostgreSQL, deployed on AWS and Azure. We recommend the stack that fits your team and constraints — not the one we happen to prefer.",
+    a: "React, Next.js, Angular, Vue, Flutter, Kotlin, Node, Laravel, Django, Python, PHP, Java, MongoDB and PostgreSQL, deployed on AWS and Azure. We recommend the stack that fits your team and constraints, not the one we happen to prefer.",
   },
 ];
 
@@ -2605,25 +2606,25 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { title: "SEO is a build requirement", desc: "Server rendering, schema, sitemaps and Core Web Vitals are part of the definition of done, not a later audit." },
       { title: "Built for Indian users", desc: "Tested on mid-range Android over 4G, with UPI-first checkout and WhatsApp flows where they matter." },
       { title: "Design system included", desc: "Every build ships with a component library your team can extend without us." },
-      { title: "Current stack, current patterns", desc: "This site runs on the latest Next.js release line — the patterns we use are the ones we ship." },
+      { title: "Current stack, current patterns", desc: "This site runs on the latest Next.js release line, the patterns we use are the ones we ship." },
     ],
     overview: [
-      "Most business websites in India are built twice: once by an agency that ships a template, and again eighteen months later when the owner discovers it does not rank, loads in six seconds on a phone, and cannot be changed without calling the agency. Web apps follow the same script — a dashboard that worked for ten users falls over at two hundred, and nobody can explain why because nobody owns the code.",
+      "Most business websites in India are built twice: once by an agency that ships a template, and again eighteen months later when the owner discovers it does not rank, loads in six seconds on a phone, and cannot be changed without calling the agency. Web apps follow the same script, a dashboard that worked for ten users falls over at two hundred, and nobody can explain why because nobody owns the code.",
       "We approach web work as engineering, not decoration. Every build starts with the questions that decide whether it survives: who will maintain this, what traffic must it carry, which search queries must it win, and which systems must it talk to. From there we choose React, Next.js, Angular or Vue for reasons we write down, render on the server so search engines and slow phones both get fast pages, and ship a design system your own team can extend.",
       "What changes for you is control. Your marketing team edits content without a developer. Your sales team gets enquiries from pages that actually rank. Your operations team gets an admin that matches how work happens rather than a generic template. And when you want to change vendors, you hand the next team a documented codebase, not a hostage situation.",
       "Consider what the current site is costing you today, not what a new one would cost. Every second of load time on a mobile phone loses a measurable share of visitors before they read a word. Every service you offer without a page of its own is a search your competitor wins. Every content change routed through an agency ticket is a campaign that launches a week late. Add those up over a year and the 'cheap' website is usually the most expensive asset the business owns.",
     ],
     painPoints: [
       { title: "The site is invisible on Google", desc: "Client-rendered pages, no structured data and a four-second mobile load mean content published on the site never ranks, however good it is." },
-      { title: "Every change needs the agency", desc: "No CMS, no design system and no documentation — a heading change is a ticket, a wait and an invoice." },
+      { title: "Every change needs the agency", desc: "No CMS, no design system and no documentation, a heading change is a ticket, a wait and an invoice." },
       { title: "The web app buckles under real load", desc: "Unindexed queries, a shared hosting plan and no caching worked in the demo and fail at the first busy Monday." },
-      { title: "The storefront loses Indian shoppers", desc: "No UPI-first checkout, no COD confirmation, slow product pages on mid-range Android — the traffic arrives and leaves." },
+      { title: "The storefront loses Indian shoppers", desc: "No UPI-first checkout, no COD confirmation, slow product pages on mid-range Android, the traffic arrives and leaves." },
     ],
     useCases: [
-      { title: "Marketing sites that rank", desc: "Server-rendered, schema-marked, sub-2.5-second sites with a CMS your team runs — built to win the searches your sales team hears daily." },
+      { title: "Marketing sites that rank", desc: "Server-rendered, schema-marked, sub-2.5-second sites with a CMS your team runs, built to win the searches your sales team hears daily." },
       { title: "SaaS dashboards and portals", desc: "Role-based web apps with real-time data, audit trails and server components, engineered for the load you will have in year two." },
       { title: "E-commerce storefronts", desc: "Next.js storefronts with UPI-first checkout, COD confirmation, Shiprocket and Razorpay integration and RTO analytics." },
-      { title: "Legacy rebuilds and migrations", desc: "WordPress, CRA or PHP sites moved to a typed, fast codebase with SEO parity — redirects, schema and rankings carried over." },
+      { title: "Legacy rebuilds and migrations", desc: "WordPress, CRA or PHP sites moved to a typed, fast codebase with SEO parity, redirects, schema and rankings carried over." },
     ],
     outcomes: [
       "Largest Contentful Paint under 2.5 seconds on a mid-range Android over 4G, on every page",
@@ -2654,9 +2655,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Sites that must rank, storefronts and SaaS dashboards",
     longDescription:
-      "We build web apps that are fast, SEO-ready and scalable — from marketing sites to full SaaS platforms. Every project ships with code you own, semantic HTML, Core Web Vitals tuned for LCP under 2.5s, and a stack chosen to fit your team rather than ours.",
+      "We build web apps that are fast, SEO-ready and scalable, from marketing sites to full SaaS platforms. Every project ships with code you own, semantic HTML, Core Web Vitals tuned for LCP under 2.5s, and a stack chosen to fit your team rather than ours.",
     capabilities: [
-      { title: "Custom web applications", desc: "React, Next.js, Angular and Vue apps built around your real workflow — not a template." },
+      { title: "Custom web applications", desc: "React, Next.js, Angular and Vue apps built around your real workflow, not a template." },
       { title: "E-commerce", desc: "Storefronts, carts, payments and admin with inventory, tax and shipping that fit Indian operations." },
       { title: "Progressive web apps", desc: "Installable, offline-capable web apps that work like native on low-end Android devices." },
       { title: "Headless & API-first", desc: "Decoupled frontends against your existing APIs, CMS or backend so you can iterate independently." },
@@ -2675,7 +2676,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "Launch, handover and ongoing support with a 24-hour SLA",
     ],
     serviceFaqs: [
-      { q: "Do you build SEO-friendly sites?", a: "Yes — server-side rendering or static generation by default, semantic HTML, schema markup, sitemaps and tuned Core Web Vitals. We treat SEO as a build requirement, not an afterthought." },
+      { q: "Do you build SEO-friendly sites?", a: "Yes, server-side rendering or static generation by default, semantic HTML, schema markup, sitemaps and tuned Core Web Vitals. We treat SEO as a build requirement, not an afterthought." },
       { q: "Can you rebuild our existing site?", a: "Yes. We start with a code and content audit, propose a migration plan, and can run the old and new sites in parallel during cutover to avoid downtime." },
       { q: "Which framework will you use for our project?", a: "The one that fits your team and constraints. Next.js is our default for sites and SaaS where SEO and speed pay the bills; Angular where an enterprise team already runs it; Vue where a lightweight embed is needed. The choice comes with a written reason." },
       { q: "How long does a typical website or web app take?", a: "A marketing site with a CMS typically ships in 4–6 weeks; a departmental web app in 8–12. In every case a working thin slice is live by week three so you can judge progress on real software." },
@@ -2690,33 +2691,33 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { value: "Offline", label: "First, for field teams" },
     ],
     whyUs: [
-      { title: "Our own apps are in the stores", desc: "TeleValley is a live product — we ship and maintain apps for ourselves, not just for clients." },
+      { title: "Our own apps are in the stores", desc: "TeleValley is a live product, we ship and maintain apps for ourselves, not just for clients." },
       { title: "Low-end device discipline", desc: "Launch time, jank-free lists and battery use are tested on ₹10,000 Android phones, not flagship demo devices." },
       { title: "Release craft handled", desc: "Signing, listings, review responses and phased rollouts on both stores are part of delivery." },
-      { title: "Written native-vs-cross-platform advice", desc: "We recommend Flutter, React Native or native in writing, with reasons — even when it costs us the engagement." },
+      { title: "Written native-vs-cross-platform advice", desc: "We recommend Flutter, React Native or native in writing, with reasons, even when it costs us the engagement." },
     ],
     overview: [
-      "Mobile apps fail quietly. The demo on the founder's iPhone looks perfect; the field team's ₹10,000 Android takes eight seconds to open it, loses a form when the signal drops in the basement, and drains the battery by lunch. Six months after launch the app is uninstalled and the team is back on WhatsApp — and the store listing still says 4.5 stars because nobody updated it.",
-      "We build mobile apps for the devices your users actually own and the networks they actually have. That means launch-time and jank budgets tested on low-end Android, offline-first data layers that queue writes and sync when connectivity returns, and release engineering — signing, store listings, review responses, phased rollouts — treated as part of the job rather than an afterthought. Our own product, TeleValley, is shipped and maintained the same way.",
-      "The result is an app that survives week one on the shop floor, the delivery route or the customer's commute. You get both store builds, the source, the signing keys and the analytics wired in, and a recommendation in writing on whether Flutter, React Native or native was the right call for your case — even when the honest answer costs us the bigger build.",
+      "Mobile apps fail quietly. The demo on the founder's iPhone looks perfect; the field team's ₹10,000 Android takes eight seconds to open it, loses a form when the signal drops in the basement, and drains the battery by lunch. Six months after launch the app is uninstalled and the team is back on WhatsApp, and the store listing still says 4.5 stars because nobody updated it.",
+      "We build mobile apps for the devices your users actually own and the networks they actually have. That means launch-time and jank budgets tested on low-end Android, offline-first data layers that queue writes and sync when connectivity returns, and release engineering, signing, store listings, review responses, phased rollouts, treated as part of the job rather than an afterthought. Our own product, TeleValley, is shipped and maintained the same way.",
+      "The result is an app that survives week one on the shop floor, the delivery route or the customer's commute. You get both store builds, the source, the signing keys and the analytics wired in, and a recommendation in writing on whether Flutter, React Native or native was the right call for your case, even when the honest answer costs us the bigger build.",
       "The cost of a mobile app that fails quietly is rarely the build fee. It is the field data that never reaches the office because the form failed offline, the customer who uninstalled after the second crash and never came back, the release that slipped a month because a certificate expired, and the sales team that went back to WhatsApp because the app was slower than a message. Those costs do not appear on an invoice, which is exactly why they compound unnoticed.",
     ],
     painPoints: [
       { title: "Field staff stop using the app", desc: "It assumes connectivity and a fast phone. In a basement, a factory or a highway dead zone, forms fail and the team goes back to WhatsApp." },
       { title: "Two codebases, twice the bill", desc: "Separate iOS and Android teams double every feature's cost and drift apart in behaviour." },
       { title: "Store releases are a monthly crisis", desc: "Signing certificates expire, review rejections stall launches and nobody owns the listing." },
-      { title: "The vendor holds the keys", desc: "Keystores, developer accounts and source live with the agency — switching vendors means starting over." },
+      { title: "The vendor holds the keys", desc: "Keystores, developer accounts and source live with the agency, switching vendors means starting over." },
     ],
     useCases: [
-      { title: "Field-force and delivery apps", desc: "Offline-first capture with GPS, photos and signatures that sync in the background — for sales reps, drivers and site engineers." },
+      { title: "Field-force and delivery apps", desc: "Offline-first capture with GPS, photos and signatures that sync in the background, for sales reps, drivers and site engineers." },
       { title: "Customer-facing consumer apps", desc: "Booking, ordering, fintech and learning apps with UPI payments, push notifications and analytics on both stores." },
-      { title: "Enterprise companion apps", desc: "Mobile front-ends for your CRM, ERP or HRMS — approvals, payslips, attendance and dashboards on the phone." },
+      { title: "Enterprise companion apps", desc: "Mobile front-ends for your CRM, ERP or HRMS, approvals, payslips, attendance and dashboards on the phone." },
       { title: "App rescue and upgrades", desc: "Legacy React Native or Flutter apps brought to current versions, store-compliant and performant, without a rewrite." },
     ],
     outcomes: [
       "Cold launch under two seconds and jank-free lists on a ₹10,000 Android phone",
       "Forms and captures that survive lost signal and background kills, syncing when the network returns",
-      "Both store builds signed, listed and released — with the keys and accounts in your ownership",
+      "Both store builds signed, listed and released, with the keys and accounts in your ownership",
       "Crash reporting, analytics and push wired in before launch, not after the first complaint",
       "A written native-vs-cross-platform recommendation with reasons, before any code",
     ],
@@ -2742,10 +2743,10 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Field apps, consumer apps and mobile front-ends for your systems",
     longDescription:
-      "Native iOS and Android plus cross-platform Flutter and React Native apps — engineered for performance, battery life and a polished UX. We handle store submission, signing and the fiddly release process end to end.",
+      "Native iOS and Android plus cross-platform Flutter and React Native apps, engineered for performance, battery life and a polished UX. We handle store submission, signing and the fiddly release process end to end.",
     capabilities: [
       { title: "Native iOS & Android", desc: "Kotlin and Swift for performance-critical apps where every millisecond and megabyte matter." },
-      { title: "Cross-platform", desc: "Flutter and React Native for one codebase on both stores — faster to ship and maintain." },
+      { title: "Cross-platform", desc: "Flutter and React Native for one codebase on both stores, faster to ship and maintain." },
       { title: "App store delivery", desc: "Signing, listings, review handling and phased rollout on the Play Store and App Store." },
       { title: "Offline-first", desc: "Sync-on-reconnect architectures for field teams on unreliable connectivity." },
     ],
@@ -2763,10 +2764,10 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "Store submission, handover and support",
     ],
     serviceFaqs: [
-      { q: "Native or cross-platform — how do you decide?", a: "We recommend based on your budget, timeline, team and performance needs. Cross-platform is right for most business apps; native makes sense for graphics-heavy or hardware-intensive apps. We'll give you a written recommendation, not a preference." },
-      { q: "Do you handle app store submission?", a: "Yes — signing, listings, screenshots, review responses and phased rollout on both stores are part of delivery, not billed separately." },
-      { q: "Will the app work without internet?", a: "If your users need it to, yes. We build offline-first data layers that store captures locally and sync in the background with conflict-safe rules — the pattern behind our cold-chain and field-service apps." },
-      { q: "Can you take over an app another team built?", a: "Yes. We start with a code and store audit, secure the signing keys and accounts in your name, stabilise crashes and then plan features — the same rescue sequence we use for web systems." },
+      { q: "Native or cross-platform, how do you decide?", a: "We recommend based on your budget, timeline, team and performance needs. Cross-platform is right for most business apps; native makes sense for graphics-heavy or hardware-intensive apps. We'll give you a written recommendation, not a preference." },
+      { q: "Do you handle app store submission?", a: "Yes, signing, listings, screenshots, review responses and phased rollout on both stores are part of delivery, not billed separately." },
+      { q: "Will the app work without internet?", a: "If your users need it to, yes. We build offline-first data layers that store captures locally and sync in the background with conflict-safe rules, the pattern behind our cold-chain and field-service apps." },
+      { q: "Can you take over an app another team built?", a: "Yes. We start with a code and store audit, secure the signing keys and accounts in your name, stabilise crashes and then plan features, the same rescue sequence we use for web systems." },
     ],
     // Keep relatedIndustries at 3 or 6 entries per service so the
     // "Industries we serve with this" grid always fills its 3 columns.
@@ -2780,26 +2781,26 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { value: "Zero", label: "Leads dropped after CRM go-live" },
     ],
     whyUs: [
-      { title: "We shadow your team first", desc: "The scoping week maps how work actually happens — lead sources, approvals, exceptions — before a single screen is designed." },
+      { title: "We shadow your team first", desc: "The scoping week maps how work actually happens, lead sources, approvals, exceptions, before a single screen is designed." },
       { title: "Indian compliance built in", desc: "GST, e-invoice, Tally sync, PF/ESI/PT and DPDP consent handling are standard modules, not custom requests." },
       { title: "Parallel runs before cutover", desc: "Payroll, inventory and billing go live only after a reconciled parallel run on your real data." },
-      { title: "Audit trails by default", desc: "Every business system we ship logs who changed what, when and why — the feature that wins enterprise contracts." },
+      { title: "Audit trails by default", desc: "Every business system we ship logs who changed what, when and why, the feature that wins enterprise contracts." },
     ],
     overview: [
       "Every growing Indian business hits the same wall. The spreadsheet that ran the company at ten people has forty tabs at fifty people; leads live in a WhatsApp group, stock in a register, payroll in an Excel file only one person understands, and the owner learns about problems at month-end. Off-the-shelf software promises to fix it and usually adds a second system the team works around.",
-      "We build custom CRM, ERP, HRMS and workflow systems the other way round: we shadow your team for a week, trace one real order or one real lead or one real payroll run from start to finish, and model the software on that — exceptions included. Indian compliance is not a custom request: GST and e-invoicing, Tally sync, PF, ESI and professional tax, DPDP consent and audit trails are standard modules. A thin slice is live on your real data by week three, and nothing goes live without a reconciled parallel run.",
-      "What you get is one accountable system your team actually opens: role-based dashboards for the owner, the floor and the accountant, a full audit trail on every change, and integrations with the tools you keep. Month-end becomes a review rather than a fire drill, and when you outgrow the system it is your code to extend — not a licence to renew.",
+      "We build custom CRM, ERP, HRMS and workflow systems the other way round: we shadow your team for a week, trace one real order or one real lead or one real payroll run from start to finish, and model the software on that, exceptions included. Indian compliance is not a custom request: GST and e-invoicing, Tally sync, PF, ESI and professional tax, DPDP consent and audit trails are standard modules. A thin slice is live on your real data by week three, and nothing goes live without a reconciled parallel run.",
+      "What you get is one accountable system your team actually opens: role-based dashboards for the owner, the floor and the accountant, a full audit trail on every change, and integrations with the tools you keep. Month-end becomes a review rather than a fire drill, and when you outgrow the system it is your code to extend, not a licence to renew.",
       "The spreadsheet economy has a price the accounts never show. Two days of every month spent reconciling attendance, stock and invoices by hand. A quotation that took forty-five minutes to type and quoted last quarter's price. A lead that was never called a second time because nobody owned it. A payroll dispute because the overtime rule was applied from memory. And the question no one can answer when a client, an auditor or a dispute asks it: who changed this, and when? Each of these is small. Together they are the reason the business stops growing at the size the spreadsheet can carry.",
     ],
     painPoints: [
       { title: "The business runs on WhatsApp and Excel", desc: "Leads, stock, approvals and payroll live in chats and sheets that nobody can audit and everybody can overwrite." },
       { title: "Off-the-shelf software fights the process", desc: "The CRM forces a funnel your team does not use; the ERP runs the accounts while operations happen beside it." },
       { title: "Month-end is a two-day scramble", desc: "Attendance, stock and invoices are reconciled by hand every month, with errors discovered after the fact." },
-      { title: "No one can answer 'who changed this?'", desc: "Prices, approvals and payouts change without a trail — a problem the day a client, auditor or dispute asks." },
+      { title: "No one can answer 'who changed this?'", desc: "Prices, approvals and payouts change without a trail, a problem the day a client, auditor or dispute asks." },
     ],
     useCases: [
       { title: "CRM built on your sales process", desc: "Lead capture from portals, WhatsApp and walk-ins, mandatory next actions, quotations from the deal record and role-based dashboards." },
-      { title: "ERP for trading and manufacturing", desc: "Multi-godown inventory, purchase automation, GST-ready invoicing, job cards and Tally sync — with a parallel run before cutover." },
+      { title: "ERP for trading and manufacturing", desc: "Multi-godown inventory, purchase automation, GST-ready invoicing, job cards and Tally sync, with a parallel run before cutover." },
       { title: "HRMS with Indian payroll", desc: "Biometric attendance, unit-wise shift rules, PF/ESI/PT/TDS payroll, statutory outputs and employee self-service on mobile." },
       { title: "Workflow and approval engines", desc: "Indents, expense claims, discounts and document approvals with maker-checker controls and a full audit log." },
     ],
@@ -2807,7 +2808,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "One system of record replacing the spreadsheets and chat groups, with every change logged",
       "Month-end closing in a day, with GST, PF and ESI outputs generated ready to file",
       "Role-based dashboards that show the owner, the floor and the accountant the same truth",
-      "Migration of historical data reconciled before go-live — nothing lost, nothing duplicated",
+      "Migration of historical data reconciled before go-live, nothing lost, nothing duplicated",
       "A parallel-run verified cutover and role-wise training on your own data",
     ],
     timeSavings: [
@@ -2832,7 +2833,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Replacing spreadsheets and WhatsApp with one accountable system",
     longDescription:
-      "CRM, ERP, HRMS and business-automation systems built around how your operations actually run — replacing spreadsheets and WhatsApp with one accountable platform. We map your real workflow to software, not the other way around.",
+      "CRM, ERP, HRMS and business-automation systems built around how your operations actually run, replacing spreadsheets and WhatsApp with one accountable platform. We map your real workflow to software, not the other way around.",
     capabilities: [
       { title: "CRM", desc: "Pipeline, lead capture, follow-ups and reporting that mirror your actual sales process." },
       { title: "ERP", desc: "Inventory, orders, accounting and procurement in one system with role-based access." },
@@ -2847,15 +2848,15 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "Training, documentation and support",
     ],
     process: [
-      "Workflow discovery — we shadow your team and map the real process",
+      "Workflow discovery, we shadow your team and map the real process",
       "Architecture and a thin-slice prototype by week three",
       "Two-week sprints with weekly demos against real data",
       "Migration, training, launch and support",
     ],
     serviceFaqs: [
-      { q: "Can you integrate with our existing accounting or mail tools?", a: "Yes — we routinely integrate Tally, QuickBooks, GST portals, SMTP, SMS gateways and CRMs. Integration scope is defined up front so there are no surprises." },
-      { q: "We have messy data in spreadsheets — can you migrate it?", a: "Yes. We audit and clean your source data, map it to the new schema, and reconcile before go-live so nothing is lost or duplicated." },
-      { q: "Custom or off-the-shelf — how do we decide?", a: "Run three tests: will your team follow the tool's process, does it connect to Tally and WhatsApp natively, and who holds your data if you leave? If the shelf tool passes all three, buy it. If your process is genuinely different, custom wins on fit and ownership — and we will say which in writing." },
+      { q: "Can you integrate with our existing accounting or mail tools?", a: "Yes, we routinely integrate Tally, QuickBooks, GST portals, SMTP, SMS gateways and CRMs. Integration scope is defined up front so there are no surprises." },
+      { q: "We have messy data in spreadsheets, can you migrate it?", a: "Yes. We audit and clean your source data, map it to the new schema, and reconcile before go-live so nothing is lost or duplicated." },
+      { q: "Custom or off-the-shelf, how do we decide?", a: "Run three tests: will your team follow the tool's process, does it connect to Tally and WhatsApp natively, and who holds your data if you leave? If the shelf tool passes all three, buy it. If your process is genuinely different, custom wins on fit and ownership, and we will say which in writing." },
       { q: "How do you make sure staff actually use it?", a: "By building with the people who enter the data in the room from scoping week, going live on the daily-use path first, training role by role on real data, and staying on call through the first month. Adoption is designed, not hoped for." },
     ],
     relatedIndustries: ["manufacturing", "real-estate", "logistics", "construction", "retail-ecommerce", "fintech-lending"],
@@ -2868,28 +2869,28 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { value: "SSR", label: "Technical SEO foundation first" },
     ],
     whyUs: [
-      { title: "Engineers fix the foundation", desc: "We are a software company first — slow pages, missing schema and broken tracking get fixed in code, not worked around." },
+      { title: "Engineers fix the foundation", desc: "We are a software company first, slow pages, missing schema and broken tracking get fixed in code, not worked around." },
       { title: "Lead quality, not impressions", desc: "Campaigns are measured against cost per qualified lead and enquiries per landing page, reviewed monthly." },
       { title: "Local SEO for Indian markets", desc: "Google Business Profile, citations and city-level landing pages for businesses that sell locally." },
-      { title: "No ranking guarantees", desc: "We promise a sound foundation, a clear strategy and transparent reporting — and we say so in writing." },
+      { title: "No ranking guarantees", desc: "We promise a sound foundation, a clear strategy and transparent reporting, and we say so in writing." },
     ],
     overview: [
-      "Most SME marketing budgets leak in two places: money spent driving traffic to a website that cannot convert it, and money spent on content published on a site that cannot rank. The agency reports impressions and clicks; the owner sees no enquiries and cancels after three months. Neither side is lying — they are measuring the wrong thing.",
+      "Most SME marketing budgets leak in two places: money spent driving traffic to a website that cannot convert it, and money spent on content published on a site that cannot rank. The agency reports impressions and clicks; the owner sees no enquiries and cancels after three months. Neither side is lying, they are measuring the wrong thing.",
       "We start from the foundation because we are engineers first. Slow pages, missing schema, broken tracking and client-rendered content get fixed in code before a rupee goes to ads. Then the strategy is simple and measurable: one page per service and per city you serve, answers to the questions your sales team hears weekly, Google Business Profile and citations for local search, and campaigns on Google and Meta measured against cost per qualified lead, not impressions.",
-      "Every month you get a report tied to enquiries and calls per landing page, and budget moves toward what is producing them. Pages that convert get improved; pages that do not get rewritten or retired. That feedback loop, run honestly, is the whole strategy — and it is why we will never guarantee a ranking, only a foundation, a plan and transparent numbers.",
-      "Marketing without a measured foundation costs more than the retainer. Ad spend lands on pages that take four seconds to load, so a third of the clicks you paid for leave before the page appears. Blog posts are written for keywords the site cannot rank for, because the technical base was never fixed. A Google Business Profile left unclaimed sends the 'near me' searches — the highest-intent traffic a local business gets — to whoever claimed theirs. And a monthly report of impressions tells you the campaign is busy, not that it is working.",
+      "Every month you get a report tied to enquiries and calls per landing page, and budget moves toward what is producing them. Pages that convert get improved; pages that do not get rewritten or retired. That feedback loop, run honestly, is the whole strategy, and it is why we will never guarantee a ranking, only a foundation, a plan and transparent numbers.",
+      "Marketing without a measured foundation costs more than the retainer. Ad spend lands on pages that take four seconds to load, so a third of the clicks you paid for leave before the page appears. Blog posts are written for keywords the site cannot rank for, because the technical base was never fixed. A Google Business Profile left unclaimed sends the 'near me' searches, the highest-intent traffic a local business gets, to whoever claimed theirs. And a monthly report of impressions tells you the campaign is busy, not that it is working.",
     ],
     painPoints: [
       { title: "Traffic that never becomes enquiries", desc: "Ads drive clicks to slow pages with no clear next step, and the budget is spent before anyone notices." },
       { title: "Content that never ranks", desc: "Blog posts published on a client-rendered site with no schema and a four-second mobile load are invisible to search." },
-      { title: "Reports full of vanity numbers", desc: "Impressions and reach look healthy while calls and form submissions stay flat — nobody is tracking the number that matters." },
+      { title: "Reports full of vanity numbers", desc: "Impressions and reach look healthy while calls and form submissions stay flat, nobody is tracking the number that matters." },
       { title: "Local customers cannot find you", desc: "An unclaimed or thin Google Business Profile and no city pages mean the 'near me' searches go to a competitor." },
     ],
     useCases: [
-      { title: "Technical SEO foundation", desc: "Core Web Vitals, server rendering, schema, sitemaps and analytics fixed in code — the work every campaign depends on." },
+      { title: "Technical SEO foundation", desc: "Core Web Vitals, server rendering, schema, sitemaps and analytics fixed in code, the work every campaign depends on." },
       { title: "Local SEO for multi-branch businesses", desc: "Google Business Profile, citations and per-city landing pages for clinics, showrooms, institutes and service businesses." },
       { title: "Performance ads measured on leads", desc: "Google and Meta campaigns with conversion tracking to calls and forms, reported and re-allocated on cost per qualified lead." },
-      { title: "Content that answers buyer questions", desc: "Service and industry pages plus articles written from the questions your sales team hears — targeting real searches, linked, with one next step." },
+      { title: "Content that answers buyer questions", desc: "Service and industry pages plus articles written from the questions your sales team hears, targeting real searches, linked, with one next step." },
     ],
     outcomes: [
       "A technically sound site: green Core Web Vitals, structured data and tracking that reaches the CRM",
@@ -2920,9 +2921,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Turning a technically sound site into a measurable lead engine",
     longDescription:
-      "SEO, performance marketing, social and content that turn your website into a lead engine — not a brochure no one visits. We pair the technical SEO foundation with campaigns measured against lead quality, not vanity metrics.",
+      "SEO, performance marketing, social and content that turn your website into a lead engine, not a brochure no one visits. We pair the technical SEO foundation with campaigns measured against lead quality, not vanity metrics.",
     capabilities: [
-      { title: "SEO & local SEO", desc: "Technical, on-page and local SEO — including Google Business Profile and citation building for Indian markets." },
+      { title: "SEO & local SEO", desc: "Technical, on-page and local SEO, including Google Business Profile and citation building for Indian markets." },
       { title: "Performance ads", desc: "Google and Meta campaigns set up, managed and reported against cost-per-qualified-lead." },
       { title: "Content & social", desc: "Articles, landing pages and social cadence that build authority and feed the funnel." },
       { title: "Analytics & reporting", desc: "Clear dashboards tied to revenue, not impressions, with monthly reviews." },
@@ -2942,8 +2943,8 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     serviceFaqs: [
       { q: "Do you guarantee rankings?", a: "No reputable agency guarantees specific rankings, and we won't either. We guarantee a technical SEO foundation, a clear strategy, transparent reporting and continuous re-allocation toward channels that produce qualified leads." },
-      { q: "Can you work with the site you built for us?", a: "Yes — and it's an advantage. We build SEO in at the foundation (SSR, schema, sitemaps), so campaigns start from a technically sound base rather than fighting the site." },
-      { q: "How soon will we see results?", a: "Technical fixes and ads produce measurable enquiries within the first month. Organic rankings for competitive terms typically take three to six months to move — we say so up front and report progress against enquiries, not positions." },
+      { q: "Can you work with the site you built for us?", a: "Yes, and it's an advantage. We build SEO in at the foundation (SSR, schema, sitemaps), so campaigns start from a technically sound base rather than fighting the site." },
+      { q: "How soon will we see results?", a: "Technical fixes and ads produce measurable enquiries within the first month. Organic rankings for competitive terms typically take three to six months to move, we say so up front and report progress against enquiries, not positions." },
       { q: "What is the minimum monthly budget?", a: "It depends on your market and goals, and we quote it in writing after the audit. We would rather run a focused local campaign well than spread a small budget across every channel." },
     ],
     relatedIndustries: ["real-estate", "retail-ecommerce", "fintech-lending"],
@@ -2957,27 +2958,27 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     whyUs: [
       { title: "SLA in the contract", desc: "One-hour incident response and 24-hour non-urgent response are written into every managed engagement." },
-      { title: "Backups that restore", desc: "Scheduled restore drills with documented recovery times — an untested backup is a hope, not a plan." },
+      { title: "Backups that restore", desc: "Scheduled restore drills with documented recovery times, an untested backup is a hope, not a plan." },
       { title: "Infrastructure as code", desc: "Runbooks and Terraform in your repos, so nothing depends on one engineer's memory or on staying with us." },
       { title: "Monthly reports you can read", desc: "Uptime, incidents, cost and patch status in one written report, every month." },
     ],
     overview: [
-      "For most SMEs, IT is a person: the one engineer who knows the server password, the vendor who set up the office network in 2019, the cousin who 'does the cloud'. It works until the day it does not — a ransomware email opened on a Friday, a disk that fills at 2 a.m., a backup that turns out never to have been tested. The cost of that day is usually higher than a decade of doing it properly.",
+      "For most SMEs, IT is a person: the one engineer who knows the server password, the vendor who set up the office network in 2019, the cousin who 'does the cloud'. It works until the day it does not, a ransomware email opened on a Friday, a disk that fills at 2 a.m., a backup that turns out never to have been tested. The cost of that day is usually higher than a decade of doing it properly.",
       "Managed IT with us means the boring discipline is done on a schedule and reported in writing. Servers and cloud accounts are monitored around the clock with alerts that reach a named human; patches, access reviews and secret rotation happen on a calendar; backups are restore-tested, not assumed; and a one-hour first response on production incidents is written into the contract. Where you are still on-premise or on an expensive legacy host, we migrate you to AWS or Azure with a runbook and a rollback plan, without a weekend of downtime.",
-      "The outcome is that your business stops depending on one person's memory. Every environment is documented, every credential is in a vault you own, and every month you get a report of uptime, incidents, cost and what was patched — one page your finance head can read. If you ever leave, everything is already yours.",
+      "The outcome is that your business stops depending on one person's memory. Every environment is documented, every credential is in a vault you own, and every month you get a report of uptime, incidents, cost and what was patched, one page your finance head can read. If you ever leave, everything is already yours.",
       "The price of unmanaged IT is paid all at once. A ransomware email opened on a Friday afternoon costs a week of downtime and a ransom note, or a rebuild from backups nobody has tested. A disk that fills at two in the morning takes the billing system down until someone notices at nine. A departed engineer takes the only copy of the server password with them. And a client's security questionnaire, unanswered because there is no written baseline, quietly costs the contract. None of these are rare; every one of them is avoidable on a calendar.",
     ],
     painPoints: [
-      { title: "One person holds every password", desc: "When they are on leave, or gone, nobody can deploy, restore or even log in — and that is the moment something breaks." },
+      { title: "One person holds every password", desc: "When they are on leave, or gone, nobody can deploy, restore or even log in, and that is the moment something breaks." },
       { title: "Backups nobody has ever restored", desc: "A backup that has never been restore-tested is a hope, not a plan. The first test is usually the real emergency." },
-      { title: "Security is a hope, not a posture", desc: "Shared admin logins, unpatched servers and secrets in code — exactly what a breach or a DPDP audit finds first." },
+      { title: "Security is a hope, not a posture", desc: "Shared admin logins, unpatched servers and secrets in code, exactly what a breach or a DPDP audit finds first." },
       { title: "Outages are discovered by customers", desc: "No monitoring, no alerting and no on-call means the first sign of a problem is an angry phone call." },
     ],
     useCases: [
-      { title: "Managed cloud operations", desc: "24×7 monitoring, patching, backups with restore drills, cost reviews and a one-hour incident response — for systems we built and ones we did not." },
-      { title: "Cloud migration from on-premise or legacy hosts", desc: "Inventory, dependency map, parallel running and a rollback plan — moved to AWS or Azure without a downtime window." },
+      { title: "Managed cloud operations", desc: "24×7 monitoring, patching, backups with restore drills, cost reviews and a one-hour incident response, for systems we built and ones we did not." },
+      { title: "Cloud migration from on-premise or legacy hosts", desc: "Inventory, dependency map, parallel running and a rollback plan, moved to AWS or Azure without a downtime window." },
       { title: "Security hardening and audit readiness", desc: "Least-privilege access, secret vaulting, encryption, audit logging and a written baseline for DPDP or client security questionnaires." },
-      { title: "Takeover from a previous vendor", desc: "Audit first, document everything, transition with parallel running — so no knowledge and no uptime is lost." },
+      { title: "Takeover from a previous vendor", desc: "Audit first, document everything, transition with parallel running, so no knowledge and no uptime is lost." },
     ],
     outcomes: [
       "Every production system monitored with alerts routed to a named on-call engineer",
@@ -2988,9 +2989,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     timeSavings: [
       { task: "Finding out a service is down", before: "A customer call, hours later", after: "Alert within a minute" },
-      { task: "Restoring from backup", before: "Unknown — never tested", after: "Documented, drilled, minutes" },
+      { task: "Restoring from backup", before: "Unknown, never tested", after: "Documented, drilled, minutes" },
       { task: "Answering a client security questionnaire", before: "A week of scrambling", after: "Export the written baseline" },
-      { task: "Monthly IT review", before: "None — problems surface at month-end", after: "One-page report, every month" },
+      { task: "Monthly IT review", before: "None, problems surface at month-end", after: "One-page report, every month" },
     ],
     techs: ["AWS", "Azure", "Cloudflare", "Grafana / Prometheus", "Terraform", "Docker", "Vault-style secret management", "Endpoint & patch tooling", "PagerDuty-style on-call"],
     quickFacts: [
@@ -3008,7 +3009,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Businesses whose IT depends on one person or one vendor",
     longDescription:
-      "Cloud migration on AWS and Azure, 24×7 monitoring, security hardening and incident response — secure infrastructure your business can rely on. We treat operations as a service with a publicly stated response SLA.",
+      "Cloud migration on AWS and Azure, 24×7 monitoring, security hardening and incident response, secure infrastructure your business can rely on. We treat operations as a service with a publicly stated response SLA.",
     capabilities: [
       { title: "Cloud migration", desc: "Lift-and-shift or re-architecture to AWS and Azure with minimal downtime." },
       { title: "24×7 monitoring", desc: "Alerting, on-call and runbooks so issues are caught before users notice." },
@@ -3031,8 +3032,8 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     serviceFaqs: [
       { q: "What's your response time for incidents?", a: "For managed-services engagements we target a one-hour first response for production incidents and a 24-hour response for non-urgent work. The SLA is stated in every contract." },
       { q: "Can you take over infrastructure from our current vendor?", a: "Yes. We audit the current setup, document it, and transition with parallel running where possible so there's no downtime or lost knowledge." },
-      { q: "Do you support systems you did not build?", a: "Yes — most managed engagements begin on inherited systems. We start with a written audit, stabilise backups, monitoring and access, and then run operations on the same plan as everything else." },
-      { q: "How is managed IT priced?", a: "A monthly plan scoped to the number of systems and the response tier you need, quoted in writing after the audit. Month-to-month after the first quarter, with no lock-in — nothing in the setup depends on staying with us." },
+      { q: "Do you support systems you did not build?", a: "Yes, most managed engagements begin on inherited systems. We start with a written audit, stabilise backups, monitoring and access, and then run operations on the same plan as everything else." },
+      { q: "How is managed IT priced?", a: "A monthly plan scoped to the number of systems and the response tier you need, quoted in writing after the audit. Month-to-month after the first quarter, with no lock-in, nothing in the setup depends on staying with us." },
     ],
     relatedIndustries: ["fintech-lending", "manufacturing", "logistics", "construction", "healthcare", "retail-ecommerce"],
   },
@@ -3051,18 +3052,18 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     overview: [
       "Blockchain projects fail in two opposite ways. Some are built by enthusiasts who ship an unaudited contract to mainnet and lose users' funds to a bug that a test suite would have caught. Others are built by consultants who wrap a normal database in a whitepaper and call it decentralised. In both cases the business ends up with something it cannot trust and cannot explain to a regulator, an investor or a customer.",
-      "We treat blockchain as engineering with unusually high stakes. It starts with an honest question — does this need a chain at all, or would a well-audited ledger do? — answered in writing. Where a chain is the right answer, we threat-model before we architect, write Solidity for auditability and gas efficiency, test every contract path, monitor on-chain anomalies after launch, and recommend an independent third-party audit in addition to ours for anything holding real value. The wallet and custody experience gets the same care, because a platform that loses users' keys loses users.",
+      "We treat blockchain as engineering with unusually high stakes. It starts with an honest question, does this need a chain at all, or would a well-audited ledger do? answered in writing. Where a chain is the right answer, we threat-model before we architect, write Solidity for auditability and gas efficiency, test every contract path, monitor on-chain anomalies after launch, and recommend an independent third-party audit in addition to ours for anything holding real value. The wallet and custody experience gets the same care, because a platform that loses users' keys loses users.",
       "You end up with a system whose behaviour is provable: audited contracts with test coverage, a front-end that integrates cleanly with wallets, deployment scripts and monitoring you own, and a written audit report with remediation notes you can hand to anyone who asks how the platform is secured.",
       "Getting blockchain wrong is expensive in a way most software is not, because mistakes are public and permanent. An unaudited contract that holds user funds is a bounty waiting to be claimed, and there is no rollback. A chain chosen for the pitch deck rather than the workload adds transaction fees and latency to every action forever. A wallet flow that confuses users loses them at signup, before the product has a chance. And a platform that cannot explain its own compliance posture to a bank, an exchange or a regulator cannot grow past the founders' network.",
     ],
     painPoints: [
-      { title: "A contract nobody has audited", desc: "Code holding real value is deployed on trust. The first exploit is the first audit — and it is public." },
+      { title: "A contract nobody has audited", desc: "Code holding real value is deployed on trust. The first exploit is the first audit, and it is public." },
       { title: "Blockchain where a database would do", desc: "A chain adds cost and complexity without a benefit. The honest question was never asked." },
       { title: "Users locked out or drained", desc: "Poor wallet and key-management UX loses funds and users faster than any contract bug." },
       { title: "No monitoring after launch", desc: "On-chain anomalies, failed transactions and gas spikes go unnoticed until the community notices first." },
     ],
     useCases: [
-      { title: "Smart contracts and token systems", desc: "Solidity contracts for EVM chains — tokens, vesting, staking and governance — written for auditability and gas efficiency, with full test coverage." },
+      { title: "Smart contracts and token systems", desc: "Solidity contracts for EVM chains, tokens, vesting, staking and governance, written for auditability and gas efficiency, with full test coverage." },
       { title: "DeFi platforms", desc: "Lending, swapping and staking with tested economic guardrails, oracle handling and monitoring for the exploits that matter." },
       { title: "Supply-chain and traceability ledgers", desc: "Tamper-evident records for provenance, batch tracking and multi-party workflows where an immutable trail is the product." },
       { title: "Audits and remediation", desc: "Pre-deploy reviews of existing contracts with a written report, prioritised findings and remediation support." },
@@ -3096,7 +3097,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Multi-party records and DeFi where trust must be provable",
     longDescription:
-      "Smart contracts, decentralized ledgers and secure DeFi platforms — audited, tested and built for real transactional volume. We treat security as the first requirement, not a final checkpoint.",
+      "Smart contracts, decentralized ledgers and secure DeFi platforms, audited, tested and built for real transactional volume. We treat security as the first requirement, not a final checkpoint.",
     capabilities: [
       { title: "Smart contracts", desc: "Solidity contracts for EVM chains, written for auditability and gas efficiency." },
       { title: "DeFi platforms", desc: "Lending, swapping and staking platforms with tested economic guardrails." },
@@ -3117,9 +3118,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "Audit, test, deploy and monitor",
     ],
     serviceFaqs: [
-      { q: "Do you do security audits?", a: "Yes — pre-deploy audits with remediation, plus test suites and on-chain monitoring. For high-value contracts we recommend an independent third-party audit in addition to ours." },
+      { q: "Do you do security audits?", a: "Yes, pre-deploy audits with remediation, plus test suites and on-chain monitoring. For high-value contracts we recommend an independent third-party audit in addition to ours." },
       { q: "Which chains do you build on?", a: "Primarily EVM-compatible chains (Ethereum, Polygon, others). We'll recommend the chain that fits your throughput, cost and audience needs, not the one we happen to prefer." },
-      { q: "Do we really need a blockchain?", a: "Often not — and we will say so. If a single trusted operator can hold the ledger, an audited database is cheaper and faster. A chain earns its place when multiple parties need a tamper-evident record none of them controls." },
+      { q: "Do we really need a blockchain?", a: "Often not, and we will say so. If a single trusted operator can hold the ledger, an audited database is cheaper and faster. A chain earns its place when multiple parties need a tamper-evident record none of them controls." },
       { q: "How do you handle Indian regulatory questions?", a: "We build with KYC gating, transaction logging and exportable records so the platform can answer compliance questions, and we recommend legal counsel on token classification before launch. We engineer for auditability; we do not give legal advice." },
     ],
     relatedIndustries: ["fintech-lending", "logistics", "agriculture"],
@@ -3132,28 +3133,28 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       { value: "Dev-ready", label: "Figma handoff" },
     ],
     whyUs: [
-      { title: "Design that ships", desc: "Our designers sit beside engineers, so systems are built to be implemented — not admired on a slide." },
+      { title: "Design that ships", desc: "Our designers sit beside engineers, so systems are built to be implemented, not admired on a slide." },
       { title: "You own the brand", desc: "Editable source files and a guidelines document you can hand to any vendor." },
       { title: "Consistent across touchpoints", desc: "Web, app, collateral and ads drawn from one component library and token set." },
       { title: "Extend, don't impose", desc: "We start from the brand you have and document it, rather than forcing a new look." },
     ],
     overview: [
-      "A business is judged in the first three seconds of every touchpoint — the logo on the visiting card, the pitch deck, the app icon, the invoice. Most SMEs assemble these one at a time from different freelancers, and the result is a brand that looks slightly different everywhere and slightly amateur overall. Worse, the source files live on a designer's laptop, so every new asset means starting again.",
-      "We build brand identity as a system, not a logo file. Discovery aligns on who you sell to and what you want them to feel; concept directions give you real choices; and the chosen route becomes a full kit — logo variants, colour, type, spacing, iconography and templates — documented in guidelines any vendor can follow. Because our designers sit beside our engineers, the same tokens flow straight into your website, app and product UI, so what the customer sees on screen matches what they hold in their hand.",
+      "A business is judged in the first three seconds of every touchpoint, the logo on the visiting card, the pitch deck, the app icon, the invoice. Most SMEs assemble these one at a time from different freelancers, and the result is a brand that looks slightly different everywhere and slightly amateur overall. Worse, the source files live on a designer's laptop, so every new asset means starting again.",
+      "We build brand identity as a system, not a logo file. Discovery aligns on who you sell to and what you want them to feel; concept directions give you real choices; and the chosen route becomes a full kit, logo variants, colour, type, spacing, iconography and templates, documented in guidelines any vendor can follow. Because our designers sit beside our engineers, the same tokens flow straight into your website, app and product UI, so what the customer sees on screen matches what they hold in their hand.",
       "You leave with editable source files in every format, a guidelines document, collateral templates your team can reuse, and a design system that makes the next landing page, deck or ad a matter of minutes rather than a new project. The brand is yours, and it stays consistent as you grow.",
       "An inconsistent brand costs more than a redesign ever will, because it is paid in every interaction. A proposal that looks less polished than a competitor's loses the deal before the pricing page. A website and an app that look like two different companies make customers doubt both. A logo that exists only as a low-resolution JPEG cannot go on a hoarding, a trade-show stand or an app icon without embarrassment. And every new asset commissioned from a different freelancer drifts the identity a little further, until nobody remembers what it was meant to be.",
     ],
     painPoints: [
-      { title: "The brand looks different everywhere", desc: "Website, app, deck and packaging were made by different people at different times — customers notice, even if they cannot say why." },
+      { title: "The brand looks different everywhere", desc: "Website, app, deck and packaging were made by different people at different times, customers notice, even if they cannot say why." },
       { title: "The designer has the source files", desc: "A logo change, a new size or a new colour means finding the original freelancer or starting from scratch." },
-      { title: "Design that engineers cannot build", desc: "Beautiful mockups that ignore real content, real screens and real constraints — rebuilt from guesswork during development." },
-      { title: "Every new asset is a new project", desc: "No templates, no system, no tokens — a simple social post or one-pager takes a week and a quote." },
+      { title: "Design that engineers cannot build", desc: "Beautiful mockups that ignore real content, real screens and real constraints, rebuilt from guesswork during development." },
+      { title: "Every new asset is a new project", desc: "No templates, no system, no tokens, a simple social post or one-pager takes a week and a quote." },
     ],
     useCases: [
       { title: "Logo and brand identity", desc: "Logo systems, colour, type and guidelines for new businesses and for rebrands that need to carry existing equity forward." },
       { title: "UI/UX and product design systems", desc: "Dev-ready Figma systems with components and tokens that ship into your web and mobile products unchanged." },
       { title: "Marketing collateral", desc: "Pitch decks, brochures, one-pagers, trade-show material and ad creative sets that match the product quality." },
-      { title: "Brand refresh and consolidation", desc: "Auditing what exists, documenting it and extending it consistently across every touchpoint — without a disruptive rebrand." },
+      { title: "Brand refresh and consolidation", desc: "Auditing what exists, documenting it and extending it consistently across every touchpoint, without a disruptive rebrand." },
     ],
     outcomes: [
       "One identity across website, app, collateral and packaging",
@@ -3205,10 +3206,10 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "Guidelines, handover and templates",
     ],
     serviceFaqs: [
-      { q: "Do we get the source files?", a: "Yes — you receive editable source files and a guidelines document, not just flattened exports. You own the brand and can hand it to any vendor." },
+      { q: "Do we get the source files?", a: "Yes, you receive editable source files and a guidelines document, not just flattened exports. You own the brand and can hand it to any vendor." },
       { q: "Can you match our existing brand?", a: "Yes. We start from your existing brand, document what's there, and extend it consistently rather than imposing a new look." },
-      { q: "How many concept directions do we see?", a: "Typically three distinct directions after discovery, each shown across real touchpoints — a card, a screen, a deck — so you choose on how it works, not just how it looks. One route is then refined to completion." },
-      { q: "Can the design system feed our app and website directly?", a: "Yes — that is the point of pairing designers with engineers. Tokens and components go from Figma into the codebase, so the product matches the brand without a rebuild." },
+      { q: "How many concept directions do we see?", a: "Typically three distinct directions after discovery, each shown across real touchpoints, a card, a screen, a deck, so you choose on how it works, not just how it looks. One route is then refined to completion." },
+      { q: "Can the design system feed our app and website directly?", a: "Yes, that is the point of pairing designers with engineers. Tokens and components go from Figma into the codebase, so the product matches the brand without a rebuild." },
     ],
     relatedIndustries: ["retail-ecommerce", "real-estate", "construction"],
   },
@@ -3221,21 +3222,21 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     whyUs: [
       { title: "Cost baseline first", desc: "Every engagement starts with a measured spend baseline; savings are reported against it monthly." },
-      { title: "Zero-downtime cutovers", desc: "Parallel running, lowered DNS TTLs and one-command rollbacks — migrations without a weekend outage." },
+      { title: "Zero-downtime cutovers", desc: "Parallel running, lowered DNS TTLs and one-command rollbacks, migrations without a weekend outage." },
       { title: "Pipelines with gates", desc: "Staging environments, preview deploys and rollback paths before anything touches production." },
       { title: "Nothing depends on us", desc: "Terraform in your repos, credentials in your vault, runbooks your team can follow." },
     ],
     overview: [
       "Deploys should be boring. In most growing companies they are the opposite: a Friday-night ritual with a shared checklist, a prayer and a rollback that means restoring from last week's backup. Meanwhile the cloud bill has doubled in a year, nobody owns it, and every explanation for every line item is plausible. The engineering team spends its best hours on toil instead of features.",
-      "Cloud and DevOps with us starts from a measured baseline: what runs where, what it costs, what is fragile. Then we codify the environment in Terraform without breaking it, build pipelines with staging gates, preview deployments and one-command rollback, containerise workloads with sane limits, and wire observability — logs, metrics, traces and alerts that reach a human. Cost engineering is structural, not a one-off cleanup: tagging enforced in CI, budget alerts, right-sizing against real utilisation and reserved capacity where it pays.",
-      "The result is a platform that ships daily without drama and a bill that stops surprising finance. Migrations happen with parallel running and lowered DNS TTLs rather than a downtime window. And because everything lives as code in your repositories with runbooks your team can follow, nothing depends on us — which is exactly why clients stay.",
-      "Slow, manual operations tax every feature you ship. When a release takes half a day and carries real risk, teams batch changes into large, infrequent deploys — and large deploys are exactly the ones that break. When environments are configured by hand, a new developer takes a week to be productive and a staging bug cannot be reproduced. When the cloud bill has no owner, forgotten environments and oversized instances quietly double it in a year, and the money that should have funded monitoring pays for idle servers instead.",
+      "Cloud and DevOps with us starts from a measured baseline: what runs where, what it costs, what is fragile. Then we codify the environment in Terraform without breaking it, build pipelines with staging gates, preview deployments and one-command rollback, containerise workloads with sane limits, and wire observability, logs, metrics, traces and alerts that reach a human. Cost engineering is structural, not a one-off cleanup: tagging enforced in CI, budget alerts, right-sizing against real utilisation and reserved capacity where it pays.",
+      "The result is a platform that ships daily without drama and a bill that stops surprising finance. Migrations happen with parallel running and lowered DNS TTLs rather than a downtime window. And because everything lives as code in your repositories with runbooks your team can follow, nothing depends on us, which is exactly why clients stay.",
+      "Slow, manual operations tax every feature you ship. When a release takes half a day and carries real risk, teams batch changes into large, infrequent deploys, and large deploys are exactly the ones that break. When environments are configured by hand, a new developer takes a week to be productive and a staging bug cannot be reproduced. When the cloud bill has no owner, forgotten environments and oversized instances quietly double it in a year, and the money that should have funded monitoring pays for idle servers instead.",
     ],
     painPoints: [
       { title: "Deploys are a weekend event", desc: "Manual steps, no staging gate and no rollback path turn every release into a risk the team avoids for as long as it can." },
       { title: "The cloud bill doubled and nobody knows why", desc: "Forgotten environments, oversized instances and cross-region chatter grow quietly with a good excuse for every line." },
       { title: "Servers configured by hand, years ago", desc: "Nothing is reproducible, nothing is documented, and the person who set it up has left." },
-      { title: "Incidents found by customers", desc: "No metrics, no alerting and no on-call — the first sign of an outage is a support ticket." },
+      { title: "Incidents found by customers", desc: "No metrics, no alerting and no on-call, the first sign of an outage is a support ticket." },
     ],
     useCases: [
       { title: "CI/CD and release engineering", desc: "GitHub Actions or GitLab pipelines with test gates, preview environments, staged rollouts and one-command rollback." },
@@ -3272,7 +3273,7 @@ export const serviceDetails: Record<string, ServiceDetail> = {
     ],
     bestFor: "Teams shipping slowly or paying too much to run their platform",
     longDescription:
-      "Cloud and DevOps engineering that makes your platform faster to ship and cheaper to run — migration to AWS, GCP or Azure, CI/CD pipelines, container orchestration, infrastructure-as-code and observability. We reduce deploy risk and toil so your team can release daily without 2 a.m. incidents.",
+      "Cloud and DevOps engineering that makes your platform faster to ship and cheaper to run, migration to AWS, GCP or Azure, CI/CD pipelines, container orchestration, infrastructure-as-code and observability. We reduce deploy risk and toil so your team can release daily without 2 a.m. incidents.",
     capabilities: [
       { title: "Cloud migration", desc: "Assessment, re-platforming and migration to AWS, GCP or Azure with minimal downtime and right-sized cost." },
       { title: "CI/CD & containers", desc: "Build pipelines, Docker images and Kubernetes orchestration for repeatable, one-click deployments." },
@@ -3293,9 +3294,9 @@ export const serviceDetails: Record<string, ServiceDetail> = {
       "Cutover, observability handover and runbooks",
     ],
     serviceFaqs: [
-      { q: "Do you work with our existing cloud provider?", a: "Yes. We work across AWS, GCP and Azure and meet you where you are — whether that means migrating from on-prem, consolidating providers, or optimising an existing cloud setup that has grown expensive." },
+      { q: "Do you work with our existing cloud provider?", a: "Yes. We work across AWS, GCP and Azure and meet you where you are, whether that means migrating from on-prem, consolidating providers, or optimising an existing cloud setup that has grown expensive." },
       { q: "Can you set up CI/CD without disrupting releases?", a: "Yes. We introduce pipelines with staging gates and rollback, shadow-deploy risky changes, and run releases alongside your current process until the new pipeline is proven." },
-      { q: "Will we own the infrastructure code?", a: "Yes — all infrastructure is delivered as code in your repos. Your team can review, reproduce and change every environment without being locked in to us." },
+      { q: "Will we own the infrastructure code?", a: "Yes, all infrastructure is delivered as code in your repos. Your team can review, reproduce and change every environment without being locked in to us." },
       { q: "Will this lower our cloud bill?", a: "In most engagements, yes. We baseline your current spend, right-size instances, add auto-scaling and reserved-capacity plans, and report savings against that baseline every month." },
     ],
     relatedIndustries: ["fintech-lending", "manufacturing", "logistics", "construction", "retail-ecommerce", "healthcare"],
@@ -3319,12 +3320,12 @@ export type TeamMember = {
 export const team: TeamMember[] = [
   { name: "Mrs. Shital K", role: "COO & HR", bio: "Runs day-to-day operations and people, and the processes that keep projects on scope, on budget and on time.", focus: "Operations & People", image: "/team/shital-k.webp" },
   { name: "Mr. Mohit D", role: "CMO", bio: "Drives brand, demand and the market positioning that turns capability into pipeline.", focus: "Brand & Demand", image: "/team/mohit-d.webp" },
-  { name: "Mr. Sagar K", role: "Project Manager", bio: "Keeps every project on track — scope, timelines and weekly demos — and is the client's day-to-day point of contact.", focus: "Delivery & Planning", image: "/team/sagar-k.webp" },
+  { name: "Mr. Sagar K", role: "Project Manager", bio: "Keeps every project on track, scope, timelines and weekly demos, and is the client's day-to-day point of contact.", focus: "Delivery & Planning", image: "/team/sagar-k.webp" },
   { name: "Mr. Ashish S", role: "Technical Head", bio: "Leads architecture decisions across the stack and owns code quality and engineering standards.", focus: "Architecture & Engineering", image: "/team/ashish-s.webp" },
   { name: "Mr. Saish B", role: "Lead Frontend Developer", bio: "Owns frontend quality and the design-system practice across our web and product work.", focus: "Frontend & Design Systems", image: "/team/saish-b.webp" },
   { name: "Ms. Khudaija P", role: "Full Stack Developer", bio: "Builds features end to end, from database and API to the interface the customer sees.", focus: "Full-stack Engineering", image: "/team/khudaija-p.webp" },
   { name: "Mr. Tejas K", role: "Jr. MERN Stack Developer", bio: "Builds and maintains MongoDB, Express, React and Node.js applications across client projects.", focus: "MERN Stack", image: "/team/tejas-k.webp" },
-  { name: "Mr. Rohit S", role: "Software Tester", bio: "Tests every release end to end — manual and automated — so bugs are caught before they reach your users.", focus: "Testing & QA", image: "/team/rohit-s.webp" },
+  { name: "Mr. Rohit S", role: "Software Tester", bio: "Tests every release end to end, manual and automated, so bugs are caught before they reach your users.", focus: "Testing & QA", image: "/team/rohit-s.webp" },
 ];
 
 export const principles = [
@@ -3337,7 +3338,7 @@ export const principles = [
 export const values = [
   { title: "Outcomes over hours", desc: "We're paid for the result, not the time spent. Fixed-bid and retainer models keep our incentives aligned with yours." },
   { title: "Radical transparency", desc: "Shared Jira, a Slack channel, weekly demos and a written scope. You always know where your project stands." },
-  { title: "Engineering rigour", desc: "Code reviews, tests, documentation and a 24-hour SLA — the unglamorous discipline that keeps systems live for years." },
+  { title: "Engineering rigour", desc: "Code reviews, tests, documentation and a 24-hour SLA, the unglamorous discipline that keeps systems live for years." },
 ];
 
 // ----- Offices (Contact) -----
@@ -3357,7 +3358,7 @@ export const offices = [
       "Ukvalley Technologies,",
       "413 Summit Ave, Apt 1503,",
       "Jersey City,",
-      "New Jersey – 07306",
+      "New Jersey 07306",
     ],
   },
 ];
@@ -3367,7 +3368,8 @@ export type Career = {
   slug: string;
   role: string;
   location: string;
-  type: string;
+  /** Full-time / Part-time / Freelancing / Internship */
+  type: JobType;
   /** Remote / Hybrid / On-site */
   mode: JobMode;
   /** Experience range in years; no max means "min+ years". */
@@ -3375,9 +3377,13 @@ export type Career = {
   experienceMax?: number;
   /** Date the role was published, YYYY-MM-DD. */
   postedAt: string;
+  /** "About the role": shown under the title and on the job page. */
   summary: string;
   responsibilities: string[];
+  /** "Required skills" (stored as `requirements`). */
   requirements: string[];
+  /** Degrees, certifications etc.; roles saved before this field have none, and the section is hidden. */
+  qualifications?: string[];
   perks: string[];
   /** Recruitment stages shown on the job page. */
   hiringProcess: HiringStep[];
@@ -3393,7 +3399,7 @@ export const careers: Career[] = [
     experienceMin: 4,
     postedAt: "2026-09-29",
     hiringProcess: DEFAULT_HIRING_PROCESS,
-    summary: "Own complex web apps end to end — architecture, performance and delivery — for Indian SMEs and global startups.",
+    summary: "Own complex web apps end to end, architecture, performance and delivery, for Indian SMEs and global startups.",
     responsibilities: [
       "Architect and ship Next.js applications end to end, from data model to deployment",
       "Own Core Web Vitals and SEO foundations on client-facing builds",
@@ -3408,7 +3414,7 @@ export const careers: Career[] = [
     ],
     perks: [
       "Fully remote with flexible hours",
-      "Direct client exposure — no invisible-engineer roles",
+      "Direct client exposure, no invisible-engineer roles",
       "Learning budget for courses and conferences",
       "Annual offsite with the full team",
     ],
@@ -3422,13 +3428,9 @@ export const careers: Career[] = [
     experienceMin: 2,
     experienceMax: 5,
     postedAt: "2026-09-24",
-    hiringProcess: [
-      DEFAULT_HIRING_PROCESS[0],
-      DEFAULT_HIRING_PROCESS[1],
-      { title: "Technical round", desc: "Walk us through an app you shipped, then a short live session on a Flutter problem — state, performance or offline sync." },
-      DEFAULT_HIRING_PROCESS[3],
-      DEFAULT_HIRING_PROCESS[4],
-    ],
+    hiringProcess: withTechnicalRound(
+      { title: "Technical round", desc: "Walk us through an app you shipped, then a short live session on a Flutter problem, state, performance or offline sync." },
+    ),
     summary: "Build and ship cross-platform iOS & Android apps, including store submission and post-launch support.",
     responsibilities: [
       "Build Flutter apps from prototype to Play Store and App Store release",
@@ -3458,13 +3460,9 @@ export const careers: Career[] = [
     experienceMin: 3,
     experienceMax: 7,
     postedAt: "2026-09-18",
-    hiringProcess: [
-      DEFAULT_HIRING_PROCESS[0],
-      DEFAULT_HIRING_PROCESS[1],
+    hiringProcess: withTechnicalRound(
       { title: "Technical round", desc: "A live session on API and schema design for a small business workflow, plus a look at query performance." },
-      DEFAULT_HIRING_PROCESS[3],
-      DEFAULT_HIRING_PROCESS[4],
-    ],
+    ),
     summary: "Design and build the APIs and data layers behind our CRM, ERP and fintech platforms.",
     responsibilities: [
       "Design APIs and data models for transactional business systems",
@@ -3474,7 +3472,7 @@ export const careers: Career[] = [
     ],
     requirements: [
       "3+ years with Laravel or Node.js in production",
-      "Strong SQL — schema design, indexing and migration discipline",
+      "Strong SQL, schema design, indexing and migration discipline",
       "Experience with Redis, queues and background jobs",
       "Security-minded: auth, role-based access and audit trails by default",
     ],
@@ -3494,14 +3492,9 @@ export const careers: Career[] = [
     experienceMin: 3,
     experienceMax: 6,
     postedAt: "2026-09-10",
-    hiringProcess: [
-      DEFAULT_HIRING_PROCESS[0],
-      DEFAULT_HIRING_PROCESS[1],
-      { title: "Portfolio walkthrough", desc: "Take us through two or three projects: the problem, the decisions you made and what shipped." },
-      { title: "Design exercise", desc: "A short, scoped exercise on a real product screen, reviewed together with an engineer." },
-      DEFAULT_HIRING_PROCESS[3],
-      DEFAULT_HIRING_PROCESS[4],
-    ],
+    hiringProcess: withTechnicalRound(
+      { title: "Portfolio & design round", desc: "Walk us through two or three projects, then a short, scoped exercise on a real product screen, reviewed with an engineer." },
+    ),
     summary: "Own product design and brand systems across web, mobile and marketing for our clients and products.",
     responsibilities: [
       "Own design from wireframes to dev-ready Figma systems",
@@ -3512,11 +3505,11 @@ export const careers: Career[] = [
     requirements: [
       "3+ years in product design with a strong portfolio",
       "Expert Figma skills with component and token discipline",
-      "Understand what engineers need from a handoff — you'll sit next to them",
+      "Understand what engineers need from a handoff, you'll sit next to them",
       "Bonus: motion design or brand-identity experience",
     ],
     perks: [
-      "Hybrid — studio days in Pune, rest remote",
+      "Hybrid, studio days in Pune, rest remote",
       "Your design system ships to real products, not Dribbble",
       "Learning budget and design-conference allowance",
       "Annual offsite with the full team",
@@ -3565,7 +3558,7 @@ export const timeSavers: TimeSaver[] = [
   {
     icon: "gitBranch",
     title: "Parallel runs before cutover",
-    desc: "Payroll, inventory and billing go live only after a reconciled run on your real data — no month-end firefight after launch.",
+    desc: "Payroll, inventory and billing go live only after a reconciled run on your real data, no month-end firefight after launch.",
     saved: "1–2 days",
     savedLabel: "Saved every month-end",
   },

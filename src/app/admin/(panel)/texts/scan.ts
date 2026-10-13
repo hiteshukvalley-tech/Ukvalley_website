@@ -77,7 +77,7 @@ export async function listScanPaths(): Promise<PathGroup[]> {
     {
       group: "Company",
       entries: [
-        page("about"), page("why-ukvalley"), page("team"), page("social-impact"), page("process"), page("engagement"), page("support-maintenance"),
+        page("about"), page("why-ukvalley"), page("team"), page("social-impact"), page("press-kit"), page("media"), page("process"), page("engagement"), page("support-maintenance"),
         page("pricing"), page("faq"), page("contact"),
         page("careers", "Main page"), ...rows("/careers", careers as Labelled[], "Job opening"),
         page("locations", "Main page"), ...rows("/locations", locations as Labelled[], "Location"),

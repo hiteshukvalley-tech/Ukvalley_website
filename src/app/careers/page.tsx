@@ -18,9 +18,11 @@ import { getPageContent } from "@/lib/pages-store";
 import { ApplyButton, CareerApplyProvider } from "@/components/site/career-apply";
 import { CareersBoard } from "@/components/site/careers-board";
 import { HeroJobSearch } from "@/components/site/hero-job-search";
+import { HeroPhoto } from "@/components/site/hero-photo";
 import { roleInPlace } from "@/lib/careers-shared";
 import { jsonLd } from "@/lib/utils";
 import { ukText } from "@/lib/texts";
+import { RelatedSection } from "@/components/site/related-chips";
 
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
@@ -28,9 +30,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("careers", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Careers — find your next role",
+  title: "Careers: find your next role",
   description:
-    "Open roles at Ukvalley Technologies — Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",
+    "Open roles at Ukvalley Technologies, Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",
   alternates: { canonical: `${SITE_URL}/careers` },
 };
 
@@ -38,7 +40,7 @@ const pathways = [
   {
     icon: Briefcase,
     title: "Experienced professionals",
-    text: "Your next career move could be your boldest one — own outcomes on real client projects and our own products.",
+    text: "Your next career move could be your boldest one, own outcomes on real client projects and our own products.",
     href: "/careers?experience=3#open-roles",
     cta: "See roles for experienced hires",
   },
@@ -66,19 +68,19 @@ const pathways = [
 ];
 
 const locations = [
-  { city: "Pune", text: "Our client-engagement hub — product, design and delivery teams working side by side." },
+  { city: "Pune", text: "Our client-engagement hub, product, design and delivery teams working side by side." },
   { city: "Nagpur", text: "Our engineering core, with a cost base that lets us pay well and keep senior engineers on every project." },
   { city: "Remote", label: "Remote across India", text: "Roles open to engineers and designers anywhere in India, on the same delivery system as the offices." },
 ];
 
 const expect = [
-  { icon: Heart, title: "A culture of ownership", desc: "The engineers who scope a project build it. You own outcomes, not tickets — and your judgment is rewarded." },
+  { icon: Heart, title: "A culture of ownership", desc: "The engineers who scope a project build it. You own outcomes, not tickets, and your judgment is rewarded." },
   { icon: TrendingUp, title: "Opportunities that keep you growing", desc: "Code review from senior architects, time on client work and our own live products, and room to move into new areas." },
-  { icon: Rocket, title: "Work that makes a real impact", desc: "Software that runs real businesses in production — CRM, ERP, HRMS, mobile apps and more." },
+  { icon: Rocket, title: "Work that makes a real impact", desc: "Software that runs real businesses in production, CRM, ERP, HRMS, mobile apps and more." },
 ];
 
 const steps = [
-  { title: "Apply", desc: "Pick a role and send your details and resume — it takes a few minutes." },
+  { title: "Apply", desc: "Pick a role and send your details and resume, it takes a few minutes." },
   { title: "Screening call", desc: "A short conversation with our HR team about you, your goals and the role." },
   { title: "Skills round", desc: "A practical discussion or task with the team you'd work with. Each role lists its own stages." },
   { title: "Offer & onboarding", desc: "A clear offer, a named buddy and a first project that ships real work." },
@@ -129,13 +131,20 @@ export default async function CareersPage() {
           positions={careers.map((c) => c.role)}
           processes={Object.fromEntries(careers.map((c) => [c.role, c.hiringProcess]))}
         >
-        {/* Hero — a job search instead of a banner: candidates land straight on finding a role */}
-        <section className="relative overflow-hidden border-b border-uk-line bg-uk-surface pb-14 pt-28 sm:pb-20 sm:pt-36">
-          <div className="page-hero-gradient absolute inset-0" aria-hidden />
-          <div className="absolute inset-0 bg-blueprint bg-grid-fade opacity-60" aria-hidden />
+        {/* Hero — a job search over a photo of the team, so candidates land
+            straight on finding a role. Always dark (the `dark` class), like the
+            other page heroes; the photo can be swapped in Admin → All page text. */}
+        <section className="page-hero-photo dark relative isolate overflow-hidden bg-[#0b0820] pb-12 pt-24 text-white sm:pb-16 sm:pt-28">
+          <HeroPhoto
+            src={ukText("/social-impact/celebration-02.webp")}
+            className="object-[60%_55%] [filter:saturate(0.9)_contrast(1.05)]"
+          />
           <Container className="relative">
             <Reveal className="flex max-w-3xl flex-col gap-5">
-              <span className={eyebrowCls}>{page.heroEyebrow || ukText("Careers at Ukvalley")}</span>
+              <span className="inline-flex w-fit items-center gap-2.5 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-white backdrop-blur">
+                <span className="h-1.5 w-1.5 rounded-full bg-uk-yellow" aria-hidden />
+                {page.heroEyebrow || ukText("Careers at Ukvalley")}
+              </span>
               <h1 className="font-heading-display text-4xl font-bold leading-[1.08] tracking-tight text-uk-heading-strong sm:text-5xl lg:text-6xl">
                 {page.heroTitle ? (
                   <Marked text={page.heroTitle} />
@@ -143,7 +152,7 @@ export default async function CareersPage() {
                   <>{ukText("Your next career move")}{" "}<span className="text-gradient-blue">{ukText("starts here")}</span></>
                 )}
               </h1>
-              <p className="max-w-2xl text-lg leading-relaxed text-uk-muted sm:text-xl">
+              <p className="max-w-2xl text-lg leading-relaxed text-white/80 sm:text-xl">
                 {page.heroDescription ||
                   ukText("Shape your career at an engineer-led software company. Search our open roles, see exactly how hiring works, and apply in minutes.")}
               </p>
@@ -231,13 +240,13 @@ export default async function CareersPage() {
                 <Reveal className="flex flex-col gap-5">
                   <span className={eyebrowCls}>{ukText("Life at Ukvalley")}</span>
                   <h2 className="font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("What to expect from your career at Ukvalley")}</h2>
-                  <p className="text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We're engineer-led and unfunded by choice — accountable to clients and to the work, not a cap table. For you, that means real responsibility, straight answers and people who care how your project turns out.")}</p>
+                  <p className="text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We're engineer-led and unfunded by choice, accountable to clients and to the work, not a cap table. For you, that means real responsibility, straight answers and people who care how your project turns out.")}</p>
                   <ul className="mt-2 flex flex-col gap-3">
                     {[
                       "You scope the project you build, and sit on the client call",
                       "Code review from a senior architect, not a rubber stamp",
                       "Time on client work and on our own live products",
-                      "A 24-hour response culture — and we answer candidates fast too",
+                      "A 24-hour response culture, and we answer candidates fast too",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue"><Check className="h-3.5 w-3.5" strokeWidth={3} /></span>
@@ -312,7 +321,7 @@ export default async function CareersPage() {
               )}
               {careers.length === 0 && (
                 <div className="mt-12 rounded-2xl border border-dashed border-uk-line bg-uk-card p-8 text-center">
-                  <p className="text-uk-body">{ukText("There are no open roles right now — but we're always glad to hear from good people.")}</p>
+                  <p className="text-uk-body">{ukText("There are no open roles right now, but we're always glad to hear from good people.")}</p>
                   <ApplyButton className="mt-4 inline-flex items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright">
                     {ukText("Send an application")}<ArrowRight className="h-4 w-4" />
                   </ApplyButton>
@@ -345,6 +354,7 @@ export default async function CareersPage() {
         </CareerApplyProvider>
 
         <PageBlocks pageKey="careers" />
+        <RelatedSection page="careers" />
       </main>
       <Footer />
     </>

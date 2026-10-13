@@ -3,6 +3,11 @@ import { notFound } from "next/navigation";
 import { ArrowLeft, Download, ExternalLink, FileText, Mail, MailCheck, MailX, Phone } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { getApplication } from "@/lib/applications-store";
+import { requireAdmin } from "@/lib/admin-session";
+import { hasMailer } from "@/lib/mailer";
+import { emailBrand } from "@/lib/application-emails";
+import { getSiteSettings } from "@/lib/settings";
+import { formatPostedDate } from "@/lib/careers-shared";
 import { ApplicationStatusBadge, formatApplicationDate, formatBytes } from "../application-ui";
 import { ApplicationForm } from "../application-form";
 
@@ -30,7 +35,9 @@ function EmailStatus({ label, sent }: { label: string; sent?: boolean }) {
 
 export default async function ApplicationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const app = await getApplication(id);
+  const me = await requireAdmin("applications");
+  // Email works through the signed-in user's own SMTP, or else the HR SMTP.
+  const [app, settings, canEmail] = await Promise.all([getApplication(id), getSiteSettings(), hasMailer(me.id)]);
   if (!app) notFound();
 
   const resumeHref = `/admin/applications/${app.id}/resume`;
@@ -38,7 +45,12 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
     <>
       <PageHeader
         title={app.name}
-        crumbs={[{ label: "Careers", href: "/admin/careers" }, { label: "Applications", href: "/admin/applications" }, { label: app.name }]}
+        crumbs={[
+          { label: "Careers", href: "/admin/careers" },
+          { label: "Applications", href: "/admin/applications" },
+          { label: app.position, href: `/admin/applications/applicants?${new URLSearchParams({ role: app.position })}` },
+          { label: app.name },
+        ]}
         description={`Applied for ${app.position} · ${formatApplicationDate(app.createdAt)}`}
         action={<ApplicationStatusBadge status={app.status} />}
       />
@@ -64,6 +76,9 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
               {!app.careerSlug && <span className="ml-2 text-xs text-uk-muted">(typed by the applicant — not an open role)</span>}
             </Row>
             <Row label="Years of experience">{app.experience}</Row>
+            <Row label="Expected joining date">
+              {app.joiningDate ? formatPostedDate(app.joiningDate) : <span className="text-uk-muted">Not given</span>}
+            </Row>
             <Row label="Portfolio / LinkedIn">
               {app.portfolio ? (
                 <a href={app.portfolio} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5 break-all text-uk-blue hover:underline">
@@ -98,16 +113,43 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
                 <EmailStatus label="Thank-you to applicant" sent={app.emails?.applicant} />
               </span>
             </Row>
+            <Row label="Status emails sent">
+              {app.statusEmails?.length ? (
+                <ul className="space-y-2">
+                  {[...app.statusEmails].reverse().map((m, i) => (
+                    <li key={i} className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                      <MailCheck className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <ApplicationStatusBadge status={m.status} />
+                      <span className="font-medium">{m.subject}</span>
+                      <span className="text-xs text-uk-muted">
+                        {formatApplicationDate(m.sentAt)} · {m.edited ? "edited by" : "default, sent by"} {m.sentBy}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <span className="text-uk-muted">None yet — change the status below to email the applicant.</span>
+              )}
+            </Row>
           </dl>
         </section>
 
-        <ApplicationForm id={app.id} name={app.name} initial={{ status: app.status, note: app.note }} />
+        <ApplicationForm
+          id={app.id}
+          name={app.name}
+          email={app.email}
+          position={app.position}
+          appliedOn={app.createdAt.toISOString()}
+          brand={emailBrand(settings)}
+          canEmail={canEmail}
+          initial={{ status: app.status, note: app.note }}
+        />
 
         <Link
-          href="/admin/applications"
+          href="/admin/applications/applicants"
           className="inline-flex h-10 items-center gap-2 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading"
         >
-          <ArrowLeft className="h-4 w-4" /> Back to applications
+          <ArrowLeft className="h-4 w-4" /> Back to applicants
         </Link>
       </div>
     </>

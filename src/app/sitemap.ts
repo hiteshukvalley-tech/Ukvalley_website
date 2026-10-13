@@ -32,6 +32,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/team`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/social-impact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/press-kit`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/media`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
     { url: `${BASE}/why-ukvalley`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/clients`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE}/project-rescue`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },

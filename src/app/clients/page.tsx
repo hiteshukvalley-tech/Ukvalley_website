@@ -25,7 +25,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("clients", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Client success — 150+ businesses on our software",
+  title: "Client success: 150+ businesses on our software",
   description:
     "How Ukvalley clients measure our work: faster loan processing, multi-store POS rollouts, telephony costs cut by 60% and CRM pipelines with zero dropped leads. Names anonymised, numbers real.",
   alternates: { canonical: `${SITE_URL}/clients` },
@@ -47,11 +47,11 @@ export default async function ClientsPage() {
           eyebrow={ukText("Client success")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Client Success" }]}
           title={
-            <>{ukText("150+ clients. One standard —")}{" "}
+            <>{ukText("150+ clients. One standard, ")}{" "}
               <span className="text-gradient-blue">{ukText("measured outcomes.")}</span>
             </>
           }
-          description={ukText("We anonymise client names and publish the numbers instead. Every engagement below has a metric, a timeline and a named stack — because adjectives are easy and accountability isn't.")}
+          description={ukText("We anonymise client names and publish the numbers instead. Every engagement below has a metric, a timeline and a named stack, because adjectives are easy and accountability isn't.")}
         />
 
         <ByTheNumbers className="bg-uk-surface" />
@@ -66,9 +66,9 @@ export default async function ClientsPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why we publish numbers instead of adjectives")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every software vendor claims to be reliable, fast and easy to work with — which means the words have stopped meaning anything by the time a buyer reads a third portfolio page. The result is that choosing a delivery partner comes down to who has the nicest website, not who actually ships, and that's a genuinely bad way to pick who builds your loan platform or your POS system.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every software vendor claims to be reliable, fast and easy to work with, which means the words have stopped meaning anything by the time a buyer reads a third portfolio page. The result is that choosing a delivery partner comes down to who has the nicest website, not who actually ships, and that's a genuinely bad way to pick who builds your loan platform or your POS system.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We built this page the other way round: no client logos we haven't been given permission to show, no testimonials collected the week after launch when everyone is still excited, and no metric on this page that doesn't trace back to a named engagement with a timeline and a stack. If a claim can't be measured, it isn't here.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That's why every case study below states a before, an after and a timeframe, and why testimonials are collected at launch, at the first quarter and again at year one — not cherry-picked at the moment of maximum goodwill. You're welcome to call any of these clients; we'll make the introduction.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That's why every case study below states a before, an after and a timeframe, and why testimonials are collected at launch, at the first quarter and again at year one, not cherry-picked at the moment of maximum goodwill. You're welcome to call any of these clients; we'll make the introduction.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -77,10 +77,10 @@ export default async function ClientsPage() {
                   <p className="mt-1 text-sm text-uk-gray">{ukText("How to read the proof below.")}</p>
                   <ul className="mt-5 flex flex-col gap-4">
                     {[
-                      "Real engagements — names anonymised at client request, every metric real",
+                      "Real engagements, names anonymised at client request, every metric real",
                       "Testimonials collected at launch, one quarter, and year one",
                       "Every case study links to the full sector story and stack",
-                      "Ask to speak to any client — we'll make the introduction",
+                      "Ask to speak to any client, we'll make the introduction",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
@@ -118,7 +118,7 @@ export default async function ClientsPage() {
             <SectionHeading
               eyebrow={ukText("Testimonials")}
               title={<>{ukText("What clients say after go-live.")}</>}
-              description={ukText("Collected at project milestones — launch, first quarter and year one — not hand-picked launch-week quotes.")}
+              description={ukText("Collected at project milestones, launch, first quarter and year one, not hand-picked launch-week quotes.")}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2">
               {testimonials.map((t) => (
@@ -159,7 +159,7 @@ export default async function ClientsPage() {
             <SectionHeading
               eyebrow={ukText("Measured results")}
               title={<>{ukText("Engagements with the numbers attached.")}</>}
-              description={ukText(`${caseStudies.length} engagements across ${new Set(caseStudies.map((c) => c.sector)).size} sectors — each linking to the full case study.`)}
+              description={ukText(`${caseStudies.length} engagements across ${new Set(caseStudies.map((c) => c.sector)).size} sectors, each linking to the full case study.`)}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {caseStudies.map((c, i) => {
@@ -205,7 +205,7 @@ export default async function ClientsPage() {
           <Container>
             <Reveal className="flex flex-col items-center gap-3 text-center">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Businesses that run on Ukvalley software")}</h2>
-              <p className="max-w-xl text-sm text-uk-muted">{ukText("Brands across fintech, retail, media, logistics and agriculture — several as products we build and operate ourselves.")}</p>
+              <p className="max-w-xl text-sm text-uk-muted">{ukText("Brands across fintech, retail, media, logistics and agriculture, several as products we build and operate ourselves.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 flex flex-wrap items-center justify-center gap-3">
               {trustedBy.map((brand) => (
@@ -218,17 +218,17 @@ export default async function ClientsPage() {
               ))}
             </Reveal>
             <Reveal className="mt-10 flex flex-col items-center gap-3 text-center">
-              <p className="max-w-2xl text-sm leading-relaxed text-uk-gray">{ukText("Client names are anonymised at their request and replaced with representative brands. Every metric in our case studies is drawn from the engagement itself — and we're happy to walk you through how each number was measured on a call.")}</p>
+              <p className="max-w-2xl text-sm leading-relaxed text-uk-gray">{ukText("Client names are anonymised at their request and replaced with representative brands. Every metric in our case studies is drawn from the engagement itself, and we're happy to walk you through how each number was measured on a call.")}</p>
               <Link
                 href={ukText("/contact")}
                 className="group mt-2 inline-flex items-center gap-2 text-sm font-semibold text-uk-blue transition-colors hover:text-uk-blue-bright"
-              >{ukText("Ask us anything — book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              >{ukText("Ask us anything, book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Reveal>
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="clients" />
         <PageBlocks pageKey="clients" />
       </main>
       <Footer />

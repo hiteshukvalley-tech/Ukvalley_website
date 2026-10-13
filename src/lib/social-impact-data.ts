@@ -18,7 +18,7 @@ export type ImpactGroup = { id: string; title: string; description: string; /** 
 const photos = (prefix: string, count: number, alt: string): ImpactPhoto[] =>
   Array.from({ length: count }, (_, i) => ({
     src: `/social-impact/${prefix}-${String(i + 1).padStart(2, "0")}.webp`,
-    alt: `${alt} — photo ${i + 1}`,
+    alt: `${alt}, photo ${i + 1}`,
   }));
 
 export const socialImpactGroups: ImpactGroup[] = [
@@ -34,7 +34,7 @@ export const socialImpactGroups: ImpactGroup[] = [
     id: "sports-event",
     caption: "Cricket",
     title: "Sports Event",
-    description: "Cricket, teamwork and friendly competition — our sports days keep the team active, connected and energised.",
+    description: "Cricket, teamwork and friendly competition, our sports days keep the team active, connected and energised.",
     photos: photos("sports", 1, "Ukvalley team cricket match"),
   },
   {
@@ -50,7 +50,7 @@ export const socialImpactGroups: ImpactGroup[] = [
     caption: "Ganpati Utsav",
     title: "Ganpati Utsav",
     description:
-      "Every year the whole Ukvalley family gathers at the office to welcome Bappa — a beautifully decorated shrine, aarti together and plenty of smiles.",
+      "Every year the whole Ukvalley family gathers at the office to welcome Bappa, a beautifully decorated shrine, aarti together and plenty of smiles.",
     photos: [
       { src: "/social-impact/ganpati-01.webp", alt: "Ukvalley team celebrating Ganpati Utsav at the office", focus: "object-[50%_45%]" },
       { src: "/social-impact/ganpati-02.webp", alt: "Ganpati shrine decorated with marigold garlands, roses and lights", focus: "object-[50%_62%]" },
@@ -111,7 +111,7 @@ export function resolveSocialImpact(saved: SavedSocialImpact) {
       title: g.title,
       caption: g.caption,
       description: g.description,
-      photos: srcs.map((src, i) => builtInPhotos.get(src) ?? { src, alt: `${g.title} — photo ${i + 1}` }),
+      photos: srcs.map((src, i) => builtInPhotos.get(src) ?? { src, alt: `${g.title}, photo ${i + 1}` }),
     };
   });
   // sections without photos show as text only

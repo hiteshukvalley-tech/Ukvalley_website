@@ -1,6 +1,6 @@
 import type { Career } from "./site-data";
 import {
-  DEFAULT_HIRING_PROCESS, EXPERIENCE_YEARS_MAX, HIRING_STEPS_MAX, isIsoDate, isJobMode, todayInIndia,
+  DEFAULT_HIRING_PROCESS, EXPERIENCE_YEARS_MAX, HIRING_STEPS_MAX, isIsoDate, isJobMode, isJobType, todayInIndia,
   type HiringStep,
 } from "./careers-shared";
 
@@ -11,6 +11,7 @@ export type CareerValues = {
   role: string;
   slug: string;
   location: string;
+  /** Full-time / Part-time / Freelancing / Internship */
   type: string;
   /** Remote / Hybrid / On-site */
   mode: string;
@@ -20,11 +21,14 @@ export type CareerValues = {
   experienceMax: string;
   /** YYYY-MM-DD */
   postedAt: string;
+  /** "About the role" */
   summary: string;
   /** one per line */
   responsibilities: string;
-  /** one per line */
+  /** "Required skills", one per line */
   requirements: string;
+  /** one per line; optional */
+  qualifications: string;
   /** one per line */
   perks: string;
   /** one step per line: "Title | what happens" */
@@ -38,7 +42,7 @@ const processToText = (steps: HiringStep[]) => steps.map((s) => `${s.title} | ${
 export const emptyCareerValues = (): CareerValues => ({
   role: "", slug: "", location: "India", type: "Full-time", mode: "Remote",
   experienceMin: "", experienceMax: "", postedAt: todayInIndia(), summary: "",
-  responsibilities: "", requirements: "", perks: "",
+  responsibilities: "", requirements: "", qualifications: "", perks: "",
   hiringProcess: processToText(DEFAULT_HIRING_PROCESS), published: "on",
 });
 
@@ -52,7 +56,7 @@ const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const FIELDS = [
   "role", "slug", "location", "type", "mode", "experienceMin", "experienceMax", "postedAt",
-  "summary", "responsibilities", "requirements", "perks", "hiringProcess",
+  "summary", "responsibilities", "requirements", "qualifications", "perks", "hiringProcess",
 ] as const;
 
 export function readCareerValues(formData: FormData): CareerValues {
@@ -73,6 +77,7 @@ export function toCareerValues(c: CareerRecord): CareerValues {
     summary: c.summary,
     responsibilities: c.responsibilities.join("\n"),
     requirements: c.requirements.join("\n"),
+    qualifications: (c.qualifications ?? []).join("\n"),
     perks: c.perks.join("\n"),
     hiringProcess: processToText(c.hiringProcess),
     published: c.published ? "on" : "",
@@ -93,8 +98,7 @@ export function validateCareer(
   };
   text("role", "Role", 80);
   text("location", "Location", 60);
-  text("type", "Type", 30);
-  text("summary", "Summary", 300);
+  text("summary", "About the role", 300);
 
   if (requireSlug) {
     if (!v.slug) e.slug = "Slug is required.";
@@ -103,6 +107,7 @@ export function validateCareer(
   }
 
   if (!isJobMode(v.mode)) e.mode = "Choose Remote, Hybrid or On-site.";
+  if (!isJobType(v.type)) e.type = "Choose Full-time, Part-time, Freelancing or Internship.";
 
   let experienceMin = 0;
   if (!v.experienceMin) e.experienceMin = "Minimum experience is required (0 for freshers).";
@@ -123,16 +128,18 @@ export function validateCareer(
   else if (!isIsoDate(v.postedAt)) e.postedAt = "Enter a valid date.";
   else if (v.postedAt > todayInIndia()) e.postedAt = "The published date can't be in the future.";
 
-  const list = (k: "responsibilities" | "requirements" | "perks", label: string, max: number) => {
+  const list = (k: "responsibilities" | "requirements" | "qualifications" | "perks", label: string, max: number, optional = false) => {
     const items = lines(v[k]);
-    if (items.length === 0) e[k] = `Add at least one ${label}.`;
+    if (items.length === 0 && !optional) e[k] = `Add at least one ${label}.`;
     else if (items.length > max) e[k] = `Use ${max} or fewer.`;
     else if (items.some((s) => s.length > 300)) e[k] = "Each line must be 300 characters or fewer.";
     return items;
   };
   const responsibilities = list("responsibilities", "responsibility", 10);
-  const requirements = list("requirements", "requirement", 10);
-  const perks = list("perks", "perk", 10);
+  const requirements = list("requirements", "required skill", 10);
+  const qualifications = list("qualifications", "qualification", 10, true);
+  // No limit is shown for perks; this cap only stops runaway lists.
+  const perks = list("perks", "perk", 30);
 
   const hiringProcess: HiringStep[] = [];
   const steps = lines(v.hiringProcess);
@@ -163,10 +170,10 @@ export function validateCareer(
   return {
     ok: true,
     value: {
-      slug: v.slug, role: v.role, location: v.location, type: v.type, mode: v.mode as CareerInput["mode"],
+      slug: v.slug, role: v.role, location: v.location, type: v.type as CareerInput["type"], mode: v.mode as CareerInput["mode"],
       experienceMin, ...(experienceMax === undefined ? {} : { experienceMax }),
       postedAt: v.postedAt, summary: v.summary,
-      responsibilities, requirements, perks, hiringProcess,
+      responsibilities, requirements, ...(qualifications.length ? { qualifications } : {}), perks, hiringProcess,
       published: v.published === "on",
     },
   };

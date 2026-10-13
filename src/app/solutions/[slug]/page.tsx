@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const s = (await getSolutions()).find((x) => x.slug === slug);
   if (!s) return {};
   return withSharePreview({
-    title: fitTitle(`${s.name} — built around your workflow`, s.name),
+    title: fitTitle(`${s.name}, built around your workflow`, s.name),
     description: s.description,
     alternates: { canonical: `${SITE_URL}/solutions/${s.slug}` },
   });
@@ -113,7 +113,7 @@ export default async function SolutionPage({ params }: Props) {
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(s.name)}{" "}{ukText("projects fail — and how we build them differently")}</h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(s.name)}{" "}{ukText("projects fail, and how we build them differently")}</h2>
                 {s.longDescription.map((para, i) => (
                   <p key={i} className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
                     {ukText(para)}
@@ -181,7 +181,7 @@ export default async function SolutionPage({ params }: Props) {
           <Container className="relative">
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What it includes")}</h2>
-              <p className="mt-3 text-uk-gray">{ukText("Every capability below ships as standard — customised to your workflow in the scoping week, not sold as extra modules.")}</p>
+              <p className="mt-3 text-uk-gray">{ukText("Every capability below ships as standard, customised to your workflow in the scoping week, not sold as extra modules.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {s.features.map((f) => (
@@ -266,7 +266,7 @@ export default async function SolutionPage({ params }: Props) {
                 <div>
                   <span className="inline-flex w-fit items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Outcomes")}</span>
                   <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What changes after go-live")}</h2>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Every item here is a measurable state you can check on your own system a month after launch — not an adjective.")}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Every item here is a measurable state you can check on your own system a month after launch, not an adjective.")}</p>
                   <div className="mt-6 rounded-2xl border border-uk-line bg-uk-card p-5">
                     <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-uk-muted">
                       <ShieldCheck className="h-4 w-4 text-uk-blue" />{ukText("Guaranteed in the contract")}</p>
@@ -406,7 +406,7 @@ export default async function SolutionPage({ params }: Props) {
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want ")}{ukText(s.name)}{" "}{ukText("built around your workflow?")}</h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("Book a free scoping call — a written estimate in 3 days.")}</p>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("Book a free scoping call, a written estimate in 3 days.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
@@ -422,7 +422,7 @@ export default async function SolutionPage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="solutions" />
       </main>
       <Footer />
     </>

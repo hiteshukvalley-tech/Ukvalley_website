@@ -27,7 +27,7 @@ export function TimeSavers({
     <>{ukText("Six ways the model ")}<span className="text-uk-blue">{ukText("saves your team's time.")}</span>
     </>
   ),
-  description = "Every figure below is a mechanism, not a promise — a contractual term or a fixed delivery ritual you can check on any engagement.",
+  description = "Every figure below is a mechanism, not a promise, a contractual term or a fixed delivery ritual you can check on any engagement.",
   align = "center",
   className,
 }: {

@@ -3,16 +3,18 @@
 import { useState } from "react";
 import Link from "@/components/site/intent-link";
 import { usePathname } from "next/navigation";
-import { ChevronDown, LogOut, Menu, X, ExternalLink, UserRound } from "lucide-react";
+import { ChevronDown, Menu, X, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/site/theme-toggle";
-import { logoutAction } from "@/app/admin/actions";
 import { GlobalSearch } from "./global-search";
+import { NotificationBell } from "./notification-bell";
+import { UserMenu } from "./user-menu";
 import { adminNav, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
 import { Toaster } from "./toast";
 import { ConfirmHost } from "./confirm-dialog";
 import type { AdminRole } from "@/lib/admin-auth";
 import { canOpenPath, canUseArea, type Access } from "@/lib/admin-access";
 import { roleLabel } from "@/lib/users-validation";
+import { firstName } from "@/lib/profile-validation";
 import { cn } from "@/lib/utils";
 import { OFFICIAL_LOGO } from "@/lib/site-content-schema";
 
@@ -160,9 +162,11 @@ export function AdminShell({
   user,
 }: {
   children: React.ReactNode;
-  user: { email: string; role: AdminRole; access?: string[]; title?: string };
+  user: { email: string; role: AdminRole; access?: string[]; title?: string; name?: string; photo?: string };
 }) {
   const [open, setOpen] = useState(false);
+  // The dashboard has its own, larger welcome.
+  const onDashboard = usePathname() === "/admin";
 
   return (
     <div className="min-h-screen bg-uk-surface text-uk-body">
@@ -207,6 +211,10 @@ export function AdminShell({
           >
             <Menu className="h-4 w-4" />
           </button>
+          {/* Welcome: the name from My profile (else the email's name part) */}
+          <p className={cn("hidden min-w-0 truncate text-sm text-uk-muted", !onDashboard && "xl:block")}>
+            Welcome, <span className="font-semibold text-uk-heading">{firstName(user.name, user.email)}</span>! Have a good day.
+          </p>
           {/* searches every page's text, so only for people with "Pages & text" */}
           {canUseArea(user.role, user.access, "texts") ? <GlobalSearch /> : null}
           <div className="flex-1" />
@@ -218,26 +226,14 @@ export function AdminShell({
             View site <ExternalLink className="h-3.5 w-3.5" />
           </Link>
           <ThemeToggle />
-          <Link
-            href="/admin/account"
-            title="Your account"
-            className="hidden h-9 max-w-56 items-center gap-2 rounded-lg px-3 text-sm font-medium text-uk-muted transition-colors hover:bg-uk-surface-2 hover:text-uk-heading md:inline-flex"
-          >
-            <UserRound className="h-4 w-4 shrink-0" />
-            <span className="truncate">{user.email}</span>
-            <span className="shrink-0 whitespace-nowrap rounded-full bg-uk-surface-3 px-2 py-0.5 text-[10px] font-semibold text-uk-muted">{user.title || roleLabel[user.role]}</span>
-          </Link>
-          <form action={logoutAction}>
-            <button
-              type="submit"
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-uk-line px-3 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading"
-            >
-              <LogOut className="h-4 w-4" />
-              <span className="hidden sm:inline">Sign out</span>
-            </button>
-          </form>
+          {/* new applications, today's interviews and applicants' emails to HR */}
+          {canUseArea(user.role, user.access, "applications") ? <NotificationBell /> : null}
+          {/* the user's name: opens My profile, Settings and Sign out */}
+          <UserMenu name={user.name} email={user.email} photo={user.photo} badge={user.title || roleLabel[user.role]} />
         </header>
-        <main id="main" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+        {/* A page holding a wide table ([data-wide]) gets the full width */}
+        <main id="main" data-admin="" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 has-[[data-wide]]:max-w-none">
+
           {children}
         </main>
       </div>

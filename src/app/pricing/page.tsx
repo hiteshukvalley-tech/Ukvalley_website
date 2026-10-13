@@ -21,7 +21,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("pricing", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Pricing — how we quote, honestly",
+  title: "Pricing: how we quote, honestly",
   description:
     "How Ukvalley quotes custom software: what actually drives cost, from a single-workflow tool to a multi-department platform, plus dedicated-developer and retainer models. Written estimates in 3 days.",
   alternates: { canonical: `${SITE_URL}/pricing` },
@@ -86,7 +86,7 @@ export default async function PricingPage() {
           eyebrow={ukText("Pricing")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Pricing" }]}
           title={
-            <>{ukText("How we price —")}{" "}
+            <>{ukText("How we price, ")}{" "}
               <span className="text-gradient-blue">{ukText("before you ever talk to us.")}</span>
             </>
           }
@@ -103,9 +103,9 @@ export default async function PricingPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why quotes for \"the same app\" differ by ten times")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Ask five vendors what a custom CRM costs and you'll get five wildly different answers. Nobody is lying — they're quoting different things, because most buyers describe the app by its screens, and screen count is almost irrelevant to what actually drives the price.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Ask five vendors what a custom CRM costs and you'll get five wildly different answers. Nobody is lying, they're quoting different things, because most buyers describe the app by its screens, and screen count is almost irrelevant to what actually drives the price.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The opacity costs buyers at the negotiation table: without knowing which variables actually move the number, it's impossible to tell whether a low quote is a genuine efficiency or a bait price that grows once the contract is signed, or whether a high quote reflects real complexity or just a bigger logo on the invoice.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We publish the three variables that actually drive cost — distinct user roles, external integrations and how much of the workflow is genuinely custom — so you can sanity-check any quote, including ours, before you sign anything.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We publish the three variables that actually drive cost, distinct user roles, external integrations and how much of the workflow is genuinely custom, so you can sanity-check any quote, including ours, before you sign anything.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -116,7 +116,7 @@ export default async function PricingPage() {
                       "Distinct user roles needing different screens",
                       "External systems that must be integrated",
                       "How much of the workflow is genuinely custom",
-                      "Screen count — almost irrelevant, despite appearances",
+                      "Screen count, almost irrelevant, despite appearances",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
@@ -210,7 +210,7 @@ export default async function PricingPage() {
           <Container>
             <SectionHeading
               eyebrow={ukText("Billing models")}
-              title={<>{ukText("Pick the model — the inclusions never change.")}</>}
+              title={<>{ukText("Pick the model, the inclusions never change.")}</>}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {engagementModels.map((m) => (
@@ -231,7 +231,7 @@ export default async function PricingPage() {
             </Reveal>
 
             <Reveal className="mt-10 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-8">
-              <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Included in every quote — never an upsell")}</h3>
+              <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Included in every quote, never an upsell")}</h3>
               <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {always.map((a) => (
                   <span key={a} className="flex items-center gap-2.5 text-sm text-uk-heading">
@@ -290,7 +290,7 @@ export default async function PricingPage() {
             <Reveal className="mt-12 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-8">
               <div className="max-w-xl">
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Get your tier confirmed in 3 days.")}</h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("A free scoping call, a written rough estimate in 3 business days, a fixed proposal in 7 — no charge, no obligation.")}</p>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A free scoping call, a written rough estimate in 3 business days, a fixed proposal in 7, no charge, no obligation.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Get an estimate")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
@@ -298,7 +298,7 @@ export default async function PricingPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="pricing" />
         <PageBlocks pageKey="pricing" />
       </main>
       <Footer />

@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const p = (await getProducts()).find((x) => x.slug === slug);
   if (!p) return {};
   return withSharePreview({
-    title: fitTitle(`${p.name} — ${p.tagline}`, p.name),
+    title: fitTitle(`${p.name}, ${p.tagline}`, p.name),
     description: p.description,
     alternates: { canonical: `${SITE_URL}/products/${p.slug}` },
   });
@@ -262,7 +262,7 @@ export default async function ProductPage({ params }: Props) {
 
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
-                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want ")}{ukText(p.name)}{" "}{ukText("for your team — or something like it, built for you?")}</h3>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Want ")}{ukText(p.name)}{" "}{ukText("for your team, or something like it, built for you?")}</h3>
                 <p className="mt-1 text-sm text-uk-gray">{ukText("Deploy the product as-is, customise it, or start a build of your own. A free scoping call decides which.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
@@ -279,7 +279,7 @@ export default async function ProductPage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="products" />
       </main>
       <Footer />
     </>

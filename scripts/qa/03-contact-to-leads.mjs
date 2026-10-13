@@ -1,6 +1,6 @@
 // Website → backend → admin: a public enquiry must reach the admin Leads inbox,
 // and the admin must be able to triage, export and delete it.
-import { BASE, check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
+import { BASE, check, go, launch, login, newPage, pickOption, section, sleep, summary, text } from "./lib.mjs";
 
 const browser = await launch();
 const stamp = Date.now();
@@ -75,7 +75,7 @@ if (href) {
   check("detail shows source contact-page", /contact/i.test(t));
 
   // triage: status + note
-  await admin.select("select[name=status]", "contacted").catch(() => {});
+  await pickOption(admin, "#f-status", "Contacted").catch(() => {});
   await admin.evaluate(() => { const n = document.querySelector("textarea[name=note]"); if (n) n.value = ""; });
   await admin.type("textarea[name=note]", "QA note");
   await admin.evaluate(() => document.querySelector("form[novalidate] button[type=submit]")?.click());

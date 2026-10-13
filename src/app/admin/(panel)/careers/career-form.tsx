@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import { Loader2, Save } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect, FormTextarea } from "@/components/admin/form";
 import type { CareerValues } from "@/lib/careers-validation";
-import { HIRING_STEPS_MAX, JOB_MODES, LOCATION_SUGGESTIONS } from "@/lib/careers-shared";
+import { HIRING_STEPS_MAX, JOB_MODES, JOB_TYPES, LOCATION_SUGGESTIONS, toJobType } from "@/lib/careers-shared";
 import { createCareerAction, updateCareerAction, type CareerFormState } from "./actions";
 import { useResultToast } from "@/components/admin/toast";
 
@@ -50,7 +50,16 @@ export function CareerForm({
           options={JOB_MODES.map((m) => ({ value: m, label: m }))}
           hint="Shown as a badge on the listing and the job page."
         />
-        <FormField label="Type" name="type" required defaultValue={values.type} error={errors.type} hint="e.g. Full-time, Part-time, Contract, Internship" />
+        <FormSelect
+          label="Job type"
+          name="type"
+          required
+          // a role saved when this was free text starts on its closest type
+          defaultValue={toJobType(values.type)}
+          error={errors.type}
+          options={JOB_TYPES.map((t) => ({ value: t, label: t }))}
+          hint="Shown on the listing and the job page. Candidates can filter open roles by it."
+        />
         <FormField
           label="Published date"
           name="postedAt"
@@ -79,13 +88,22 @@ export function CareerForm({
           error={errors.experienceMax}
           hint="Leave blank for “minimum+ years”."
         />
-        <FormTextarea label="Summary" name="summary" required full rows={3} defaultValue={values.summary} error={errors.summary} hint="Up to 300 characters. Shown under the role title." />
+        <FormTextarea label="About the role" name="summary" required full rows={3} defaultValue={values.summary} error={errors.summary} hint="Up to 300 characters. Shown under the role title and in “About the role” on the job page." />
       </FormSection>
 
       <FormSection title="Details">
         <FormTextarea label="Responsibilities" name="responsibilities" required full rows={6} defaultValue={values.responsibilities} error={errors.responsibilities} hint="One per line, up to 10." />
-        <FormTextarea label="Requirements" name="requirements" required full rows={6} defaultValue={values.requirements} error={errors.requirements} hint="One per line, up to 10." />
-        <FormTextarea label="Perks" name="perks" required full rows={5} defaultValue={values.perks} error={errors.perks} hint="One per line, up to 10." />
+        <FormTextarea label="Required skills" name="requirements" required full rows={6} defaultValue={values.requirements} error={errors.requirements} hint="One per line, up to 10." />
+        <FormTextarea
+          label="Qualifications"
+          name="qualifications"
+          full
+          rows={4}
+          defaultValue={values.qualifications}
+          error={errors.qualifications}
+          hint="Optional. One per line, up to 10, e.g. B.E. / B.Tech in Computer Science or equivalent. Leave empty to hide this section on the job page."
+        />
+        <FormTextarea label="Perks" name="perks" required full rows={5} defaultValue={values.perks} error={errors.perks} />
       </FormSection>
 
       <FormSection

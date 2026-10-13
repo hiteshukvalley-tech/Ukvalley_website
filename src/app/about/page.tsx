@@ -28,7 +28,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("about", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "About us — software engineers since 2017",
+  title: "About us: software engineers since 2017",
   description:
     "Founded in 2017, Ukvalley Technologies builds custom software, CRM, ERP and mobile apps for Indian SMEs and global startups. Meet the team and the principles we build on.",
   alternates: { canonical: `${SITE_URL}/about` },
@@ -52,10 +52,10 @@ export default async function AboutPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "About" }]}
           title={
             <>{ukText("An engineering-led team building software that")}{" "}
-              <span className="text-gradient-blue">{ukText("earns its keep")}</span>{" "}{ukText("— since 2017.")}</>
+              <span className="text-gradient-blue">{ukText("earns its keep")}</span>{" "}{ukText("since 2017.")}</>
           }
           description={
-            <>{ukText("Ukvalley Technologies is an unfunded, engineer-led software company headquartered in Nashik, Maharashtra, India, with offices in Pune and Nagpur, a US office in Jersey City and presence in Dubai, Toronto and New York. We build, ship and support software for Indian SMEs and global startups — and we run our own products in production as proof.")}</>
+            <>{ukText("Ukvalley Technologies is an unfunded, engineer-led software company headquartered in Nashik, Maharashtra, India, with offices in Pune and Nagpur, a US office in Jersey City and presence in Dubai, Toronto and New York. We build, ship and support software for Indian SMEs and global startups, and we run our own products in production as proof.")}</>
           }
         />
 
@@ -86,12 +86,12 @@ export default async function AboutPage() {
             </Reveal>
             <div className="mt-8 grid gap-12 lg:grid-cols-[1fr_0.8fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("Engineers who scope it build it — no brokers, no offshoring pools.")}</h2>
+                <h2 className="font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("Engineers who scope it build it, no brokers, no offshoring pools.")}</h2>
                 <div className="text-justify-prose space-y-4 text-lg leading-relaxed text-uk-gray">
                   <p>{ukText("Ukvalley was founded in 2017 with a simple premise: small and mid-sized businesses deserved the same engineering rigour the enterprise gets, at a cost that made sense. Our India cost base keeps us 30–40% below metro agencies without compromising on the people doing the work.")}</p>
-                  <p>{ukText("Today we run ")}{ukText(countWord(serviceCount))}{" "}{ukText("service lines and a portfolio of our own products — TeleValley, Ezzu CRM, Custom ERP, LMS Software, Evento, Emailz and more — all live in production. Products we run ourselves are proof most service firms can't offer.")}</p>
+                  <p>{ukText("Today we run ")}{ukText(countWord(serviceCount))}{" "}{ukText("service lines and a portfolio of our own products, TeleValley, Ezzu CRM, Custom ERP, LMS Software, EventoValley, Emailz and more, all live in production. Products we run ourselves are proof most service firms can't offer.")}</p>
                   <p>{ukText("We stay unfunded by choice. It keeps us accountable to clients, not to a cap table. The engineers who scope your project are the engineers who build it, and you own the code from day one.")}</p>
-                  <p>{ukText("Most agencies that raise venture money eventually optimise for the next round, not the current client — pricing shifts, senior staff get pulled onto whatever investors want to see, and roadmaps bend toward a pitch deck. Staying unfunded means our only growth lever is doing the work well enough that clients stay and refer the next one.")}</p>
+                  <p>{ukText("Most agencies that raise venture money eventually optimise for the next round, not the current client, pricing shifts, senior staff get pulled onto whatever investors want to see, and roadmaps bend toward a pitch deck. Staying unfunded means our only growth lever is doing the work well enough that clients stay and refer the next one.")}</p>
                 </div>
               </Reveal>
 
@@ -132,7 +132,7 @@ export default async function AboutPage() {
                   <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Why unfunded matters to you")}</h3>
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {[
-                      "No cap table to answer to — only clients",
+                      "No cap table to answer to, only clients",
                       "Pricing reflects real cost, not investor-subsidised burn",
                       "No runway clock forcing a pivot or a shutdown mid-project",
                       "Growth comes from client referrals, not funding rounds",
@@ -236,7 +236,7 @@ export default async function AboutPage() {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Leadership")}</span>
               <h2 className="mt-5 font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("The people accountable for your project")}</h2>
-              <p className="mt-4 text-lg text-uk-gray">{ukText("Named leaders, not an anonymous team. Real people you can reach — and a founder LinkedIn, not a generic contact form.")}</p>
+              <p className="mt-4 text-lg text-uk-gray">{ukText("Named leaders, not an anonymous team. Real people you can reach, and a founder LinkedIn, not a generic contact form.")}</p>
             </Reveal>
 
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -284,7 +284,7 @@ export default async function AboutPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="about" />
         <PageBlocks pageKey="about" />
       </main>
       <Footer />

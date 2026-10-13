@@ -21,9 +21,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("faq", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "FAQ — honest answers about working with us",
+  title: "FAQ: honest answers about working with us",
   description:
-    "Straight answers on IP and code ownership, pricing, timelines, response SLAs, vendor takeovers and technology choices — the questions buyers actually ask before signing.",
+    "Straight answers on IP and code ownership, pricing, timelines, response SLAs, vendor takeovers and technology choices, the questions buyers actually ask before signing.",
   alternates: { canonical: `${SITE_URL}/faq` },
 };
 
@@ -40,11 +40,11 @@ function buildGroups(faqs: { q: string; a: string }[]): FaqGroup[] {
       ...faqs.slice(0, 1),
       {
         q: "How is our data protected during development?",
-        a: "Least-privilege access, encrypted secrets and credentials vaulted — never in code. Your data lives on infrastructure you own, in regions you choose. We never pool, reuse or hold client data, and access is revoked the day an engagement ends.",
+        a: "Least-privilege access, encrypted secrets and credentials vaulted, never in code. Your data lives on infrastructure you own, in regions you choose. We never pool, reuse or hold client data, and access is revoked the day an engagement ends.",
       },
       {
         q: "What happens if we want to leave mid-project?",
-        a: "You can exit cleanly at any point. Code, documentation and credentials are handed over in a documented handover, and there are no penalties or hostage clauses — that's exactly why we can offer it: nothing depends on staying with us.",
+        a: "You can exit cleanly at any point. Code, documentation and credentials are handed over in a documented handover, and there are no penalties or hostage clauses, that's exactly why we can offer it: nothing depends on staying with us.",
       },
     ],
   },
@@ -54,15 +54,15 @@ function buildGroups(faqs: { q: string; a: string }[]): FaqGroup[] {
       ...faqs.slice(1, 2),
       {
         q: "What does a dedicated developer cost per month?",
-        a: "It depends on seniority and specialisation, and we quote it in writing after a 30-minute call — typically 30–40% below metro agency rates for equal experience. Every quote includes the 24-hour SLA, code review culture and replace-anytime guarantee.",
+        a: "It depends on seniority and specialisation, and we quote it in writing after a 30-minute call, typically 30–40% below metro agency rates for equal experience. Every quote includes the 24-hour SLA, code review culture and replace-anytime guarantee.",
       },
       {
         q: "Do you charge for scoping and estimates?",
-        a: "No. The scoping call is free, and the written rough estimate within 3 business days is free too. The first paid artefact is the fixed proposal (in 7 days) or the first sprint — you decide which.",
+        a: "No. The scoping call is free, and the written rough estimate within 3 business days is free too. The first paid artefact is the fixed proposal (in 7 days) or the first sprint, you decide which.",
       },
       {
         q: "Can we start small before committing?",
-        a: "Yes — most clients start with a paid trial slice: one real task on your codebase or a thin-slice prototype. It prices out the fit and the unknowns before any long-term agreement.",
+        a: "Yes, most clients start with a paid trial slice: one real task on your codebase or a thin-slice prototype. It prices out the fit and the unknowns before any long-term agreement.",
       },
     ],
   },
@@ -76,15 +76,15 @@ function buildGroups(faqs: { q: string; a: string }[]): FaqGroup[] {
       },
       {
         q: "What do weekly demos look like?",
-        a: "Every Friday, a live demo on real software — not a slide deck. You see what shipped, what's next and any decisions needed. It's the same rhythm we run on our own products.",
+        a: "Every Friday, a live demo on real software, not a slide deck. You see what shipped, what's next and any decisions needed. It's the same rhythm we run on our own products.",
       },
       {
         q: "How do you handle scope changes?",
-        a: "In writing, with a priced change note before the work starts. No surprise invoices: if a change affects cost or timeline, you approve it first — that's part of the fixed-bid discipline.",
+        a: "In writing, with a priced change note before the work starts. No surprise invoices: if a change affects cost or timeline, you approve it first, that's part of the fixed-bid discipline.",
       },
       {
         q: "Who do we talk to day to day?",
-        a: "A named architect plus a dedicated Slack channel and shared Jira. The architect who scoped your project stays on it — no hand-offs to a faceless pool, no ticket-queue runarounds.",
+        a: "A named architect plus a dedicated Slack channel and shared Jira. The architect who scoped your project stays on it, no hand-offs to a faceless pool, no ticket-queue runarounds.",
       },
     ],
   },
@@ -94,11 +94,11 @@ function buildGroups(faqs: { q: string; a: string }[]): FaqGroup[] {
       ...faqs.slice(5, 6),
       {
         q: "Do you write tests and documentation?",
-        a: "Both, as standard: automated test suites wired into CI on every merge, and documentation written for the engineers who come after us — including a handover walkthrough at project end.",
+        a: "Both, as standard: automated test suites wired into CI on every merge, and documentation written for the engineers who come after us, including a handover walkthrough at project end.",
       },
       {
         q: "Can you audit our existing system before we commit?",
-        a: "Yes — a paid audit engagement produces a written assessment: what the system does, what's fragile, where the tests are, and a ranked stabilisation plan. The fee is credited against the first sprint if you proceed with us.",
+        a: "Yes, a paid audit engagement produces a written assessment: what the system does, what's fragile, where the tests are, and a ranked stabilisation plan. The fee is credited against the first sprint if you proceed with us.",
       },
       {
         q: "What's your QA process?",
@@ -151,11 +151,11 @@ export default async function FaqPage() {
           eyebrow={ukText("FAQ")}
           crumbs={[{ label: "Home", href: "/" }, { label: "FAQ" }]}
           title={
-            <>{ukText("Straight answers —")}{" "}
+            <>{ukText("Straight answers, ")}{" "}
               <span className="text-gradient-blue">{ukText("no sales spin.")}</span>
             </>
           }
-          description={ukText("Everything buyers ask us before signing: ownership, pricing, timelines, quality and what happens when things change. If your question isn't here, ask it directly — a human architect answers.")}
+          description={ukText("Everything buyers ask us before signing: ownership, pricing, timelines, quality and what happens when things change. If your question isn't here, ask it directly, a human architect answers.")}
         />
 
         {/* The problem it solves */}
@@ -168,9 +168,9 @@ export default async function FaqPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why most vendor FAQ pages answer nothing that matters")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency FAQ pages exist to be seen, not read: \"Do you build websites?\" \"Yes!\" \"Do you offer support?\" \"Of course!\" — questions with no real information in the answer, designed to fill a page rather than help a buyer decide. The actual hard questions — who owns the code, what happens if an engineer quits, what a change request costs — go conspicuously unasked.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency FAQ pages exist to be seen, not read: \"Do you build websites?\" \"Yes!\" \"Do you offer support?\" \"Of course!\"questions with no real information in the answer, designed to fill a page rather than help a buyer decide. The actual hard questions, who owns the code, what happens if an engineer quits, what a change request costs, go conspicuously unasked.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That evasiveness costs buyers later: a verbal assurance on a sales call about ownership or timelines has no force once a dispute starts, and the FAQ page that promised \"flexible, transparent pricing\" turns out to have never actually defined what either word means in the contract.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We answer the questions buyers actually ask before signing — ownership, pricing, timelines, what happens when things change — in specific, checkable terms, not marketing adjectives.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We answer the questions buyers actually ask before signing, ownership, pricing, timelines, what happens when things change, in specific, checkable terms, not marketing adjectives.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -251,7 +251,7 @@ export default async function FaqPage() {
           <Container>
             <Reveal className="mx-auto flex max-w-2xl flex-col items-center gap-4 rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-8 text-center">
               <h2 className="font-heading text-2xl font-bold text-uk-heading">{ukText("Still have a question?")}</h2>
-              <p className="text-uk-gray">{ukText("Ask it on a free 30-minute scoping call — a software architect answers, not a salesperson. A reply within one business day.")}</p>
+              <p className="text-uk-gray">{ukText("Ask it on a free 30-minute scoping call, a software architect answers, not a salesperson. A reply within one business day.")}</p>
               <Link
                 href={ukText("/contact")}
                 className="btn-sheen group inline-flex items-center gap-2 rounded-full bg-uk-blue px-6 py-3 text-sm font-semibold text-white shadow-glow-blue-sm transition-all hover:bg-uk-blue-bright"
@@ -261,7 +261,7 @@ export default async function FaqPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="faq" />
         <PageBlocks pageKey="faq" />
       </main>
       <Footer />

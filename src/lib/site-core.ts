@@ -47,7 +47,7 @@ export const processSteps = [
   {
     step: "01",
     title: "Discovery & scoping",
-    desc: "A free 30-minute call with a software architect — not a salesperson. We map your goals, constraints and success metrics, then send a written scope with a rough estimate in 3 business days.",
+    desc: "A free 30-minute call with a software architect, not a salesperson. We map your goals, constraints and success metrics, then send a written scope with a rough estimate in 3 business days.",
     duration: "Week 1",
     points: [
       "Stakeholder interviews & workflow audit",
@@ -58,7 +58,7 @@ export const processSteps = [
   {
     step: "02",
     title: "Architecture & prototype",
-    desc: "We design the data model, integrations and security posture up front, then ship a thin-slice prototype of the riskiest part — real working software in week 3, not slides.",
+    desc: "We design the data model, integrations and security posture up front, then ship a thin-slice prototype of the riskiest part, real working software in week 3, not slides.",
     duration: "Week 2–3",
     points: [
       "Architecture & data-model sign-off",
@@ -69,10 +69,10 @@ export const processSteps = [
   {
     step: "03",
     title: "Build sprints with weekly demos",
-    desc: "Two-week sprints with a live demo every Friday. Shared Jira, a dedicated Slack channel and a named architect on every call — you always know what shipped, what's next and what it costs.",
+    desc: "Two-week sprints with a live demo every Friday. Shared Jira, a dedicated Slack channel and a named architect on every call, you always know what shipped, what's next and what it costs.",
     duration: "Ongoing",
     points: [
-      "Working demo every week — no exceptions",
+      "Working demo every week, no exceptions",
       "Shared Jira + Slack, full visibility",
       "Code review & tests on every merge",
     ],
@@ -80,7 +80,7 @@ export const processSteps = [
   {
     step: "04",
     title: "Launch, handoff & support",
-    desc: "A load-tested, zero-downtime launch with a rollback plan. You own the code and every credential from day one — backed by a 24-hour response SLA and monthly health reports.",
+    desc: "A load-tested, zero-downtime launch with a rollback plan. You own the code and every credential from day one, backed by a 24-hour response SLA and monthly health reports.",
     duration: "Launch +",
     points: [
       "Load-tested launch with rollback plan",
@@ -120,7 +120,7 @@ export const techStack: TechCategory[] = [
     label: "Database",
     icon: "database",
     items: ["MongoDB", "PostgreSQL", "MySQL", "Redis"],
-    why: "Data modeled for your access patterns — indexed, backed up and migrated without downtime, because a slow query discovered at 10× scale is a Monday-morning outage, not a benchmark. Every schema decision comes with the reasoning written down.",
+    why: "Data modeled for your access patterns, indexed, backed up and migrated without downtime, because a slow query discovered at 10× scale is a Monday-morning outage, not a benchmark. Every schema decision comes with the reasoning written down.",
   },
   {
     label: "Cloud & Infra",
@@ -132,7 +132,7 @@ export const techStack: TechCategory[] = [
     label: "Testing & QA",
     icon: "flaskConical",
     items: ["Jest", "Playwright", "Cypress", "Selenium", "Postman"],
-    why: "Automated unit, e2e and API regression suites — every release ships with proof it works, not a developer's word for it. The suite lives in your repo and keeps protecting releases long after we've moved on.",
+    why: "Automated unit, e2e and API regression suites, every release ships with proof it works, not a developer's word for it. The suite lives in your repo and keeps protecting releases long after we've moved on.",
   },
 ];
 
@@ -152,7 +152,7 @@ export const nav: {
     { label: "Cloud & DevOps Engineering", href: "/services/cloud-devops" },
     { label: "Digital Marketing", href: "/services/digital-marketing" },
     { label: "Managed IT · Cloud · Cybersecurity", href: "/services/managed-it" },
-    { label: "Blockchain & DeFi Development", href: "/services/blockchain" },
+    // { label: "Blockchain & DeFi Development", href: "/services/blockchain" }, // hidden with the Blockchain card in site-data.ts
     { label: "Graphic & Brand Design", href: "/services/graphic-design" },
   ],
   company: [

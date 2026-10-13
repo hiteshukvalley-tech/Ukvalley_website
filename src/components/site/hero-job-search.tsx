@@ -195,7 +195,7 @@ export function HeroJobSearch({ jobs, total }: { jobs: JobListing[]; total: numb
           <SearchX className="mx-auto h-7 w-7 text-uk-blue" aria-hidden />
           <p className="mt-2 font-heading text-base font-bold text-uk-heading"><T>No roles match that search</T></p>
           <p className="mx-auto mt-1 max-w-md text-sm text-uk-body">
-            <T>Try a broader job title or a different location — or send us an open application and we&apos;ll reach out when something fits.</T>
+            <T>Try a broader job title or a different location, or send us an open application and we&apos;ll reach out when something fits.</T>
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
             <button

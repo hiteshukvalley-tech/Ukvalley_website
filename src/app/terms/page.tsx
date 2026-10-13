@@ -9,6 +9,7 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { getSiteSettings } from "@/lib/settings";
 import { ukText } from "@/lib/texts";
+import { RelatedSection } from "@/components/site/related-chips";
 
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
@@ -37,7 +38,7 @@ const sections = [
   },
   {
     h: "Intellectual property",
-    p: "Site content, branding and the Ukvalley name are our property. Client deliverables are owned by the client per the terms of their signed engagement agreement — including, by default, full source-code ownership from day one. Our own product names referenced on the site are our IP.",
+    p: "Site content, branding and the Ukvalley name are our property. Client deliverables are owned by the client per the terms of their signed engagement agreement, including, by default, full source-code ownership from day one. Our own product names referenced on the site are our IP.",
   },
   {
     h: "No warranty",
@@ -87,6 +88,7 @@ export default async function TermsPage() {
           </Container>
         </section>
         <PageBlocks pageKey="terms" />
+        <RelatedSection page="terms" />
       </main>
       <Footer />
     </>

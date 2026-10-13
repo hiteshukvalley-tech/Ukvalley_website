@@ -21,7 +21,7 @@ const fitGuide = [
     model: "Fixed-bid project",
     when: "You can describe every screen, rule and integration in writing, and you are buying execution rather than discovery.",
     signals: ["Scope documented", "Clear launch date", "Budget approved up front"],
-    time: "Saves the weeks a moving target costs — no change-request fights.",
+    time: "Saves the weeks a moving target costs, no change-request fights.",
   },
   {
     model: "Dedicated team",
@@ -46,7 +46,7 @@ const fitGuide = [
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("engagement", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Engagement models — fixed-bid, team or retainer",
+  title: "Engagement models: fixed-bid, team or retainer",
   description:
     "Four transparent ways to work with Ukvalley: fixed-bid projects, dedicated teams, monthly retainers and staff augmentation. Pick the model that fits your scope and budget.",
   alternates: { canonical: `${SITE_URL}/engagement` },
@@ -63,7 +63,7 @@ export default function EngagementPage() {
           eyebrow={ukText("Engagement model")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Engagement Model" }]}
           title={
-            <>{ukText("Four ways to work with us —")}{" "}
+            <>{ukText("Four ways to work with us, ")}{" "}
               <span className="text-gradient-blue">{ukText("priced transparently.")}</span>
             </>
           }
@@ -80,9 +80,9 @@ export default function EngagementPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why the wrong engagement model costs more than the wrong vendor")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most vendors push whichever engagement model suits their own cash flow, not your actual situation — a fixed-bid quote for a product that's still being discovered, or a dedicated team billed monthly for a scope that was fully known on day one. The mismatch isn't obvious until month two, when either the change-request invoices start piling up or the team sits half-idle waiting on decisions that were never yours to make quickly.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most vendors push whichever engagement model suits their own cash flow, not your actual situation, a fixed-bid quote for a product that's still being discovered, or a dedicated team billed monthly for a scope that was fully known on day one. The mismatch isn't obvious until month two, when either the change-request invoices start piling up or the team sits half-idle waiting on decisions that were never yours to make quickly.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("A fixed-bid engagement run on a discovery-stage product produces padded prices and change-request fights, because the vendor priced in the uncertainty you didn't know you had. A dedicated team hired for a fully-scoped project burns budget on standups and re-prioritisation meetings a fixed-bid would have skipped entirely.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We ask which situation you're actually in before recommending a model — and when two models genuinely fit, the hybrid we suggest most is a fixed-bid first phase that proves the thin slice, followed by a dedicated team working from an earned backlog.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We ask which situation you're actually in before recommending a model, and when two models genuinely fit, the hybrid we suggest most is a fixed-bid first phase that proves the thin slice, followed by a dedicated team working from an earned backlog.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -139,7 +139,7 @@ export default function EngagementPage() {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Which model fits")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("A two-minute guide to choosing")}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Vendors tend to push the model that suits their cash flow. The honest test is how well you know what you want. Match your situation to the signals below — and if two rows fit, the hybrid we recommend most is a fixed-bid first phase followed by a dedicated team.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Vendors tend to push the model that suits their cash flow. The honest test is how well you know what you want. Match your situation to the signals below, and if two rows fit, the hybrid we recommend most is a fixed-bid first phase followed by a dedicated team.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
               {fitGuide.map((g) => (
@@ -161,7 +161,7 @@ export default function EngagementPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="engagement" />
         <PageBlocks pageKey="engagement" />
       </main>
       <Footer />

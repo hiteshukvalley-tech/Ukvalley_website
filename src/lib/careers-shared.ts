@@ -7,6 +7,26 @@ export type JobMode = (typeof JOB_MODES)[number];
 export const isJobMode = (v: unknown): v is JobMode =>
   typeof v === "string" && (JOB_MODES as readonly string[]).includes(v);
 
+/** Job type (employment type): picked in the admin, shown on the listing and the job page. */
+export const JOB_TYPES = ["Full-time", "Part-time", "Freelancing", "Internship"] as const;
+export type JobType = (typeof JOB_TYPES)[number];
+
+export const isJobType = (v: unknown): v is JobType =>
+  typeof v === "string" && (JOB_TYPES as readonly string[]).includes(v);
+
+/**
+ * The job type for a role saved when Type was free text ("Full time",
+ * "Contract", "Intern"…): the closest of JOB_TYPES, else Full-time.
+ */
+export function toJobType(raw: unknown): JobType {
+  if (isJobType(raw)) return raw;
+  const t = typeof raw === "string" ? raw.toLowerCase() : "";
+  if (/intern|trainee|apprentice/.test(t)) return "Internship";
+  if (/freelanc|contract|consult/.test(t)) return "Freelancing";
+  if (/part[\s-]*time/.test(t)) return "Part-time";
+  return "Full-time";
+}
+
 /** One stage of a role's recruitment flow, shown on the job page. */
 export type HiringStep = { title: string; desc: string };
 
@@ -15,12 +35,19 @@ export const EXPERIENCE_YEARS_MAX = 40;
 
 /** Used for any role that doesn't define its own hiring process. */
 export const DEFAULT_HIRING_PROCESS: HiringStep[] = [
-  { title: "Application review", desc: "Our HR team reads your resume and portfolio against the role. If it's a match, we email you to set up a call." },
-  { title: "Intro call", desc: "A 30-minute video call about your experience, what you're looking for and how we work." },
-  { title: "Technical round", desc: "A practical exercise or live pairing session based on the kind of work you'd actually do here." },
-  { title: "Team interview", desc: "Meet the lead and engineers you'd work with. Bring your questions — it's a two-way conversation." },
-  { title: "Offer", desc: "We share a written offer with compensation and start date, and help you through joining." },
+  { title: "Application review", desc: "Our HR team reads your resume and portfolio against the role, usually within 7 working days." },
+  { title: "Shortlisted", desc: "If your profile is a match, we email you to say you've been shortlisted and what comes next." },
+  { title: "Intro call", desc: "A short call about your experience, what you're looking for and how we work." },
+  { title: "Interview scheduled", desc: "We email you the date, time and mode of your interview (online or in person), with the meeting link or venue." },
+  { title: "HR round", desc: "A conversation with HR about your background, expectations, notice period and the way we work." },
+  { title: "Technical round", desc: "A practical exercise or live session based on the kind of work you'd actually do here." },
+  { title: "Offer", desc: "We share a written offer with your role, compensation and joining date." },
+  { title: "Hired", desc: "Welcome aboard! HR helps you with the joining documents and your first day." },
 ];
+
+/** The default hiring process with its "Technical round" replaced by a role's own version. */
+export const withTechnicalRound = (step: HiringStep): HiringStep[] =>
+  DEFAULT_HIRING_PROCESS.map((s) => (s.title === "Technical round" ? step : s));
 
 /** Guesses the mode from a free-text location, for roles saved before modes existed. */
 export function inferJobMode(location: string): JobMode {

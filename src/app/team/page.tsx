@@ -26,9 +26,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("team", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Our team — accountable for your project",
+  title: "Our team: accountable for your project",
   description:
-    "Meet Ukvalley's leadership: named engineers and operators you can reach directly — a founder LinkedIn, not a generic contact form. Engineer-led, unfunded, accountable since 2017.",
+    "Meet Ukvalley's leadership: named engineers and operators you can reach directly, a founder LinkedIn, not a generic contact form. Engineer-led, unfunded, accountable since 2017.",
   alternates: { canonical: `${SITE_URL}/team` },
 };
 
@@ -50,7 +50,7 @@ export default async function TeamPage() {
               <span className="text-gradient-blue">{ukText("anonymous org chart.")}</span>
             </>
           }
-          description={ukText("These are the people who scope, build and stand behind your project — real names, real roles and a founder LinkedIn instead of a generic contact form.")}
+          description={ukText("These are the people who scope, build and stand behind your project, real names, real roles and a founder LinkedIn instead of a generic contact form.")}
         />
 
         {/* The problem it solves */}
@@ -65,7 +65,7 @@ export default async function TeamPage() {
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why an anonymous team is a risk you're taking on faith")}</h2>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency websites show a generic \"our team\" stock photo grid, or list a dozen names with no indication of who actually touches your codebase. That anonymity is convenient for the vendor: nobody is personally accountable when a decision goes wrong, and the sales rep who scoped your project is rarely the engineer who builds it.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The cost shows up mid-project: a question that should take an hour to answer takes three days because it has to route through account management to whichever engineer is free that week. Institutional knowledge lives in one person's head, and if they leave, your project restarts its learning curve from someone else's memory.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We publish real names and real roles because the alternative — trusting a faceless \"team\" — is exactly the risk we're asking you not to take. The architect who scoped your project stays accountable for it through build, launch and support, and you can reach them directly.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We publish real names and real roles because the alternative, trusting a faceless \"team\"is exactly the risk we're asking you not to take. The architect who scoped your project stays accountable for it through build, launch and support, and you can reach them directly.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -76,7 +76,7 @@ export default async function TeamPage() {
                       "One architect accountable from scoping to support, by name",
                       "No re-briefing a new face every time someone rotates off",
                       "A handover document written by the people who actually built it",
-                      "Direct access — not a ticket queue reading from a script",
+                      "Direct access, not a ticket queue reading from a script",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
                         <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
@@ -163,7 +163,7 @@ export default async function TeamPage() {
             custom: true,
           }}
           eyebrow={ukText("How the team is built")}
-          title={ukText("Senior engineers stay on the project — juniors learn beside them, not instead of them.")}
+          title={ukText("Senior engineers stay on the project, juniors learn beside them, not instead of them.")}
           facts={[
             "Every project has a named architect from scoping to support",
             "Code review by a senior engineer on every merge",
@@ -183,7 +183,7 @@ export default async function TeamPage() {
             <SectionHeading
               eyebrow={ukText("How we work")}
               title={<>{ukText("Three values that show up in the code.")}</>}
-              description={ukText("Not posters on a wall — operating rules you can verify on any project: the demo cadence, the shared board and the written scope all come from these.")}
+              description={ukText("Not posters on a wall, operating rules you can verify on any project: the demo cadence, the shared board and the written scope all come from these.")}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-3">
               {values.map((v) => (
@@ -207,7 +207,7 @@ export default async function TeamPage() {
             <Reveal className="flex flex-wrap items-end justify-between gap-4">
               <div className="max-w-2xl">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Join them")}</h2>
-                <p className="mt-3 text-uk-gray">{ukText("We're hiring engineers and designers who want to own outcomes — ")}{ukText(careers.length)}{" "}{ukText("roles open now.")}</p>
+                <p className="mt-3 text-uk-gray">{ukText("We're hiring engineers and designers who want to own outcomes, ")}{ukText(careers.length)}{" "}{ukText("roles open now.")}</p>
               </div>
               <Link
                 href={ukText("/careers")}
@@ -231,7 +231,7 @@ export default async function TeamPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="team" />
         <PageBlocks pageKey="team" />
       </main>
       <Footer />

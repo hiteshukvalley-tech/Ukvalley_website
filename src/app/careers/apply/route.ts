@@ -4,7 +4,7 @@ import { hasDatabaseUrl } from "@/lib/db/client";
 import { getCareers } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { checkApplicationLimits, createApplication, markEmailsSent } from "@/lib/applications-store";
-import { sendApplicationEmails } from "@/lib/application-emails";
+import { emailBrand, sendApplicationEmails } from "@/lib/application-emails";
 import { API_URL, trustedRequestOrigin } from "@/lib/site-origin";
 import {
   RESUME_MAX_BYTES, looksLikePdf, readApplication, resumeError, validateApplication, type ApplyResult,
@@ -109,6 +109,7 @@ export async function POST(request: Request) {
         hrEmail: settings.hr.email,
         adminUrl: `${origin}/admin/applications/${app.id}`,
         resume: resumeBuffer,
+        brand: emailBrand(settings),
       });
       await markEmailsSent(app.id, sent).catch(() => {});
     });

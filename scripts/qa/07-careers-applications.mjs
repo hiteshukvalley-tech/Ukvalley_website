@@ -10,7 +10,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { MongoClient } from "mongodb";
-import { BASE, check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
+import { BASE, check, go, launch, login, newPage, pickOption, section, sleep, summary, text } from "./lib.mjs";
 
 const QA_DB = process.env.QA_DB || "ukvalley_qa";
 if (!QA_DB.endsWith("_qa")) throw new Error(`Refusing to run against "${QA_DB}" — use a scratch *_qa database.`);
@@ -156,7 +156,8 @@ try {
   const toApplicant = mailTo(APPLICANT)[0];
   check(`HR email sent to ${hrDefault}`, !!toHr);
   check("HR email: subject has role and name", !!toHr && subjectOf(toHr) === `New application: ${roleName} — Qa Applicant`, toHr && subjectOf(toHr));
-  check("thank-you subject", !!toApplicant && subjectOf(toApplicant) === `We've received your application — ${roleName}`, toApplicant && subjectOf(toApplicant));
+  check("thank-you subject", !!toApplicant && subjectOf(toApplicant) === `Application Received – ${roleName} | Ukvalley Technologies`, toApplicant && subjectOf(toApplicant));
+  check("thank-you uses the branded layout", !!toApplicant && /Dear Qa Applicant/.test(toApplicant.body) && /Application Details/.test(toApplicant.body) && /All rights reserved/.test(toApplicant.body));
   check("HR email: resume attached", !!toHr && /Content-Type: application\/pdf/i.test(toHr.body) && /qa-resume\.pdf/.test(toHr.body));
   check("HR email: reply goes to the applicant", !!toHr && new RegExp(`Reply-To: ${APPLICANT.replace(/\./g, "\\.")}`, "i").test(toHr.body));
   check("thank-you email sent to the applicant", !!toApplicant);
@@ -193,13 +194,16 @@ try {
   await login(admin);
   await go(admin, "/admin/applications");
   const at = await text(admin);
-  check("listed in admin", at.includes("Qa Applicant"));
+  // The overview only counts per role; applicants are listed on the Applicants page.
+  check("overview shows counts, not applicant details", !at.includes("Qa Applicant") && /Applications by role/.test(at));
   const row = await admin.$$eval("table tbody tr", (rows) => rows.map((r) => [...r.querySelectorAll("td")].map((td) => td.textContent.trim())));
   const roleRow = row.find((r) => r[0].startsWith(roleName));
   check("per-role count = 1 (1 new)", !!roleRow && roleRow[1] === "1" && roleRow[2] === "1", JSON.stringify(roleRow));
   check("open roles listed with 0 too", row.some((r) => r[1] === "0"));
+  await go(admin, "/admin/applications/applicants");
+  check("listed on the Applicants page", (await text(admin)).includes("Qa Applicant"));
   await go(admin, `/admin/applications?role=${encodeURIComponent(roleName)}`);
-  check("filter by role", (await text(admin)).includes("Qa Applicant"));
+  check("role link opens that role's applicants", admin.url().includes("/admin/applications/applicants?role=") && (await text(admin)).includes("Qa Applicant"));
 
   await go(admin, `/admin/applications/${saved._id}`);
   const dt = await text(admin);
@@ -212,13 +216,70 @@ try {
   check("resume downloads as PDF for admins", res.status === 200 && res.headers.get("content-type") === "application/pdf" && body === PDF);
   check("download has the file name", /attachment; filename="qa-resume\.pdf"/.test(res.headers.get("content-disposition") ?? ""));
 
-  await admin.select('select[name="status"]', "shortlisted");
+  section("Status email");
+  const mailsBefore = mailTo(APPLICANT).length;
+  // The Status field is the themed dropdown (no native <select> list).
+  check("status uses the themed dropdown", !(await admin.$('select[name="status"]')) && !!(await admin.$('#f-status[role="combobox"]')));
+  await pickOption(admin, "#f-status", "Shortlisted for Interview");
+  await sleep(300);
+  check("changing the status offers an email", !!(await admin.$("#f-emailSubject")));
+  check("default Shortlisted subject filled in",
+    (await admin.$eval("#f-emailSubject", (e) => e.value).catch(() => "")) === `Interview Scheduled for ${roleName}`);
+  check("default message addresses the applicant", /^Dear Qa Applicant,/.test(await admin.$eval("#f-emailMessage", (e) => e.value).catch(() => "")));
+  check("live preview shown", !!(await admin.$('iframe[title="Email preview"]')));
   await admin.type('textarea[name="note"]', "Strong portfolio.");
+
+  // Interview details are optional (no checks); fill them in so the email carries them.
+  await admin.evaluate(() => {
+    // React-controlled inputs: set the value the way a user's input would.
+    const set = (sel, v) => {
+      const el = document.querySelector(sel);
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value").set.call(el, v);
+      el.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+    set("#f-extra-interviewDate", "2026-10-20");
+    set("#f-extra-interviewTime", "13:00");
+    set("#f-extra-interviewVenue", "https://meet.google.com/abc-defg-hij");
+  });
+  await pickOption(admin, "#f-extra-interviewMode", "Online");
+  await sleep(300);
   // Not just any submit button: the admin header's "Sign out" is one too.
-  await admin.$$eval("button[type=submit]", (bs) => bs.find((b) => /Save changes/.test(b.textContent))?.click());
-  await sleep(2000);
+  // Sending the unedited default asks to confirm (newPage answers the dialog with its confirm button).
+  await admin.evaluate(() => {
+    window.__asked = "";
+    new MutationObserver(() => {
+      const d = document.querySelector("[data-confirm-dialog]");
+      if (d && !window.__asked) window.__asked = d.textContent;
+    }).observe(document.body, { childList: true, subtree: true });
+  });
+  await admin.$$eval("button[type=submit]", (bs) => bs.find((b) => /Save and send email/.test(b.textContent))?.click());
+  await sleep(1000);
+  const asked = await admin.evaluate(() => window.__asked);
+  check("unedited default email asks to confirm", /Send the default .Shortlisted for Interview. email/.test(asked), asked.slice(0, 120));
+  for (let i = 0; i < 20 && mailTo(APPLICANT).length === mailsBefore; i++) await sleep(500);
+  const statusMail = mailTo(APPLICANT).at(-1);
+  check("status email sent to the applicant", mailTo(APPLICANT).length === mailsBefore + 1);
+  check("status email subject", !!statusMail && subjectOf(statusMail) === `Shortlisted for Interview – ${roleName} | Ukvalley Technologies`, statusMail && subjectOf(statusMail));
+  // Quoted-printable soft breaks ("=\n") can split long lines; join them before matching.
+  const statusBody = (statusMail?.body ?? "").replace(/=\n/g, "");
+  check("interview details in the email",
+    /Interview Date: 20 Oct 2026/.test(statusBody) && /Interview Time: 01:00 PM/.test(statusBody) && /Join Interview/.test(statusBody) && /Umesh Khivasara/.test(statusBody));
   const updated = await db.collection("applications").findOne({ _id: saved._id });
   check("status + note saved", updated?.status === "shortlisted" && updated?.note === "Strong portfolio.");
+  check("status email recorded", updated?.statusEmails?.length === 1 && updated.statusEmails[0].status === "shortlisted" && updated.statusEmails[0].edited === false);
+
+  // An edited email is sent as written, without the confirmation.
+  await go(admin, `/admin/applications/${saved._id}`);
+  check("sent email listed on the application", /Status emails sent[\s\S]*Shortlisted for Interview –/.test(await text(admin)));
+  await pickOption(admin, "#f-status", "On Hold");
+  await sleep(300);
+  await admin.$eval("#f-emailSubject", (e) => { e.focus(); e.select(); });
+  await admin.keyboard.type("Custom subject from HR");
+  await admin.$$eval("button[type=submit]", (bs) => bs.find((b) => /Save and send email/.test(b.textContent))?.click());
+  for (let i = 0; i < 20 && mailTo(APPLICANT).length === mailsBefore + 1; i++) await sleep(500);
+  check("edited email sent as written", subjectOf(mailTo(APPLICANT).at(-1) ?? { body: "" }) === "Custom subject from HR");
+  const updated2 = await db.collection("applications").findOne({ _id: saved._id });
+  check("edited email recorded", updated2?.status === "on-hold" && updated2?.statusEmails?.at(-1)?.edited === true);
 
   await go(admin, "/admin");
   check("dashboard shows new-applications card", /New job applications/i.test(await text(admin)));
@@ -233,7 +294,10 @@ try {
     (await db.collection("applications").countDocuments({ _id: saved._id })) === 0 && (await db.collection("resumes.files").countDocuments()) === 0);
 
   check("no browser errors (site)", page.problems.length === 0, page.problems.join(" | "));
-  check("no browser errors (admin)", admin.problems.length === 0, admin.problems.join(" | "));
+  // The email preview is a sandboxed iframe with no scripts; Chrome reports the
+  // test's own injected helper being blocked there, which isn't an app error.
+  const adminProblems = admin.problems.filter((p) => !/about:srcdoc/.test(p));
+  check("no browser errors (admin)", adminProblems.length === 0, adminProblems.join(" | "));
 } finally {
   await browser.close();
   await cleanup();

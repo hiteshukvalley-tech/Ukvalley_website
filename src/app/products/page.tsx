@@ -23,9 +23,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("products", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Products — our own IP in production",
+  title: "Products: our own IP in production",
   description:
-    "TeleValley, Ezzu CRM, Custom ERP, LMS, Evento, Emailz and more — software products and platforms Ukvalley designed, built and runs in production.",
+    "TeleValley, Ezzu CRM, Custom ERP, LMS, EventoValley, Emailz and more, software products and platforms Ukvalley designed, built and runs in production.",
   alternates: { canonical: `${SITE_URL}/products` },
 };
 
@@ -42,7 +42,7 @@ export default async function ProductsPage() {
           eyebrow={ukText("Our products")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Products" }]}
           title={
-            <>{ukText("We don't just bill hours —")}{" "}
+            <>{ukText("We don't just bill hours, ")}{" "}
               <span className="text-gradient-blue">{ukText("we build & run our own IP.")}</span>
             </>
           }
@@ -59,10 +59,10 @@ export default async function ProductsPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why we build and run our own products, not just yours")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every dev shop claims it can build production software. Most have never had to operate what they built — no on-call rotation, no paying users at 2am, no P&L riding on their own uptime. That's a different discipline, and it never shows up in a portfolio screenshot.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every dev shop claims it can build production software. Most have never had to operate what they built, no on-call rotation, no paying users at 2am, no P&L riding on their own uptime. That's a different discipline, and it never shows up in a portfolio screenshot.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The gap becomes obvious over time: an agency that only ever ships and hands off never has to live with its own architecture debt or its own scaling mistakes, so those lessons never make it into your project. A system built to be delivered once and never touched again quietly accumulates decisions nobody had to defend under real load.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("TeleValley, Ezzu CRM, our Custom ERP, the LMS, Evento, Emailz and the rest of this portfolio are proof of the opposite: products and platforms we designed, built, deployed and still support today, with real users depending on them. The architects who maintain these products review the code on yours.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every product started the same way: a real operational problem inside our own business, solved first for ourselves and then hardened enough to hand to a paying customer. TeleValley began as our own sales floor's telephony bill; HR Agency Management began as the candidate-and-client backbone a recruitment agency needed built from nothing. That origin is why the FAQs on each product page read like operator questions, not marketing copy — because they were, the first time someone asked them.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("TeleValley, Ezzu CRM, our Custom ERP, the LMS, EventoValley, Emailz and the rest of this portfolio are proof of the opposite: products and platforms we designed, built, deployed and still support today, with real users depending on them. The architects who maintain these products review the code on yours.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every product started the same way: a real operational problem inside our own business, solved first for ourselves and then hardened enough to hand to a paying customer. TeleValley began as our own sales floor's telephony bill; HR Agency Management began as the candidate-and-client backbone a recruitment agency needed built from nothing. That origin is why the FAQs on each product page read like operator questions, not marketing copy, because they were, the first time someone asked them.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -131,7 +131,7 @@ export default async function ProductsPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="products" />
         <PageBlocks pageKey="products" />
       </main>
       <Footer />

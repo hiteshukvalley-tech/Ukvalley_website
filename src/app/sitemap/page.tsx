@@ -20,6 +20,7 @@ import { getPosts } from "@/lib/blog-store";
 import { getCareers } from "@/lib/careers-store";
 import { getMenu } from "@/lib/menu-store";
 import { ukText } from "@/lib/texts";
+import { RelatedSection } from "@/components/site/related-chips";
 
 // Re-render at least once a minute so new pages and admin text edits show up.
 export const revalidate = 60;
@@ -27,7 +28,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("sitemap", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Sitemap — every page of this website",
+  title: "Sitemap: every page of this website",
   description: "A readable list of every page on the Ukvalley Technologies website, grouped by section.",
   alternates: { canonical: `${SITE_URL}/sitemap` },
 };
@@ -41,6 +42,8 @@ const MAIN: Entry[] = [
   { label: "Why Ukvalley", href: "/why-ukvalley" },
   { label: "Our team", href: "/team" },
   { label: "Our social impact", href: "/social-impact" },
+  { label: "Press kit", href: "/press-kit" },
+  { label: "Media & press", href: "/media" },
   { label: "Process", href: "/process" },
   { label: "Engagement model", href: "/engagement" },
   { label: "Pricing", href: "/pricing" },
@@ -63,7 +66,7 @@ export default async function SitemapPage() {
   // Sections added in Admin → Main menu (their own pages and links).
   const added: Entry[] = menu
     .filter((m) => m.visible && m.id.startsWith("m-"))
-    .flatMap((m) => (m.type === "dropdown" ? m.links.map((l) => ({ label: `${m.label} — ${l.label}`, href: l.href })) : [{ label: m.label, href: m.href }]))
+    .flatMap((m) => (m.type === "dropdown" ? m.links.map((l) => ({ label: `${m.label}, ${l.label}`, href: l.href })) : [{ label: m.label, href: m.href }]))
     .filter((e) => e.href.startsWith("/"));
 
   const groups: Group[] = [
@@ -120,6 +123,7 @@ export default async function SitemapPage() {
           </Container>
         </section>
         <PageBlocks pageKey="sitemap" />
+        <RelatedSection page="sitemap" />
       </main>
       <Footer />
     </>

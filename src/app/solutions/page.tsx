@@ -27,9 +27,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("solutions", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Solutions — ready-to-build industry systems",
+  title: "Solutions: ready-to-build industry systems",
   description:
-    "CRM, ERP, HRMS, LMS, e-commerce, POS, loan origination, healthcare, logistics, booking and more — production-proven solution patterns Ukvalley builds and customises for your business.",
+    "CRM, ERP, HRMS, LMS, e-commerce, POS, loan origination, healthcare, logistics, booking and more, production-proven solution patterns Ukvalley builds and customises for your business.",
   alternates: { canonical: `${SITE_URL}/solutions` },
 };
 
@@ -61,11 +61,11 @@ export default async function SolutionsPage() {
           eyebrow={ukText("Solutions")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Solutions" }]}
           title={
-            <>{ukText("Systems we've already built —")}{" "}
+            <>{ukText("Systems we've already built, ")}{" "}
               <span className="text-gradient-blue">{ukText("ready to build for you.")}</span>
             </>
           }
-          description={ukText("Twelve solution patterns proven in production — from CRM and ERP to loan origination and food delivery. Each one is a starting point we customise to your workflow, not a template we force onto it.")}
+          description={ukText("Twelve solution patterns proven in production, from CRM and ERP to loan origination and food delivery. Each one is a starting point we customise to your workflow, not a template we force onto it.")}
         />
 
         <section className="relative bg-uk-surface-2 section-py">
@@ -120,7 +120,7 @@ export default async function SolutionsPage() {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("At a glance")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Twelve solution patterns, compared on the numbers that matter")}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Typical timelines, starting investment and when you first see working software — so you can shortlist before the call. Every figure is a range from past deployments; your written estimate follows the scoping call within 3 business days.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Typical timelines, starting investment and when you first see working software, so you can shortlist before the call. Every figure is a range from past deployments; your written estimate follows the scoping call within 3 business days.")}</p>
             </Reveal>
             <Reveal className="mt-8 overflow-x-auto rounded-3xl border border-uk-line bg-uk-card">
               <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
@@ -146,10 +146,10 @@ export default async function SolutionsPage() {
                           <span className="block text-xs text-uk-muted">{ukText(s.category)}</span>
                         </td>
                         <td className="border-b border-uk-line px-5 py-4 text-uk-gray">{ukText(s.bestFor.slice(0, 3).join(" · "))}</td>
-                        <td className="border-b border-uk-line px-5 py-4 whitespace-nowrap font-medium text-uk-body">{ukText(fact("Typical timeline")?.value ?? "—")}</td>
-                        <td className="border-b border-uk-line px-5 py-4 whitespace-nowrap font-heading font-bold text-uk-blue">{ukText(fact("Starting investment")?.value ?? "—")}</td>
+                        <td className="border-b border-uk-line px-5 py-4 whitespace-nowrap font-medium text-uk-body">{ukText(fact("Typical timeline")?.value ?? "")}</td>
+                        <td className="border-b border-uk-line px-5 py-4 whitespace-nowrap font-heading font-bold text-uk-blue">{ukText(fact("Starting investment")?.value ?? "")}</td>
                         <td className="border-b border-uk-line px-5 py-4 whitespace-nowrap text-uk-body">
-                          <span className="font-medium">{ukText(s.quickFacts[3]?.value ?? "—")}</span>
+                          <span className="font-medium">{ukText(s.quickFacts[3]?.value ?? "")}</span>
                           <span className="block text-xs text-uk-muted">{ukText(s.quickFacts[3]?.sub ?? "")}</span>
                         </td>
                       </tr>
@@ -168,7 +168,7 @@ export default async function SolutionsPage() {
             <SectionHeading
               eyebrow={ukText("How it works")}
               title={<>{ukText("Every solution follows the same disciplined path.")}</>}
-              description={ukText("Whether you pick CRM, POS or loan origination, the build runs through the same four stages — because the discipline is what makes the software survive.")}
+              description={ukText("Whether you pick CRM, POS or loan origination, the build runs through the same four stages, because the discipline is what makes the software survive.")}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {processSteps.map((p) => (
@@ -183,7 +183,7 @@ export default async function SolutionsPage() {
                     {ukText(p.title)}
                   </h3>
                   <p className="text-sm leading-relaxed text-uk-gray">
-                    {ukText(p.duration)} — {ukText(p.points[0])}
+                    {ukText(p.duration)}, {ukText(p.points[0])}
                   </p>
                 </div>
               ))}
@@ -192,7 +192,7 @@ export default async function SolutionsPage() {
         </section>
 
         <TimeSavers className="bg-uk-surface-2" />
-        <CtaBand />
+        <CtaBand related="solutions" />
         <PageBlocks pageKey="solutions" />
       </main>
       <Footer />

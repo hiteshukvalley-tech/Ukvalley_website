@@ -28,7 +28,7 @@ const SOURCE: Record<string, { text: string; href: string }> = {
 };
 
 const selectClass =
-  "h-9 rounded-lg border border-uk-line bg-uk-card px-2 text-sm text-uk-heading outline-none [&>option]:bg-uk-card [&>option]:text-uk-heading focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+  "h-9 rounded-lg border border-uk-line bg-uk-card px-2 text-sm text-uk-heading outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
 
 /** Icon dropdown with a live preview. Empty value = the site's default icon. */
 function IconSelect({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
@@ -262,7 +262,7 @@ export function AddSectionForm() {
           name="kind"
           defaultValue="page"
           aria-label="What the new section is"
-          className="h-10 rounded-lg border border-uk-line bg-uk-card px-3 text-sm text-uk-heading outline-none [&>option]:bg-uk-card [&>option]:text-uk-heading focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+          className="h-10 rounded-lg border border-uk-line bg-uk-card px-3 text-sm text-uk-heading outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
         >
           <option value="page">A page of its own (hero, cards, blocks)</option>
           <option value="dropdown">A dropdown of links</option>

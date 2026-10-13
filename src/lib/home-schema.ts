@@ -123,16 +123,16 @@ export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
       eyebrow,
       title(`${MARK_HINT} {Count} becomes the number of services in words, {count} in digits.`),
       { ...description, hint: "{Count} / {count} insert the number of services." } as FieldDef,
-      { key: "coreBadge", label: "Large tile — badge", kind: "text", max: 40 },
-      { key: "coreText", label: "Large tile — extra paragraph", kind: "textarea", max: 300, rows: 3 },
-      { key: "workflowLabel", label: "Large tile — workflow label", kind: "text", max: 40 },
-      { key: "workflowSteps", label: "Large tile — workflow steps", kind: "list", itemLabel: "Step", max: 20, minItems: 0, maxItems: 6 },
-      { key: "chips", label: "Large tile — technology chips", kind: "list", itemLabel: "Chip", max: 30, minItems: 0, maxItems: 8 },
-      { key: "proof", label: "Large tile — proof figures", kind: "group", itemLabel: "Figure", fields: statFields, minItems: 0, maxItems: 3 },
-      { key: "standardsLabel", label: "Large tile — standards label", kind: "text", max: 60 },
+      { key: "coreBadge", label: "Large tile, badge", kind: "text", max: 40 },
+      { key: "coreText", label: "Large tile, extra paragraph", kind: "textarea", max: 300, rows: 3 },
+      { key: "workflowLabel", label: "Large tile, workflow label", kind: "text", max: 40 },
+      { key: "workflowSteps", label: "Large tile, workflow steps", kind: "list", itemLabel: "Step", max: 20, minItems: 0, maxItems: 6 },
+      { key: "chips", label: "Large tile, technology chips", kind: "list", itemLabel: "Chip", max: 30, minItems: 0, maxItems: 8 },
+      { key: "proof", label: "Large tile, proof figures", kind: "group", itemLabel: "Figure", fields: statFields, minItems: 0, maxItems: 3 },
+      { key: "standardsLabel", label: "Large tile, standards label", kind: "text", max: 60 },
       {
         key: "standards",
-        label: "Large tile — standards",
+        label: "Large tile, standards",
         kind: "group",
         itemLabel: "Standard",
         minItems: 0,
@@ -142,11 +142,11 @@ export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
           { key: "sub", label: "Detail", kind: "text", max: 30 },
         ],
       },
-      { key: "ctaBadge", label: "Call-to-action tile — badge", kind: "text", max: 40 },
-      { key: "ctaTitle", label: "Call-to-action tile — title", kind: "text", max: 60, required: true },
-      { key: "ctaText", label: "Call-to-action tile — text", kind: "textarea", max: 200, rows: 2 },
-      { key: "ctaPoints", label: "Call-to-action tile — points", kind: "list", itemLabel: "Point", max: 80, minItems: 0, maxItems: 4 },
-      { key: "ctaLink", label: "Call-to-action tile — link text", kind: "text", max: 40, required: true },
+      { key: "ctaBadge", label: "Call-to-action tile, badge", kind: "text", max: 40 },
+      { key: "ctaTitle", label: "Call-to-action tile, title", kind: "text", max: 60, required: true },
+      { key: "ctaText", label: "Call-to-action tile, text", kind: "textarea", max: 200, rows: 2 },
+      { key: "ctaPoints", label: "Call-to-action tile, points", kind: "list", itemLabel: "Point", max: 80, minItems: 0, maxItems: 4 },
+      { key: "ctaLink", label: "Call-to-action tile, link text", kind: "text", max: 40, required: true },
     ],
   },
   {
@@ -224,8 +224,8 @@ export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
       description,
       { key: "linkLabel", label: "Link text", kind: "text", max: 60, required: true, hint: "{count} becomes the number of case studies." },
       { key: "footnote", label: "Footnote", kind: "text", max: 160 },
-      { key: "challengeLabel", label: "Card label — challenge", kind: "text", max: 30, hint: "Shown before each case study's challenge, e.g. \"Challenge —\"." },
-      { key: "outcomeLabel", label: "Card label — outcome", kind: "text", max: 30, hint: "Shown before each case study's result, e.g. \"Outcome —\"." },
+      { key: "challengeLabel", label: "Card label, challenge", kind: "text", max: 30, hint: "Shown before each case study's challenge, e.g. \"Challenge, \"." },
+      { key: "outcomeLabel", label: "Card label, outcome", kind: "text", max: 30, hint: "Shown before each case study's result, e.g. \"Outcome, \"." },
     ],
   },
   {
@@ -239,8 +239,8 @@ export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
       title(),
       description,
       { key: "buttonSuffix", label: "Panel button text", kind: "text", max: 40, hint: "Follows the first word of the industry name, e.g. \"Healthcare products & consulting\"." },
-      { key: "slowLabel", label: "Panel heading — challenges", kind: "text", max: 40 },
-      { key: "rulesLabel", label: "Panel heading — compliance", kind: "text", max: 40 },
+      { key: "slowLabel", label: "Panel heading, challenges", kind: "text", max: 40 },
+      { key: "rulesLabel", label: "Panel heading, compliance", kind: "text", max: 40 },
     ],
   },
   {
@@ -292,10 +292,10 @@ export const HOME_SECTIONS: SectionDef<HomeSectionKey>[] = [
       description,
       { key: "linkLabel", label: "Link text", kind: "text", max: 40, required: true },
       { key: "readLabel", label: "Article link text", kind: "text", max: 40, required: true, hint: "The link at the bottom of each article card." },
-      { key: "libraryBadge", label: "Library card — badge", kind: "text", max: 40 },
-      { key: "libraryTitle", label: "Library card — title", kind: "text", max: 100, required: true },
-      { key: "libraryText", label: "Library card — text", kind: "textarea", max: 300, rows: 2 },
-      { key: "libraryCta", label: "Library card — link text", kind: "text", max: 40, required: true },
+      { key: "libraryBadge", label: "Library card, badge", kind: "text", max: 40 },
+      { key: "libraryTitle", label: "Library card, title", kind: "text", max: 100, required: true },
+      { key: "libraryText", label: "Library card, text", kind: "textarea", max: 300, rows: 2 },
+      { key: "libraryCta", label: "Library card, link text", kind: "text", max: 40, required: true },
     ],
   },
   {
@@ -442,7 +442,7 @@ export function validateSection(
           if (!lines.length) {
             if (sf.required) errors[path] = `${sf.label} is required.`;
           } else if (sf.maxImages && lines.length > sf.maxImages) errors[path] = `Add at most ${sf.maxImages} pictures.`;
-          else if (r[sf.key].length > sf.max) errors[path] = "Too many pictures — remove a few.";
+          else if (r[sf.key].length > sf.max) errors[path] = "Too many pictures, remove a few.";
           else if (lines.some((s) => !LINK.test(s) || s.startsWith("#"))) errors[path] = "Each picture needs a /media/… path or a full https:// link.";
         })
       );

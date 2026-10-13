@@ -20,14 +20,14 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("project-rescue", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Project rescue — when your software is failing",
+  title: "Project rescue: when your software is failing",
   description:
-    "The vendor disappeared, the code is undocumented and every change breaks something. Ukvalley's audit-first rescue sequence stabilises inherited codebases — ownership first, then a written audit, then fixes.",
+    "The vendor disappeared, the code is undocumented and every change breaks something. Ukvalley's audit-first rescue sequence stabilises inherited codebases, ownership first, then a written audit, then fixes.",
   alternates: { canonical: `${SITE_URL}/project-rescue` },
 };
 
 const signs = [
-  "The original vendor has disappeared — or gone quiet at every milestone.",
+  "The original vendor has disappeared, or gone quiet at every milestone.",
   "Nobody can explain how the system actually works, including the last team that touched it.",
   "Every change breaks something that used to work.",
   "There are no backups you've personally verified can be restored.",
@@ -38,28 +38,28 @@ const signs = [
 const steps = [
   {
     icon: KeyRound,
-    title: "Week 1 — Secure ownership",
-    desc: "Get the code, databases, servers and every credential under your control. We've seen rescues stall for weeks because the old vendor held deployment access. Ownership first, always — and it should have been yours from day one.",
+    title: "Week 1: Secure ownership",
+    desc: "Get the code, databases, servers and every credential under your control. We've seen rescues stall for weeks because the old vendor held deployment access. Ownership first, always, and it should have been yours from day one.",
   },
   {
     icon: FileSearch,
-    title: "Weeks 2–3 — Written audit",
-    desc: "What the system actually does, which parts are load-bearing, where the tests are (usually: nowhere), and which three changes would stabilise it most. The output is a ranked list you can act on — not a 60-page report nobody reads.",
+    title: "Weeks 2–3: Written audit",
+    desc: "What the system actually does, which parts are load-bearing, where the tests are (usually: nowhere), and which three changes would stabilise it most. The output is a ranked list you can act on, not a 60-page report nobody reads.",
   },
   {
     icon: ShieldAlert,
-    title: "Weeks 3–6 — Stabilise",
+    title: "Weeks 3–6: Stabilise",
     desc: "Automated backups you've actually restored, monitoring with alerts that reach a human, a deploy process that doesn't require heroics, and regression tests on the flows that make you money. The floor stops moving before we build on it.",
   },
   {
     icon: GitBranch,
-    title: "Then — Extend, or rewrite with a plan",
-    desc: "Only after stabilisation do we re-ask the rewrite question, with real information. Roughly a third of the time the answer is yes — but now it's a planned rewrite with a migration path, not an escape from a fire.",
+    title: "Then: Extend, or rewrite with a plan",
+    desc: "Only after stabilisation do we re-ask the rewrite question, with real information. Roughly a third of the time the answer is yes, but now it's a planned rewrite with a migration path, not an escape from a fire.",
   },
 ];
 
 const weTake = [
-  { icon: DatabaseBackup, title: "Any stack, any age", desc: "Legacy PHP, .NET, Node, Python — raw SQL, no tests, undocumented. We start where the code is, not where a pitch deck wishes it was." },
+  { icon: DatabaseBackup, title: "Any stack, any age", desc: "Legacy PHP, .NET, Node, Python, raw SQL, no tests, undocumented. We start where the code is, not where a pitch deck wishes it was." },
   { icon: Wrench, title: "No rewrite pressure", desc: "Our incentive is to stabilise, not to sell you a rebuild. The audit decides, and it's written down so you can hold us to it." },
   { icon: Siren, title: "Incident-ready fast", desc: "Within the first month: monitoring with alerts, a rollback path and a named engineer who answers inside the 24-hour SLA." },
 ];
@@ -76,11 +76,11 @@ export default function ProjectRescuePage() {
           eyebrow={ukText("Project rescue")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Project Rescue" }]}
           title={
-            <>{ukText("Failing software can be rescued —")}{" "}
+            <>{ukText("Failing software can be rescued, ")}{" "}
               <span className="text-gradient-blue">{ukText("without a panic rewrite.")}</span>
             </>
           }
-          description={ukText("The vendor disappeared, the code is undocumented, and every change breaks something. We've inherited dozens of codebases in exactly that state. The rescue sequence starts with an audit, not a rebuild — and you keep ownership throughout.")}
+          description={ukText("The vendor disappeared, the code is undocumented, and every change breaks something. We've inherited dozens of codebases in exactly that state. The rescue sequence starts with an audit, not a rebuild, and you keep ownership throughout.")}
         />
 
         {/* The problem it solves */}
@@ -93,9 +93,9 @@ export default function ProjectRescuePage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why failing projects usually get rescued twice")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most \"rescues\" are really a second failed project wearing a fresh vendor logo. A new team inherits a codebase nobody documented, decides the fastest path is to rewrite it, and eighteen months later is explaining the same overrun to the same nervous stakeholders — because the business logic that made the old system painful was never actually understood, just discarded.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The panic rewrite is expensive in ways that don't show up until month four: features quietly disappear because nobody knew they existed, data migration turns into an archaeology project, and the business keeps running on the old system anyway — because the new one isn't ready — which means you're now paying for two systems and trusting neither.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We rescue in the opposite order: secure ownership first, audit before touching a line of code, stabilise what's already live, and only then decide — with evidence, not panic — whether to extend it or rewrite it on a real plan. Most inherited systems turn out to be worth keeping; the ones that don't get rebuilt on a migration path instead of a guess.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most \"rescues\" are really a second failed project wearing a fresh vendor logo. A new team inherits a codebase nobody documented, decides the fastest path is to rewrite it, and eighteen months later is explaining the same overrun to the same nervous stakeholders, because the business logic that made the old system painful was never actually understood, just discarded.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The panic rewrite is expensive in ways that don't show up until month four: features quietly disappear because nobody knew they existed, data migration turns into an archaeology project, and the business keeps running on the old system anyway, because the new one isn't ready, which means you're now paying for two systems and trusting neither.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We rescue in the opposite order: secure ownership first, audit before touching a line of code, stabilise what's already live, and only then decide, with evidence, not panic, whether to extend it or rewrite it on a real plan. Most inherited systems turn out to be worth keeping; the ones that don't get rebuilt on a migration path instead of a guess.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -106,7 +106,7 @@ export default function ProjectRescuePage() {
                     {[
                       "Ownership secured before we review a single line of code",
                       "A written audit with a ranked list, not a verbal opinion",
-                      "No pressure toward a rewrite — the audit decides, not our incentive",
+                      "No pressure toward a rewrite, the audit decides, not our incentive",
                       "Replace-anytime engagement with a 24-hour response SLA from day one",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
@@ -138,7 +138,7 @@ export default function ProjectRescuePage() {
                       </div>
                     ))}
                   </dl>
-                  <p className="mt-4 border-t border-uk-line pt-3 text-xs text-uk-muted">{ukText("Ownership always comes first — before an audit, before a single fix.")}</p>
+                  <p className="mt-4 border-t border-uk-line pt-3 text-xs text-uk-muted">{ukText("Ownership always comes first, before an audit, before a single fix.")}</p>
                 </div>
               </Reveal>
             </div>
@@ -174,7 +174,7 @@ export default function ProjectRescuePage() {
           <Container className="relative">
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("The rescue sequence")}</h2>
-              <p className="mt-3 text-uk-gray">{ukText("The same four-stage sequence every time — because panic rewrites lose business logic nobody documented, and land in the same place eighteen months later.")}</p>
+              <p className="mt-3 text-uk-gray">{ukText("The same four-stage sequence every time, because panic rewrites lose business logic nobody documented, and land in the same place eighteen months later.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2">
               {steps.map((s, i) => (
@@ -225,8 +225,8 @@ export default function ProjectRescuePage() {
 
             <Reveal className="mt-12 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6 sm:p-8">
               <div className="max-w-xl">
-                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Start with a rescue call — free, and confidential.")}</h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("Bring the situation as it is. We'll tell you honestly whether it's a rescue, a rebuild or neither — in writing, within 3 days.")}</p>
+                <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Start with a rescue call, free, and confidential.")}</h3>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("Bring the situation as it is. We'll tell you honestly whether it's a rescue, a rebuild or neither, in writing, within 3 days.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Start the rescue")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
@@ -235,7 +235,7 @@ export default function ProjectRescuePage() {
         </section>
 
         <ByTheNumbers limit={4} title={ukText("Rescue readiness")} className="bg-uk-surface" />
-        <CtaBand />
+        <CtaBand related="project-rescue" />
         <PageBlocks pageKey="project-rescue" />
       </main>
       <Footer />

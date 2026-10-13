@@ -11,7 +11,7 @@ function getClient(): MongoClient {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error("MONGODB_URI is not set (see .env.example).");
   if (!g._mongoClient) {
-    g._mongoClient = new MongoClient(uri, {
+    const client = new MongoClient(uri, {
       // The first connection after a start is a cold TLS handshake to Atlas
       // and can take longer than 5s on a slow link; failing it showed as a
       // 503 on /media and as "could not reach the database" on login.
@@ -25,6 +25,12 @@ function getClient(): MongoClient {
       maxPoolSize: process.env.VERCEL ? 10 : 100,
       maxIdleTimeMS: 60 * 1000,
     });
+    // If the client is ever closed, forget it so the next call builds a fresh
+    // one instead of failing every query with "Topology is closed".
+    client.on("topologyClosed", () => {
+      if (g._mongoClient === client) g._mongoClient = undefined;
+    });
+    g._mongoClient = client;
   }
   return g._mongoClient;
 }
@@ -48,9 +54,9 @@ export async function checkDatabase(): Promise<DbStatus> {
     await db.command({ ping: 1 });
     return { state: "connected", ms: Date.now() - started, name: db.databaseName };
   } catch (e) {
-    // Drop a dead client so the next check retries from scratch.
-    await g._mongoClient?.close().catch(() => {});
-    g._mongoClient = undefined;
+    // Don't close the client here: it is shared by every request, and closing
+    // it fails their in-flight queries with "Topology is closed". The driver
+    // reconnects by itself once the database is reachable again.
     return { state: "error", message: e instanceof Error ? e.message : "Unknown error" };
   }
 }

@@ -139,7 +139,7 @@ const securityScreen = {
   subtitle: "Infrastructure",
   statuses: [
     { label: "SSL Certificate", detail: "Valid until Dec 2027", icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400" },
-    { label: "DDoS Protection", detail: "Active — 0 attacks this week", icon: Shield, color: "text-uk-blue" },
+    { label: "DDoS Protection", detail: "Active, 0 attacks this week", icon: Shield, color: "text-uk-blue" },
     { label: "2FA Enforcement", detail: "All 14 team members enabled", icon: Users, color: "text-uk-blue" },
     { label: "Audit Logging", detail: "Last reviewed 2 hours ago", icon: FileText, color: "text-uk-yellow" },
   ],

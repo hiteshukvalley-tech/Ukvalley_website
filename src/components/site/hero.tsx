@@ -27,7 +27,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
   const headline = markedWords(c.headline);
   return (
     <section className="relative overflow-hidden bg-uk-surface-blue">
-      {/* ── Background layers ── */}
+      {/* ── Background layers (no photo: the home hero follows the theme) ── */}
       <div
         className="hero-gradient absolute inset-0"
         aria-hidden
@@ -37,8 +37,8 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
       <div className="glow-drift absolute right-[-8%] top-[-10%] h-[36rem] w-[36rem] rounded-full bg-uk-blue-bright/12 blur-[160px]" />
       <div className="glow-drift absolute bottom-[-10%] left-[30%] h-80 w-80 rounded-full bg-uk-yellow/15 blur-[120px]" />
 
-      {/* ── Hero content ── */}
-      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-32 pb-16 lg:px-8 lg:pt-40 lg:pb-20">
+      {/* ── Hero content — top padding = fixed header (64px, 72px on lg) + 40px / 56px ── */}
+      <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-26 pb-16 lg:px-8 lg:pt-32 lg:pb-20">
         {/* Badge */}
         <div className="mb-8 flex justify-center">
           <div className="badge-yellow inline-flex items-center gap-2 rounded-full px-5 py-2 text-xs uppercase tracking-[0.18em] shadow-glow-yellow">
@@ -175,7 +175,7 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
       </div>
 
       {/* sr contact breadcrumb */}
-      <span className="sr-only">{company.name} — {company.city}</span>
+      <span className="sr-only">{company.name}, {company.city}</span>
     </section>
   );
 }

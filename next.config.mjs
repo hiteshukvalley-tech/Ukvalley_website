@@ -28,6 +28,12 @@ const nextConfig = {
       },
     ];
   },
+  // Renamed product pages: keep old links and search results working.
+  async redirects() {
+    return [
+      { source: "/products/cube-capital", destination: "/products/cubez-capital", permanent: true },
+    ];
+  },
   images: {
     // Next 16 only allows quality 75 by default. 95 is used for the
     // circular page-hero artwork, where fine detail must stay crisp.

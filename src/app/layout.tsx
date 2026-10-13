@@ -59,11 +59,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(`${SITE_URL}`),
   title: {
-    default: "Ukvalley — Custom Software, CRM, ERP & Mobile Apps",
+    default: "Ukvalley: Custom Software, CRM, ERP & Mobile Apps",
     template: "%s | Ukvalley",
   },
   description:
-    "Custom software for Indian SMEs and global startups. Web, mobile, CRM, ERP, HRMS, cloud & cybersecurity — engineered to scale, supported for years.",
+    "Custom software for Indian SMEs and global startups. Web, mobile, CRM, ERP, HRMS, cloud & cybersecurity, engineered to scale, supported for years.",
   keywords: [
     "custom software development company India",
     "CRM development company India",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: `${SITE_URL}`,
     siteName: "Ukvalley Technologies",
-    title: "Ukvalley — Custom Software, CRM, ERP & Mobile Apps",
+    title: "Ukvalley: Custom Software, CRM, ERP & Mobile Apps",
     description:
       "Custom software for Indian SMEs and global startups. Engineered to scale, supported for years.",
     images: [SHARE_IMAGE],
@@ -88,7 +88,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Ukvalley Technologies",
     description:
-      "Custom software, CRM, ERP & mobile apps — engineered to scale, supported for years.",
+      "Custom software, CRM, ERP & mobile apps, engineered to scale, supported for years.",
     images: [SHARE_IMAGE],
   },
   // Test deployments (uat., *.onrender.com, localhost …) stay out of search results.

@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Other build folders (NEXT_DIST_DIR=.next-test, .next-build …) and local
+    // screenshots: generated files, not source.
+    ".next-*/**",
+    ".shots/**",
   ]),
   {
     rules: {

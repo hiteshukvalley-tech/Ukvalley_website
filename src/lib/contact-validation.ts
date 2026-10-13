@@ -5,8 +5,8 @@ import type { FieldErrors } from "./list-utils";
 
 export const BUDGETS = [
   "Under ₹2L",
-  "₹2L – ₹5L",
-  "₹5L – ₹15L",
+  "₹2L to ₹5L",
+  "₹5L to ₹15L",
   "₹15L+",
   "Not sure yet",
 ];
@@ -44,7 +44,7 @@ export function validatePhone(raw: string): string | undefined {
   if (!value) return undefined;
 
   if (!/^\+?[\d\s-]+$/.test(value)) {
-    return "Mobile number can contain digits only — no letters or symbols.";
+    return "Mobile number can contain digits only, no letters or symbols.";
   }
 
   const digits = value.replace(/\D/g, "");

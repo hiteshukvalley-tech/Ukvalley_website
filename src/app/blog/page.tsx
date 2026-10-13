@@ -20,9 +20,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("blog", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Insights — software, CRM & ERP buyer's guides",
+  title: "Insights: software, CRM & ERP buyer's guides",
   description:
-    "Plain-English guides for Indian SMEs choosing CRM vs ERP, and how to ship real software in weeks — not months. Written by the engineers who build it.",
+    "Plain-English guides for Indian SMEs choosing CRM vs ERP, and how to ship real software in weeks, not months. Written by the engineers who build it.",
   alternates: { canonical: `${SITE_URL}/blog` },
 };
 
@@ -44,7 +44,7 @@ export default async function BlogPage() {
           eyebrow={ukText("Insights")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Insights" }]}
           title={
-            <>{ukText("Buyer's guides and engineering notes —")}{" "}
+            <>{ukText("Buyer's guides and engineering notes, ")}{" "}
               <span className="text-gradient-blue">{ukText("written by the builders.")}</span>
             </>
           }
@@ -60,10 +60,10 @@ export default async function BlogPage() {
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why most vendor blogs are content-marketing filler — and this one isn't")}</h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why most vendor blogs are content-marketing filler, and this one isn't")}</h2>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency blogs exist for search rankings, not readers: a thousand words restating the title, written by a copywriter who has never shipped the thing being described, padded with keywords until it ranks. You finish the article no closer to a decision than when you started.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That filler costs readers real time — ten minutes spent on a listicle that could have been a single paragraph, or worse, advice that quietly steers toward whatever the agency happens to sell rather than what the reader's situation actually calls for.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every article below is written by the architects and engineers doing the actual work — buyer's guides, engineering notes and process breakdowns with specific numbers and trade-offs, not adjectives.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That filler costs readers real time, ten minutes spent on a listicle that could have been a single paragraph, or worse, advice that quietly steers toward whatever the agency happens to sell rather than what the reader's situation actually calls for.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every article below is written by the architects and engineers doing the actual work, buyer's guides, engineering notes and process breakdowns with specific numbers and trade-offs, not adjectives.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -189,7 +189,7 @@ export default async function BlogPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="blog" />
         <PageBlocks pageKey="blog" />
       </main>
       <Footer />

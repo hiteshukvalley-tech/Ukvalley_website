@@ -23,9 +23,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("support-maintenance", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Support & maintenance — 24-hour SLA in writing",
+  title: "Support & maintenance: 24-hour SLA in writing",
   description:
-    "Ukvalley's support and maintenance plans: 24-hour response SLA, 24×7 monitoring, patching, backups with tested restores and monthly health reports for the systems we build — and ones we didn't.",
+    "Ukvalley's support and maintenance plans: 24-hour response SLA, 24×7 monitoring, patching, backups with tested restores and monthly health reports for the systems we build, and ones we didn't.",
   alternates: { canonical: `${SITE_URL}/support-maintenance` },
 };
 
@@ -73,11 +73,11 @@ const plans = [
 ];
 
 const coverage = [
-  { icon: Activity, title: "24×7 monitoring", desc: "Metrics, logs and alert routes that reach a human — with uptime and incident history in your monthly report." },
-  { icon: DatabaseBackup, title: "Backups that restore", desc: "Scheduled backups with periodic restore drills — an untested backup is a hope, not a plan." },
+  { icon: Activity, title: "24×7 monitoring", desc: "Metrics, logs and alert routes that reach a human, with uptime and incident history in your monthly report." },
+  { icon: DatabaseBackup, title: "Backups that restore", desc: "Scheduled backups with periodic restore drills, an untested backup is a hope, not a plan." },
   { icon: RefreshCcw, title: "Patching & upgrades", desc: "Dependency updates, security patches and framework upgrades scheduled, tested and documented." },
-  { icon: Gauge, title: "Performance upkeep", desc: "Slow queries caught before users feel them — with monthly reviews of latency and error budgets." },
-  { icon: FileBarChart, title: "Monthly reporting", desc: "Uptime, incidents, cost and backlog movement — one written report you can actually read." },
+  { icon: Gauge, title: "Performance upkeep", desc: "Slow queries caught before users feel them, with monthly reviews of latency and error budgets." },
+  { icon: FileBarChart, title: "Monthly reporting", desc: "Uptime, incidents, cost and backlog movement, one written report you can actually read." },
   { icon: LifeBuoy, title: "Named engineers", desc: "You talk to the people who know your system, not a ticket queue reading from a script." },
 ];
 
@@ -93,11 +93,11 @@ export default function SupportMaintenancePage() {
           eyebrow={ukText("Support & SLA")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Support & Maintenance" }]}
           title={
-            <>{ukText("Software is a living system —")}{" "}
+            <>{ukText("Software is a living system, ")}{" "}
               <span className="text-gradient-blue">{ukText("we keep it alive.")}</span>
             </>
           }
-          description={ukText("Launch is the start, not the finish line. Our support plans keep the systems we build — and the ones we didn't — patched, monitored and improving, with a 24-hour response SLA stated in every contract.")}
+          description={ukText("Launch is the start, not the finish line. Our support plans keep the systems we build, and the ones we didn't, patched, monitored and improving, with a 24-hour response SLA stated in every contract.")}
         />
 
         {/* The problem it solves */}
@@ -112,7 +112,7 @@ export default function SupportMaintenancePage() {
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why launch day is where most vendor relationships quietly end")}</h2>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most development contracts end at launch, which is exactly the point where a system starts needing attention: dependencies drift out of date, traffic patterns emerge that the original build never anticipated, and the one person who understood the deployment pipeline has moved on to the next client. Nobody notices until a backup fails to restore during an actual incident.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The cost is invisible right up until it isn't: a security patch that never shipped becomes the entry point for a breach, a slow query nobody profiled becomes a customer-facing outage, and an untested backup turns a recoverable mistake into a permanent one. By then the original vendor is unreachable or quoting emergency rates.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We treat support as a continuation of the same engineering discipline, not a separate downgraded tier — the same architects, the same 24-hour SLA, and backups we actually restore-test rather than just schedule.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We treat support as a continuation of the same engineering discipline, not a separate downgraded tier, the same architects, the same 24-hour SLA, and backups we actually restore-test rather than just schedule.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -165,7 +165,7 @@ export default function SupportMaintenancePage() {
           <Container>
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What every plan covers")}</h2>
-              <p className="mt-3 text-uk-gray">{ukText("The unglamorous discipline that keeps systems live for years — standard on every plan, never an upsell.")}</p>
+              <p className="mt-3 text-uk-gray">{ukText("The unglamorous discipline that keeps systems live for years, standard on every plan, never an upsell.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {coverage.map((c) => (
@@ -193,7 +193,7 @@ export default function SupportMaintenancePage() {
           <Container>
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Support plans")}</h2>
-              <p className="mt-3 text-uk-gray">{ukText("Three tiers, transparent scope, no lock-in — every plan is month-to-month after the first quarter.")}</p>
+              <p className="mt-3 text-uk-gray">{ukText("Three tiers, transparent scope, no lock-in, every plan is month-to-month after the first quarter.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
               {plans.map((p, i) => (
@@ -236,7 +236,7 @@ export default function SupportMaintenancePage() {
               <div className="flex gap-3 rounded-2xl border border-uk-line bg-uk-card p-5">
                 <ShieldCheck className="h-5 w-5 flex-none text-uk-blue" />
                 <p className="text-sm leading-relaxed text-uk-gray">
-                  <span className="font-semibold text-uk-heading">{ukText("We take over existing systems.")}</span>{" "}{ukText("Audit first, stabilise second, then support — even if another vendor built it.")}</p>
+                  <span className="font-semibold text-uk-heading">{ukText("We take over existing systems.")}</span>{" "}{ukText("Audit first, stabilise second, then support, even if another vendor built it.")}</p>
               </div>
               <div className="flex gap-3 rounded-2xl border border-uk-line bg-uk-card p-5">
                 <Wrench className="h-5 w-5 flex-none text-uk-blue" />
@@ -246,13 +246,13 @@ export default function SupportMaintenancePage() {
               <div className="flex gap-3 rounded-2xl border border-uk-line bg-uk-card p-5">
                 <Cloud className="h-5 w-5 flex-none text-uk-blue" />
                 <p className="text-sm leading-relaxed text-uk-gray">
-                  <span className="font-semibold text-uk-heading">{ukText("Cost stays honest.")}</span>{" "}{ukText("Monthly cost reviews with budget alerts — no silent cloud-bill creep.")}</p>
+                  <span className="font-semibold text-uk-heading">{ukText("Cost stays honest.")}</span>{" "}{ukText("Monthly cost reviews with budget alerts, no silent cloud-bill creep.")}</p>
               </div>
             </Reveal>
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="support-maintenance" />
         <PageBlocks pageKey="support-maintenance" />
       </main>
       <Footer />

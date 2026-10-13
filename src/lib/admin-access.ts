@@ -39,7 +39,7 @@ export const ACCESS_AREAS: AccessArea[] = [
   { key: "blog", label: "Insights (articles)", group: "Website", paths: ["/admin/blog"] },
 
   { key: "careers", label: "Job openings", group: "Careers & leads", paths: ["/admin/careers"] },
-  { key: "applications", label: "Job applications", group: "Careers & leads", hint: "Applicants' details and résumés", paths: ["/admin/applications"] },
+  { key: "applications", label: "Job applications", group: "Careers & leads", hint: "Applicants' details, résumés, interviews and email logs", paths: ["/admin/applications", "/admin/todays-applications", "/admin/interviews", "/admin/email-logs"] },
   { key: "leads", label: "Leads", group: "Careers & leads", hint: "Enquiries from the contact forms", paths: ["/admin/leads"] },
   { key: "media", label: "Media library", group: "Careers & leads", paths: ["/admin/media"] },
 ];
@@ -54,7 +54,7 @@ export const ADMIN_ONLY_PATHS = ["/admin/settings", "/admin/users", "/admin/migr
  * fields in every section, not only the Media library, so any team member may
  * upload (it still needs a valid session).
  */
-const OPEN_PATHS = ["/admin", "/admin/account", "/admin/media/upload"];
+const OPEN_PATHS = ["/admin", "/admin/account", "/admin/profile", "/admin/media/upload"];
 
 const under = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
 

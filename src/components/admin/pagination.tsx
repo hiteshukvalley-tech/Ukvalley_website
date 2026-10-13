@@ -73,7 +73,7 @@ export function Pagination({
             value={pageSize}
             onChange={(e) => router.push(hrefFor(1, Number(e.target.value)))}
             aria-label="Rows per page"
-            className="h-8 rounded-lg border border-uk-line bg-uk-card px-2 text-xs text-uk-heading outline-none focus-visible:border-ring [&>option]:bg-uk-card [&>option]:text-uk-heading"
+            className="h-8 rounded-lg border border-uk-line bg-uk-card px-2 text-xs text-uk-heading outline-none focus-visible:border-ring"
           >
             {sizes.map((n) => <option key={n} value={n}>{n}</option>)}
           </select>

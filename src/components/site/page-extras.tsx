@@ -47,7 +47,7 @@ const FOUNDER_DEFAULTS = {
   image: "/team/ceo-ukvalley.webp",
   imageAlt: "Umesh K, Chief Executive Officer of Ukvalley Technologies",
   description:
-    "Umesh leads Ukvalley Technologies and owns growth, client relationships and the operating model that keeps every project accountable.\n\nHe built the company on one idea: small and mid-sized businesses deserve the same engineering rigour as the enterprise, at a cost that makes sense — with the engineers who scope a project being the ones who build it.",
+    "Umesh leads Ukvalley Technologies and owns growth, client relationships and the operating model that keeps every project accountable.\n\nHe built the company on one idea: small and mid-sized businesses deserve the same engineering rigour as the enterprise, at a cost that makes sense, with the engineers who scope a project being the ones who build it.",
   company:
     "Ukvalley Technologies is an unfunded, engineer-led software company based in Maharashtra, India. Since 2017 we have built custom software, CRM, ERP, HRMS and mobile apps for Indian SMEs and global startups, and we run our own products in production as proof.",
   facts: [
@@ -61,13 +61,13 @@ const FOUNDER_DEFAULTS = {
 const paragraphs = (text: string) => text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 
 /**
- * Owner and company introduction for the About page. Every field comes from
- * Admin → Page text → About us; a field left empty keeps the built-in text.
+ * The owner and company details as shown on the About page: Admin → Page text
+ * → About us, with the built-in text for anything left empty. Also used by
+ * /press-kit and /media, so the spokesperson there is always the same person.
  */
-export async function FounderSection({ pageKey }: { pageKey: string }) {
+export async function getFounder(pageKey = "about") {
   const [c, s] = await Promise.all([getPageContent(pageKey), getSiteSettings()]);
   const d = FOUNDER_DEFAULTS;
-  const image = c.founderImage || d.image;
   // The built-in details follow Admin → Site settings (name, year, sales email).
   const facts = c.founderFacts.length
     ? c.founderFacts
@@ -77,8 +77,25 @@ export async function FounderSection({ pageKey }: { pageKey: string }) {
         : f.label === "Email" ? { ...f, value: s.sales.email || s.email }
         : f
       );
-  const bio = paragraphs(c.founderDescription || d.description);
-  const about = paragraphs(c.companyDescription || d.company);
+  return {
+    eyebrow: c.founderEyebrow || ukText(d.eyebrow),
+    name: c.founderName || ukText(d.name),
+    role: c.founderRole || ukText(d.role),
+    image: c.founderImage || d.image,
+    imageAlt: ukText(c.founderImageAlt || d.imageAlt),
+    bio: paragraphs(c.founderDescription || d.description),
+    about: paragraphs(c.companyDescription || d.company),
+    facts,
+  };
+}
+
+/**
+ * Owner and company introduction for the About page. Every field comes from
+ * Admin → Page text → About us; a field left empty keeps the built-in text.
+ */
+export async function FounderSection({ pageKey }: { pageKey: string }) {
+  const f = await getFounder(pageKey);
+  const { image, bio, about, facts } = f;
   return (
     <section id="owner" className="relative scroll-mt-24 bg-uk-surface section-py">
       <Container>
@@ -89,7 +106,7 @@ export async function FounderSection({ pageKey }: { pageKey: string }) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image}
-                alt={ukText(c.founderImageAlt || d.imageAlt)}
+                alt={f.imageAlt}
                 loading="lazy"
                 className="aspect-[4/5] w-full rounded-[1.25rem] object-cover object-top"
               />
@@ -97,11 +114,11 @@ export async function FounderSection({ pageKey }: { pageKey: string }) {
           </Reveal>
           <Reveal className="flex flex-col gap-5">
             <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">
-              {c.founderEyebrow || ukText(d.eyebrow)}
+              {f.eyebrow}
             </span>
             <div>
-              <h2 className="font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{c.founderName || ukText(d.name)}</h2>
-              <p className="mt-1 text-base font-semibold text-uk-blue">{c.founderRole || ukText(d.role)}</p>
+              <h2 className="font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{f.name}</h2>
+              <p className="mt-1 text-base font-semibold text-uk-blue">{f.role}</p>
             </div>
             <div className="space-y-4 text-lg leading-relaxed text-uk-gray">
               {bio.map((p, i) => <p key={i}>{ukText(p)}</p>)}
@@ -112,10 +129,10 @@ export async function FounderSection({ pageKey }: { pageKey: string }) {
                 {about.map((p, i) => <p key={i}>{ukText(p)}</p>)}
               </div>
               <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-uk-line pt-4 text-sm sm:grid-cols-2">
-                {facts.map((f, i) => (
+                {facts.map((fact, i) => (
                   <div key={i} className="flex items-baseline justify-between gap-4">
-                    <dt className="flex-none text-uk-gray">{ukText(f.label)}</dt>
-                    <dd className="text-right font-medium text-uk-body">{ukText(f.value)}</dd>
+                    <dt className="flex-none text-uk-gray">{ukText(fact.label)}</dt>
+                    <dd className="text-right font-medium text-uk-body">{ukText(fact.value)}</dd>
                   </div>
                 ))}
               </dl>

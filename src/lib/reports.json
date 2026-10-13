@@ -2,8 +2,8 @@
   "reports": [
     {
       "slug": "delivery-report-2026-q3",
-      "title": "Delivery Report — Q3 2026",
-      "period": "July – September 2026",
+      "title": "Delivery Report, Q3 2026",
+      "period": "July to September 2026",
       "kind": "Quarterly delivery report",
       "summary": "How our engagements performed this quarter: response times against the SLA, milestone punctuality, uptime on managed systems and the time clients got back from the delivery model. Published every quarter, whether the numbers are flattering or not.",
       "highlights": [
@@ -63,7 +63,7 @@
     },
     {
       "slug": "custom-software-pricing-guide-2026",
-      "title": "Custom Software Pricing Guide — India 2026",
+      "title": "Custom Software Pricing Guide, India 2026",
       "period": "2026 edition",
       "kind": "Buyer's guide",
       "summary": "What drives a ₹2–6 lakh build versus ₹8–20 lakh and beyond, the three variables that actually move the price, typical timelines per band, and the questions to ask any vendor before signing. Written for owners and CFOs, not engineers.",
@@ -113,12 +113,12 @@
         {
           "heading": "Six questions to ask any vendor",
           "bullets": [
-            "Can I see software this team has shipped — live links, not a portfolio?",
+            "Can I see software this team has shipped, live links, not a portfolio?",
             "Who reviews the code, by name?",
-            "What happens if an engineer resigns or underperforms — is replacement guaranteed in writing?",
+            "What happens if an engineer resigns or underperforms, is replacement guaranteed in writing?",
             "Who owns the repositories from day one?",
             "What is the notice period to scale or pause?",
-            "What happens in week one — is there a documented onboarding?"
+            "What happens in week one, is there a documented onboarding?"
           ]
         },
         {

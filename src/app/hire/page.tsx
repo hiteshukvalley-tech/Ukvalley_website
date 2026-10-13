@@ -28,7 +28,7 @@ export const generateMetadata = () => editableMetadata("hire", baseMetadata);
 const baseMetadata: Metadata = {
   title: "Hire developers, designers & sales executives",
   description:
-    "Hire dedicated React, Next.js, Node.js, Flutter, Python, Angular, Laravel, DevOps and QA engineers — plus UI/UX designers and sales executives — from Ukvalley. Verified on live work, code and pipeline data you own from day one, start in 48 hours.",
+    "Hire dedicated React, Next.js, Node.js, Flutter, Python, Angular, Laravel, DevOps and QA engineers, plus UI/UX designers and sales executives, from Ukvalley. Verified on live work, code and pipeline data you own from day one, start in 48 hours.",
   alternates: { canonical: `${SITE_URL}/hire` },
 };
 
@@ -63,7 +63,7 @@ export default async function HirePage() {
               <span className="text-gradient-blue">{ukText("already shipped it.")}</span>
             </>
           }
-          description={ukText("Twelve specialisations — ten engineering roles plus dedicated UI/UX designers and sales executives — and one standard: every hire is verified on live work by the leads who manage them daily, and you own the code, the design files and the pipeline from day one.")}
+          description={ukText("Twelve specialisations, ten engineering roles plus dedicated UI/UX designers and sales executives, and one standard: every hire is verified on live work by the leads who manage them daily, and you own the code, the design files and the pipeline from day one.")}
         />
 
         {/* The problem it solves */}
@@ -77,8 +77,8 @@ export default async function HirePage() {
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why hiring a freelance developer is usually a coin flip")}</h2>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most freelance marketplaces sell you a profile: a star rating, a portfolio of screenshots, and a rate. None of that tells you whether the person actually ships production code, whether they'll still answer messages in month three, or whether the \"5 years React experience\" survives a real code review. You find out after you've paid for two months of rework.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("A bad hire costs more than the invoice: weeks lost re-briefing a replacement, a codebase nobody wants to inherit, and a project timeline that resets every time someone ghosts. Recruitment agencies solve the sourcing problem but not the accountability one — once the placement fee clears, the quality of the work is entirely your risk.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every engineer we place is already on our payroll, reviewed on our own delivery standards, and backed by an architect who stays accountable for the engagement — not a marketplace profile you're taking on faith.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("A bad hire costs more than the invoice: weeks lost re-briefing a replacement, a codebase nobody wants to inherit, and a project timeline that resets every time someone ghosts. Recruitment agencies solve the sourcing problem but not the accountability one, once the placement fee clears, the quality of the work is entirely your risk.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every engineer we place is already on our payroll, reviewed on our own delivery standards, and backed by an architect who stays accountable for the engagement, not a marketplace profile you're taking on faith.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -87,7 +87,7 @@ export default async function HirePage() {
                   <ul className="mt-4 flex flex-col gap-3.5">
                     {[
                       "Shortlisted from engineers already on our payroll",
-                      "You interview them directly — no blind hires",
+                      "You interview them directly, no blind hires",
                       "A paid trial task proves the fit before any long term",
                       "Code review from a senior architect on every merge",
                     ].map((item) => (
@@ -177,7 +177,7 @@ export default async function HirePage() {
             <SectionHeading
               eyebrow={ukText("Why Ukvalley")}
               title={<>{ukText("An engineer plus an engineering culture.")}</>}
-              description={ukText("You're not renting a freelancer — you're getting a production-verified engineer backed by our review culture, architects and delivery system.")}
+              description={ukText("You're not renting a freelancer, you're getting a production-verified engineer backed by our review culture, architects and delivery system.")}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {principles.map((p) => (
@@ -200,12 +200,12 @@ export default async function HirePage() {
           align="left"
           eyebrow={ukText("Hiring without the hiring")}
           title={
-            <>{ukText("Skip the recruitment cycle — ")}<span className="text-uk-blue">{ukText("start in 48 hours.")}</span>
+            <>{ukText("Skip the recruitment cycle, ")}<span className="text-uk-blue">{ukText("start in 48 hours.")}</span>
             </>
           }
           description={ukText("A typical hire takes 8–12 weeks of sourcing, interviews and notice periods. Our people are already on payroll, verified on live work, and backed by the same delivery rituals that give every client their time back.")}
         />
-        <CtaBand />
+        <CtaBand related="hire" />
         <PageBlocks pageKey="hire" />
       </main>
       <Footer />

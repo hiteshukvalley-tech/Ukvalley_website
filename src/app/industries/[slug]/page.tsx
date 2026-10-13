@@ -165,7 +165,7 @@ export default async function IndustryPage({ params }: Props) {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Outcomes")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Outcomes we deliver here")}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("The systems ")}{ukText(ind.name)}{" "}{ukText("teams run on after we ship — measured, owned and supported.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("The systems ")}{ukText(ind.name)}{" "}{ukText("teams run on after we ship, measured, owned and supported.")}</p>
             </Reveal>
             <Reveal
               staggerChildren
@@ -195,7 +195,7 @@ export default async function IndustryPage({ params }: Props) {
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("What we build")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Systems we deliver for ")}{ukText(ind.name)}
               </h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("Each of these has shipped for a client in this sector or one adjacent to it — customised to the workflow, not sold as a template.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("Each of these has shipped for a client in this sector or one adjacent to it, customised to the workflow, not sold as a template.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2">
               {ind.deliverables.map((d, i) => (
@@ -253,7 +253,7 @@ export default async function IndustryPage({ params }: Props) {
           <Container className="max-w-5xl">
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
-                {ukText(ind.name)}{" "}{ukText("— questions buyers ask us")}</h2>
+                {ukText(ind.name)}{" "}{ukText("questions buyers ask us")}</h2>
             </Reveal>
             <Reveal staggerChildren className="mt-8 flex flex-col gap-4">
               {ind.faqs.map((f) => (
@@ -279,7 +279,7 @@ export default async function IndustryPage({ params }: Props) {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("How we help")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("How we can help")}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("The products we sell and the consulting we deliver in ")}{ukText(ind.name)}{" "}{ukText("— one accountable team across all of them.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("The products we sell and the consulting we deliver in ")}{ukText(ind.name)}{" "}{ukText("one accountable team across all of them.")}</p>
             </Reveal>
             <Reveal
               staggerChildren
@@ -325,7 +325,7 @@ export default async function IndustryPage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="industries" />
       </main>
       <Footer />
     </>

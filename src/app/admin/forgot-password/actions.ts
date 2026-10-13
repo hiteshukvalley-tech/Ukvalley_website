@@ -55,11 +55,11 @@ export async function forgotPasswordAction(_prev: ForgotState, formData: FormDat
   if (!hasDatabaseUrl()) {
     return { step: "email", email, error: "Password reset needs the database, which isn't connected (MONGODB_URI missing).", nonce };
   }
-  if (!canSendResetCodes()) {
+  if (!(await canSendResetCodes())) {
     return {
       step: "email",
       email,
-      error: "Password reset by email isn't set up on this server yet (SMTP_PASS is missing). Ask the site owner to add it.",
+      error: "Password reset by email isn't set up yet. Ask an admin to add the HR email settings in Admin → Site settings.",
       nonce,
     };
   }

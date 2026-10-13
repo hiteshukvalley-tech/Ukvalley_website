@@ -173,7 +173,7 @@ export default async function BlogArticlePage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="blog" />
       </main>
       <Footer />
     </>

@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = (await getCaseStudies()).find((x) => x.slug === slug);
   if (!c) return {};
   return withSharePreview({
-    title: headlineTitle(c.title, `${c.title} — ${c.sector} case study`, `${c.title} — case study`),
+    title: headlineTitle(c.title, `${c.title}, ${c.sector} case study`, `${c.title}, case study`),
     description: c.result,
     alternates: { canonical: `${SITE_URL}/case-studies/${c.slug}` },
     openGraph: {
@@ -297,7 +297,7 @@ export default async function CaseStudyPage({ params }: Props) {
               <div>
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Facing a similar challenge in ")}{ukText(c.sector.toLowerCase())}?
                 </h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("Book a free scoping call — a written rough estimate in 3 days, a fixed proposal in 7.")}</p>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("Book a free scoping call, a written rough estimate in 3 days, a fixed proposal in 7.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
@@ -313,7 +313,7 @@ export default async function CaseStudyPage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="case-studies" />
       </main>
       <Footer />
     </>

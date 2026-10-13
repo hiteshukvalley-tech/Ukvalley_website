@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const r = (await getHireRoles()).find((x) => x.slug === slug);
   if (!r) return {};
   return withSharePreview({
-    title: fitTitle(`Hire ${r.title} — dedicated, code you own`, `Hire dedicated ${r.title}`, `Hire ${r.title}`),
+    title: fitTitle(`Hire ${r.title}, dedicated, code you own`, `Hire dedicated ${r.title}`, `Hire ${r.title}`),
     description: r.description,
     alternates: { canonical: `${SITE_URL}/hire/${r.slug}` },
   });
@@ -193,7 +193,7 @@ export default async function HireRolePage({ params }: Props) {
                 <ShieldCheck className="h-5 w-5 flex-none text-uk-blue" />
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Replace-anytime guarantee")}</h3>
               </div>
-              <p className="mt-2 text-sm leading-relaxed text-uk-gray">{ukText("If the engineer isn't the right fit, tell us — we replace them within a week at no extra cost, with a documented handover so context isn't lost. The guarantee is written into the agreement, not a verbal promise.")}</p>
+              <p className="mt-2 text-sm leading-relaxed text-uk-gray">{ukText("If the engineer isn't the right fit, tell us, we replace them within a week at no extra cost, with a documented handover so context isn't lost. The guarantee is written into the agreement, not a verbal promise.")}</p>
             </Reveal>
           </Container>
         </section>
@@ -203,7 +203,7 @@ export default async function HireRolePage({ params }: Props) {
           <Container>
             <Reveal className="max-w-2xl">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("How hiring works")}</h2>
-              <p className="mt-3 text-uk-gray">{ukText("Four steps from enquiry to a working engineer — typically inside a week.")}</p>
+              <p className="mt-3 text-uk-gray">{ukText("Four steps from enquiry to a working engineer, typically inside a week.")}</p>
             </Reveal>
             <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {r.process.map((p, i) => (
@@ -275,7 +275,7 @@ export default async function HireRolePage({ params }: Props) {
             <Reveal className="mt-10 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6">
               <div>
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Ready to meet your first ")}{ukText(r.shortLabel)}{" "}{ukText("hire?")}</h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("A 30-minute scoping call starts the shortlist — typically interviewing within 48 hours.")}</p>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A 30-minute scoping call starts the shortlist, typically interviewing within 48 hours.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Start hiring")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
@@ -291,7 +291,7 @@ export default async function HireRolePage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="hire" />
       </main>
       <Footer />
     </>

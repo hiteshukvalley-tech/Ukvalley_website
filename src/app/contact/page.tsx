@@ -13,6 +13,7 @@ import { offices } from "@/lib/site-data";
 import { getSiteSettings } from "@/lib/settings";
 import { jsonLd } from "@/lib/utils";
 import { ukText } from "@/lib/texts";
+import { RelatedSection } from "@/components/site/related-chips";
 
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
@@ -20,7 +21,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("contact", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Contact us — book a free 30-minute scoping call",
+  title: "Contact us: book a free 30-minute scoping call",
   description:
     "Talk to a software architect, not a sales bot. A reply within one business day, a rough estimate in 3 days, a fixed proposal in 7. Offices in Nashik, India and Jersey City, USA.",
   alternates: { canonical: `${SITE_URL}/contact` },
@@ -68,11 +69,11 @@ export default async function ContactPage() {
           eyebrow={ukText("Contact")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Contact" }]}
           title={
-            <>{ukText("Talk to a software architect —")}{" "}
+            <>{ukText("Talk to a software architect, ")}{" "}
               <span className="text-gradient-blue">{ukText("not a sales bot.")}</span>
             </>
           }
-          description={ukText("A free 30-minute scoping call. You'll get a reply within one business day — on average in under 4 hours. A rough estimate in 3 days, a fixed proposal in 7. No charge, no obligation.")}
+          description={ukText("A free 30-minute scoping call. You'll get a reply within one business day, on average in under 4 hours. A rough estimate in 3 days, a fixed proposal in 7. No charge, no obligation.")}
         >
           {/* The form sits below the hero artwork: give visitors a way to act straight away. */}
           <div className="mt-1 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
@@ -116,7 +117,7 @@ export default async function ContactPage() {
                   <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("What happens next")}</h3>
                   <ol className="mt-4 flex flex-1 flex-col justify-center gap-4">
                     {[
-                      { t: "1 business day", d: "A real reply from an architect, not an autoresponder — on average in under 4 hours." },
+                      { t: "1 business day", d: "A real reply from an architect, not an autoresponder, on average in under 4 hours." },
                       { t: "3 business days", d: "A written rough estimate based on your scope." },
                       { t: "7 days", d: "A fixed proposal with timeline and price." },
                     ].map((s) => (
@@ -196,6 +197,7 @@ export default async function ContactPage() {
           </Container>
         </section>
         <PageBlocks pageKey="contact" />
+        <RelatedSection page="contact" />
       </main>
       <Footer />
     </>

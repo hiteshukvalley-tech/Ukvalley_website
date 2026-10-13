@@ -62,7 +62,7 @@ export const defaultHome: HomeContent = {
     badge: "Engineering systems in production · Since 2017",
     headline: "We build technology *that* helps businesses scale.",
     description:
-      "Web, mobile, CRM, ERP and cloud systems for Indian SMEs and global startups — engineered to scale, with *code you own from day one* and a 24-hour response SLA.",
+      "Web, mobile, CRM, ERP and cloud systems for Indian SMEs and global startups, engineered to scale, with *code you own from day one* and a 24-hour response SLA.",
     primaryCta: "Book a free scoping call",
     secondaryCta: "See our work",
     secondaryHref: "#work",
@@ -76,17 +76,17 @@ export const defaultHome: HomeContent = {
   },
   trust: {
     label: "Trusted by 150+ businesses · Products & platforms in production",
-    brands: ["TeleValley", "Ezzu CRM", "Emailz", "Evento", "Cube Capital", "Voie Canada", "Mediline", "Ezukate", "Brightways", "Wellness Global"],
+    brands: ["TeleValley", "Ezzu CRM", "Emailz", "EventoValley", "Cubez Capital", "Voie Canada", "Mediline", "Ezukate", "Brightways", "Wellness Global"],
   },
   explore: {
     eyebrow: "Explore",
     title: "Where would you like to *go next*?",
-    description: "Six quick paths through everything we build, ship and support — each with the numbers behind it. Pick a door.",
+    description: "Six quick paths through everything we build, ship and support, each with the numbers behind it. Pick a door.",
     cards: [
       {
         label: "Services",
         href: "/services",
-        description: "Web, mobile, custom software, cloud, marketing and security — one accountable team from scoping call to long-term support.",
+        description: "Web, mobile, custom software, cloud, marketing and security, one accountable team from scoping call to long-term support.",
         statValue: "{services}",
         statLabel: "Service lines",
         highlight1: "Web & mobile apps",
@@ -97,7 +97,7 @@ export const defaultHome: HomeContent = {
       {
         label: "Solutions",
         href: "/solutions",
-        description: "Production-proven systems we customise to your workflow — not templates you have to bend your business around.",
+        description: "Production-proven systems we customise to your workflow, not templates you have to bend your business around.",
         statValue: "{solutions}",
         statLabel: "Ready-to-build systems",
         highlight1: "CRM & ERP platforms",
@@ -108,7 +108,7 @@ export const defaultHome: HomeContent = {
       {
         label: "Work",
         href: "/case-studies",
-        description: "Anonymised engagements that name the constraint, the approach, the stack and the measured result — numbers, not adjectives.",
+        description: "Anonymised engagements that name the constraint, the approach, the stack and the measured result, numbers, not adjectives.",
         statValue: "{caseStudies}",
         statLabel: "Case studies",
         highlight1: "65% faster loan processing",
@@ -130,7 +130,7 @@ export const defaultHome: HomeContent = {
       {
         label: "Hire",
         href: "/hire",
-        description: "Dedicated engineers verified on live production work — embedded in your tools, with code and repos in your ownership.",
+        description: "Dedicated engineers verified on live production work, embedded in your tools, with code and repos in your ownership.",
         statValue: "48h",
         statLabel: "Typical time to start",
         highlight1: "{hireRoles} specialisations",
@@ -141,7 +141,7 @@ export const defaultHome: HomeContent = {
       {
         label: "Insights",
         href: "/blog",
-        description: "Plain-English buyer's guides and engineering notes from the team doing the work — practical frames, no SEO filler.",
+        description: "Plain-English buyer's guides and engineering notes from the team doing the work, practical frames, no SEO filler.",
         statValue: "{articles}",
         statLabel: "Guides & articles",
         highlight1: "Buyer's guides & pricing",
@@ -155,10 +155,10 @@ export const defaultHome: HomeContent = {
     eyebrow: "System architecture",
     title: "{Count} disciplines, *one accountable core*.",
     description:
-      "{Count} service lines, one team that owns the outcome. No freelance brokers, no hand-offs to a faceless offshoring pool — the engineers who scope it build it.",
+      "{Count} service lines, one team that owns the outcome. No freelance brokers, no hand-offs to a faceless offshoring pool, the engineers who scope it build it.",
     coreBadge: "Engineering core",
     coreText:
-      "From SPA dashboards and e-commerce storefronts to complex workflow engines — we ship production-grade code with shared Jira boards, weekly demos and a 24-hour SLA.",
+      "From SPA dashboards and e-commerce storefronts to complex workflow engines, we ship production-grade code with shared Jira boards, weekly demos and a 24-hour SLA.",
     workflowLabel: "How we run it",
     workflowSteps: ["Discovery", "Design", "Build", "Ship", "Support"],
     chips: ["React & Next.js", "Angular & Vue", "TypeScript", "SEO-ready", "Design system included", "24h SLA"],
@@ -172,7 +172,7 @@ export const defaultHome: HomeContent = {
     ],
     ctaBadge: "Free · 30 minutes · No obligation",
     ctaTitle: "Not sure which service fits?",
-    ctaText: "In one short call we map your goals to the right build path — no sales pitch.",
+    ctaText: "In one short call we map your goals to the right build path, no sales pitch.",
     ctaPoints: [
       "Architecture recommendation from a senior engineer",
       "Rough estimate within 3 days",
@@ -190,11 +190,11 @@ export const defaultHome: HomeContent = {
       {
         title: "Code you own from day one",
         desc: "All source, docs and repo access are yours. We work under a signed NDA and IP assignment before any line is written.",
-        detail: "No lock-in, no hostage code — ever.",
+        detail: "No lock-in, no hostage code, ever.",
       },
       {
         title: "24-hour response SLA",
-        desc: "Stated publicly, written into every contract. A real architect replies — not a chatbot, not a sales queue.",
+        desc: "Stated publicly, written into every contract. A real architect replies, not a chatbot, not a sales queue.",
         detail: "Average first reply: under 4 hours.",
       },
       {
@@ -204,7 +204,7 @@ export const defaultHome: HomeContent = {
       },
       {
         title: "Real product portfolio",
-        desc: "TeleValley, Ezzu CRM, Emailz and more — proof we build and maintain our own IP, not just billable hours.",
+        desc: "TeleValley, Ezzu CRM, Emailz and more, proof we build and maintain our own IP, not just billable hours.",
         detail: "{products} products in production right now.",
       },
       {
@@ -214,7 +214,7 @@ export const defaultHome: HomeContent = {
       },
       {
         title: "A real, named company",
-        desc: "A named contracting entity with a real office and a salaried team — not a Gmail and a stock photo.",
+        desc: "A named contracting entity with a real office and a salaried team, not a Gmail and a stock photo.",
         detail: "{registration}",
       },
     ],
@@ -228,25 +228,25 @@ export const defaultHome: HomeContent = {
   },
   products: {
     eyebrow: "Our products",
-    title: "We don't just bill hours — *we build & run our own IP.*",
+    title: "We don't just bill hours: *we build & run our own IP.*",
     description:
       "A product portfolio in production is proof most service firms can't offer. Here's what we've shipped and maintain ourselves.",
     linkLabel: "View all products",
   },
   caseStudies: {
     eyebrow: "Case studies",
-    title: "Results we're *accountable for* — with the numbers to prove it.",
+    title: "Results we're *accountable for*: with the numbers to prove it.",
     description: "A few anonymised engagements. Named clients and detailed write-ups live on the full case-study pages.",
     linkLabel: "All {count} case studies",
     footnote: "Every case study includes the constraint, the approach and the measured result.",
-    challengeLabel: "Challenge —",
-    outcomeLabel: "Outcome —",
+    challengeLabel: "Challenge, ",
+    outcomeLabel: "Outcome, ",
   },
   industries: {
     eyebrow: "Industry switchboard",
     title: "Verticals where we have *shipped real systems.*",
     description:
-      "We don't claim to serve everyone. These are the sectors where we have live, proven work — with case studies for many of them.",
+      "We don't claim to serve everyone. These are the sectors where we have live, proven work, with case studies for many of them.",
     buttonSuffix: "products & consulting",
     slowLabel: "What slows teams down",
     rulesLabel: "Built for the rules",
@@ -255,26 +255,26 @@ export const defaultHome: HomeContent = {
     eyebrow: "How we work",
     title: "A process built to remove *delivery anxiety.*",
     description: "No black boxes. You get shared Jira access, a Slack channel, and a working demo every single week.",
-    badge: "Pipeline live — average kickoff in 5 business days",
+    badge: "Pipeline live, average kickoff in 5 business days",
   },
   engagement: {
     eyebrow: "Engagement models",
-    title: "{Count} ways to work with us — *pick what fits.*",
-    description: "Not sure which you need? Book a free scoping call and we'll tell you — even if the answer is none of them yet.",
+    title: "{Count} ways to work with us: *pick what fits.*",
+    description: "Not sure which you need? Book a free scoping call and we'll tell you, even if the answer is none of them yet.",
     ctaLabel: "Not sure which you need? Talk to us",
   },
   tech: {
     eyebrow: "Technology stack",
-    title: "The tools we reach for — *and why.*",
+    title: "The tools we reach for: *and why.*",
     description: "We recommend the stack that fits your team and constraints, not the one we happen to prefer.",
     footnote:
-      "We evaluate every project on its own merits — team skills, scalability needs, timeline, and budget — and pick the right tool for the job.",
+      "We evaluate every project on its own merits, team skills, scalability needs, timeline, and budget, and pick the right tool for the job.",
   },
   testimonials: {
     eyebrow: "Testimonials",
     title: "What clients say after *the first sprint.*",
     description:
-      "Collected at project milestones — launch, first quarter and year one. Company names are withheld at our clients' request; the numbers behind each quote live in the case studies.",
+      "Collected at project milestones, launch, first quarter and year one. Company names are withheld at our clients' request; the numbers behind each quote live in the case studies.",
   },
   insights: {
     eyebrow: "Insights",
@@ -285,7 +285,7 @@ export const defaultHome: HomeContent = {
     libraryBadge: "The full library",
     libraryTitle: "Every guide, playbook and engineering note in one place.",
     libraryText:
-      "Practical reading for whatever you're deciding right now — choosing software, pricing a build, or shipping it without surprises.",
+      "Practical reading for whatever you're deciding right now, choosing software, pricing a build, or shipping it without surprises.",
     libraryCta: "Browse all insights",
   },
   faq: {
@@ -295,7 +295,7 @@ export const defaultHome: HomeContent = {
   },
   cta: {
     badge: "Free · 30 minutes · No obligation",
-    title: "Book a scoping call with a software architect — not a sales bot.",
+    title: "Book a scoping call with a software architect: not a sales bot.",
     description:
       "You'll get a reply within one business day. We'll send a rough estimate in 3 days and a fixed proposal in 7.",
     buttonLabel: "Book a free scoping call",

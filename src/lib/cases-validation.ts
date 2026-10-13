@@ -91,7 +91,7 @@ export function validateCase(
   const e: FieldErrors = {};
 
   const text = (k: keyof CaseValues, label: string, max: number) => {
-    if (!v[k]) e[k] = `${label} is required — please fill it in.`;
+    if (!v[k]) e[k] = `${label} is required, please fill it in.`;
     else if (v[k].length > max) e[k] = `${label} is too long: ${v[k].length} characters, the limit is ${max}. Shorten it by ${v[k].length - max}.`;
   };
   text("title", "Title", 140);
@@ -103,7 +103,7 @@ export function validateCase(
   const teamMembers = lines(v.teamMembers);
   if (teamMembers.length > 30) e.team = `You added ${teamMembers.length} team members; the most allowed is 30.`;
   else if (teamMembers.some((n) => n.length > 60)) e.team = "A team member's name can be 60 characters at most.";
-  else if (teamMembers.length === 0 && !v.team) e.team = "Add at least one team member — click the + button, type a name and press Enter.";
+  else if (teamMembers.length === 0 && !v.team) e.team = "Add at least one team member, click the + button, type a name and press Enter.";
   else if (teamMembers.length === 0 && v.team.length > 60) e.team = `Team is too long: ${v.team.length} characters, the limit is 60.`;
   const team = teamMembers.length ? `${teamMembers.length} ${teamMembers.length === 1 ? "person" : "people"}` : v.team;
   text("problem", "Problem", 600);
@@ -129,7 +129,7 @@ export function validateCase(
     }
   ): { items: [string, string][]; error?: string } => {
     const rows = lines(raw);
-    if (rows.length === 0) return { items: [], error: `Add at least one ${what}, written as ${shape} — for example: ${example}` };
+    if (rows.length === 0) return { items: [], error: `Add at least one ${what}, written as ${shape}, for example: ${example}` };
     if (rows.length > maxLines) return { items: [], error: `You added ${rows.length} ${what}s; the most allowed is ${maxLines}. Remove ${rows.length - maxLines}.` };
     const items: [string, string][] = [];
     for (const [i, row] of rows.entries()) {
@@ -165,7 +165,7 @@ export function validateCase(
     { min, max, item }: { min: number; max: number; item: number }
   ) => {
     const items = lines(v[k]);
-    if (items.length < min) e[k] = `Add at least ${min} ${label.toLowerCase()} — one per line.`;
+    if (items.length < min) e[k] = `Add at least ${min} ${label.toLowerCase()}, one per line.`;
     else if (items.length > max) e[k] = `You added ${items.length} lines; the most allowed is ${max}. Remove ${items.length - max}.`;
     else {
       const long = items.findIndex((i) => i.length > item);
@@ -179,11 +179,11 @@ export function validateCase(
   const integrations = list("integrations", "Integrations", { min: 0, max: 20, item: 80 });
 
   const stack = v.stack.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
-  if (stack.length === 0) e.stack = "Add at least one technology, separated by commas — for example: Next.js, Node.js, PostgreSQL.";
+  if (stack.length === 0) e.stack = "Add at least one technology, separated by commas, for example: Next.js, Node.js, PostgreSQL.";
   else if (stack.length > 20) e.stack = `You listed ${stack.length} technologies; the most allowed is 20. Remove ${stack.length - 20}.`;
   else {
     const long = stack.find((t) => t.length > 40);
-    if (long) e.stack = `“${long.slice(0, 30)}…” is longer than 40 characters. Separate technologies with commas — each name should be short, like “Next.js”.`;
+    if (long) e.stack = `“${long.slice(0, 30)}…” is longer than 40 characters. Separate technologies with commas, each name should be short, like “Next.js”.`;
   }
 
   if (Object.keys(e).length) return { ok: false, errors: e };

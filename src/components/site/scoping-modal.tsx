@@ -207,7 +207,7 @@ export function ScopingProvider({
                   </span>
                   <h3 className="font-heading text-2xl font-bold leading-tight text-uk-heading">
                     <T>Book a scoping call with a</T>{" "}
-                    <span className="text-gradient-blue"><T>software architect</T></span> <T>— not a
+                    <span className="text-gradient-blue"><T>software architect</T></span> <T>not a
                     sales bot.</T>
                   </h3>
                   <p className="text-sm leading-relaxed text-uk-muted">

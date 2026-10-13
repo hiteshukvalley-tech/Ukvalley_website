@@ -9,6 +9,7 @@ import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { getSiteSettings } from "@/lib/settings";
 import { ukText } from "@/lib/texts";
+import { RelatedSection } from "@/components/site/related-chips";
 
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
@@ -25,11 +26,11 @@ const baseMetadata: Metadata = {
 const sections = [
   {
     h: "What we collect",
-    p: "We collect the information you voluntarily submit through our contact and enquiry forms — name, work email, company, phone number, and the details of your project enquiry. We also collect basic, non-identifying analytics about how the site is used (pages visited, referring URL, approximate region).",
+    p: "We collect the information you voluntarily submit through our contact and enquiry forms, name, work email, company, phone number, and the details of your project enquiry. We also collect basic, non-identifying analytics about how the site is used (pages visited, referring URL, approximate region).",
   },
   {
     h: "How we use it",
-    p: "We use the information you submit to respond to your enquiry, prepare estimates and proposals, and — where you have engaged us — deliver and support your project. We never sell your data to third parties, and we do not use it for unrelated marketing without your consent.",
+    p: "We use the information you submit to respond to your enquiry, prepare estimates and proposals, and, where you have engaged us, deliver and support your project. We never sell your data to third parties, and we do not use it for unrelated marketing without your consent.",
   },
   {
     h: "Legal basis & retention",
@@ -86,6 +87,7 @@ export default async function PrivacyPage() {
           </Container>
         </section>
         <PageBlocks pageKey="privacy" />
+        <RelatedSection page="privacy" />
       </main>
       <Footer />
     </>

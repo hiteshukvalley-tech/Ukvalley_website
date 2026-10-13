@@ -24,7 +24,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("locations", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Locations — where we engineer and engage",
+  title: "Locations: where we engineer and engage",
   description:
     "Ukvalley's offices and delivery coverage: Maharashtra headquarters, Pune and Nagpur offices, and delivery coverage for Mumbai, Delhi NCR, Bengaluru, Hyderabad, Ahmedabad, Chennai, Dubai, Toronto and New York.",
   alternates: { canonical: `${SITE_URL}/locations` },
@@ -68,7 +68,7 @@ export default async function LocationsPage() {
           eyebrow={ukText("Locations")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Locations" }]}
           title={
-            <>{ukText("Engineering in Maharashtra —")}{" "}
+            <>{ukText("Engineering in Maharashtra, ")}{" "}
               <span className="text-gradient-blue">{ukText("clients on three continents.")}</span>
             </>
           }
@@ -87,7 +87,7 @@ export default async function LocationsPage() {
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why \"remote delivery\" is where most vendors quietly cut corners")}</h2>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Distance is where vendors get sloppy first: the weekly demo becomes biweekly, then monthly; the named architect from the sales call becomes \"the team\" in every email; and a time-zone gap becomes the excuse for every missed deadline. Clients a plane ride away get the attention; clients a time zone away get the leftovers.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That erosion is easy to miss until it's already cost you: a decision that should have taken a day takes a week because nobody was awake to make the call, and a status update that reads fine in an email would have raised obvious questions on a video call nobody scheduled.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We run one delivery system everywhere — Maharashtra, Mumbai or Toronto — because the discipline that makes a project succeed has nothing to do with how far away the client sits.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We run one delivery system everywhere, Maharashtra, Mumbai or Toronto, because the discipline that makes a project succeed has nothing to do with how far away the client sits.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -197,7 +197,7 @@ export default async function LocationsPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="locations" />
         <PageBlocks pageKey="locations" />
       </main>
       <Footer />

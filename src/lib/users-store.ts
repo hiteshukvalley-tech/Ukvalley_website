@@ -2,6 +2,8 @@ import { randomUUID } from "node:crypto";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import type { AdminRole, SessionUser } from "@/lib/admin-auth";
 import { DUMMY_HASH, hashPassword, verifyPassword } from "@/lib/password";
+import { deleteSmtpSettings } from "@/lib/smtp-settings";
+import { deleteProfile } from "@/lib/profiles-store";
 
 const COLLECTION = "adminUsers";
 
@@ -161,6 +163,9 @@ export async function checkUserPassword(id: string, password: string): Promise<b
 
 export async function deleteUser(id: string) {
   await col().deleteOne({ _id: id });
+  // Their own mail server (and its encrypted password) goes with them.
+  await deleteSmtpSettings({ kind: "user", userId: id }).catch(() => {});
+  await deleteProfile(id).catch(() => {});
 }
 
 /** Database login. Returns the session user, or null for any failure. */

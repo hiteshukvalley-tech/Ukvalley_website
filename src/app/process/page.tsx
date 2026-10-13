@@ -24,7 +24,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("process", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "How we work — our software delivery process",
+  title: "How we work: our software delivery process",
   description:
     "From a free scoping call to a thin-slice prototype in week three, two-week build sprints with weekly demos, to launch and ongoing support with a 24-hour SLA.",
   alternates: { canonical: `${SITE_URL}/process` },
@@ -42,11 +42,11 @@ export default async function ProcessPage() {
           eyebrow={ukText("How we work")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Process" }]}
           title={
-            <>{ukText("Real software by week three —")}{" "}
+            <>{ukText("Real software by week three, ")}{" "}
               <span className="text-gradient-blue">{ukText("not slides.")}</span>
             </>
           }
-          description={ukText("A four-stage process built around working software, weekly demos and full visibility. You get shared Jira, a Slack channel and an architect on the call — not a sales bot.")}
+          description={ukText("A four-stage process built around working software, weekly demos and full visibility. You get shared Jira, a Slack channel and an architect on the call, not a sales bot.")}
         />
 
         {/* The problem it solves */}
@@ -59,7 +59,7 @@ export default async function ProcessPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why most software projects go dark between kickoff and launch")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("A typical vendor engagement starts with an enthusiastic kickoff call, then disappears into a black box for two or three months. You get a status email that says \"on track\" whether or not it's true, and the first time you see working software is the week it's supposed to launch — which is also the worst possible week to discover it doesn't do what you needed.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("A typical vendor engagement starts with an enthusiastic kickoff call, then disappears into a black box for two or three months. You get a status email that says \"on track\" whether or not it's true, and the first time you see working software is the week it's supposed to launch, which is also the worst possible week to discover it doesn't do what you needed.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("That silence is expensive: by the time a misunderstanding surfaces, months of work sit on the wrong foundation, and fixing it costs far more than catching it in week three would have. Worse, \"on track\" status updates train stakeholders to stop asking questions, right up until the deadline slips.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Our process removes the black box entirely: a working thin slice by week three, a live demo every Friday, and a written sprint note every Monday. You always know exactly where the project stands, because you can see it running.")}</p>
               </Reveal>
@@ -118,13 +118,13 @@ export default async function ProcessPage() {
           title={ukText("What lands in your inbox every single week.")}
           facts={[
             "Friday: a live demo on real software, 30 minutes",
-            "Monday: a written sprint note — shipped, next, decisions needed",
+            "Monday: a written sprint note, shipped, next, decisions needed",
             "Any day: a reply inside 24 hours, usually under 4",
             "Month-end: a health and cost report you can forward to finance",
           ]}
-          caption={ukText("Shared board, shared channel, one architect — the whole project visible at any hour.")}
+          caption={ukText("Shared board, shared channel, one architect, the whole project visible at any hour.")}
         >
-          <p>{ukText("You never have to ask where the project stands. The shared board shows every ticket, the Slack channel carries every decision, and the Friday demo shows the software as it actually is — not as a slide describes it.")}</p>
+          <p>{ukText("You never have to ask where the project stands. The shared board shows every ticket, the Slack channel carries every decision, and the Friday demo shows the software as it actually is, not as a slide describes it.")}</p>
           <p>{ukText("That rhythm is also where your time comes back. One demo replaces the status meetings, the written sprint note replaces the chase-up emails, and the 24-hour SLA means no decision waits on a vendor who has gone quiet.")}</p>
         </PhotoPanel>
 
@@ -136,7 +136,7 @@ export default async function ProcessPage() {
             <Reveal className="mx-auto max-w-3xl rounded-3xl border border-uk-blue/20 bg-uk-surface-blue p-8 text-center sm:p-12">
               <span className="inline-flex items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-uk-blue">{ukText("What happens next")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("A reply within one business day.")}</h2>
-              <p className="mt-3 text-uk-gray">{ukText("A rough estimate in 3 business days. A fixed proposal in 7. No charge, no obligation — and no “let's hop on a quick call” loops that go nowhere.")}</p>
+              <p className="mt-3 text-uk-gray">{ukText("A rough estimate in 3 business days. A fixed proposal in 7. No charge, no obligation, and no “let's hop on a quick call” loops that go nowhere.")}</p>
               <div className="mt-7 flex justify-center">
                 <ScopingButton className="btn-sheen btn-lift group inline-flex h-13 cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-7 font-heading text-base font-bold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a free scoping call")}<ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </ScopingButton>
@@ -145,7 +145,7 @@ export default async function ProcessPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="process" />
         <PageBlocks pageKey="process" />
       </main>
       <Footer />

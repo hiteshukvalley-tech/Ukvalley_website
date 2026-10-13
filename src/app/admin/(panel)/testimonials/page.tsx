@@ -84,9 +84,9 @@ export default async function TestimonialsAdminPage({ searchParams }: Props) {
                 defaultValue={status}
                 className="h-10 rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring"
               >
-                <option value="all" className="bg-uk-card">All statuses</option>
-                <option value="published" className="bg-uk-card">Published</option>
-                <option value="draft" className="bg-uk-card">Draft</option>
+                <option value="all">All statuses</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
               </select>
             </label>
             <button type="submit" className="h-10 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading">

@@ -4,7 +4,7 @@ import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft, ArrowRight, Award, Briefcase, CalendarDays, Check, Clock, Gift, Laptop, ListChecks, MapPin, Target, Workflow,
+  ArrowLeft, ArrowRight, Award, Briefcase, CalendarDays, Check, Clock, Gift, GraduationCap, Laptop, ListChecks, MapPin, Target, Workflow,
 } from "lucide-react";
 import { Header } from "@/components/site/header";
 import { Footer } from "@/components/site/footer";
@@ -17,7 +17,7 @@ import { ApplyButton, CareerApplyProvider } from "@/components/site/career-apply
 import { getCareers } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { jsonLd } from "@/lib/utils";
-import { formatExperience, formatPostedDate } from "@/lib/careers-shared";
+import { formatExperience, formatPostedDate, type JobType } from "@/lib/careers-shared";
 import { ModeBadge } from "@/components/site/careers-board";
 import { ukText } from "@/lib/texts";
 
@@ -35,25 +35,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const c = (await getCareers()).find((x) => x.slug === slug);
   if (!c) return {};
   return withSharePreview({
-    title: fitTitle(`${c.role} — Careers`, c.role),
+    title: fitTitle(`${c.role}, Careers`, c.role),
     description: c.summary,
     alternates: { canonical: `${SITE_URL}/careers/${c.slug}` },
   });
 }
 
-/**
- * The free-text "Type" field (e.g. "Full-time", "Contract", "Internship") as
- * schema.org's employmentType values; anything unrecognised is left out.
- */
-function employmentType(type: string): string | undefined {
-  const t = type.toLowerCase();
-  if (/intern/.test(t)) return "INTERN";
-  if (/contract|freelanc|consult/.test(t)) return "CONTRACTOR";
-  if (/temp/.test(t)) return "TEMPORARY";
-  if (/part[\s-]*time/.test(t)) return "PART_TIME";
-  if (/full[\s-]*time|permanent/.test(t)) return "FULL_TIME";
-  return undefined;
-}
+/** The job type as schema.org's employmentType (Google Jobs). */
+const EMPLOYMENT_TYPE: Record<JobType, string> = {
+  "Full-time": "FULL_TIME",
+  "Part-time": "PART_TIME",
+  Freelancing: "CONTRACTOR",
+  Internship: "INTERN",
+};
 
 function ListCard({ icon: Icon, title, items }: { icon: typeof Check; title: string; items: string[] }) {
   return (
@@ -92,9 +86,11 @@ export default async function CareerPage({ params }: Props) {
     "@context": "https://schema.org",
     "@type": "JobPosting",
     title: c.role,
-    description: [c.summary, ...c.responsibilities, ...c.requirements].join(" "),
+    description: [c.summary, ...c.responsibilities, ...c.requirements, ...(c.qualifications ?? [])].join(" "),
+    skills: c.requirements.join(", "),
+    ...(c.qualifications?.length ? { qualifications: c.qualifications.join(", ") } : {}),
     datePosted: c.postedAt,
-    ...(employmentType(c.type) ? { employmentType: employmentType(c.type) } : {}),
+    employmentType: EMPLOYMENT_TYPE[c.type],
     // No closing date is stored for a role, so there's no validThrough.
     hiringOrganization: {
       "@type": "Organization",
@@ -148,18 +144,21 @@ export default async function CareerPage({ params }: Props) {
               <div className="flex flex-col gap-6">
                 <Reveal className="rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
                   <h2 className="flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
-                    <Target className="h-5 w-5 text-uk-blue" />{ukText("About this role")}</h2>
+                    <Target className="h-5 w-5 text-uk-blue" />{ukText("About the role")}</h2>
                   <p className="mt-4 text-base leading-relaxed text-uk-body sm:text-lg">{ukText(c.summary)}</p>
                 </Reveal>
                 <ListCard icon={ListChecks} title={ukText("What you'll do here")} items={c.responsibilities} />
-                <ListCard icon={Briefcase} title={ukText("What you'll bring")} items={c.requirements} />
+                <ListCard icon={Briefcase} title={ukText("Required skills")} items={c.requirements} />
+                {c.qualifications && c.qualifications.length > 0 && (
+                  <ListCard icon={GraduationCap} title={ukText("Qualifications")} items={c.qualifications} />
+                )}
                 <ListCard icon={Gift} title={ukText("What you'll get")} items={c.perks} />
 
                 <Reveal className="rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
                   <h2 id="hiring-process" className="scroll-mt-28 flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
                     <Workflow className="h-5 w-5 text-uk-blue" />{ukText("Your hiring journey")}</h2>
                   <p className="mt-2 text-sm text-uk-gray">
-                    {ukText(c.hiringProcess.length)}{" "}{ukText("stage")}{ukText(c.hiringProcess.length === 1 ? "" : "s")}{" "}{ukText("from application to offer. We keep you posted by email at every step.")}</p>
+                    {ukText(c.hiringProcess.length)}{" "}{ukText("stage")}{ukText(c.hiringProcess.length === 1 ? "" : "s")}{" "}{ukText("from application to joining. We keep you posted by email at every step.")}</p>
                   <ol className="relative mt-6 flex flex-col gap-6" aria-labelledby="hiring-process">
                     {c.hiringProcess.map((s, i) => (
                       <li key={`${i}-${s.title}`} className="relative flex gap-4">
@@ -245,7 +244,7 @@ export default async function CareerPage({ params }: Props) {
             </section>
           )}
 
-          <CtaBand />
+          <CtaBand related="careers" />
         </main>
       </CareerApplyProvider>
       <Footer />

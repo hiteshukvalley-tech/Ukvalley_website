@@ -43,9 +43,9 @@ const criteria = [
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("tech-stack", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Tech stack — the platforms we build on",
+  title: "Tech stack: the platforms we build on",
   description:
-    "React, Next.js, Angular, Vue, Flutter, Kotlin, Node, Laravel, Django, Python, PHP, Java, MongoDB and PostgreSQL on AWS and Azure. We pick the stack that fits your team — not ours.",
+    "React, Next.js, Angular, Vue, Flutter, Kotlin, Node, Laravel, Django, Python, PHP, Java, MongoDB and PostgreSQL on AWS and Azure. We pick the stack that fits your team, not ours.",
   alternates: { canonical: `${SITE_URL}/tech-stack` },
 };
 
@@ -61,7 +61,7 @@ export default async function TechStackPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "Tech Stack" }]}
           title={
             <>{ukText("We recommend the stack that fits")}{" "}
-              <span className="text-gradient-blue">{ukText("your team")}</span>{ukText("— not ours.")}</>
+              <span className="text-gradient-blue">{ukText("your team")}</span>{ukText("not ours.")}</>
           }
           description={ukText("The platforms below are what we work with daily. We don't push a preferred stack onto a client; we choose based on your constraints, your team's familiarity and the problem in front of us.")}
         />
@@ -76,9 +76,9 @@ export default async function TechStackPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why the wrong stack costs more than the wrong price")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most vendors pick a stack once and quote every project the same way, whether it's a five-page marketing site or a real-time trading dashboard. That's resume-driven development dressed up as expertise — the tool fits the vendor's comfort, not your problem.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most vendors pick a stack once and quote every project the same way, whether it's a five-page marketing site or a real-time trading dashboard. That's resume-driven development dressed up as expertise, the tool fits the vendor's comfort, not your problem.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The cost shows up two years in: a marketing site built on a heavyweight framework nobody on your team can maintain, or a lightweight prototype stack straining under production load it was never sized for. By then the rewrite conversation starts, and it starts from a worse position than day one.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We write the stack decision down before a line of code, against your team's fluency, your real load and your three-year cost — not ours. If the honest answer is a framework we don't specialise in, we say so in writing.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We write the stack decision down before a line of code, against your team's fluency, your real load and your three-year cost, not ours. If the honest answer is a framework we don't specialise in, we say so in writing.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -89,7 +89,7 @@ export default async function TechStackPage() {
                     {[
                       "A written reason for every technology choice, not a house preference",
                       "Sized for the traffic you'll actually have, not a demo's",
-                      "Open-source defaults by default — no vendor lock-in on the license",
+                      "Open-source defaults by default, no vendor lock-in on the license",
                       "We'll recommend against our own preference if yours genuinely fits better",
                     ].map((item) => (
                       <li key={item} className="flex items-start gap-3">
@@ -157,12 +157,12 @@ export default async function TechStackPage() {
           <Container>
             <Reveal className="mx-auto max-w-3xl text-center">
               <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Not sure which stack you need?")}</h2>
-              <p className="mt-3 text-lg text-uk-gray">{ukText("Tell us your goals and constraints and we'll recommend a stack in writing — no charge, no obligation, and no bias toward the tools we happen to like.")}</p>
+              <p className="mt-3 text-lg text-uk-gray">{ukText("Tell us your goals and constraints and we'll recommend a stack in writing, no charge, no obligation, and no bias toward the tools we happen to like.")}</p>
             </Reveal>
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="tech-stack" />
         <PageBlocks pageKey="tech-stack" />
       </main>
       <Footer />

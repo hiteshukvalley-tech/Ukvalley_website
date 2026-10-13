@@ -22,9 +22,9 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("industries", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Industries — software for fourteen sectors",
+  title: "Industries: software for fourteen sectors",
   description:
-    "From NBFC lending to agri supply chains: the fourteen verticals where Ukvalley runs live systems today — each with measured outcomes and the case study to back it.",
+    "From NBFC lending to agri supply chains: the fourteen verticals where Ukvalley runs live systems today, each with measured outcomes and the case study to back it.",
   alternates: { canonical: `${SITE_URL}/industries` },
 };
 
@@ -40,11 +40,11 @@ export default async function IndustriesPage() {
           eyebrow={ukText("Industry expertise")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Industries" }]}
           title={
-            <>{ukText("Fourteen sectors. One standard —")}{" "}
+            <>{ukText("Fourteen sectors. One standard, ")}{" "}
               <span className="text-gradient-blue">{ukText("systems that ship.")}</span>
             </>
           }
-          description={ukText("We work where regulation is strict, margins are tight and downtime is expensive. Every vertical below is live work in production — not a capability slide — with the measured results and case studies to prove it.")}
+          description={ukText("We work where regulation is strict, margins are tight and downtime is expensive. Every vertical below is live work in production, not a capability slide, with the measured results and case studies to prove it.")}
         />
 
         {/* What sector expertise means here */}
@@ -57,7 +57,7 @@ export default async function IndustriesPage() {
                 <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("The rules, the edge cases and the month-end are different in every sector.")}</h2>
                 <div className="text-justify-prose mt-4 space-y-4 text-base leading-relaxed text-uk-body sm:text-lg">
                   <p>{ukText("A lending desk needs maker-checker on every rupee. A factory needs shift rules that survive the Factories Act. A clinic needs an audit log on every record view. Generic software learns these on your budget; we already know them.")}</p>
-                  <p>{ukText("Hiring a generalist vendor for a regulated or compliance-heavy sector means paying twice: once for the build, and again when the first audit, inspection or edge case exposes a rule nobody on the team had ever had to code for. That second bill usually costs more than the first — in penalties, in rework, or in a system that gets abandoned the moment it meets a real inspector.")}</p>
+                  <p>{ukText("Hiring a generalist vendor for a regulated or compliance-heavy sector means paying twice: once for the build, and again when the first audit, inspection or edge case exposes a rule nobody on the team had ever had to code for. That second bill usually costs more than the first, in penalties, in rework, or in a system that gets abandoned the moment it meets a real inspector.")}</p>
                   <p>{ukText("Each sector page below lists the compliance touchpoints we build for, the systems we have shipped, the measured results, and the questions buyers in that sector ask us. Pick yours and read the case study behind it.")}</p>
                 </div>
               </div>
@@ -106,7 +106,7 @@ export default async function IndustriesPage() {
             section renders without its own heading on this page only. */}
         <Industries industries={industries} heading={false} />
         <ByTheNumbers limit={4} className="bg-uk-surface" />
-        <CtaBand />
+        <CtaBand related="industries" />
         <PageBlocks pageKey="industries" />
       </main>
       <Footer />

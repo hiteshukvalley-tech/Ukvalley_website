@@ -2,7 +2,7 @@ import {
   LayoutDashboard, House, Settings, Wrench, Newspaper, Trophy, Boxes, Puzzle,
   Building2, UserPlus, MapPin, Users, MessageSquareQuote, Inbox, /* Image as ImageIcon, */
   ShieldCheck, DatabaseZap, Briefcase, HelpCircle, ListOrdered, Layers, Handshake,
-  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, type LucideIcon,
+  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, /* Mail, */ MailCheck, UserCog, CalendarCheck, CalendarClock, UserRound, type LucideIcon,
 } from "lucide-react";
 import { HOME_SECTIONS } from "@/lib/home-schema";
 
@@ -102,6 +102,9 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
         children: [
           { label: "Job openings", href: "/admin/careers", icon: Briefcase },
           { label: "Job applications", href: "/admin/applications", icon: FileUser },
+          { label: "Today's applications", href: "/admin/todays-applications", icon: CalendarCheck },
+          { label: "Daily interviews", href: "/admin/interviews", icon: CalendarClock },
+          { label: "Email logs", href: "/admin/email-logs", icon: MailCheck },
         ],
       },
       {
@@ -126,9 +129,16 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
       // the upload route stay in place (the Home page editor uploads through
       // it); uncomment this line (and ImageIcon above) to show it again.
       // { label: "Media", href: "/admin/media", icon: ImageIcon },
-      { label: "Site settings", href: "/admin/settings", icon: Settings, adminOnly: true },
+      { label: "Site settings", href: "/admin/settings", icon: Settings, adminOnly: true, exact: true },
+      // The HR mail server is now edited in Site settings, and each user's own
+      // in Settings below; /admin/settings/email redirects to Site settings.
+      // { label: "Email (SMTP)", href: "/admin/settings/email", icon: Mail, adminOnly: true },
       { label: "Users", href: "/admin/users", icon: ShieldCheck, adminOnly: true },
       { label: "Migration", href: "/admin/migration", icon: DatabaseZap, adminOnly: true },
+      // Every user's own profile (name, photo, contact, qualification) and settings
+      // (own email SMTP, password) — admins and team members alike.
+      { label: "My profile", href: "/admin/profile", icon: UserRound },
+      { label: "Settings", href: "/admin/account", icon: UserCog },
     ],
   },
 ];

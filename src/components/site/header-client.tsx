@@ -234,7 +234,10 @@ export function HeaderClient({
       )}
     >
       {/* ── Main bar — glass + hairline once scrolled, shrinks a step ── */}
+      {/* data-over-hero: while transparent, the bar takes the dark theme on
+          pages with a dark photo hero (globals.css), so the links stay readable */}
       <div
+        data-over-hero={scrolled ? undefined : ""}
         className={cn(
           "relative border-b transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           scrolled

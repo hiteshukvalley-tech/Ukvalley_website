@@ -54,7 +54,7 @@ const live = (d?: Date) => !!d && d.getTime() > Date.now();
  * Whether codes can be delivered: SMTP is configured, or this is local
  * development, where the code is printed in the terminal instead.
  */
-export const canSendResetCodes = () => hasMailer() || process.env.NODE_ENV !== "production";
+export const canSendResetCodes = async () => (await hasMailer()) || process.env.NODE_ENV !== "production";
 
 /** Whether this email belongs to the owner or an active database user. */
 async function accountExists(email: string): Promise<"owner" | "user" | null> {
@@ -90,7 +90,7 @@ export async function requestResetCode(email: string): Promise<RequestOutcome> {
     { upsert: true }
   );
 
-  if (!hasMailer()) {
+  if (!(await hasMailer())) {
     // Local development without SMTP: show the code in the server terminal.
     console.info(`\n[forgot password] Code for ${email}: ${code} (SMTP not configured, so it was not emailed)\n`);
     return "sent";

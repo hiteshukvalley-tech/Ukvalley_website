@@ -129,10 +129,10 @@ export const MAIN_PAGE_DEF: SectionDef = {
   canHide: false,
   fields: [
     { key: "adminName", label: "Name in the admin (not shown on the website)", kind: "text", max: 60, required: true },
-    { key: "heroEyebrow", label: "Hero — small label", kind: "text", max: 60 },
-    { key: "heroTitle", label: "Hero — title", kind: "text", max: 160, required: true, hint: "Wrap words in *stars* to highlight them." },
-    { key: "heroDescription", label: "Hero — description", kind: "textarea", max: 400, rows: 3 },
-    { key: "cardsTitle", label: "Cards — heading (optional)", kind: "text", max: 120 },
+    { key: "heroEyebrow", label: "Hero, small label", kind: "text", max: 60 },
+    { key: "heroTitle", label: "Hero, title", kind: "text", max: 160, required: true, hint: "Wrap words in *stars* to highlight them." },
+    { key: "heroDescription", label: "Hero, description", kind: "textarea", max: 400, rows: 3 },
+    { key: "cardsTitle", label: "Cards, heading (optional)", kind: "text", max: 120 },
     {
       key: "cards",
       label: "Cards",

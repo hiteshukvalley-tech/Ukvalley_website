@@ -3,7 +3,7 @@ import { Readable } from "node:stream";
 import { GridFSBucket, ObjectId } from "mongodb";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import {
-  APPLICATION_STATUSES, isApplicationStatus,
+  APPLICATION_STATUSES, INTERVIEW_STATUSES, isApplicationStatus,
   type ApplicationInput, type ApplicationStatus,
 } from "@/lib/applications-validation";
 
@@ -24,8 +24,22 @@ export type Application = ApplicationInput & {
   note: string;
   /** whether the HR notification / applicant thank-you emails went out */
   emails?: { hr?: boolean; applicant?: boolean };
+  /** hiring-status emails HR sent the applicant from the admin, oldest first */
+  statusEmails?: StatusEmailRecord[];
   createdAt: Date;
   updatedAt?: Date;
+};
+
+export type StatusEmailRecord = {
+  status: ApplicationStatus;
+  subject: string;
+  /** whether HR changed the default subject or message */
+  edited: boolean;
+  /** interview / joining details included in the email */
+  details?: Record<string, string>;
+  /** email of the admin who sent it */
+  sentBy: string;
+  sentAt: Date;
 };
 
 type ApplicationDoc = Omit<Application, "id"> & { _id: string };
@@ -92,6 +106,11 @@ export async function markEmailsSent(id: string, sent: { hr: boolean; applicant:
   await col().updateOne({ _id: id }, { $set: { emails: sent } });
 }
 
+/** Adds a sent hiring-status email to the application's history. */
+export async function recordStatusEmail(id: string, entry: StatusEmailRecord) {
+  await col().updateOne({ _id: id }, { $push: { statusEmails: entry } });
+}
+
 export type ApplicationCounts = Record<ApplicationStatus | "all", number>;
 export type RoleSummary = { position: string; total: number; new: number; latest: Date };
 
@@ -100,11 +119,56 @@ const emptyCounts = (): ApplicationCounts =>
 
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-export type ApplicationQuery = { status?: string; position?: string; q?: string; page?: number; pageSize?: number };
+export type ApplicationQuery = {
+  status?: string;
+  position?: string;
+  q?: string;
+  /** first day to include, YYYY-MM-DD in India time */
+  from?: string;
+  /** last day to include (YYYY-MM-DD); when empty, only `from` is included */
+  to?: string;
+  /** the table view's per-column filters */
+  columns?: ColumnFilters;
+  page?: number;
+  pageSize?: number;
+};
+
+/** Per-column filters from the applicants table header; empty = no filter. */
+export type ColumnFilters = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  position?: string;
+  /** one of EXPERIENCE_OPTIONS, matched exactly */
+  experience?: string;
+  /** "scheduled": an interview date was sent; "none": not yet */
+  interview?: "" | "scheduled" | "none";
+};
+
+/** Mongo conditions for the column filters (text ones match anywhere, ignoring case). */
+function columnConditions(c: ColumnFilters = {}): Record<string, unknown>[] {
+  const out: Record<string, unknown>[] = [];
+  const text = { name: c.name, email: c.email, phone: c.phone, location: c.location, position: c.position };
+  for (const [field, value] of Object.entries(text)) {
+    const v = value?.trim();
+    if (v) out.push({ [field]: { $regex: escapeRegex(v.slice(0, 100)), $options: "i" } });
+  }
+  if (c.experience?.trim()) out.push({ experience: c.experience.trim() });
+  const interview = { statusEmails: { $elemMatch: { status: { $in: [...INTERVIEW_STATUSES] }, "details.interviewDate": { $nin: [null, ""] } } } };
+  if (c.interview === "scheduled") out.push(interview);
+  if (c.interview === "none") out.push({ $nor: [interview] });
+  return out;
+}
+
+/** India has no daylight saving, so a day always starts at 00:00 +05:30. */
+const dayStart = (day: string) => new Date(`${day}T00:00:00+05:30`);
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Admin list, newest first, filtered by status, position and search text.
- * Also returns status counts (for the chosen position) and per-role totals.
+ * Admin list, newest first, filtered by status, position, day (or range of
+ * days) and search text. Also returns status counts (for the chosen position
+ * and days) and per-role totals (for the chosen days).
  */
 export async function listApplications(query: ApplicationQuery = {}): Promise<{
   items: Application[];
@@ -117,9 +181,18 @@ export async function listApplications(query: ApplicationQuery = {}): Promise<{
 
   const pageSize = query.pageSize ?? 25;
   const page = Math.max(1, query.page ?? 1);
-  const base: Record<string, unknown> = {};
+  const dates: Record<string, unknown> = {};
+  if (query.from) {
+    // A single day when there is no end date; otherwise both days and everything between.
+    const last = query.to && query.to > query.from ? query.to : query.from;
+    dates.createdAt = { $gte: dayStart(query.from), $lt: new Date(dayStart(last).getTime() + DAY_MS) };
+  }
+  const base: Record<string, unknown> = { ...dates };
   const position = query.position?.trim();
   if (position) base.position = { $regex: `^${escapeRegex(position.slice(0, 100))}$`, $options: "i" };
+  // Column filters narrow the list and the status counts alike.
+  const columns = columnConditions(query.columns);
+  if (columns.length) base.$and = columns;
   const filter: Record<string, unknown> = { ...base };
   if (isApplicationStatus(query.status)) filter.status = query.status;
   const needle = query.q?.trim();
@@ -135,6 +208,7 @@ export async function listApplications(query: ApplicationQuery = {}): Promise<{
       col().aggregate<{ _id: string; n: number }>([{ $match: base }, { $group: { _id: "$status", n: { $sum: 1 } } }]).toArray(),
       col()
         .aggregate<{ _id: string; total: number; new: number; latest: Date }>([
+          { $match: dates },
           // Group case-insensitively, keeping the most recent spelling for display.
           { $sort: { createdAt: -1 } },
           {
@@ -177,6 +251,20 @@ export async function getApplication(id: string): Promise<Application | null> {
   }
 }
 
+/** The newest application from this email address (ignoring case), or null. */
+export async function findApplicationByEmail(email: string): Promise<Application | null> {
+  if (!hasDatabaseUrl() || !email.trim()) return null;
+  try {
+    const doc = await col().findOne(
+      { email: { $regex: `^${escapeRegex(email.trim())}$`, $options: "i" } },
+      { sort: { createdAt: -1 } }
+    );
+    return doc ? toApplication(doc) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Number of applications still marked "new", or null when it can't be read. */
 export async function countNewApplications(): Promise<number | null> {
   if (!hasDatabaseUrl()) return null;
@@ -187,8 +275,8 @@ export async function countNewApplications(): Promise<number | null> {
   }
 }
 
-/** Returns false when the application no longer exists. */
-export async function updateApplication(id: string, patch: { status: ApplicationStatus; note: string }): Promise<boolean> {
+/** Returns false when the application no longer exists. Without `note`, only the status changes. */
+export async function updateApplication(id: string, patch: { status: ApplicationStatus; note?: string }): Promise<boolean> {
   const res = await col().updateOne({ _id: id }, { $set: { ...patch, updatedAt: new Date() } });
   return res.matchedCount > 0;
 }

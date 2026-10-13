@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { ApplyButton } from "@/components/site/career-apply";
 import { T, Tx, useT } from "@/components/site/texts-context";
 import {
-  NEW_ROLE_DAYS, daysSincePosted, formatExperience, formatPostedDate, hasWords, matchesExperience, postedLabel, todayInIndia,
-  type JobMode,
+  JOB_TYPES, NEW_ROLE_DAYS, daysSincePosted, formatExperience, formatPostedDate, hasWords, isJobType, matchesExperience, postedLabel,
+  todayInIndia, type JobMode, type JobType,
 } from "@/lib/careers-shared";
 
 /** What a listing card needs — a slimmed-down Career. */
@@ -17,15 +17,16 @@ export type JobListing = {
   role: string;
   summary: string;
   location: string;
-  type: string;
+  type: JobType;
   mode: JobMode;
   experienceMin: number;
   experienceMax?: number;
   postedAt: string;
 };
 
-type Filters = { position: string; location: string; experience: string };
-const EMPTY: Filters = { position: "", location: "", experience: "" };
+/** `type`: one of JOB_TYPES, or "" for every job type. */
+type Filters = { position: string; location: string; experience: string; type: string };
+const EMPTY: Filters = { position: "", location: "", experience: "", type: "" };
 const KEYS = Object.keys(EMPTY) as (keyof Filters)[];
 
 export function ModeBadge({ mode }: { mode: JobMode }) {
@@ -40,7 +41,8 @@ export function ModeBadge({ mode }: { mode: JobMode }) {
 
 /**
  * Open-roles list with separate position / location / experience search
- * boxes. Filters live in the URL (?position=&location=&experience=) so a
+ * boxes and job-type buttons. Filters live in the URL
+ * (?position=&location=&experience=&type=) so a
  * search can be shared or bookmarked, and survive Back from a job page.
  */
 export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
@@ -54,6 +56,7 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
     const params = new URLSearchParams(window.location.search);
     const fromUrl = { ...EMPTY };
     for (const k of KEYS) fromUrl[k] = (params.get(k) ?? "").slice(0, 80);
+    if (!isJobType(fromUrl.type)) fromUrl.type = "";
     // One-time sync from the URL and the clock after hydration.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setFilters(fromUrl);
@@ -79,7 +82,8 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
         (j) =>
           hasWords(`${j.role} ${j.summary} ${j.type}`, filters.position) &&
           hasWords(`${j.location} ${j.mode}`, filters.location) &&
-          matchesExperience(filters.experience, j.experienceMin, j.experienceMax)
+          matchesExperience(filters.experience, j.experienceMin, j.experienceMax) &&
+          (!filters.type || j.type === filters.type)
       ),
     [jobs, filters]
   );
@@ -133,6 +137,31 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
             inputMode="numeric"
           />
         </div>
+        <div role="group" aria-labelledby="job-type-label" className="mt-4 flex flex-wrap items-center gap-2">
+          <span id="job-type-label" className="mr-1 text-xs font-semibold uppercase tracking-[0.14em] text-uk-muted">
+            <T>Job type</T>
+          </span>
+          {[{ value: "", label: "All" }, ...JOB_TYPES.map((jt) => ({ value: jt, label: jt }))].map((o) => {
+            const on = filters.type === o.value;
+            const count = o.value ? jobs.filter((j) => j.type === o.value).length : jobs.length;
+            return (
+              <button
+                key={o.label}
+                type="button"
+                aria-pressed={on}
+                onClick={() => update("type", o.value)}
+                className={
+                  on
+                    ? "inline-flex items-center gap-1.5 rounded-full bg-uk-blue px-3.5 py-1.5 text-sm font-semibold text-uk-white"
+                    : "inline-flex items-center gap-1.5 rounded-full border border-uk-line px-3.5 py-1.5 text-sm font-medium text-uk-body transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
+                }
+              >
+                <Tx>{o.label}</Tx>
+                <span className={on ? "text-xs text-uk-white/80" : "text-xs text-uk-muted"}>{count}</span>
+              </button>
+            );
+          })}
+        </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-uk-line pt-3">
           <p aria-live="polite" className="text-sm text-uk-muted">
             {filtering ? (
@@ -171,7 +200,7 @@ export function CareersBoard({ jobs }: { jobs: JobListing[] }) {
             <SearchX className="mx-auto h-8 w-8 text-uk-blue" aria-hidden />
             <p className="mt-3 font-heading text-lg font-bold text-uk-heading"><T>No roles match that search</T></p>
             <p className="mx-auto mt-1 max-w-md text-sm text-uk-body">
-              <T>Try a broader position or location, or clear the experience box. You can also send us an open application —
+              <T>Try a broader position or location, another job type, or clear the experience box. You can also send us an open application, 
               we hire for people, not just open roles.</T>
             </p>
             <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

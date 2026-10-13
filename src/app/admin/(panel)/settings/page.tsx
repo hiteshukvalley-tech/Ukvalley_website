@@ -3,13 +3,14 @@ import { requireRole } from "@/lib/admin-session";
 import { PageHeader } from "@/components/admin/page-header";
 import { getSettingsForAdmin } from "@/lib/settings";
 import { toValues } from "@/lib/settings-validation";
+import { SmtpSection } from "@/components/admin/smtp/smtp-section";
 import { SettingsForm } from "./settings-form";
 
 export const metadata = { title: "Site settings" };
 export const dynamic = "force-dynamic";
 
 export default async function SettingsPage() {
-  await requireRole("admin");
+  const me = await requireRole("admin");
   const { settings, updatedAt, dbError } = await getSettingsForAdmin();
 
   return (
@@ -30,6 +31,16 @@ export default async function SettingsPage() {
         </div>
       )}
       <SettingsForm initial={toValues(settings)} />
+
+      {/* HR mail server: its own form (and save button), below the site details */}
+      <div className="mt-12 border-t border-uk-line pt-10">
+        <SmtpSection
+          scope={{ kind: "hr" }}
+          testTo={me.email}
+          title="HR email (SMTP)"
+          description="The mail server for every automatic email: application notices to HR, thank-yous to applicants and admin password-reset codes. Users who haven't set their own mail server in Settings send through it too."
+        />
+      </div>
     </>
   );
 }

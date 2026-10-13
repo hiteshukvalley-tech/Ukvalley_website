@@ -15,6 +15,8 @@ export const EDITABLE_PAGES = [
   { key: "clients", label: "Client success", href: "/clients" },
   { key: "team", label: "Our team", href: "/team" },
   { key: "social-impact", label: "Our social impact", href: "/social-impact" },
+  { key: "press-kit", label: "Press kit", href: "/press-kit" },
+  { key: "media", label: "Media & press", href: "/media" },
   { key: "careers", label: "Careers", href: "/careers" },
   { key: "contact", label: "Contact", href: "/contact" },
   { key: "faq", label: "FAQ", href: "/faq" },
@@ -44,11 +46,11 @@ export const PAGE_DEF: SectionDef = {
   description: "Replace the hero text and add extra blocks to this page.",
   canHide: false,
   fields: [
-    { key: "heroEyebrow", label: "Hero — small label", kind: "text", max: 60, hint: KEEP },
-    { key: "heroTitle", label: "Hero — title", kind: "text", max: 160, hint: `${KEEP} Wrap words in *stars* to highlight them.` },
-    { key: "heroDescription", label: "Hero — description", kind: "textarea", max: 400, rows: 3, hint: KEEP },
-    { key: "seoTitle", label: "SEO — page title (browser tab & Google)", kind: "text", max: 70, hint: `${KEEP} About 50–60 characters; the company name is added after it.` },
-    { key: "seoDescription", label: "SEO — description (Google & link previews)", kind: "textarea", max: 200, rows: 2, hint: `${KEEP} About 150–160 characters.` },
+    { key: "heroEyebrow", label: "Hero, small label", kind: "text", max: 60, hint: KEEP },
+    { key: "heroTitle", label: "Hero, title", kind: "text", max: 160, hint: `${KEEP} Wrap words in *stars* to highlight them.` },
+    { key: "heroDescription", label: "Hero, description", kind: "textarea", max: 400, rows: 3, hint: KEEP },
+    { key: "seoTitle", label: "SEO, page title (browser tab & Google)", kind: "text", max: 70, hint: `${KEEP} About 50–60 characters; the company name is added after it.` },
+    { key: "seoDescription", label: "SEO, description (Google & link previews)", kind: "textarea", max: 200, rows: 2, hint: `${KEEP} About 150–160 characters.` },
     {
       key: "blocks",
       label: "Extra blocks (shown at the end of the page, above the footer)",
@@ -72,15 +74,15 @@ export const PAGE_DEF: SectionDef = {
 
 /** Owner / company block shown on the About page (Admin → Page text → About us). */
 const FOUNDER_FIELDS: SectionDef["fields"] = [
-  { key: "founderEyebrow", label: "Owner section — small label", kind: "text", max: 60, hint: KEEP },
-  { key: "founderName", label: "Owner — name", kind: "text", max: 80, hint: KEEP },
-  { key: "founderRole", label: "Owner — role", kind: "text", max: 80, hint: KEEP },
-  { key: "founderDescription", label: "Owner — description", kind: "textarea", max: 1500, rows: 6, hint: `${KEEP} Press Enter twice for a new paragraph.` },
-  { key: "founderImage", label: "Owner — photo", kind: "image", max: 300, hint: KEEP, aspect: "4/5" },
-  { key: "founderImageAlt", label: "Owner — photo description", kind: "text", max: 140 },
-  { key: "companyDescription", label: "Company — description", kind: "textarea", max: 1500, rows: 6, hint: KEEP },
-  { key: "workImage", label: "“Where the work happens” — image", kind: "image", max: 300, hint: KEEP, aspect: "4/3" },
-  { key: "workImageAlt", label: "“Where the work happens” — image description", kind: "text", max: 140 },
+  { key: "founderEyebrow", label: "Owner section, small label", kind: "text", max: 60, hint: KEEP },
+  { key: "founderName", label: "Owner, name", kind: "text", max: 80, hint: KEEP },
+  { key: "founderRole", label: "Owner, role", kind: "text", max: 80, hint: KEEP },
+  { key: "founderDescription", label: "Owner, description", kind: "textarea", max: 1500, rows: 6, hint: `${KEEP} Press Enter twice for a new paragraph.` },
+  { key: "founderImage", label: "Owner, photo", kind: "image", max: 300, hint: KEEP, aspect: "4/5" },
+  { key: "founderImageAlt", label: "Owner, photo description", kind: "text", max: 140 },
+  { key: "companyDescription", label: "Company, description", kind: "textarea", max: 1500, rows: 6, hint: KEEP },
+  { key: "workImage", label: "“Where the work happens”, image", kind: "image", max: 300, hint: KEEP, aspect: "4/3" },
+  { key: "workImageAlt", label: "“Where the work happens”, image description", kind: "text", max: 140 },
   {
     key: "founderFacts",
     label: "Owner & company details (e.g. Email, Experience, Founded)",
@@ -98,8 +100,8 @@ const FOUNDER_FIELDS: SectionDef["fields"] = [
 
 /** Our team page: the image beside "How the team is built". */
 const TEAM_FIELDS: SectionDef["fields"] = [
-  { key: "workImage", label: "“How the team is built” — image", kind: "image", max: 300, hint: KEEP, aspect: "4/3" },
-  { key: "workImageAlt", label: "“How the team is built” — image description", kind: "text", max: 140 },
+  { key: "workImage", label: "“How the team is built”, image", kind: "image", max: 300, hint: KEEP, aspect: "4/3" },
+  { key: "workImageAlt", label: "“How the team is built”, image description", kind: "text", max: 140 },
 ];
 
 /**
@@ -108,9 +110,9 @@ const TEAM_FIELDS: SectionDef["fields"] = [
  * adds gallery sections; the editor opens pre-filled with the built-in ones.
  */
 const SOCIAL_FIELDS: SectionDef["fields"] = [
-  { key: "introEyebrow", label: "Intro — small label", kind: "text", max: 60, hint: KEEP },
-  { key: "introTitle", label: "Intro — title", kind: "text", max: 160, hint: KEEP },
-  { key: "introText", label: "Intro — text", kind: "textarea", max: 3000, rows: 8, hint: `${KEEP} Press Enter twice for a new paragraph.` },
+  { key: "introEyebrow", label: "Intro, small label", kind: "text", max: 60, hint: KEEP },
+  { key: "introTitle", label: "Intro, title", kind: "text", max: 160, hint: KEEP },
+  { key: "introText", label: "Intro, text", kind: "textarea", max: 3000, rows: 8, hint: `${KEEP} Press Enter twice for a new paragraph.` },
   {
     key: "galleries",
     label: "Page sections",
@@ -123,7 +125,7 @@ const SOCIAL_FIELDS: SectionDef["fields"] = [
       { key: "title", label: "Title", kind: "text", max: 80, required: true },
       { key: "caption", label: "Badge on the photos (e.g. Tree Plantation)", kind: "text", max: 40 },
       { key: "description", label: "Text", kind: "textarea", max: 1500 },
-      { key: "photos", label: "Photos (optional — leave empty for a text-only section)", kind: "images", max: 12000, maxImages: 40, aspect: "3/2" },
+      { key: "photos", label: "Photos (optional, leave empty for a text-only section)", kind: "images", max: 12000, maxImages: 40, aspect: "3/2" },
     ],
   },
 ];

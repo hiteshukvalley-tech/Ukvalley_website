@@ -2,7 +2,7 @@ import { unstable_cache } from "next/cache";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import { careers as builtInCareers, type Career } from "@/lib/site-data";
 import type { CareerInput, CareerRecord } from "@/lib/careers-validation";
-import { DEFAULT_HIRING_PROCESS, inferJobMode, isIsoDate, isJobMode } from "@/lib/careers-shared";
+import { DEFAULT_HIRING_PROCESS, inferJobMode, isIsoDate, isJobMode, toJobType } from "@/lib/careers-shared";
 
 export const CAREERS_TAG = "careers";
 const COLLECTION = "careers";
@@ -23,7 +23,8 @@ function inferExperienceMin(requirements: string[] = []): number {
 
 /**
  * Roles saved before job mode, experience, published date and hiring process
- * were added lack those fields; fill them so every page can rely on them.
+ * were added lack those fields; fill them so every page can rely on them. Roles
+ * saved when Type was free text get the closest job type.
  */
 function toRecord({ _id, updatedAt, ...rest }: CareerDoc): CareerRecord {
   const doc = rest as Partial<CareerDoc>;
@@ -32,6 +33,7 @@ function toRecord({ _id, updatedAt, ...rest }: CareerDoc): CareerRecord {
   return {
     ...rest,
     slug: _id,
+    type: toJobType(doc.type),
     mode: isJobMode(doc.mode) ? doc.mode : inferJobMode(rest.location ?? ""),
     experienceMin: typeof doc.experienceMin === "number" ? doc.experienceMin : inferExperienceMin(rest.requirements),
     experienceMax: typeof max === "number" ? max : undefined,
@@ -142,13 +144,15 @@ export async function createCareer(value: CareerInput, { autoSuffix = false } = 
 
 /** Returns false when the role no longer exists. */
 export async function updateCareer(value: CareerInput): Promise<boolean> {
-  const { slug, experienceMax, ...rest } = value;
-  const res = await col().updateOne(
-    { _id: slug },
-    experienceMax === undefined
-      ? { $set: { ...rest, updatedAt: new Date() }, $unset: { experienceMax: "" } }
-      : { $set: { ...rest, experienceMax, updatedAt: new Date() } }
-  );
+  const { slug, experienceMax, qualifications, ...rest } = value;
+  // Optional fields left empty are removed, so an old value doesn't linger.
+  const set: Record<string, unknown> = { ...rest, updatedAt: new Date() };
+  const unset: Record<string, ""> = {};
+  if (experienceMax === undefined) unset.experienceMax = "";
+  else set.experienceMax = experienceMax;
+  if (qualifications?.length) set.qualifications = qualifications;
+  else unset.qualifications = "";
+  const res = await col().updateOne({ _id: slug }, { $set: set, $unset: unset });
   return res.matchedCount > 0;
 }
 

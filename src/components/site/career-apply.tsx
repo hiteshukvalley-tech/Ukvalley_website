@@ -2,16 +2,16 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { AlertCircle, ArrowRight, Check, FileText, Loader2, Upload, X } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, ChevronDown, FileText, Loader2, Upload, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
   COVER_LETTER_MAX, EMAIL_MAX, EXPERIENCE_OPTIONS, LOCATION_MAX, NAME_MAX, PORTFOLIO_MAX, POSITION_MAX,
-  RESUME_MAX_BYTES, readApplication, resumeError, validateApplication, type ApplyResult,
+  RESUME_MAX_BYTES, latestJoiningDate, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
 import { validatePhone } from "@/lib/contact-validation";
-import { DEFAULT_HIRING_PROCESS, type HiringStep } from "@/lib/careers-shared";
+import { DEFAULT_HIRING_PROCESS, todayInIndia, type HiringStep } from "@/lib/careers-shared";
 import { T, Tx, useT } from "@/components/site/texts-context";
 
 /**
@@ -63,6 +63,38 @@ export function CareerApplyProvider({
   // The modal Dialog below handles Escape, backdrop clicks, the focus trap
   // and the page scroll lock, and hands focus back to the opener on close.
 
+  // Scroll line + "Scroll for more" pill, as in the scoping-call popup.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [showHint, setShowHint] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const measure = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollHeight - el.clientHeight;
+    setProgress(max > 0 ? el.scrollTop / max : 0);
+    setShowHint(max > 8 && el.scrollTop + el.clientHeight < el.scrollHeight - 24);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let ro: ResizeObserver | undefined;
+    // The portalled panel mounts a beat after this effect runs.
+    const start = window.setTimeout(() => {
+      const el = scrollRef.current;
+      if (!el) return;
+      el.scrollTop = 0;
+      measure();
+      // The form grows and shrinks (field errors, the "sent" screen): re-measure.
+      ro = new ResizeObserver(measure);
+      ro.observe(el);
+      if (el.firstElementChild) ro.observe(el.firstElementChild);
+    }, 60);
+    return () => {
+      window.clearTimeout(start);
+      ro?.disconnect();
+    };
+  }, [isOpen, measure]);
+
   return (
     <ApplyContext.Provider value={{ open }}>
       {children}
@@ -84,6 +116,18 @@ export function CareerApplyProvider({
             />
             <div className="scoping-ring pointer-events-none absolute -inset-[2px] rounded-[1.75rem]" aria-hidden />
 
+            {/* Scroll line — OUTSIDE the popup box, riding its right edge
+                against the dimmed page, so it never hides or scrolls away */}
+            <div
+              className="pointer-events-none absolute -right-3 inset-y-8 z-20 w-1.5 rounded-full bg-white/25 shadow-inner backdrop-blur-sm dark:bg-white/10"
+              aria-hidden
+            >
+              <div
+                className="w-full rounded-full bg-gradient-to-b from-uk-yellow via-uk-blue to-uk-blue-bright shadow-[0_0_10px_rgba(49,0,255,0.8)]"
+                style={{ height: `${Math.max(progress * 100, 4)}%` }}
+              />
+            </div>
+
             <div className="relative">
               <Dialog.Close
                 className="absolute right-4 top-4 z-20 inline-flex h-9 w-9 items-center justify-center rounded-full border border-uk-line bg-white/90 text-uk-muted shadow-float backdrop-blur transition-all duration-300 hover:rotate-90 hover:border-uk-blue/50 hover:text-uk-blue dark:bg-uk-card/90"
@@ -91,7 +135,14 @@ export function CareerApplyProvider({
               >
                 <X className="h-4 w-4" />
               </Dialog.Close>
-              <div className="max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-3xl border border-uk-line bg-uk-surface shadow-premium-lg sm:max-h-[calc(100dvh-3rem)]">
+              {/* The panel scrolls with its native bar hidden (scoping-scroll);
+                  the line above shows where you are */}
+              <div
+                ref={scrollRef}
+                onScroll={measure}
+                className="scoping-scroll max-h-[calc(100dvh-2rem)] overflow-y-auto overscroll-contain rounded-3xl border border-uk-line bg-uk-surface shadow-premium-lg sm:max-h-[calc(100dvh-3rem)]"
+              >
+                <div>
                 <div className="relative h-1.5 w-full overflow-hidden" aria-hidden>
                   <div className="absolute inset-0 bg-gradient-to-r from-uk-yellow via-uk-blue to-uk-blue-bright" />
                   <div className="scoping-sheen absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/60 to-transparent" />
@@ -115,7 +166,19 @@ export function CareerApplyProvider({
                 <div className="p-5 sm:p-8">
                   <ApplicationForm initialPosition={position ?? ""} positions={positions} processes={processes} onDone={close} />
                 </div>
+                </div>
               </div>
+
+              {/* "Scroll for more" pill — sits over the panel's bottom edge
+                  until the user reaches the end of the form */}
+              {showHint && (
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center" aria-hidden>
+                  <span className="glass mb-3 inline-flex animate-bounce items-center gap-1.5 rounded-full border border-uk-blue/30 bg-white/85 px-4 py-1.5 text-[0.65rem] font-bold uppercase tracking-[0.18em] text-uk-blue shadow-float backdrop-blur dark:border-uk-blue/40 dark:bg-uk-card/85">
+                    <T>Scroll for more</T>
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </span>
+                </div>
+              )}
             </div>
           </Dialog.Popup>
         </Dialog.Viewport>
@@ -144,6 +207,8 @@ function ApplicationForm({
   const [coverLength, setCoverLength] = useState(0);
   const [sentTo, setSentTo] = useState<{ name: string; email: string; position: string }>();
   const firstField = useRef<HTMLInputElement>(null);
+  // Bounds of the joining-date picker: today (India) to 12 months ahead.
+  const [today] = useState(todayInIndia);
 
   useEffect(() => {
     firstField.current?.focus();
@@ -316,14 +381,22 @@ function ApplicationForm({
             ))}
           </select>
         </Field>
+        <Field label="Expected Joining Date (Optional)" htmlFor="apply-joining" error={errors.joiningDate}>
+          <Input
+            id="apply-joining" name="joiningDate" type="date" min={today} max={latestJoiningDate(today)}
+            aria-invalid={!!errors.joiningDate || undefined} onInput={() => clearError("joiningDate")}
+            title={t("The earliest date you could start with us")}
+            // text-base on phones: iOS zooms into fields under 16px.
+            className="h-11 px-3.5 text-base sm:text-sm"
+          />
+        </Field>
+        <Field label="Portfolio / LinkedIn (Optional)" htmlFor="apply-portfolio" error={errors.portfolio}>
+          <Input
+            id="apply-portfolio" name="portfolio" type="url" inputMode="url" placeholder={t("https://")} maxLength={PORTFOLIO_MAX}
+            aria-invalid={!!errors.portfolio || undefined} onInput={() => clearError("portfolio")} className="h-11 px-3.5"
+          />
+        </Field>
       </div>
-
-      <Field label="Portfolio / LinkedIn (Optional)" htmlFor="apply-portfolio" error={errors.portfolio}>
-        <Input
-          id="apply-portfolio" name="portfolio" type="url" inputMode="url" placeholder={t("https://")} maxLength={PORTFOLIO_MAX}
-          aria-invalid={!!errors.portfolio || undefined} onInput={() => clearError("portfolio")} className="h-11 px-3.5"
-        />
-      </Field>
 
       <Field label="Upload Resume (PDF Only)" htmlFor="apply-resume" error={errors.resume} required>
         <div

@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/admin/password-input";
 import { CharCounter } from "@/components/admin/char-counter";
 import { SlugInput } from "@/components/admin/slug-input";
+import { AdminSelect } from "@/components/admin/admin-select";
 import { cn } from "@/lib/utils";
 
 /** Titled card that groups related fields. Used on every admin form. */
@@ -210,19 +211,24 @@ export function FormTextarea({
   );
 }
 
-/** Native select styled to match Input. */
+/** Dropdown styled to match Input (the themed AdminSelect, not the browser's list). */
 export function FormSelect({
-  label, name, defaultValue, error, hint, options, required, full, onChange,
+  label, name, value, defaultValue, error, hint, options, required, full, onChange,
 }: {
   label: string;
   name: string;
+  /**
+   * Controlled value, for a form that keeps the choice in its own state (pair
+   * it with onChange). A defaultValue must not change after the first render.
+   */
+  value?: string;
   defaultValue?: string;
   error?: string;
   hint?: string;
   options: { value: string; label: string }[];
   required?: boolean;
   full?: boolean;
-  /** Optional: react to the choice (the select stays uncontrolled). */
+  /** Optional: react to the choice (uncontrolled unless `value` is given). */
   onChange?: (value: string) => void;
 }) {
   const id = `f-${name.replace(/\./g, "-")}`;
@@ -232,22 +238,17 @@ export function FormSelect({
         {label}
         {required && <span className="-ml-1 text-destructive" aria-hidden>*</span>}
       </Label>
-      <select
+      <AdminSelect
         id={id}
         name={name}
+        options={options}
+        value={value}
         defaultValue={defaultValue}
         required={required}
-        onChange={onChange ? (e) => onChange(e.target.value) : undefined}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
-        className="h-10 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 aria-invalid:border-destructive dark:bg-input/30"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-uk-card text-uk-heading">
-            {o.label}
-          </option>
-        ))}
-      </select>
+        onChange={onChange}
+        invalid={!!error}
+        describedBy={error ? `${id}-err` : hint ? `${id}-hint` : undefined}
+      />
       <FieldMessage id={id} error={error} hint={hint} />
     </div>
   );

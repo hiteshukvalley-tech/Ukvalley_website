@@ -97,10 +97,10 @@ export function ContactForm({
       [
         `Name: ${data.get("name")}`,
         `Email: ${data.get("email")}`,
-        `Company: ${data.get("company") || "—"}`,
-        `Service: ${data.get("service") || "—"}`,
-        `Budget: ${data.get("budget") || "—"}`,
-        `Phone: ${data.get("phone") || "—"}`,
+        `Company: ${data.get("company") || ""}`,
+        `Service: ${data.get("service") || ""}`,
+        `Budget: ${data.get("budget") || ""}`,
+        `Phone: ${data.get("phone") || ""}`,
         "",
         "Message:",
         String(data.get("message")),
@@ -117,7 +117,7 @@ export function ContactForm({
           <Check className="h-6 w-6" />
         </span>
         <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">
-          <T>Thanks — we&apos;ve received your enquiry.</T>
+          <T>Thanks, we&apos;ve received your enquiry.</T>
         </h3>
         <p className="mt-2 text-sm text-uk-body">
           <T>A software architect will reply within one business day. Prefer to talk now? Call</T>{" "}
@@ -153,7 +153,7 @@ export function ContactForm({
             email app. Say so plainly: on phones without a mail app set up
             nothing opens, and "sent" would be untrue. */}
         <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">
-          <T>One last step — press Send in your email app.</T>
+          <T>One last step, press Send in your email app.</T>
         </h3>
         <p className="mt-2 text-sm text-uk-body">
           <T>We&apos;ve written the email for you. Once it&apos;s sent, we reply
@@ -315,7 +315,7 @@ export function ContactForm({
           className="mt-0.5 h-4 w-4 flex-none rounded border-uk-line-2 bg-uk-card text-uk-blue"
         />
         <span>
-          <T>I agree to be contacted about this enquiry. We use your details only to reply and never share them — see our</T>{" "}
+          <T>I agree to be contacted about this enquiry. We use your details only to reply and never share them, see our</T>{" "}
           {/* New tab, so a half-filled form (or the popup) isn't lost */}
           <a
             href="/privacy"

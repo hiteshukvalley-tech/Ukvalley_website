@@ -1,22 +1,27 @@
 import { Info } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
+import { SmtpSection } from "@/components/admin/smtp/smtp-section";
 import { ENV_USER_ID } from "@/lib/admin-auth";
 import { requireAdmin } from "@/lib/admin-session";
 import { roleHelp, roleLabel } from "@/lib/users-validation";
 import { PasswordForm } from "./password-form";
 
-export const metadata = { title: "Your account" };
+export const metadata = { title: "Settings" };
 export const dynamic = "force-dynamic";
 
+/**
+ * Every user's own settings (admins and team members alike): their account,
+ * their own mail server for the emails they send, and their password.
+ */
 export default async function AccountPage() {
   const me = await requireAdmin();
   const isOwner = me.id === ENV_USER_ID;
 
   return (
     <>
-      <PageHeader title="Your account" crumbs={[{ label: "Your account" }]} description="Your sign-in details." />
+      <PageHeader title="Settings" crumbs={[{ label: "Settings" }]} description="Your account, your own email (SMTP) settings and your password." />
 
-      <section className="mb-6 rounded-2xl border border-uk-line bg-uk-card p-6">
+      <section className="mb-10 rounded-2xl border border-uk-line bg-uk-card p-6">
         <dl className="grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-sm font-medium text-uk-muted">Email</dt>
@@ -32,16 +37,27 @@ export default async function AccountPage() {
         </dl>
       </section>
 
-      {isOwner ? (
-        <div className="flex items-start gap-2 rounded-xl border border-uk-line bg-uk-card px-4 py-3 text-sm text-uk-body">
-          <Info className="mt-0.5 h-4 w-4 shrink-0 text-uk-blue" />
-          <span>
-            This is the owner account. Its password is set by <code>ADMIN_PASSWORD</code> in the server environment. To change it, use <strong>Forgot password?</strong> on the sign-in page (a code is emailed to you), or change <code>ADMIN_PASSWORD</code>, which also cancels a password set that way.
-          </span>
-        </div>
-      ) : (
-        <PasswordForm />
-      )}
+      <SmtpSection
+        scope={{ kind: "user", userId: me.id }}
+        testTo={me.email}
+        who="You"
+        title="Your email (SMTP)"
+        description="Your own mail server. Status emails and manual emails you send to applicants go out through it, from your address, and replies come back to you. Leave it empty to send through the HR email settings."
+      />
+
+      <div className="mt-12 border-t border-uk-line pt-10">
+        <h2 className="mb-6 font-heading text-xl font-semibold text-uk-heading">Password</h2>
+        {isOwner ? (
+          <div className="flex items-start gap-2 rounded-xl border border-uk-line bg-uk-card px-4 py-3 text-sm text-uk-body">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-uk-blue" />
+            <span>
+              This is the owner account. Its password is set by <code>ADMIN_PASSWORD</code> in the server environment. To change it, use <strong>Forgot password?</strong> on the sign-in page (a code is emailed to you), or change <code>ADMIN_PASSWORD</code>, which also cancels a password set that way.
+            </span>
+          </div>
+        ) : (
+          <PasswordForm />
+        )}
+      </div>
     </>
   );
 }

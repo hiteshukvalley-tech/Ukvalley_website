@@ -90,4 +90,19 @@ export async function logout(page) {
 }
 
 export const text = (page) => page.evaluate(() => document.body.innerText);
+
+/**
+ * Picks an option in an admin dropdown (AdminSelect): opens it by clicking the
+ * trigger (`#id`), then clicks the option with this visible label.
+ */
+export async function pickOption(page, triggerSelector, label) {
+  await page.click(triggerSelector);
+  await page.waitForSelector('[role="option"]', { visible: true, timeout: 10000 });
+  await page.evaluate((l) => {
+    const opt = [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === l);
+    if (!opt) throw new Error(`No option "${l}"`);
+    opt.click();
+  }, label);
+  await page.waitForFunction(() => !document.querySelector('[role="listbox"]'), { timeout: 5000 }).catch(() => {});
+}
 export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));

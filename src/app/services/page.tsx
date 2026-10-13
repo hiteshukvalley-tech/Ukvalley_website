@@ -27,14 +27,14 @@ export const revalidate = 60;
 const toGlance = (services: Awaited<ReturnType<typeof getServices>>) => services.map((s) => {
   const slug = s.href.split("/").pop() ?? "";
   const d = serviceDetails[slug];
-  const fact = (label: string) => d?.quickFacts.find((f) => f.label === label)?.value ?? "—";
+  const fact = (label: string) => d?.quickFacts.find((f) => f.label === label)?.value ?? "";
   return {
     href: s.href,
     title: s.title,
     bestFor: d?.bestFor ?? s.blurb,
     timeline: fact("Typical timeline"),
     from: fact("Starting investment"),
-    first: d?.quickFacts[3]?.value ?? "—",
+    first: d?.quickFacts[3]?.value ?? "",
     firstLabel: d?.quickFacts[3]?.label ?? "First milestone",
   };
 });
@@ -42,9 +42,9 @@ const toGlance = (services: Awaited<ReturnType<typeof getServices>>) => services
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("services", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Services — web, mobile, CRM, ERP & cloud",
+  title: "Services: web, mobile, CRM, ERP & cloud",
   description:
-    "Service lines under one accountable team: web & mobile apps, custom CRM/ERP/HRMS, cloud & DevOps, digital marketing, managed IT, blockchain and brand design.",
+    "Service lines under one accountable team: web & mobile apps, custom CRM/ERP/HRMS, cloud & DevOps, digital marketing, managed IT and brand design.",
   alternates: { canonical: `${SITE_URL}/services` },
 };
 
@@ -63,10 +63,10 @@ export default async function ServicesPage() {
           eyebrow={ukText("Services")}
           crumbs={[{ label: "Home", href: "/" }, { label: "Services" }]}
           title={
-            <>{ukText("Full-stack delivery — from")}{" "}
+            <>{ukText("Full-stack delivery, from")}{" "}
               <span className="text-gradient-blue">{ukText("CRM to cloud")}</span>{ukText(", under one accountable team.")}</>
           }
-          description={ukText(`${capitalize(word)} service lines, one team that owns the outcome. No freelance brokers, no hand-offs to a faceless offshoring pool — the engineers who scope it build it.`)}
+          description={ukText(`${capitalize(word)} service lines, one team that owns the outcome. No freelance brokers, no hand-offs to a faceless offshoring pool, the engineers who scope it build it.`)}
         />
 
         <Services />
@@ -78,7 +78,7 @@ export default async function ServicesPage() {
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("At a glance")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">
                 {ukText(capitalize(word))}{" "}{ukText("service lines, compared on the numbers that matter")}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Typical timelines, starting investment and when you first see working software — so you can shortlist before the call. Every figure is a range from past engagements; your written estimate follows the scoping call within 3 business days.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Typical timelines, starting investment and when you first see working software, so you can shortlist before the call. Every figure is a range from past engagements; your written estimate follows the scoping call within 3 business days.")}</p>
             </Reveal>
             <Reveal className="mt-8 overflow-x-auto rounded-3xl border border-uk-line bg-uk-card">
               <table className="w-full min-w-[760px] border-separate border-spacing-0 text-left text-sm">
@@ -125,7 +125,7 @@ export default async function ServicesPage() {
             "Managed support takes over the day you launch",
             "Every line ships with code and credentials you own",
           ]}
-          caption={ukText("Engineering core — architecture, web, mobile, cloud and QA under one roof.")}
+          caption={ukText("Engineering core, architecture, web, mobile, cloud and QA under one roof.")}
         >
           <p>{ukText("Most agencies sell services as separate departments: a design team hands off to a build team, who hand off to an outsourced DevOps vendor, who has never met the marketing agency. Every hand-off loses context, and you pay for the re-learning.")}</p>
           <p>{ukText("We run all eight lines as one team. The architect who scopes your CRM designs its cloud footprint, the engineer who builds the storefront tunes it for the SEO campaign, and the support engineer who answers your ticket in year two was on the original build. That continuity is where the time savings on this page actually come from.")}</p>
@@ -133,7 +133,7 @@ export default async function ServicesPage() {
 
         <TimeSavers />
         <ByTheNumbers limit={4} />
-        <CtaBand />
+        <CtaBand related="services" />
         <PageBlocks pageKey="services" />
       </main>
       <Footer />

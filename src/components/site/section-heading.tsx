@@ -36,7 +36,7 @@ export function SectionHeading({
           {ukText(eyebrow)}
         </span>
       )}
-      <h2 className="font-heading-display max-w-3xl text-balance text-[clamp(2rem,4.5vw,3.4rem)] font-bold leading-[1.08] tracking-tight text-uk-heading-strong">
+      <h2 className="font-heading-display max-w-3xl text-balance text-[clamp(1.85rem,3.8vw,2.75rem)] font-bold leading-[1.1] tracking-tight text-uk-heading-strong">
         {ukText(title)}
       </h2>
       {description && (

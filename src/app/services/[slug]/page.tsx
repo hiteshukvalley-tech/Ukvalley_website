@@ -180,7 +180,7 @@ export default async function ServicePage({ params }: Props) {
             </Reveal>
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:gap-16">
               <Reveal className="flex flex-col gap-5">
-                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(service.title)}{" "}{ukText("goes wrong — and how we do it differently")}</h2>
+                <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why ")}{ukText(service.title)}{" "}{ukText("goes wrong, and how we do it differently")}</h2>
                 {detail.overview.map((para, i) => (
                   <p key={i} className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">
                     {ukText(para)}
@@ -372,7 +372,7 @@ export default async function ServicePage({ params }: Props) {
                 <div>
                   <span className="inline-flex w-fit items-center gap-2 rounded-full bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("Outcomes")}</span>
                   <h2 className="mt-4 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("What changes after we ship")}</h2>
-                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Every item here is a measurable state, not an adjective — the things you can check on your own system a month after launch.")}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-uk-gray sm:text-base">{ukText("Every item here is a measurable state, not an adjective, the things you can check on your own system a month after launch.")}</p>
                   <div className="mt-6 rounded-2xl border border-uk-line bg-uk-card p-5">
                     <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-uk-muted">
                       <ShieldCheck className="h-4 w-4 text-uk-blue" />{ukText("Guaranteed in the contract")}</p>
@@ -530,7 +530,7 @@ export default async function ServicePage({ params }: Props) {
             <Reveal className={`${detail.serviceFaqs.length > 0 ? "mt-10 " : ""}flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-uk-blue/20 bg-uk-surface-blue p-6`}>
               <div>
                 <h3 className="font-heading text-lg font-bold text-uk-heading">{ukText("Have a ")}{ukText(service.title)}{" "}{ukText("project in mind?")}</h3>
-                <p className="mt-1 text-sm text-uk-gray">{ukText("A free 30-minute call with an architect — a written estimate in 3 days, a fixed proposal in 7.")}</p>
+                <p className="mt-1 text-sm text-uk-gray">{ukText("A free 30-minute call with an architect, a written estimate in 3 days, a fixed proposal in 7.")}</p>
               </div>
               <ScopingButton className="btn-sheen btn-lift group inline-flex cursor-pointer items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-white shadow-glow-blue-sm hover:bg-uk-blue-bright">{ukText("Book a scoping call")}<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </ScopingButton>
@@ -571,7 +571,7 @@ export default async function ServicePage({ params }: Props) {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="services" />
       </main>
       <Footer />
     </>

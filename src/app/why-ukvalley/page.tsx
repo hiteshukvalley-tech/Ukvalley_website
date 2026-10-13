@@ -23,7 +23,7 @@ export const revalidate = 60;
 // Title and description can be replaced in Admin → Page text (SEO fields).
 export const generateMetadata = () => editableMetadata("why-ukvalley", baseMetadata);
 const baseMetadata: Metadata = {
-  title: "Why choose us — code you own, SLA in writing",
+  title: "Why choose us: code you own, SLA in writing",
   description:
     "What makes Ukvalley different from typical agencies: code ownership from day one, a 24-hour response SLA in every contract, thin-slice delivery by week three and product-grade engineering discipline.",
   alternates: { canonical: `${SITE_URL}/why-ukvalley` },
@@ -32,14 +32,14 @@ const baseMetadata: Metadata = {
 const contrasts = [
   {
     us: "You own the code, repos and credentials from day one.",
-    them: "Code stays with the vendor until \"handover\" — which keeps slipping.",
+    them: "Code stays with the vendor until \"handover\"which keeps slipping.",
   },
   {
     us: "A 24-hour response SLA written into every contract.",
-    them: "\"We'll get back to you soon\" — with no clock either party can check.",
+    them: "\"We'll get back to you soon\"with no clock either party can check.",
   },
   {
-    us: "Working software in week three — a thin slice in production.",
+    us: "Working software in week three, a thin slice in production.",
     them: "Six months of documents and prototypes before anyone sees software.",
   },
   {
@@ -47,12 +47,12 @@ const contrasts = [
     them: "A salesperson scopes it; a rotating pool of juniors builds it.",
   },
   {
-    us: "We run our own products in production — TeleValley, Ezzu CRM and more.",
+    us: "We run our own products in production, TeleValley, Ezzu CRM and more.",
     them: "Capability slides with no software of their own to show.",
   },
   {
     us: "Clean exit rights: documented handover and you can leave at any point.",
-    them: "Lock-in by obscurity — undocumented code that only the vendor can touch.",
+    them: "Lock-in by obscurity, undocumented code that only the vendor can touch.",
   },
 ];
 
@@ -75,7 +75,7 @@ export default async function WhyUkvalleyPage() {
               <span className="text-gradient-blue">{ukText("We're accountable for outcomes.")}</span>
             </>
           }
-          description={ukText("The differences that matter when you're choosing who builds your software — stated plainly, with the receipts to back them.")}
+          description={ukText("The differences that matter when you're choosing who builds your software, stated plainly, with the receipts to back them.")}
         />
 
         {/* Stats band */}
@@ -105,9 +105,9 @@ export default async function WhyUkvalleyPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why vendor selection is usually a guess dressed up as due diligence")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every agency's homepage says \"reliable\", \"transparent\" and \"client-focused\" — words that carry zero information by the third portfolio page you read. Reference calls are cherry-picked by the vendor, case studies show the launch-week screenshot, not the six-month reality, and by the time you've compared five pitch decks they've all started to sound identical.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every agency's homepage says \"reliable\", \"transparent\" and \"client-focused\"words that carry zero information by the third portfolio page you read. Reference calls are cherry-picked by the vendor, case studies show the launch-week screenshot, not the six-month reality, and by the time you've compared five pitch decks they've all started to sound identical.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The guesswork costs buyers after the contract is signed, not before: a verbal promise about response time turns out to mean \"whenever we get to it\", code ownership turns out to mean \"after final payment and a dispute\", and the architect who impressed you on the sales call is nowhere near the actual build.")}</p>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We stated the six contrasts below in writing so you can hold any vendor — including us — to the same standard before you sign, not after.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("We stated the six contrasts below in writing so you can hold any vendor, including us, to the same standard before you sign, not after.")}</p>
               </Reveal>
 
               <Reveal className="flex flex-col gap-5">
@@ -205,7 +205,7 @@ export default async function WhyUkvalleyPage() {
           <Container className="relative">
             <SectionHeading
               eyebrow={ukText("Our principles")}
-              title={<>{ukText("Four commitments we build on — every project.")}</>}
+              title={<>{ukText("Four commitments we build on, every project.")}</>}
               description={ukText("These aren't values posters. Each one is a contractual term or a delivery mechanism you can verify.")}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -237,7 +237,7 @@ export default async function WhyUkvalleyPage() {
           <Container>
             <SectionHeading
               eyebrow={ukText("In their words")}
-              title={<>{ukText("Clients who switched to us — and stayed.")}</>}
+              title={<>{ukText("Clients who switched to us, and stayed.")}</>}
             />
             <Reveal staggerChildren className="mt-12 grid grid-cols-1 gap-5 md:grid-cols-2">
               {testimonials.slice(0, 4).map((t) => (
@@ -270,7 +270,7 @@ export default async function WhyUkvalleyPage() {
           </Container>
         </section>
 
-        <CtaBand />
+        <CtaBand related="why-ukvalley" />
         <PageBlocks pageKey="why-ukvalley" />
       </main>
       <Footer />
