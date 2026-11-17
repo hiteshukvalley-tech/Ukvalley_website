@@ -7,12 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { AdminSelect } from "@/components/admin/admin-select";
 import { applicationStatusLabel, isInterviewStatus, type ApplicationStatus } from "@/lib/applications-validation";
 import {
-  SIGNATURE, STATUS_EMAIL_BODY_MAX, STATUS_EMAIL_SUBJECT_MAX, STATUS_FIELDS, renderApplicantEmail,
+  OFFICE_ADDRESS, SIGNATURE, STATUS_EMAIL_BODY_MAX, STATUS_EMAIL_SUBJECT_MAX, STATUS_FIELDS, renderApplicantEmail,
   type EditableEmail, type EmailApplicant, type EmailBrand, type Extras,
 } from "@/lib/application-status-emails";
 
 const fieldClass =
   "h-10 w-full rounded-lg border border-input bg-transparent px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
+
+const isUrl = (s: string) => /^https?:\/\/\S+$/i.test(s.trim());
 
 function ErrorText({ id, msg }: { id: string; msg?: string }) {
   return msg ? <p id={id} role="alert" className="text-xs text-destructive">{msg}</p> : null;
@@ -77,7 +79,15 @@ export function StatusEmailComposer({
                       name={`extra.${f.key}`}
                       value={extras[f.key] ?? ""}
                       options={(f.options ?? []).map((o) => ({ value: o, label: o }))}
-                      onChange={(v) => onExtra(f.key, v)}
+                      onChange={(v) => {
+                        onExtra(f.key, v);
+                        if (f.key !== "interviewMode") return;
+                        // Offline: the office address goes in the venue (when it is empty or still a meeting link);
+                        // back to Online: that address comes out again.
+                        const venue = (extras.interviewVenue ?? "").trim();
+                        if (v === "Offline" && (!venue || isUrl(venue))) onExtra("interviewVenue", OFFICE_ADDRESS);
+                        else if (v === "Online" && venue === OFFICE_ADDRESS) onExtra("interviewVenue", "");
+                      }}
                       invalid={!!err}
                       describedBy={err ? `${id}-err` : undefined}
                     />

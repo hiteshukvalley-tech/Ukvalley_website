@@ -1,6 +1,6 @@
-import type { SessionUser } from "@/lib/admin-auth";
+import { ENV_USER_ID, type SessionUser } from "@/lib/admin-auth";
 import { listApplications } from "@/lib/applications-store";
-import { listInterviews } from "@/lib/interviews-store";
+import { interviewStartsAt, listInterviews } from "@/lib/interviews-store";
 import { listApplicantReplies, REPLY_WINDOW_DAYS } from "@/lib/inbox-replies";
 import { getSmtpConfig, getSmtpConfigFor } from "@/lib/smtp-settings";
 import { getProfile } from "@/lib/profiles-store";
@@ -21,6 +21,8 @@ export type AdminNotification = {
   at: number;
   /** HH:MM for today's interviews, else "" (the bell shows "x min ago") */
   time: string;
+  /** when today's interview starts (ms since epoch), for "Starts in N min" */
+  startsAt?: number;
   href: string;
   /** newer than the user's last "Mark all as read" */
   unread: boolean;
@@ -47,7 +49,8 @@ const addDays = (iso: string, n: number) => {
 
 export async function getNotifications(me: SessionUser): Promise<NotificationFeed> {
   const today = todayInIndia();
-  const [hr, own] = await Promise.all([getSmtpConfig(), getSmtpConfigFor(me.id)]);
+  // The owner ("env") has no own settings: only the HR mailbox.
+  const [hr, own] = await Promise.all([getSmtpConfig(), me.id === ENV_USER_ID ? null : getSmtpConfigFor(me.id)]);
   // The HR mailbox, plus the user's own when they send from it (replies to their emails land there).
   const mailboxes = [hr?.config, own?.source === "user" ? own.config : undefined].filter((c) => !!c);
   const [applications, interviews, replies, profile] = await Promise.all([
@@ -60,13 +63,15 @@ export async function getNotifications(me: SessionUser): Promise<NotificationFee
 
   type Draft = Omit<AdminNotification, "unread">;
   // Today's interviews first (in time order), then everything else, newest first.
-  const pinned: Draft[] = interviews.items.map((i) => ({
+  // A cancelled interview isn't happening, so it isn't listed.
+  const pinned: Draft[] = interviews.items.filter((i) => !i.cancelled).map((i) => ({
     key: `i-${i.applicationId}`,
     kind: "interview",
     title: `${i.name} · ${i.position}`,
     detail: [i.mode, i.venue].filter(Boolean).join(" · ") || "Interview scheduled for today",
     at: new Date(i.scheduledAt).getTime(),
     time: i.time,
+    ...(interviewStartsAt(i) ? { startsAt: interviewStartsAt(i)! } : {}),
     href: `/admin/applications/${i.applicationId}`,
   }));
   const feed: Draft[] = [
@@ -91,6 +96,9 @@ export async function getNotifications(me: SessionUser): Promise<NotificationFee
     })),
   ].sort((a, b) => b.at - a.at);
 
+  // Capped at MAX_ITEMS (applications are fetched only that far, too). The bell
+  // has no "show more", so older items and their unread state are simply not
+  // listed; the full lists are in Applications and Email logs.
   const items = [...pinned, ...feed].slice(0, MAX_ITEMS).map((n) => ({ ...n, unread: n.at > seen }));
   return {
     items,

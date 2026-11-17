@@ -95,11 +95,11 @@ export async function importBuiltInCases(): Promise<number> {
 
 /** Returns false when the slug is already taken. New case studies go to the top. */
 export async function createCase(value: CaseInput): Promise<boolean> {
-  const { slug, ...rest } = value;
+  const { slug, teamMembers, ...rest } = value;
   const first = await col().find({}, { projection: { order: 1 } }).sort({ order: 1 }).limit(1).toArray();
   const order = (first[0]?.order ?? 1) - 1;
   try {
-    await col().insertOne({ _id: slug, ...rest, order, updatedAt: new Date() });
+    await col().insertOne({ _id: slug, ...rest, ...(teamMembers?.length ? { teamMembers } : {}), order, updatedAt: new Date() });
     return true;
   } catch (e) {
     if ((e as { code?: number }).code === 11000) return false;
@@ -109,8 +109,14 @@ export async function createCase(value: CaseInput): Promise<boolean> {
 
 /** Returns false when the case study no longer exists. */
 export async function updateCase(value: CaseInput): Promise<boolean> {
-  const { slug, ...rest } = value;
-  const res = await col().updateOne({ _id: slug }, { $set: { ...rest, updatedAt: new Date() } });
+  const { slug, teamMembers, ...rest } = value;
+  // An emptied team list is removed, so the case study falls back to `team`.
+  const res = await col().updateOne(
+    { _id: slug },
+    teamMembers?.length
+      ? { $set: { ...rest, teamMembers, updatedAt: new Date() } }
+      : { $set: { ...rest, updatedAt: new Date() }, $unset: { teamMembers: "" } }
+  );
   return res.matchedCount > 0;
 }
 

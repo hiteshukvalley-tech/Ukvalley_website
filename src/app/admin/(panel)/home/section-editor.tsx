@@ -510,16 +510,46 @@ function Field({
   }
 
   // group: a list of small cards
+  return <GroupField field={f} id={id} value={value} onChange={onChange} errors={errors} />;
+}
+
+/** A list of cards (kind "group"). */
+function GroupField({
+  field: f, id, value, onChange, errors,
+}: {
+  field: Extract<FieldDef, { kind: "group" }>; id: string; value: SectionValues[string]; onChange: (v: SectionValues[string]) => void; errors: Errors;
+}) {
   const rows = Array.isArray(value) ? (value as Row[]) : [];
   const blank = () => Object.fromEntries(f.fields.map((sf) => [sf.key, ""]));
+  // A stable key per card, so a card's own state (an upload in progress, a
+  // link being typed) stays with it when cards are added, moved or removed.
+  // If the list is replaced from outside (a reset), keys fall back to positions.
+  const [keys, setKeys] = useState<number[]>(() => rows.map((_, i) => i));
+  const [nextKey, setNextKey] = useState(rows.length);
+  const rowKeys = keys.length === rows.length ? keys : rows.map((_, i) => i);
+  const change = (next: Row[], nextKeys: number[]) => {
+    setKeys(nextKeys);
+    onChange(next);
+  };
+  const add = (atTop: boolean) => {
+    setNextKey(nextKey + 1);
+    change(atTop ? [blank(), ...rows] : [...rows, blank()], atTop ? [nextKey, ...rowKeys] : [...rowKeys, nextKey]);
+  };
   return (
     <fieldset className="space-y-3">
       <legend className="text-sm font-medium text-uk-heading">{f.label}</legend>
       {f.hint && <p className="text-xs text-uk-muted">{f.hint}</p>}
       {rows.length === 0 && <p className="text-xs text-uk-muted">Nothing added — this part is hidden on the page.</p>}
+      {f.addAtTop && (
+        <AddButton
+          label={`Add ${f.itemLabel.toLowerCase()}`}
+          disabled={rows.length >= f.maxItems}
+          onClick={() => add(true)}
+        />
+      )}
       <div className="space-y-3">
         {rows.map((row, i) => (
-          <div key={i} className="rounded-xl border border-uk-line bg-uk-surface p-4">
+          <div key={rowKeys[i]} className="rounded-xl border border-uk-line bg-uk-surface p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-uk-muted">
                 {f.itemLabel} {i + 1}
@@ -528,8 +558,8 @@ function Field({
                 index={i}
                 count={rows.length}
                 what={`${f.itemLabel.toLowerCase()} ${i + 1}`}
-                onMove={(to) => onChange(move(rows, i, to))}
-                onRemove={() => onChange(rows.filter((_, j) => j !== i))}
+                onMove={(to) => change(move(rows, i, to), move(rowKeys, i, to))}
+                onRemove={() => change(rows.filter((_, j) => j !== i), rowKeys.filter((_, j) => j !== i))}
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -577,11 +607,13 @@ function Field({
         ))}
       </div>
       {errors[f.key] && <p role="alert" className="text-xs font-medium text-destructive">{errors[f.key]}</p>}
-      <AddButton
-        label={`Add ${f.itemLabel.toLowerCase()}`}
-        disabled={rows.length >= f.maxItems}
-        onClick={() => onChange([...rows, blank()])}
-      />
+      {!f.addAtTop && (
+        <AddButton
+          label={`Add ${f.itemLabel.toLowerCase()}`}
+          disabled={rows.length >= f.maxItems}
+          onClick={() => add(false)}
+        />
+      )}
       <p className="text-xs text-uk-muted">{rows.length} of up to {f.maxItems}.</p>
     </fieldset>
   );

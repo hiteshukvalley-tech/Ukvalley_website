@@ -1,12 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { Fragment, useEffect, useRef, type CSSProperties } from "react";
+import { prefersReducedMotion, watchInView } from "@/lib/in-view";
 
 type SplitHeadingProps = {
   children: string;
@@ -18,17 +13,18 @@ type SplitHeadingProps = {
   /** indexes of words to render with the yellow marker highlight */
   highlight?: number[];
   /**
-   * Play the entrance animation immediately on mount instead of waiting
-   * for a ScrollTrigger. Use for above-the-fold content (hero h1).
+   * Play the entrance as soon as the page paints instead of on scroll. Use
+   * for above-the-fold content (hero h1): it is a pure CSS animation, so the
+   * headline never waits for JavaScript.
    */
   immediate?: boolean;
 };
 
 /**
- * Word-mask headline reveal — each word rises out of an overflow-hidden
- * mask with a slight blur, staggered left→right. Words are split in the
- * DOM into spans (no GSAP plugin needed), so screen readers still get a
- * complete string via aria-label. Reduced-motion renders instantly.
+ * Word-mask headline reveal: each word rises out of an overflow-hidden mask,
+ * staggered left→right. Words are split in the DOM into spans, so screen
+ * readers still get a complete string via aria-label. Reduced-motion renders
+ * instantly. Styles: `[data-sh-*]` and `.sh-rise` in globals.css.
  */
 export function SplitHeading({
   children,
@@ -46,43 +42,27 @@ export function SplitHeading({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el || !words) return;
-
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const inners = el.querySelectorAll<HTMLElement>("[data-sh-inner]");
-    if (!inners.length) return;
-
-    if (reduced) {
-      gsap.set(inners, { yPercent: 0, opacity: 1, filter: "none" });
-      return;
-    }
-
-    const ctx = gsap.context(() => {
-      gsap.set(inners, { yPercent: 115, opacity: 0, filter: "blur(6px)" });
-
-      const anim = {
-        yPercent: 0,
-        opacity: 1,
-        filter: "blur(0px)",
-        duration: 0.9,
-        ease: "expo.out" as const,
-        stagger,
-        delay,
-      };
-
-      if (immediate) {
-        // Play on mount — no ScrollTrigger, works above the fold.
-        gsap.to(inners, anim);
-      } else {
-        gsap.to(inners, {
-          ...anim,
-          scrollTrigger: { trigger: el, start: "top 88%", once: true },
-        });
-      }
-    }, el);
-
-    return () => ctx.revert();
-  }, [words, stagger, delay, immediate]);
+    if (!el || !words || immediate || prefersReducedMotion()) return;
+    // On screen when the page appears: leave it as rendered. Below the fold:
+    // hide the words, then let them rise when scrolled to.
+    let stop = () => {};
+    stop = watchInView(
+      el,
+      ({ visible, first, above }) => {
+        if (first && (visible || above)) return stop();
+        if (first) return el.setAttribute("data-sh-root", "hidden");
+        if (visible) {
+          el.setAttribute("data-sh-root", "");
+          stop();
+        }
+      },
+      "0px 0px -12% 0px"
+    );
+    return () => {
+      stop();
+      el.setAttribute("data-sh-root", "");
+    };
+  }, [words, immediate]);
 
   if (!words) {
     return <Tag ref={ref as never} className={className}>{children}</Tag>;
@@ -91,16 +71,23 @@ export function SplitHeading({
   return (
     <Tag ref={ref as never} className={className} aria-label={words.join(" ")} data-sh-root="">
       {words.map((w, i) => (
-        <span
-          key={`${w}-${i}`}
-          aria-hidden
-          className="inline-block overflow-hidden pb-[0.08em] -mb-[0.08em] align-bottom"
-        >
-          <span data-sh-inner className="inline-block will-change-transform">
-            {highlight?.includes(i) ? <span className="highlight-yellow">{w}</span> : w}
-            {i < words.length - 1 ? " " : ""}
+        // The space goes between the word boxes, not inside them: a space at
+        // the end of an inline-block is dropped, which ran the words together.
+        <Fragment key={`${w}-${i}`}>
+          <span
+            aria-hidden
+            className="inline-block overflow-hidden pb-[0.08em] -mb-[0.08em] align-bottom"
+          >
+            <span
+              data-sh-inner
+              className={immediate ? "sh-rise inline-block" : "inline-block"}
+              style={{ [immediate ? "animationDelay" : "transitionDelay"]: `${delay + i * stagger}s` } as CSSProperties}
+            >
+              {highlight?.includes(i) ? <span className="highlight-yellow">{w}</span> : w}
+            </span>
           </span>
-        </span>
+          {i < words.length - 1 ? " " : null}
+        </Fragment>
       ))}
     </Tag>
   );

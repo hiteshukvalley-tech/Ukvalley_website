@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/admin-session";
 import { listInterviews, type Interview } from "@/lib/interviews-store";
 import { formatPostedDate, isIsoDate, todayInIndia } from "@/lib/careers-shared";
 import { addDays, formatInterviewDay, InterviewRow, relativeDay } from "./interview-ui";
+import { InterviewActions } from "./interview-actions";
 
 export const metadata = { title: "Daily interviews" };
 export const dynamic = "force-dynamic";
@@ -45,8 +46,8 @@ const href = (params: Record<string, string>) => {
 };
 
 /**
- * Interviews day by day: every applicant HR shortlisted with an interview
- * date (Applications → applicant → Shortlisted → email), grouped by the day of
+ * Interviews day by day: every applicant HR gave an interview date
+ * (Applications → applicant → Interview Scheduled → email), grouped by the day of
  * the interview and sorted by time. A rescheduled interview shows on its new day.
  */
 export default async function InterviewsPage({ searchParams }: Props) {
@@ -59,7 +60,7 @@ export default async function InterviewsPage({ searchParams }: Props) {
 
   const byDay = new Map<string, Interview[]>();
   for (const i of items) byDay.set(i.date, [...(byDay.get(i.date) ?? []), i]);
-  const upcoming = items.filter((i) => i.status !== "rejected").length;
+  const upcoming = items.filter((i) => i.status !== "rejected" && !i.cancelled).length;
   const rangeText = from === to ? formatPostedDate(from) : `${formatPostedDate(from)} – ${formatPostedDate(to)}`;
 
   return (
@@ -67,7 +68,7 @@ export default async function InterviewsPage({ searchParams }: Props) {
       <PageHeader
         title="Daily interviews"
         crumbs={[{ label: "Careers", href: "/admin/careers" }, { label: "Daily interviews" }]}
-        description="Interviews scheduled with shortlisted applicants, day by day (India time). An interview is added here when you shortlist an applicant and send the email with the interview date."
+        description="Interviews scheduled with applicants, day by day (India time). An interview is added here when you set an applicant to Interview Scheduled and send the email with the interview date."
       />
 
       {/* Quick ranges, custom dates and search */}
@@ -155,7 +156,7 @@ export default async function InterviewsPage({ searchParams }: Props) {
           <p className="mx-auto mt-1 max-w-lg text-sm text-uk-muted">
             To schedule one, open an applicant in{" "}
             <Link href="/admin/applications/applicants" className="text-uk-blue hover:text-uk-blue-bright">Job applications</Link>, set the status to
-            Shortlisted and send the email with the interview date and time.
+            Interview Scheduled and send the email with the interview date and time.
           </p>
         </section>
       ) : (
@@ -177,7 +178,11 @@ export default async function InterviewsPage({ searchParams }: Props) {
                 </h2>
                 <ul className="divide-y divide-uk-line">
                   {list.map((i) => (
-                    <InterviewRow key={i.applicationId} interview={i} />
+                    <InterviewRow
+                      key={i.applicationId}
+                      interview={i}
+                      actions={<InterviewActions applicationId={i.applicationId} name={i.name} date={i.date} time={i.time} mode={i.mode} venue={i.venue} cancelled={i.cancelled} today={today} />}
+                    />
                   ))}
                 </ul>
               </section>

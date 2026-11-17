@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
 import { fitTitle, withSharePreview } from "@/lib/page-metadata";
 import Link from "@/components/site/intent-link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   ArrowLeft, ArrowRight, Award, Briefcase, CalendarDays, Check, Clock, Gift, GraduationCap, Laptop, ListChecks, MapPin, Target, Workflow,
 } from "lucide-react";
@@ -13,8 +13,9 @@ import { PageHero } from "@/components/site/page-hero";
 import { Container } from "@/components/site/container";
 import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
-import { ApplyButton, CareerApplyProvider } from "@/components/site/career-apply";
-import { getCareers } from "@/lib/careers-store";
+import { ApplyButton, CareerApplyProvider, ShareJobButton } from "@/components/site/career-apply";
+import { closedRoleHref } from "@/lib/applications-validation";
+import { getCareers, isKnownCareerSlug } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { jsonLd } from "@/lib/utils";
 import { formatExperience, formatPostedDate, type JobType } from "@/lib/careers-shared";
@@ -36,10 +37,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!c) return {};
   return withSharePreview({
     title: fitTitle(`${c.role}, Careers`, c.role),
-    description: c.summary,
+    // search results show about 160 characters; About the role can be much longer
+    description: shorten(paragraphs(c.summary)[0] ?? "", 160),
     alternates: { canonical: `${SITE_URL}/careers/${c.slug}` },
   });
 }
+
+/** The non-empty lines of a multi-line text, trimmed. */
+const paragraphs = (text: string) => text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+
+/** Cuts text to `max` characters at a word break, adding "…". */
+const shorten = (text: string, max: number) =>
+  text.length > max ? `${text.slice(0, max - 3).replace(/\s+\S*$/, "")}…` : text;
 
 /** The job type as schema.org's employmentType (Google Jobs). */
 const EMPLOYMENT_TYPE: Record<JobType, string> = {
@@ -50,6 +59,8 @@ const EMPLOYMENT_TYPE: Record<JobType, string> = {
 };
 
 function ListCard({ icon: Icon, title, items }: { icon: typeof Check; title: string; items: string[] }) {
+  // Every list is optional in the admin; an empty one isn't shown.
+  if (items.length === 0) return null;
   return (
     <Reveal className="rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
       <h2 className="flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
@@ -57,12 +68,12 @@ function ListCard({ icon: Icon, title, items }: { icon: typeof Check; title: str
         {ukText(title)}
       </h2>
       <ul className="mt-5 flex flex-col gap-3.5">
-        {items.map((item) => (
-          <li key={item} className="flex items-start gap-3">
+        {items.map((item, i) => (
+          <li key={`${i}-${item}`} className="flex items-start gap-3">
             <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-full bg-uk-blue/12 text-uk-blue">
               <Check className="h-3.5 w-3.5" strokeWidth={3} />
             </span>
-            <p className="text-sm leading-relaxed text-uk-body sm:text-base">{ukText(item)}</p>
+            <p className="min-w-0 flex-1 text-sm leading-relaxed text-uk-body wrap-anywhere sm:text-base">{ukText(item)}</p>
           </li>
         ))}
       </ul>
@@ -74,10 +85,20 @@ export default async function CareerPage({ params }: Props) {
   const { slug } = await params;
   const [careers, settings] = await Promise.all([getCareers(), getSiteSettings()]);
   const c = careers.find((x) => x.slug === slug);
-  if (!c) notFound();
+  // A role moved to drafts or deleted: links shared while it was open go to the
+  // Careers page, which says the opening is closed and lists the current ones.
+  // An address that was never a role is a plain 404.
+  if (!c) {
+    if (/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) && slug.length <= 120 && (await isKnownCareerSlug(slug))) redirect(closedRoleHref(slug));
+    notFound();
+  }
   const others = careers.filter((x) => x.slug !== c.slug).slice(0, 4);
 
   const experience = formatExperience(c.experienceMin, c.experienceMax);
+  // "About the role" is stored one paragraph per line.
+  const aboutParagraphs = paragraphs(c.summary);
+  // The hero shows the first paragraph, cut short; the card below has it all.
+  const intro = shorten(aboutParagraphs[0] ?? "", 220);
   // A place name for search engines; "India" / "Remote (India)" aren't a locality.
   const locality = /^(remote|hybrid|india)\b/i.test(c.location) ? undefined : c.location;
 
@@ -127,6 +148,8 @@ export default async function CareerPage({ params }: Props) {
       <ScrollProgress />
       <Header />
       <CareerApplyProvider
+        // A shared link (/careers/<slug>?apply=1) opens this role's form at once.
+        autoOpen={c.role}
         positions={careers.map((x) => x.role)}
         processes={Object.fromEntries(careers.map((x) => [x.role, x.hiringProcess]))}
       >
@@ -136,17 +159,25 @@ export default async function CareerPage({ params }: Props) {
             eyebrow={ukText("Open role · Join our team")}
             crumbs={[{ label: "Home", href: "/" }, { label: "Careers", href: "/careers" }, { label: c.role }]}
             title={ukText(c.role)}
-            description={ukText(c.summary)}
+            titleClassName="wrap-break-word"
+            description={intro ? ukText(intro) : undefined}
           />
 
           <section className="relative bg-uk-surface section-py">
-            <Container className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-12">
-              <div className="flex flex-col gap-6">
+            <Container className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:gap-12">
+              <div className="flex min-w-0 flex-col gap-6">
+                {aboutParagraphs.length > 0 && (
                 <Reveal className="rounded-2xl border border-uk-line bg-uk-card p-6 sm:p-7">
                   <h2 className="flex items-center gap-2 font-heading text-xl font-bold text-uk-heading">
                     <Target className="h-5 w-5 text-uk-blue" />{ukText("About the role")}</h2>
-                  <p className="mt-4 text-base leading-relaxed text-uk-body sm:text-lg">{ukText(c.summary)}</p>
+                  {/* one paragraph per line typed in the admin, evenly spaced */}
+                  <div className="mt-4 flex flex-col gap-4">
+                    {aboutParagraphs.map((para, i) => (
+                      <p key={i} className="text-base leading-relaxed text-uk-body wrap-anywhere sm:text-lg">{ukText(para)}</p>
+                    ))}
+                  </div>
                 </Reveal>
+                )}
                 <ListCard icon={ListChecks} title={ukText("What you'll do here")} items={c.responsibilities} />
                 <ListCard icon={Briefcase} title={ukText("Required skills")} items={c.requirements} />
                 {c.qualifications && c.qualifications.length > 0 && (
@@ -169,9 +200,9 @@ export default async function CareerPage({ params }: Props) {
                         <span className="relative flex h-9 w-9 flex-none items-center justify-center rounded-full border border-uk-blue/30 bg-uk-blue/10 font-heading text-sm font-bold text-uk-blue">
                           {i + 1}
                         </span>
-                        <div className="pt-1.5">
-                          <h3 className="font-heading text-base font-bold text-uk-heading">{ukText(s.title)}</h3>
-                          <p className="mt-1 text-sm leading-relaxed text-uk-body">{ukText(s.desc)}</p>
+                        <div className="min-w-0 flex-1 pt-1.5">
+                          <h3 className="font-heading text-base font-bold text-uk-heading wrap-anywhere">{ukText(s.title)}</h3>
+                          {s.desc && <p className="mt-1 text-sm leading-relaxed text-uk-body wrap-anywhere">{ukText(s.desc)}</p>}
                         </div>
                       </li>
                     ))}
@@ -187,9 +218,9 @@ export default async function CareerPage({ params }: Props) {
                     {overview.map(({ icon: Icon, label, value }) => (
                       <div key={label} className="flex items-start gap-3 py-3">
                         <Icon className="mt-0.5 h-4 w-4 text-uk-blue" aria-hidden />
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <dt className="text-uk-muted">{ukText(label)}</dt>
-                          <dd className="font-semibold text-uk-heading">{ukText(value)}</dd>
+                          <dd className="font-semibold text-uk-heading wrap-anywhere">{ukText(value)}</dd>
                         </div>
                       </div>
                     ))}
@@ -199,6 +230,11 @@ export default async function CareerPage({ params }: Props) {
                     className="btn-sheen mt-5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-uk-blue px-6 text-sm font-semibold text-uk-white shadow-glow-blue-sm transition-colors hover:bg-uk-blue-bright"
                   >{ukText("Apply now")}<ArrowRight className="h-4 w-4" />
                   </ApplyButton>
+                  <ShareJobButton
+                    url={`${SITE_URL}/careers/${c.slug}?apply=1`}
+                    title={c.role}
+                    className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-uk-line bg-uk-card px-6 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
+                  />
                   <a
                     href={ukText("#hiring-process")}
                     className="mt-3 inline-flex w-full items-center justify-center gap-1.5 text-sm font-medium text-uk-blue hover:text-uk-blue-bright"
@@ -228,10 +264,10 @@ export default async function CareerPage({ params }: Props) {
                       href={ukText(`/careers/${o.slug}`)}
                       className="group flex flex-col gap-2 rounded-2xl border border-uk-line bg-uk-card p-5 transition-all duration-300 hover:-translate-y-1 hover:border-uk-blue/40 hover:shadow-premium-lg"
                     >
-                      <span className="font-heading text-base font-bold text-uk-heading group-hover:text-uk-blue">{ukText(o.role)}</span>
+                      <span className="font-heading text-base font-bold text-uk-heading wrap-anywhere group-hover:text-uk-blue">{ukText(o.role)}</span>
                       <span className="flex flex-wrap items-center gap-3 text-xs text-uk-gray">
                         <ModeBadge mode={o.mode} />
-                        <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-uk-blue" />{ukText(o.location)}</span>
+                        <span className="inline-flex min-w-0 items-center gap-1.5 wrap-anywhere"><MapPin className="h-3.5 w-3.5 flex-none text-uk-blue" />{ukText(o.location)}</span>
                         <span className="inline-flex items-center gap-1.5"><Award className="h-3.5 w-3.5 text-uk-blue" />{ukText(formatExperience(o.experienceMin, o.experienceMax))}</span>
                         <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5 text-uk-blue" />{ukText(formatPostedDate(o.postedAt))}</span>
                       </span>

@@ -26,7 +26,15 @@ export type FieldDef =
   /** A list of one-line strings (chips, logos, steps…). */
   | (BaseField & { kind: "list"; itemLabel: string; max: number; minItems: number; maxItems: number })
   /** A list of cards, each with the same small set of fields. */
-  | (BaseField & { kind: "group"; itemLabel: string; fields: SubField[]; minItems: number; maxItems: number });
+  | (BaseField & {
+      kind: "group";
+      itemLabel: string;
+      fields: SubField[];
+      minItems: number;
+      maxItems: number;
+      /** "Add" puts the new card first (newest-first lists, e.g. social impact sections) */
+      addAtTop?: boolean;
+    });
 
 export type SectionDef<K extends string = string> = {
   key: K;
@@ -384,6 +392,8 @@ export function markedWords(text: string): { text: string; highlight: number[] }
 
 // "/path" (but not "//host" or "/\host", which browsers treat as another site), "#id" or http(s)://
 const LINK = /^(\/(?![/\\])[^\s]*|#[\w-]+|https?:\/\/[^\s]+)$/;
+/** A picture's address: like LINK, but never an "#anchor". */
+const isImagePath = (v: string) => LINK.test(v) && !v.startsWith("#");
 
 /**
  * Checks a submitted section against its definition. Unknown keys are
@@ -399,10 +409,11 @@ export function validateSection(
   const value: SectionValues = {};
   const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
-  const checkText = (path: string, v: string, f: { label: string; max: number; required?: boolean; link?: boolean }) => {
+  const checkText = (path: string, v: string, f: { label: string; max: number; required?: boolean; link?: boolean; image?: boolean }) => {
     if (!v) {
       if (f.required) errors[path] = `${f.label} is required.`;
     } else if (v.length > f.max) errors[path] = `Use ${f.max} characters or fewer.`;
+    else if (f.image && !isImagePath(v)) errors[path] = "Use an uploaded picture (/media/…) or a full https:// link.";
     else if (f.link && !LINK.test(v)) errors[path] = "Use a path like /services, an anchor like #work, or a full https:// link.";
   };
 
@@ -415,7 +426,7 @@ export function validateSection(
       value[f.key] = Number.isFinite(n) ? String(Math.round(n / f.step) * f.step) : str(v);
     } else if (f.kind === "text" || f.kind === "textarea" || f.kind === "image") {
       const s = str(v);
-      checkText(f.key, s, f.kind === "image" ? { ...f, max: f.max ?? 300, link: true } : f);
+      checkText(f.key, s, f.kind === "image" ? { ...f, max: f.max ?? 300, image: true } : f);
       value[f.key] = s;
     } else if (f.kind === "list") {
       const items = (Array.isArray(v) ? v : []).map(str).filter(Boolean);
@@ -435,7 +446,7 @@ export function validateSection(
       rows.forEach((r, i) =>
         f.fields.forEach((sf) => {
           const path = `${f.key}.${i}.${sf.key}`;
-          if (sf.kind !== "images") return checkText(path, r[sf.key], sf.kind === "image" ? { ...sf, link: true } : sf);
+          if (sf.kind !== "images") return checkText(path, r[sf.key], sf.kind === "image" ? { ...sf, image: true } : sf);
           // one address per line; blank lines dropped
           const lines = r[sf.key].split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
           r[sf.key] = lines.join("\n");
@@ -443,7 +454,7 @@ export function validateSection(
             if (sf.required) errors[path] = `${sf.label} is required.`;
           } else if (sf.maxImages && lines.length > sf.maxImages) errors[path] = `Add at most ${sf.maxImages} pictures.`;
           else if (r[sf.key].length > sf.max) errors[path] = "Too many pictures, remove a few.";
-          else if (lines.some((s) => !LINK.test(s) || s.startsWith("#"))) errors[path] = "Each picture needs a /media/… path or a full https:// link.";
+          else if (lines.some((s) => !isImagePath(s))) errors[path] = "Each picture needs a /media/… path or a full https:// link.";
         })
       );
       value[f.key] = rows;

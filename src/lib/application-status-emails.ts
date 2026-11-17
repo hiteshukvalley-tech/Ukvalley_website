@@ -12,7 +12,13 @@ export const STATUS_EMAIL_SUBJECT_MAX = 200;
 export const STATUS_EMAIL_BODY_MAX = 5000;
 
 /** Who signs every applicant email. */
-export const SIGNATURE = { name: "Umesh Khivasara", title: "CEO, Ukvalley Technologies" };
+export const SIGNATURE = { name: "Ummehani Jinwala", title: "HR, Ukvalley Technologies" };
+
+/**
+ * The Nashik head office (as on the Contact page): filled in as the venue when
+ * HR picks "Offline" for an interview, and editable there.
+ */
+export const OFFICE_ADDRESS = "Ukvalley Technologies, Plot No 10, Near Samraat Nucleus, Dr. Homi Bhabha Nagar, Mumbai Naka, Nashik, Maharashtra";
 
 /** Company details used in the emails (from Site settings). */
 export type EmailBrand = { company: string; phone: string; website: string; logoUrl: string };
@@ -50,7 +56,8 @@ const INTERVIEW_FIELDS: ExtraField[] = [
 export const STATUS_FIELDS: Record<ApplicationStatus, ExtraField[]> = {
   new: [],
   reviewing: [],
-  shortlisted: INTERVIEW_FIELDS,
+  shortlisted: [],
+  "interview-scheduled": INTERVIEW_FIELDS,
   "no-show": [],
   "next-round": [
     {
@@ -96,10 +103,19 @@ Below are your application details:`,
     closing: `Our HR team reviews every application carefully. If your profile matches our requirements, we will contact you within 7 working days with the next steps.`,
   }),
   shortlisted: ({ name, position }) => ({
-    subject: `Shortlisted for Interview: ${position} | Ukvalley Technologies`,
+    subject: `You Have Been Shortlisted: ${position} | Ukvalley Technologies`,
     message: `Dear ${name},
 
-We are pleased to inform you that your profile has been shortlisted for the position of ${position}, and an interview has been scheduled with our team. Below are the details:`,
+We are pleased to inform you that your profile has been shortlisted for the position of ${position} at Ukvalley Technologies.
+
+Below are your application details:`,
+    closing: `Our HR team will contact you shortly with the interview date, time and venue. Kindly keep your phone and email reachable.`,
+  }),
+  "interview-scheduled": ({ name, position }) => ({
+    subject: `Interview Scheduled: ${position} | Ukvalley Technologies`,
+    message: `Dear ${name},
+
+We are pleased to invite you for an interview for the position of ${position} at Ukvalley Technologies. Below are the details:`,
     closing: `Please ensure you are available at the scheduled time and keep a copy of your resume handy. Kindly reply to this email to confirm your availability, or let us know if you need to reschedule.`,
   }),
   "next-round": ({ name, position }) => ({
@@ -166,6 +182,7 @@ const accent: Record<ApplicationStatus, string> = {
   new: "#3100ff",
   reviewing: "#d97706",
   shortlisted: "#7c3aed",
+  "interview-scheduled": "#6d28d9",
   "no-show": "#e11d48",
   "next-round": "#4f46e5",
   rescheduled: "#0891b2",
@@ -182,7 +199,8 @@ const accent: Record<ApplicationStatus, string> = {
 const badge: Record<ApplicationStatus, string> = {
   new: "Application Received",
   reviewing: "Under Review",
-  shortlisted: "Shortlisted for Interview",
+  shortlisted: "Shortlisted",
+  "interview-scheduled": "Interview Scheduled",
   "no-show": "Interview Missed",
   "next-round": "Next Round Interview",
   rescheduled: "Interview Rescheduled",
@@ -191,7 +209,7 @@ const badge: Record<ApplicationStatus, string> = {
   rejected: "Application Update",
   "offer-issued": "Offer Letter Issued",
   "offer-accepted": "Offer Accepted",
-  "offer-declined": "Offer Declined",
+  "offer-declined": "Offer Rejected",
   hired: "Welcome Aboard",
   "not-joined": "Joining Update",
 };
@@ -199,7 +217,8 @@ const badge: Record<ApplicationStatus, string> = {
 const detailsTitle: Partial<Record<ApplicationStatus, string>> = {
   new: "Application Details",
   reviewing: "Application Details",
-  shortlisted: "Interview Details",
+  shortlisted: "Application Details",
+  "interview-scheduled": "Interview Details",
   "next-round": "Next Round Interview Details",
   rescheduled: "Rescheduled Interview Details",
   "on-hold": "Application Details",
@@ -248,7 +267,13 @@ export function emailDetails(status: ApplicationStatus, a: EmailApplicant, x: Ex
     case "on-hold":
     case "selected":
       return [...base, ["Application Status", applicationStatusLabel[status]]];
-    case "shortlisted":
+    case "shortlisted": {
+      // Shortlisted without interview details: a status row. (Emails sent before
+      // "Interview Scheduled" existed carried the interview here; show it if given.)
+      if (!v("interviewDate")) return [...base, ["Application Status", applicationStatusLabel[status]]];
+      return emailDetails("interview-scheduled", a, x);
+    }
+    case "interview-scheduled":
     case "next-round":
     case "rescheduled": {
       const rows: [string, string][] = [...base];

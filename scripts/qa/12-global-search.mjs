@@ -14,7 +14,11 @@ const waitForText = (t, ms = 60000) => page.waitForFunction((x) => document.body
 const box = 'input[aria-label="Search any text on any page"]';
 const panel = "#admin-search-results";
 async function search(term) {
-  await page.click(box, { clickCount: 3 });
+  // clear the box with Ctrl+A (a triple-click doesn't always select it: the box widens on focus)
+  await page.focus(box);
+  await page.keyboard.down("Control");
+  await page.keyboard.press("a");
+  await page.keyboard.up("Control");
   await page.keyboard.press("Backspace");
   await page.type(box, term);
   await page.waitForFunction((sel, t) => document.querySelector(sel)?.getAttribute("data-for") === t, { timeout: 180000 }, panel, term);

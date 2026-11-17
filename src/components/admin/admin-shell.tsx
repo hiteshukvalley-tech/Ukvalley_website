@@ -7,12 +7,13 @@ import { ChevronDown, Menu, X, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 import { GlobalSearch } from "./global-search";
 import { NotificationBell } from "./notification-bell";
+import { InterviewReminder } from "./interview-reminder";
 import { UserMenu } from "./user-menu";
-import { adminNav, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
+import { adminNav, canSeeLink, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
 import { Toaster } from "./toast";
 import { ConfirmHost } from "./confirm-dialog";
 import type { AdminRole } from "@/lib/admin-auth";
-import { canOpenPath, canUseArea, type Access } from "@/lib/admin-access";
+import { canUseArea, type Access } from "@/lib/admin-access";
 import { roleLabel } from "@/lib/users-validation";
 import { firstName } from "@/lib/profile-validation";
 import { cn } from "@/lib/utils";
@@ -32,6 +33,13 @@ function Brand() {
 const linkBase = "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors";
 const linkActive = "bg-uk-blue text-uk-white shadow-glow-blue-sm";
 const linkIdle = "text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading";
+
+/** The sub-section link for this page: of the ones that match, the one with the longest address. */
+function mostSpecific(links: AdminNavLink[], pathname: string): AdminNavLink | undefined {
+  return links
+    .filter((l) => isActive(l, pathname))
+    .reduce<AdminNavLink | undefined>((best, l) => (!best || l.href.length > best.href.length ? l : best), undefined);
+}
 
 /** A main section that opens into its sub-sections. */
 function NavSection({
@@ -63,7 +71,9 @@ function NavSection({
       {open && (
         <ul id={listId} className="mb-1 ml-5 mt-0.5 space-y-0.5 border-l border-uk-line pl-2">
           {entry.children.map((child) => {
-            const active = isActive(child, pathname);
+            // Only the most specific match lights up: on /admin/applications/status,
+            // "Application status", not also "Job applications" (/admin/applications).
+            const active = child === mostSpecific(entry.children, pathname);
             const ChildIcon = child.icon;
             return (
               <li key={child.href + child.label}>
@@ -98,9 +108,7 @@ function NavList({ role, access, onNavigate }: { role: AdminRole; access: Access
     setSeenPath(pathname);
     setOpenSection(sectionHolding(pathname));
   }
-  // Team members see only the sections ticked for them in Admin → Users, and
-  // never admin-only pages (proxy.ts and the pages' own checks refuse them too).
-  const allowed = (l: AdminNavLink) => (!l.adminOnly || role === "admin") && canOpenPath(role, access, l.href);
+  const allowed = (l: AdminNavLink) => canSeeLink(role, access, l);
   const groups = adminNav
     .map((g) => ({
       ...g,
@@ -215,8 +223,8 @@ export function AdminShell({
           <p className={cn("hidden min-w-0 truncate text-sm text-uk-muted", !onDashboard && "xl:block")}>
             Welcome, <span className="font-semibold text-uk-heading">{firstName(user.name, user.email)}</span>! Have a good day.
           </p>
-          {/* searches every page's text, so only for people with "Pages & text" */}
-          {canUseArea(user.role, user.access, "texts") ? <GlobalSearch /> : null}
+          {/* every user: searches the sections they may open (page text only with "Pages & text") */}
+          <GlobalSearch role={user.role} access={user.access} canTexts={canUseArea(user.role, user.access, "texts")} />
           <div className="flex-1" />
           <Link
             href="/"
@@ -228,6 +236,8 @@ export function AdminShell({
           <ThemeToggle />
           {/* new applications, today's interviews and applicants' emails to HR */}
           {canUseArea(user.role, user.access, "applications") ? <NotificationBell /> : null}
+          {/* popup + desktop notification 30 minutes before each of today's interviews */}
+          {canUseArea(user.role, user.access, "applications") ? <InterviewReminder /> : null}
           {/* the user's name: opens My profile, Settings and Sign out */}
           <UserMenu name={user.name} email={user.email} photo={user.photo} badge={user.title || roleLabel[user.role]} />
         </header>

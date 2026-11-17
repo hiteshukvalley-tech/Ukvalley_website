@@ -92,16 +92,28 @@ export type NewSectionKind = "page" | "dropdown" | "link";
 /** Adds a main-menu section at the end (next to Insights). Returns where to edit it. */
 export async function createMainSection(name: string, kind: NewSectionKind, icon = ""): Promise<{ slug?: string }> {
   const { items } = await readItems();
-  let item: MenuItem = { id: `m-${rand(8)}`, label: name.slice(0, 24), type: "link", href: "/", links: [], visible: true };
+  let id = `m-${rand(8)}`;
+  while (items.some((i) => i.id === id)) id = `m-${rand(8)}`;
+  let item: MenuItem = { id, label: name.slice(0, 24), type: "link", href: "/", links: [], visible: true };
   let slug: string | undefined;
   if (kind === "page") {
-    slug = slugify(name);
-    if (await pageCol().findOne({ _id: slug }, { projection: { _id: 1 } })) slug = `${slug}-${rand(4)}`;
-    await pageCol().insertOne({
-      _id: slug,
-      values: newMainPage(name) as unknown as SectionValues,
-      updatedAt: new Date(),
-    });
+    const base = slugify(name);
+    // The slug is the page's _id, so a page created at the same moment (or a
+    // random suffix that's already taken) shows up as a duplicate key: retry.
+    for (let attempt = 0; ; attempt++) {
+      const candidate = attempt === 0 ? base : `${base}-${rand(4)}`;
+      try {
+        await pageCol().insertOne({
+          _id: candidate,
+          values: newMainPage(name) as unknown as SectionValues,
+          updatedAt: new Date(),
+        });
+        slug = candidate;
+        break;
+      } catch (e) {
+        if ((e as { code?: number })?.code !== 11000 || attempt >= 5) throw e;
+      }
+    }
     item = { ...item, type: "link", href: `/s/${slug}` };
   } else if (kind === "dropdown") {
     item = { ...item, type: "dropdown", href: "", links: [{ label: "Home", href: "/" }] };
@@ -151,12 +163,24 @@ export async function writeMainPage(slug: string, values: SectionValues): Promis
   return res.matchedCount > 0;
 }
 
-/** Deletes the page and the menu item(s) that link to it. */
+/** Deletes the page, the menu item(s) that link to it and any dropdown links to it. */
 export async function deleteMainPage(slug: string) {
   await pageCol().deleteOne({ _id: slug });
+  const href = `/s/${slug}`;
   const { items } = await readItems();
-  const kept = items.filter((i) => !(i.type === "link" && i.href === `/s/${slug}`));
-  if (kept.length !== items.length) await writeMenu(kept.length ? kept : defaultMenu);
+  let changed = false;
+  const kept = items
+    .filter((i) => {
+      const gone = i.type === "link" && i.href === href;
+      if (gone) changed = true;
+      return !gone;
+    })
+    .map((i) => {
+      if (i.type !== "dropdown" || !i.links?.some((l) => l.href === href)) return i;
+      changed = true;
+      return { ...i, links: i.links.filter((l) => l.href !== href) };
+    });
+  if (changed) await writeMenu(kept.length ? kept : defaultMenu);
 }
 
 export async function listMainSlugs(): Promise<string[]> {

@@ -1,7 +1,7 @@
 // QA: Careers "Apply" popup → saved application → HR + applicant emails → admin.
 // Runs its own fake SMTP server on :2525 that captures the emails, so start
 // the app pointed at it and at a scratch database:
-//   NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa SMTP_HOST=127.0.0.1 SMTP_PORT=2525 \
+//   NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa SMTP_HOST=127.0.0.1 SMTP_PORT=2525 SMTP_SECURITY=none \
 //     SMTP_USER=qa@example.com SMTP_PASS=qa npx next start -p 3100
 //   node scripts/qa/07-careers-applications.mjs
 // Applications and resumes created here are removed at the end.
@@ -10,11 +10,11 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { MongoClient } from "mongodb";
-import { BASE, check, go, launch, login, newPage, pickOption, section, sleep, summary, text } from "./lib.mjs";
+import { ENV_TEXT, BASE, check, go, launch, login, newPage, pickOption, section, sleep, summary, text } from "./lib.mjs";
 
 const QA_DB = process.env.QA_DB || "ukvalley_qa";
 if (!QA_DB.endsWith("_qa")) throw new Error(`Refusing to run against "${QA_DB}" — use a scratch *_qa database.`);
-const uri = readFileSync(".env.local", "utf8").match(/^MONGODB_URI=(.*)$/m)?.[1];
+const uri = ENV_TEXT.match(/^MONGODB_URI=(.*)$/m)?.[1];
 
 // --- fake SMTP server -------------------------------------------------------
 const mails = [];
@@ -115,8 +115,9 @@ try {
   await page.type("#apply-email", APPLICANT);
   await page.type("#apply-phone", "98765 43210");
   await page.type("#apply-location", "Pune, Maharashtra");
-  await page.type("#apply-position", roleName);
+  await page.select("#apply-position", roleName);
   await page.select("#apply-experience", "2–4 years");
+  await page.select("#apply-source", "LinkedIn");
   await page.type("#apply-portfolio", "not a link");
   await page.type("#apply-cover", "I build things that ship.\nSecond line.");
   await (await page.$("#apply-resume")).uploadFile(fakePdfPath);
@@ -155,8 +156,8 @@ try {
   const toHr = mailTo(hrDefault)[0];
   const toApplicant = mailTo(APPLICANT)[0];
   check(`HR email sent to ${hrDefault}`, !!toHr);
-  check("HR email: subject has role and name", !!toHr && subjectOf(toHr) === `New application: ${roleName} — Qa Applicant`, toHr && subjectOf(toHr));
-  check("thank-you subject", !!toApplicant && subjectOf(toApplicant) === `Application Received – ${roleName} | Ukvalley Technologies`, toApplicant && subjectOf(toApplicant));
+  check("HR email: subject has role and name", !!toHr && subjectOf(toHr) === `New application: ${roleName}, Qa Applicant`, toHr && subjectOf(toHr));
+  check("thank-you subject", !!toApplicant && subjectOf(toApplicant) === `Application Received: ${roleName} | Ukvalley Technologies`, toApplicant && subjectOf(toApplicant));
   check("thank-you uses the branded layout", !!toApplicant && /Dear Qa Applicant/.test(toApplicant.body) && /Application Details/.test(toApplicant.body) && /All rights reserved/.test(toApplicant.body));
   check("HR email: resume attached", !!toHr && /Content-Type: application\/pdf/i.test(toHr.body) && /qa-resume\.pdf/.test(toHr.body));
   check("HR email: reply goes to the applicant", !!toHr && new RegExp(`Reply-To: ${APPLICANT.replace(/\./g, "\\.")}`, "i").test(toHr.body));
@@ -177,6 +178,7 @@ try {
   await page.type("#apply-phone", "98765 43210");
   await page.type("#apply-location", "Pune");
   await page.select("#apply-experience", "2–4 years");
+  await page.select("#apply-source", "LinkedIn");
   await (await page.$("#apply-resume")).uploadFile(pdfPath);
   await page.click('[role="dialog"] button[type=submit]');
   await sleep(2500);
@@ -220,11 +222,12 @@ try {
   const mailsBefore = mailTo(APPLICANT).length;
   // The Status field is the themed dropdown (no native <select> list).
   check("status uses the themed dropdown", !(await admin.$('select[name="status"]')) && !!(await admin.$('#f-status[role="combobox"]')));
-  await pickOption(admin, "#f-status", "Shortlisted for Interview");
+  // "Interview Scheduled" is the status whose email carries the interview details.
+  await pickOption(admin, "#f-status", "Interview Scheduled");
   await sleep(300);
   check("changing the status offers an email", !!(await admin.$("#f-emailSubject")));
-  check("default Shortlisted subject filled in",
-    (await admin.$eval("#f-emailSubject", (e) => e.value).catch(() => "")) === `Interview Scheduled for ${roleName}`);
+  check("default Interview Scheduled subject filled in",
+    (await admin.$eval("#f-emailSubject", (e) => e.value).catch(() => "")) === `Interview Scheduled: ${roleName} | Ukvalley Technologies`);
   check("default message addresses the applicant", /^Dear Qa Applicant,/.test(await admin.$eval("#f-emailMessage", (e) => e.value).catch(() => "")));
   check("live preview shown", !!(await admin.$('iframe[title="Email preview"]')));
   await admin.type('textarea[name="note"]', "Strong portfolio.");
@@ -255,22 +258,22 @@ try {
   await admin.$$eval("button[type=submit]", (bs) => bs.find((b) => /Save and send email/.test(b.textContent))?.click());
   await sleep(1000);
   const asked = await admin.evaluate(() => window.__asked);
-  check("unedited default email asks to confirm", /Send the default .Shortlisted for Interview. email/.test(asked), asked.slice(0, 120));
+  check("unedited default email asks to confirm", /Send the default .Interview Scheduled. email/.test(asked), asked.slice(0, 120));
   for (let i = 0; i < 20 && mailTo(APPLICANT).length === mailsBefore; i++) await sleep(500);
   const statusMail = mailTo(APPLICANT).at(-1);
   check("status email sent to the applicant", mailTo(APPLICANT).length === mailsBefore + 1);
-  check("status email subject", !!statusMail && subjectOf(statusMail) === `Shortlisted for Interview – ${roleName} | Ukvalley Technologies`, statusMail && subjectOf(statusMail));
+  check("status email subject", !!statusMail && subjectOf(statusMail) === `Interview Scheduled: ${roleName} | Ukvalley Technologies`, statusMail && subjectOf(statusMail));
   // Quoted-printable soft breaks ("=\n") can split long lines; join them before matching.
   const statusBody = (statusMail?.body ?? "").replace(/=\n/g, "");
   check("interview details in the email",
-    /Interview Date: 20 Oct 2026/.test(statusBody) && /Interview Time: 01:00 PM/.test(statusBody) && /Join Interview/.test(statusBody) && /Umesh Khivasara/.test(statusBody));
+    /Interview Date: 20 Oct 2026/.test(statusBody) && /Interview Time: 01:00 PM/.test(statusBody) && /Join Interview/.test(statusBody) && /Ummehani Jinwala/.test(statusBody));
   const updated = await db.collection("applications").findOne({ _id: saved._id });
-  check("status + note saved", updated?.status === "shortlisted" && updated?.note === "Strong portfolio.");
-  check("status email recorded", updated?.statusEmails?.length === 1 && updated.statusEmails[0].status === "shortlisted" && updated.statusEmails[0].edited === false);
+  check("status + note saved", updated?.status === "interview-scheduled" && updated?.note === "Strong portfolio.");
+  check("status email recorded", updated?.statusEmails?.length === 1 && updated.statusEmails[0].status === "interview-scheduled" && updated.statusEmails[0].edited === false);
 
   // An edited email is sent as written, without the confirmation.
   await go(admin, `/admin/applications/${saved._id}`);
-  check("sent email listed on the application", /Status emails sent[\s\S]*Shortlisted for Interview –/.test(await text(admin)));
+  check("sent email listed on the application", /Status emails sent[\s\S]*Interview Scheduled:/.test(await text(admin)));
   await pickOption(admin, "#f-status", "On Hold");
   await sleep(300);
   await admin.$eval("#f-emailSubject", (e) => { e.focus(); e.select(); });

@@ -1,14 +1,9 @@
 "use client";
 
-import { createElement, useEffect, useRef, type ElementType, type ReactNode } from "react";
+import { createElement, useEffect, useRef, type CSSProperties, type ElementType, type ReactNode } from "react";
 // createElement is used to render a dynamic tag while passing a ref through
 // cleanly; the ref is only consumed inside an effect, never during render.
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { prefersReducedMotion, watchInView } from "@/lib/in-view";
 
 type RevealProps = {
   children: ReactNode;
@@ -24,9 +19,15 @@ type RevealProps = {
   variant?: "up" | "fade" | "clip" | "blur";
 };
 
+const DURATION_MS = 600;
+
 /**
- * Premium scroll-reveal wrapper built on GSAP ScrollTrigger.
- * Respects prefers-reduced-motion (renders final state immediately).
+ * Scroll-reveal wrapper: CSS transitions started by a shared
+ * IntersectionObserver (lib/in-view.ts), so no layout is read while the page
+ * loads. Server-rendered content is visible as-is (no JavaScript needed);
+ * only content still below the fold is hidden once the page is running, and
+ * fades in as it is scrolled to. Respects prefers-reduced-motion.
+ * The styles are the `[data-reveal]` rules in globals.css.
  */
 export function Reveal({
   children,
@@ -43,68 +44,70 @@ export function Reveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || prefersReducedMotion()) return;
 
-    const prefersReduced = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    const targets = () => (staggerChildren ? (Array.from(el.children) as HTMLElement[]) : [el]);
+    let cleanup = 0;
 
-    if (prefersReduced) {
-      gsap.set(el, { opacity: 1, y: 0, filter: "none", clipPath: "none" });
-      return;
-    }
-
-    // Content already on screen when the page appears stays as rendered.
-    // Hiding it after hydration and fading it back in made every page change
-    // look like it was still loading; only content further down animates in
-    // as it is scrolled to.
-    if (once && el.getBoundingClientRect().top < window.innerHeight * 0.9) return;
-
-    const ctx = gsap.context(() => {
-      const targets = staggerChildren
-        ? Array.from(el.children) as HTMLElement[]
-        : [el];
-
-      const fromVars: gsap.TweenVars = { opacity: 0 };
-      if (variant === "up") fromVars.y = y;
-      // "blur" variant renders as a plain fade: animating a CSS blur filter
-      // repaints the whole element every frame.
-      if (variant === "clip") fromVars.clipPath = "inset(0 0 100% 0)";
-
-      gsap.set(targets, fromVars);
-
-      gsap.to(targets, {
-        opacity: 1,
-        y: 0,
-        clipPath: "inset(0% 0% 0% 0)",
-        duration: 0.6,
-        ease: "power3.out",
-        delay,
-        stagger: staggerChildren ? stagger : 0,
-        /* GSAP leaves its final transform as an inline style, which
-           outranks every CSS hover rule and kills card hover-lifts
-           forever. Clear the inline props once the entrance is done so
-           hover effects (card-hover, universal lift) can take over. */
-        onComplete:
-          once
-            ? () =>
-                gsap.set(targets, {
-                  clearProps: "transform,filter,clipPath",
-                })
-            : undefined,
-        scrollTrigger: {
-          trigger: el,
-          start: "top 85%",
-          toggleActions: once
-            ? "play none none none"
-            : "play reverse none reverse",
-        },
+    const hide = () => {
+      window.clearTimeout(cleanup);
+      el.setAttribute("data-reveal", "hidden");
+    };
+    const show = () => {
+      const list = targets();
+      list.forEach((t, i) => {
+        t.style.transitionDelay = `${delay + (staggerChildren ? i * stagger : 0)}s`;
       });
-    }, el);
+      el.setAttribute("data-reveal", "shown");
+      if (!once) return;
+      // Once it has played, drop the reveal styles so the element's own
+      // transitions and hover lifts work as before.
+      const total = (delay + (staggerChildren ? list.length * stagger : 0)) * 1000 + DURATION_MS + 80;
+      cleanup = window.setTimeout(() => {
+        el.removeAttribute("data-reveal");
+        list.forEach((t) => (t.style.transitionDelay = ""));
+      }, total);
+    };
 
-    return () => ctx.revert();
-  }, [delay, y, stagger, staggerChildren, once, variant]);
+    let stop = () => {};
+    stop = watchInView(el, ({ visible, first, above }) => {
+      if (first) {
+        // Already on screen (or scrolled past) when the page appeared: leave it as rendered.
+        if (visible || above) {
+          if (once) stop();
+          return;
+        }
+        hide();
+        return;
+      }
+      if (visible) {
+        show();
+        if (once) stop();
+      } else if (!once && !above) {
+        hide();
+      }
+    });
 
-  // eslint-disable-next-line react-hooks/refs -- ref is forwarded to a host element and only read inside the effect above
-  return createElement(Tag, { ref, className }, children);
+    return () => {
+      stop();
+      window.clearTimeout(cleanup);
+      el.removeAttribute("data-reveal");
+      for (const t of targets()) t.style.transitionDelay = "";
+    };
+  }, [delay, stagger, staggerChildren, once]);
+
+  // 28px is the stylesheet's default distance
+  const style = y === 28 ? undefined : ({ "--reveal-y": `${y}px` } as CSSProperties);
+  return createElement(
+    Tag,
+    // eslint-disable-next-line react-hooks/refs -- ref is forwarded to a host element and only read inside the effect above
+    {
+      ref,
+      className,
+      style,
+      "data-reveal-variant": variant === "blur" ? "fade" : variant,
+      ...(staggerChildren ? { "data-reveal-children": "" } : {}),
+    },
+    children
+  );
 }

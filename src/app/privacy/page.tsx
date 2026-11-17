@@ -81,7 +81,7 @@ export default async function PrivacyPage() {
               ))}
               <div className="rounded-2xl border border-uk-line bg-uk-card p-6 text-sm text-uk-gray">
                 <p className="font-semibold text-uk-heading">{ukText("Questions about privacy?")}</p>
-                <p className="mt-1">{ukText("Email ")}<a href={ukText(`mailto:${company.email}`)} className="text-uk-blue hover:text-uk-blue-bright">{ukText(company.email)}</a>{ukText("and we'll get back to you.")}</p>
+                <p className="mt-1">{ukText("Email ")}<a href={ukText(`mailto:${company.email}`)} className="text-uk-blue hover:text-uk-blue-bright">{ukText(company.email)}</a>{" "}{ukText("and we'll get back to you.")}</p>
               </div>
             </Reveal>
           </Container>

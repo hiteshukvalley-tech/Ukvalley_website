@@ -16,7 +16,9 @@ const SRC = "scripts/brand-src";
 mkdirSync("public/brand", { recursive: true });
 
 // Header / footer logo: trim the empty margin, 2× the 40 px display height.
-await sharp(`${SRC}/uk_header.webp`).trim().resize({ height: 120 }).png({ compressionLevel: 9 }).toFile("public/brand/ukvalley-logo.png");
+// Palette PNG: looks the same as full colour (flat brand blues) at 16 KB
+// instead of 41 KB, and the loader preloads it on every page.
+await sharp(`${SRC}/uk_header.webp`).trim().resize({ height: 120 }).png({ compressionLevel: 9, palette: true, quality: 100, effort: 10 }).toFile("public/brand/ukvalley-logo.png");
 
 // Icons from the round mark.
 const mark = sharp(`${SRC}/uk2.png`).trim();

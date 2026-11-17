@@ -75,6 +75,48 @@ To launch on the production domain:
    `<link rel="canonical">` and `<meta name="robots">` (`index, follow`) are
    right. Then submit the sitemap in Google Search Console.
 
+### Google Tag Manager
+
+Only the GTM container is installed in code (`src/components/site/gtm.tsx`,
+`src/lib/analytics.ts`). GA4, Meta Pixel and other tags are added inside the
+GTM dashboard.
+
+- Set `NEXT_PUBLIC_GTM_ID=GTM-…` in Render, then **redeploy**: the value is
+  baked in at build time. Empty (or the `GTM-XXXXXXX` placeholder) means no
+  tracking; `NEXT_PUBLIC_GTM_ENABLED=false` switches it off for an environment.
+- GTM loads on the public site only, never on `/admin` (its URLs carry
+  applicant emails).
+- dataLayer events:
+  - `page_view` on every page, including client-side route changes
+    (`page_location`, `page_path`, `page_title`). In GTM, fire the GA4 config
+    tag on this custom event and turn off its automatic page view, or each
+    first page is counted twice.
+  - `utm_captured` once per page load: `utm_source`, `utm_medium`,
+    `utm_campaign`, `utm_term`, `utm_content`, `gclid`, `fbclid`, `referrer`,
+    `landing_page`. These come from the first-touch cookie `uk_attribution`,
+    which lasts 30 days and is replaced only when a visit brings new UTM tags
+    or click IDs.
+  - `form_submit` (with the same attribution values):
+    - Contact page and scoping popup: `form_name` `contact` or
+      `scoping_popup`, plus `service`, `budget` and `delivery` (`saved`, `web3forms` or
+      `email_app`).
+    - Careers application: `form_name` `career_application`, `job_position`.
+    - No names, emails, phone numbers or messages are ever pushed.
+- Add new events with `trackEvent(name, data)` from `@/lib/analytics`.
+
+### Web3Forms
+
+The contact form and the scoping popup save each enquiry in *Admin → Leads*
+and also email a copy through [Web3Forms](https://web3forms.com) to the inbox
+that owns the access key (`src/lib/web3forms.ts`). If saving fails, Web3Forms
+still delivers it; only if both fail does the visitor's email app open.
+
+- Set `NEXT_PUBLIC_WEB3FORMS_KEY` in Render, then **redeploy** (read at build
+  time). Empty means no email copies.
+- Sent from the browser: Web3Forms' free plan refuses server-side requests.
+  The key is public by design; it can only send to its own inbox.
+- `form_submit` reports `delivery` as `saved`, `web3forms` or `email_app`.
+
 ### Platform notes
 
 - Render runs one long-lived Node server, so the MongoDB connection pool and
@@ -91,6 +133,13 @@ Run the suites against a production build that uses a scratch database:
 
 ```bash
 NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa npx next build
-NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa npx next start -p 3100
-node scripts/qa/01-access-and-pages.mjs   # …02, 03, 04, 05 (home page editor)
+NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa QA_ALLOW_LOCAL_SMTP=1 \
+  SMTP_HOST=127.0.0.1 SMTP_PORT=2525 SMTP_SECURITY=none SMTP_USER=qa@example.com SMTP_PASS=qa \
+  npx next start -p 3100
+node scripts/qa/01-access-and-pages.mjs   # …02 … 15 (15: every text on every page is editable)
 ```
+
+The SMTP_* values send every email to the suites' fake mail server on
+localhost:2525, so no real email goes out. `QA_ALLOW_LOCAL_SMTP=1` lets the SMTP settings accept the suites' fake mail
+server on localhost:2525. Never set it on Render: in production, SMTP hosts on
+local or private addresses are refused.

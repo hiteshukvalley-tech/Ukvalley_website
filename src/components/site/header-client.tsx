@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import Link from "@/components/site/intent-link";
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import {
   Menu,
-  X,
   ChevronDown,
   ArrowRight,
   ArrowUpRight,
@@ -55,13 +55,6 @@ import {
   HeartHandshake,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetClose,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import type { NavLink } from "@/lib/site-core";
 import { defaultHeader, type HeaderContent } from "@/lib/site-content-schema";
 import { cn } from "@/lib/utils";
@@ -69,6 +62,10 @@ import { ThemeToggle } from "./theme-toggle";
 import { MenuIcon } from "./menu-icon";
 import { Tx } from "./texts-context";
 import { SiteLogo } from "./site-logo";
+
+/* The hamburger menu panel is downloaded on demand (see mobile-menu.tsx). */
+const loadMobileMenu = () => import("./mobile-menu");
+const MobileMenu = dynamic(() => loadMobileMenu().then((m) => m.MobileMenu), { ssr: false });
 
 /* Icons for the top-level bar items, keyed by menu (not by label, so the
    admin can rename a menu without losing its icon). */
@@ -180,7 +177,21 @@ export function HeaderClient({
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
+  // The menu panel mounts (and its code downloads) the first time it is reached for.
+  const [menuWanted, setMenuWanted] = useState(false);
+  const wantMenu = () => {
+    void loadMobileMenu();
+    if (!menuWanted) setMenuWanted(true);
+  };
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  // The closed dropdowns ship as plain links (crawlable, ~4 elements per item);
+  // their icons and hover arrows are added the first time the visitor reaches
+  // for the menu. Drawing them up front added ~500 elements and ~120 SVGs to
+  // every page's HTML, all hidden, all hydrated on load.
+  const [primed, setPrimed] = useState(false);
+  const prime = () => {
+    if (!primed) setPrimed(true);
+  };
   const [lastPath, setLastPath] = useState(pathname);
   const lastY = useRef(0);
   const navRef = useRef<HTMLElement>(null);
@@ -241,7 +252,9 @@ export function HeaderClient({
         className={cn(
           "relative border-b transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
           scrolled
-            ? "border-uk-line bg-uk-surface/85 shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] backdrop-blur-xl dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)]"
+            ? // The blur is redrawn on every scroll frame (Safari most of all): a light one on
+              // desktop, none on phones and tablets, where a near-solid bar looks the same.
+              "border-uk-line bg-uk-surface/85 shadow-[0_8px_30px_-12px_rgba(15,23,42,0.12)] backdrop-blur-md pointer-coarse:bg-uk-surface/95 pointer-coarse:backdrop-blur-none dark:shadow-[0_8px_30px_-12px_rgba(0,0,0,0.35)]"
             : "border-transparent bg-transparent"
         )}
       >
@@ -276,6 +289,8 @@ export function HeaderClient({
             ref={navRef}
             className="hidden items-center gap-1 xl:flex"
             aria-label="Primary"
+            onPointerEnter={prime}
+            onFocus={prime}
             onMouseLeave={() => setOpenMenu(null)}
           >
             {menus.map((m) =>
@@ -313,6 +328,7 @@ export function HeaderClient({
                   label={m.label}
                   items={m.items}
                   icons={icons}
+                  decorated={primed}
                   wide={m.wide}
                   alignRight={i_isLast(m.id)}
                   active={m.items.some((i) => isActive(i.href))}
@@ -337,78 +353,32 @@ export function HeaderClient({
             </Button>
 
             {/* Mobile trigger */}
-            {/* modal="trap-focus": keyboard focus stays inside the menu (for
-                accessibility) but the page is NOT scroll-locked, so the site
-                stays scrollable while the hamburger menu is open. */}
-            <Sheet open={open} onOpenChange={setOpen} modal="trap-focus">
-              <SheetTrigger
-                render={
-                  <button
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-uk-line text-uk-heading transition-colors hover:bg-uk-surface-2 xl:hidden"
-                    aria-label="Open menu"
-                  >
-                    <Menu className="h-5 w-5" />
-                  </button>
-                }
+            <button
+              type="button"
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-uk-line text-uk-heading transition-colors hover:bg-uk-surface-2 xl:hidden"
+              aria-label="Open menu"
+              aria-haspopup="dialog"
+              aria-expanded={open}
+              onPointerEnter={wantMenu}
+              onTouchStart={wantMenu}
+              onFocus={wantMenu}
+              onClick={() => {
+                wantMenu();
+                setOpen(true);
+              }}
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+            {menuWanted && (
+              <MobileMenu
+                open={open}
+                onOpenChange={setOpen}
+                menus={menus}
+                icons={icons}
+                menuIcon={(m) => (m.type === "link" ? menuIcon(m) : (topLevelIcons[m.id] ?? <Layers className="h-4 w-4" />))}
+                content={c}
               />
-              <SheetContent
-                side="right"
-                // The header row below renders its own close (X) button, so
-                // turn off SheetContent's built-in one to avoid two X icons.
-                showCloseButton={false}
-                // The dimmed overlay must receive taps: tapping beside the
-                // menu is how phone users expect to close it. (It used to be
-                // pointer-events-none, which made outside taps do nothing.)
-                className="w-[88vw] max-w-sm border-l border-uk-line bg-uk-surface p-0 backdrop-blur-xl"
-              >
-                <div className="flex items-center justify-between border-b border-uk-line px-5 py-4">
-                  <SheetTitle className="font-heading text-lg font-bold text-uk-heading">
-                    <Tx>{c.menuTitle}</Tx>
-                  </SheetTitle>
-                  <SheetClose
-                    render={
-                      <button
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-uk-muted hover:text-uk-heading"
-                        aria-label="Close menu"
-                      >
-                        <X className="h-5 w-5" />
-                      </button>
-                    }
-                  />
-                </div>
-                {/* data-lenis-prevent: let the wheel scroll the menu's own
-                    list instead of being captured by the page smooth-scroll */}
-                <div className="flex flex-col gap-1 overflow-y-auto overscroll-contain px-3 py-4" data-lenis-prevent>
-                  {menus.map((m) =>
-                    m.type === "link" ? (
-                      <Link
-                        key={m.id}
-                        href={m.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-uk-body hover:bg-uk-surface-2 hover:text-uk-heading"
-                      >
-                        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue" aria-hidden>
-                          {menuIcon(m)}
-                        </span>
-                        <Tx>{m.label}</Tx>
-                      </Link>
-                    ) : (
-                      <MobileGroup key={m.id} menuKey={m.id} label={m.label} items={m.items} icons={icons} onClose={() => setOpen(false)} />
-                    )
-                  )}
-                  <div className="mt-3 flex flex-col gap-3 px-2">
-                    <Button
-                      nativeButton={false}
-                      className="bg-uk-blue text-white hover:bg-uk-blue-bright"
-                      render={<Link href={c.ctaHref} onClick={() => setOpen(false)} />}
-                    >
-                      <Tx>{c.ctaLabel}</Tx>
-                      <ArrowRight className="ml-1.5 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+            )}
           </div>
         </div>
       </div>
@@ -429,6 +399,7 @@ function NavDropdown({
   label,
   items,
   icons,
+  decorated = true,
   active = false,
   wide = false,
   alignRight = false,
@@ -439,6 +410,8 @@ function NavDropdown({
   label: string;
   items: NavLink[];
   icons?: Record<string, React.ReactNode>;
+  /** false: items render as bare links until the menu is first reached for */
+  decorated?: boolean;
   active?: boolean;
   /** Two-column menu for the longer Solutions / Hire lists. */
   wide?: boolean;
@@ -448,13 +421,28 @@ function NavDropdown({
   setOpenMenu: (key: string | null) => void;
 }) {
   const open = openMenu === menuKey;
+  // Opening by keyboard/touch without a hover first still gets the icons.
+  const decorate = decorated || open;
+  const panelId = useId();
+  // Hovering opens the menu just before the click lands; that click must not
+  // close it again. Only a menu opened by a click is closed by one.
+  const openedByHover = useRef(false);
   return (
     <div className="relative">
       <button
-        onClick={() => setOpenMenu(open ? null : menuKey)}
-        onMouseEnter={() => setOpenMenu(menuKey)}
+        type="button"
+        onClick={() => {
+          const keep = open && openedByHover.current;
+          openedByHover.current = false;
+          if (!keep) setOpenMenu(open ? null : menuKey);
+        }}
+        onMouseEnter={() => {
+          if (open) return;
+          openedByHover.current = true;
+          setOpenMenu(menuKey);
+        }}
         aria-expanded={open}
-        aria-haspopup="true"
+        aria-controls={panelId}
         className={cn(
           "group/btn relative flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm transition-colors",
           active || open
@@ -488,6 +476,7 @@ function NavDropdown({
         />
       </button>
       <div
+        id={panelId}
         className={cn(
           "absolute top-full pt-3 transition-all duration-300",
           alignRight ? "right-0" : "left-0",
@@ -507,7 +496,7 @@ function NavDropdown({
               onClick={() => setOpenMenu(null)}
               className="group/item flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-uk-surface-2"
             >
-              {icons?.[item.label] ? (
+              {!decorate ? null : icons?.[item.label] ? (
                 <span
                   className="flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-uk-blue/10 text-uk-blue transition-all duration-200 group-hover/item:bg-uk-blue group-hover/item:text-uk-white"
                   aria-hidden
@@ -520,71 +509,13 @@ function NavDropdown({
               <span className="flex-1 text-sm font-medium leading-snug text-uk-body transition-colors group-hover/item:text-uk-heading">
                 <Tx>{item.label}</Tx>
               </span>
-              <ArrowUpRight className="h-3.5 w-3.5 flex-none text-uk-blue opacity-0 transition-opacity group-hover/item:opacity-100" />
+              {decorate && (
+                <ArrowUpRight className="h-3.5 w-3.5 flex-none text-uk-blue opacity-0 transition-opacity group-hover/item:opacity-100" />
+              )}
             </Link>
           ))}
         </div>
       </div>
-    </div>
-  );
-}
-
-function MobileGroup({
-  menuKey,
-  label,
-  items,
-  icons,
-  onClose,
-}: {
-  menuKey: string;
-  label: string;
-  items: NavLink[];
-  icons?: Record<string, React.ReactNode>;
-  onClose: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <div className="border-b border-uk-line">
-      <button
-        onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between px-3 py-3 text-sm font-semibold text-uk-heading"
-        aria-expanded={expanded}
-      >
-        <span className="flex items-center gap-2.5">
-          <span
-            className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue"
-            aria-hidden
-          >
-            {topLevelIcons[menuKey] ?? <Layers className="h-4 w-4" />}
-          </span>
-          <Tx>{label}</Tx>
-        </span>
-        <ChevronDown
-          className={cn(
-            "h-4 w-4 text-uk-muted transition-transform",
-            expanded && "rotate-180"
-          )}
-        />
-      </button>
-      {expanded && (
-        <div className="flex flex-col gap-0.5 pb-2">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className="flex items-center gap-3 rounded-lg px-3 py-2 pl-6 text-sm text-uk-muted hover:bg-uk-surface-2 hover:text-uk-heading"
-            >
-              {icons?.[item.label] && (
-                <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md bg-uk-blue/12 text-uk-blue">
-                  {icons[item.label]}
-                </span>
-              )}
-              <Tx>{item.label}</Tx>
-            </Link>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

@@ -79,6 +79,30 @@ export async function getIndustries(): Promise<Industry[]> {
   );
 }
 
+/** What the industry switchboard (components/site/industries.tsx) shows. */
+export type IndustryCard = Pick<Industry, "name" | "slug" | "icon" | "challenges" | "compliance" | "outcomes" | "proof" | "featuredCase"> & {
+  overview: string[];
+};
+
+/**
+ * Only the fields the switchboard renders. It is a client component, so every
+ * prop is serialised into the page: the full records (FAQs, deliverables, the
+ * whole overview) added ~40 KB to the home page's HTML.
+ */
+export function toIndustryCards(list: Industry[]): IndustryCard[] {
+  return list.map(({ name, slug, icon, overview, challenges, compliance, outcomes, proof, featuredCase }) => ({
+    name,
+    slug,
+    icon,
+    overview: overview.slice(0, 1),
+    challenges,
+    compliance,
+    outcomes,
+    ...(proof ? { proof } : {}),
+    ...(featuredCase ? { featuredCase } : {}),
+  }));
+}
+
 /** Uncached list for the admin (drafts included), in display order. */
 export async function listIndustriesForAdmin(): Promise<{ items: IndustryRecord[]; dbError?: string }> {
   if (!hasDatabaseUrl()) return { items: [], dbError: "MONGODB_URI is not set." };

@@ -3,7 +3,7 @@ import { Readable } from "node:stream";
 import { GridFSBucket, ObjectId } from "mongodb";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import {
-  APPLICATION_STATUSES, INTERVIEW_STATUSES, isApplicationStatus,
+  APPLICATION_STATUSES, isApplicationStatus,
   type ApplicationInput, type ApplicationStatus,
 } from "@/lib/applications-validation";
 
@@ -26,6 +26,8 @@ export type Application = ApplicationInput & {
   emails?: { hr?: boolean; applicant?: boolean };
   /** hiring-status emails HR sent the applicant from the admin, oldest first */
   statusEmails?: StatusEmailRecord[];
+  /** HR cancelled the current interview (the latest interview entry, sent before `at`) */
+  interviewCancelled?: InterviewCancellation;
   createdAt: Date;
   updatedAt?: Date;
 };
@@ -40,7 +42,11 @@ export type StatusEmailRecord = {
   /** email of the admin who sent it */
   sentBy: string;
   sentAt: Date;
+  /** false when HR saved the change (e.g. a reschedule) without emailing the applicant */
+  emailed?: boolean;
 };
+
+export type InterviewCancellation = { at: Date; by: string; reason?: string };
 
 type ApplicationDoc = Omit<Application, "id"> & { _id: string };
 
@@ -60,7 +66,11 @@ function cleanName(raw: string): string {
   return /\.pdf$/i.test(name) ? name : "resume.pdf";
 }
 
-/** Whether this email may apply now: not the same role twice in a day, and at most 3 an hour. */
+/**
+ * Whether this email may apply now: not the same role twice in a day, and at most 3 an hour.
+ * Best effort: two submissions racing through this check can both be saved
+ * (no unique index enforces it), which is acceptable for a spam guard.
+ */
 export async function checkApplicationLimits(email: string, position: string): Promise<"ok" | "duplicate" | "limited"> {
   const now = Date.now();
   const recent = await col()
@@ -111,6 +121,26 @@ export async function recordStatusEmail(id: string, entry: StatusEmailRecord) {
   await col().updateOne({ _id: id }, { $push: { statusEmails: entry } });
 }
 
+/**
+ * Saves a new interview date for the applicant (Reschedule on the interviews
+ * lists): sets the status to "Interview Rescheduled", adds the new details as
+ * the latest interview entry and lifts an earlier cancellation. Returns false
+ * when the application no longer exists.
+ */
+export async function rescheduleInterview(id: string, entry: StatusEmailRecord): Promise<boolean> {
+  const res = await col().updateOne(
+    { _id: id },
+    { $set: { status: "rescheduled", updatedAt: new Date() }, $push: { statusEmails: entry }, $unset: { interviewCancelled: "" } }
+  );
+  return res.matchedCount > 0;
+}
+
+/** Cancels the applicant's current interview. Returns false when the application no longer exists. */
+export async function cancelInterview(id: string, cancellation: InterviewCancellation): Promise<boolean> {
+  const res = await col().updateOne({ _id: id }, { $set: { interviewCancelled: cancellation, updatedAt: new Date() } });
+  return res.matchedCount > 0;
+}
+
 export type ApplicationCounts = Record<ApplicationStatus | "all", number>;
 export type RoleSummary = { position: string; total: number; new: number; latest: Date };
 
@@ -142,8 +172,6 @@ export type ColumnFilters = {
   position?: string;
   /** one of EXPERIENCE_OPTIONS, matched exactly */
   experience?: string;
-  /** "scheduled": an interview date was sent; "none": not yet */
-  interview?: "" | "scheduled" | "none";
 };
 
 /** Mongo conditions for the column filters (text ones match anywhere, ignoring case). */
@@ -155,9 +183,6 @@ function columnConditions(c: ColumnFilters = {}): Record<string, unknown>[] {
     if (v) out.push({ [field]: { $regex: escapeRegex(v.slice(0, 100)), $options: "i" } });
   }
   if (c.experience?.trim()) out.push({ experience: c.experience.trim() });
-  const interview = { statusEmails: { $elemMatch: { status: { $in: [...INTERVIEW_STATUSES] }, "details.interviewDate": { $nin: [null, ""] } } } };
-  if (c.interview === "scheduled") out.push(interview);
-  if (c.interview === "none") out.push({ $nor: [interview] });
   return out;
 }
 
@@ -253,16 +278,38 @@ export async function getApplication(id: string): Promise<Application | null> {
 
 /** The newest application from this email address (ignoring case), or null. */
 export async function findApplicationByEmail(email: string): Promise<Application | null> {
-  if (!hasDatabaseUrl() || !email.trim()) return null;
+  const needle = String(email ?? "").trim().toLowerCase().slice(0, 200);
+  if (!hasDatabaseUrl() || !needle) return null;
   try {
-    const doc = await col().findOne(
-      { email: { $regex: `^${escapeRegex(email.trim())}$`, $options: "i" } },
-      { sort: { createdAt: -1 } }
-    );
+    // Emails are saved lowercase, so an exact match normally finds it; the
+    // case-insensitive collation only covers rows saved before that.
+    const doc =
+      (await col().findOne({ email: needle }, { sort: { createdAt: -1 } })) ??
+      (await col().findOne({ email: needle }, { sort: { createdAt: -1 }, collation: { locale: "en", strength: 2 } }));
     return doc ? toApplication(doc) : null;
   } catch {
     return null;
   }
+}
+
+const SEND_WINDOW_MS = 60 * 60 * 1000;
+const SEND_LIMIT = 30;
+const sendLog = new Map<string, number[]>();
+
+/**
+ * Counts one manual / chat email sent by this admin to an applicant. False when
+ * they already sent SEND_LIMIT in the last hour. In memory (per server process).
+ */
+export function takeEmailSendSlot(userId: string): boolean {
+  const now = Date.now();
+  const recent = (sendLog.get(userId) ?? []).filter((t) => now - t < SEND_WINDOW_MS);
+  if (recent.length >= SEND_LIMIT) {
+    sendLog.set(userId, recent);
+    return false;
+  }
+  recent.push(now);
+  sendLog.set(userId, recent);
+  return true;
 }
 
 /** Number of applications still marked "new", or null when it can't be read. */
@@ -282,6 +329,24 @@ export async function updateApplication(id: string, patch: { status: Application
 }
 
 /** Deletes the application and its resume. */
+/**
+ * A job role was renamed in Careers. Applications store the role's name, so
+ * move the ones under the old name (ignoring case and extra spaces) to the new
+ * name: the role keeps its applicants instead of the old name showing up as a
+ * separate role. Returns how many applications were moved.
+ */
+export async function renameApplicationsPosition(from: string, to: string): Promise<number> {
+  const norm = (s: string) => s.replace(/\s+/g, " ").trim();
+  const [oldName, newName] = [norm(from), norm(to)];
+  if (!oldName || !newName || oldName === newName) return 0;
+  const words = oldName.split(" ").map(escapeRegex).join("\\s+");
+  const res = await col().updateMany(
+    { position: { $regex: `^\\s*${words}\\s*$`, $options: "i" } },
+    { $set: { position: newName } }
+  );
+  return res.modifiedCount;
+}
+
 export async function deleteApplication(id: string) {
   const doc = await col().findOneAndDelete({ _id: id });
   if (doc && ObjectId.isValid(doc.resume.fileId)) {

@@ -23,15 +23,15 @@ export type Location = {
 export const locations: Location[] = [
   {
     slug: "maharashtra",
-    city: "Maharashtra HQ",
+    city: "Nashik HQ",
     region: "Maharashtra",
     country: "India",
     type: "HQ",
     icon: "mapPin",
     blurb:
-      "Ukvalley's headquarters in Maharashtra, where engineering, delivery management and our own product development happen, with an India cost base that runs 30–40% below metro agencies.",
+      "Ukvalley's headquarters in Nashik, Maharashtra, where engineering, delivery management and our own product development happen, with an India cost base that runs 30–40% below metro agencies.",
     paragraphs: [
-      "Maharashtra is where Ukvalley is built. Our headquarters here houses the engineering core, architects, full-stack teams, mobile and QA, alongside delivery management and leadership. The registered entity, CIN and GSTIN all trace to Maharashtra, and this is where the scoping calls happen before any code is written.",
+      "Nashik, Maharashtra is where Ukvalley is built. Our headquarters here houses the engineering core, architects, full-stack teams, mobile and QA, alongside delivery management and leadership. The registered entity, CIN and GSTIN all trace to Maharashtra, and this is where the scoping calls happen before any code is written.",
       "Choosing a base outside the metros was deliberate: an India-tier-2 cost structure lets us charge 30–40% below metro agencies without the overhead showing up as compromise. The engineers who scope your project in a call from our head office are the engineers who build it, no brokers, no offshoring pools between you and the work.",
       "The office also anchors our product portfolio, TeleValley, Ezzu CRM, our Custom ERP, the LMS, EventoValley and Emailz are all built and run from here, which means the same engineers who maintain production systems for ourselves are the ones maintaining yours.",
     ],
@@ -43,7 +43,7 @@ export const locations: Location[] = [
     ],
     timezone: "IST (UTC+5:30)",
     languages: ["English", "Hindi", "Marathi"],
-    address: "Roongta Business Centre, Maharashtra 422002, India",
+    address: "Roongta Business Centre, Nashik, Maharashtra 422002, India",
     faqs: [
       { q: "Can we visit the head office?", a: "Yes, clients visit regularly for scoping workshops and sprint reviews. Email us in advance and we'll set an agenda with the architects on your project." },
       { q: "Is the whole team at the head office?", a: "The engineering core is here, with a Pune office and remote engineers across India. Your project team is introduced by name before the first sprint." },

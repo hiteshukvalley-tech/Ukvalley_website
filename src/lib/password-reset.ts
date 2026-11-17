@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
-import { envUser } from "@/lib/admin-auth";
+import { authSecret, envUser } from "@/lib/admin-auth";
 import { getDb } from "@/lib/db/client";
 import { hasMailer, sendMail } from "@/lib/mailer";
 import { setOwnerPassword } from "@/lib/owner-password";
@@ -41,9 +41,14 @@ const ensureIndex = () => (indexReady ??= col().createIndex({ purgeAt: 1 }, { ex
   throw e;
 }));
 
-/** Keyed hash, so a leaked database row can't be used to find the code. */
+/**
+ * Keyed hash, so a leaked database row can't be used to find the code. Throws
+ * without a proper AUTH_SECRET (never an empty key).
+ */
 const digest = (kind: string, email: string, value: string) =>
-  createHmac("sha256", process.env.AUTH_SECRET ?? "").update(`${kind}|${email}|${value}`).digest("hex");
+  createHmac("sha256", authSecret()).update(`${kind}|${email}|${value}`).digest("hex");
+
+const hasSecret = () => (process.env.AUTH_SECRET ?? "").length >= 16;
 
 const sameHash = (a: string | undefined, b: string) =>
   !!a && a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
@@ -52,9 +57,11 @@ const live = (d?: Date) => !!d && d.getTime() > Date.now();
 
 /**
  * Whether codes can be delivered: SMTP is configured, or this is local
- * development, where the code is printed in the terminal instead.
+ * development, where the code is printed in the terminal instead. Always off
+ * without a proper AUTH_SECRET, which keys the stored hashes.
  */
-export const canSendResetCodes = async () => (await hasMailer()) || process.env.NODE_ENV !== "production";
+export const canSendResetCodes = async () =>
+  hasSecret() && ((await hasMailer()) || process.env.NODE_ENV !== "production");
 
 /** Whether this email belongs to the owner or an active database user. */
 async function accountExists(email: string): Promise<"owner" | "user" | null> {
@@ -74,21 +81,30 @@ export async function requestResetCode(email: string): Promise<RequestOutcome> {
   if (!(await accountExists(email))) return "sent";
 
   const now = new Date();
-  const doc = await col().findOne({ _id: email });
-  if (doc?.sentAt && now.getTime() - doc.sentAt.getTime() < RESEND_AFTER_MS) return "wait";
-  if (doc && doc.sent >= MAX_CODES_PER_HOUR) return "limited";
-
   const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
-  await col().updateOne(
-    { _id: email },
-    {
-      $set: { codeHash: digest("code", email, code), codeExpiresAt: new Date(now.getTime() + CODE_TTL_MS), tries: 0, sentAt: now },
-      $unset: { tokenHash: "", tokenExpiresAt: "" },
-      $inc: { sent: 1 },
-      $setOnInsert: { purgeAt: new Date(now.getTime() + WINDOW_MS) },
-    },
-    { upsert: true }
-  );
+  // The limits are part of the update's filter, so two requests at once can't
+  // both pass them. When the document exists but fails them, the upsert tries
+  // to insert a second one with the same _id, which fails with code 11000.
+  try {
+    await col().updateOne(
+      {
+        _id: email,
+        sent: { $lt: MAX_CODES_PER_HOUR },
+        $or: [{ sentAt: { $exists: false } }, { sentAt: { $lte: new Date(now.getTime() - RESEND_AFTER_MS) } }],
+      },
+      {
+        $set: { codeHash: digest("code", email, code), codeExpiresAt: new Date(now.getTime() + CODE_TTL_MS), tries: 0, sentAt: now },
+        $unset: { tokenHash: "", tokenExpiresAt: "" },
+        $inc: { sent: 1 },
+        $setOnInsert: { purgeAt: new Date(now.getTime() + WINDOW_MS) },
+      },
+      { upsert: true }
+    );
+  } catch (e) {
+    if ((e as { code?: number }).code !== 11000) throw e;
+    const doc = await col().findOne({ _id: email });
+    return doc && doc.sent >= MAX_CODES_PER_HOUR ? "limited" : "wait";
+  }
 
   if (!(await hasMailer())) {
     // Local development without SMTP: show the code in the server terminal.
@@ -116,20 +132,25 @@ export async function requestResetCode(email: string): Promise<RequestOutcome> {
   return "sent";
 }
 
-export type VerifyOutcome = { ok: true; token: string } | { ok: false; reason: "wrong" | "expired" };
+/** A wrong, expired or used-up code all read the same, so a guesser learns nothing. */
+export type VerifyOutcome = { ok: true; token: string } | { ok: false };
 
 /** Checks a code. A right code is used up and exchanged for a one-time token. */
 export async function verifyResetCode(email: string, code: string): Promise<VerifyOutcome> {
-  const doc = await col().findOne({ _id: email });
-  if (!doc?.codeHash || !live(doc.codeExpiresAt) || doc.tries >= MAX_TRIES) return { ok: false, reason: "expired" };
+  // Count the try before comparing, in one atomic step: parallel guesses each
+  // use up a try, and none gets through once MAX_TRIES are used.
+  const doc = await col().findOneAndUpdate(
+    { _id: email, codeHash: { $exists: true }, codeExpiresAt: { $gt: new Date() }, tries: { $lt: MAX_TRIES } },
+    { $inc: { tries: 1 } },
+    { returnDocument: "after" }
+  );
+  if (!doc?.codeHash) return { ok: false };
 
   if (!sameHash(doc.codeHash, digest("code", email, code))) {
-    const tries = doc.tries + 1;
-    await col().updateOne(
-      { _id: email },
-      tries >= MAX_TRIES ? { $set: { tries }, $unset: { codeHash: "", codeExpiresAt: "" } } : { $set: { tries } }
-    );
-    return { ok: false, reason: tries >= MAX_TRIES ? "expired" : "wrong" };
+    if (doc.tries >= MAX_TRIES) {
+      await col().updateOne({ _id: email, codeHash: doc.codeHash }, { $unset: { codeHash: "", codeExpiresAt: "" } });
+    }
+    return { ok: false };
   }
 
   const token = randomBytes(32).toString("base64url");
@@ -144,7 +165,7 @@ export async function verifyResetCode(email: string, code: string): Promise<Veri
       $max: { purgeAt: tokenExpiresAt },
     }
   );
-  return res.modifiedCount ? { ok: true, token } : { ok: false, reason: "expired" };
+  return res.modifiedCount ? { ok: true, token } : { ok: false };
 }
 
 /** Sets the new password when the token is valid. Returns false otherwise. */

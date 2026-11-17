@@ -22,7 +22,8 @@ export type SessionUser = {
   sv: number;
   /**
    * Admin sections a team member may open (see admin-access.ts). Undefined =
-   * every content section (admins, and accounts made before per-section access).
+   * every section for admins; for accounts made before per-section access,
+   * every content section except applicants' and leads' data.
    */
   access?: string[];
   /** Job title from Admin → Users (database users only; not stored in the cookie) */
@@ -46,19 +47,31 @@ function b64urlToBytes(s: string): Uint8Array {
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 }
 
-async function sign(payload: string): Promise<string> {
+/**
+ * AUTH_SECRET, the key for every signature and keyed hash in the admin panel.
+ * Throws when it is missing or too short, so nothing ever runs with a guessable key.
+ */
+export function authSecret(): string {
   const secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 16) {
     throw new Error("AUTH_SECRET is missing or too short (min 16 chars).");
   }
+  return secret;
+}
+
+async function hmac(data: string): Promise<Uint8Array> {
   const key = await crypto.subtle.importKey(
     "raw",
-    enc.encode(secret),
+    enc.encode(authSecret()),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"]
   );
-  return bytesToB64url(new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(payload))));
+  return new Uint8Array(await crypto.subtle.sign("HMAC", key, enc.encode(data)));
+}
+
+async function sign(payload: string): Promise<string> {
+  return bytesToB64url(await hmac(payload));
 }
 
 /** Constant-time string compare (hashes first so lengths never leak). */
@@ -75,27 +88,28 @@ export async function safeEqual(a: string, b: string): Promise<boolean> {
 }
 
 /**
- * The owner's session version: a keyed hash of ADMIN_PASSWORD, so rotating the
- * password signs out every existing owner session. Keyed with AUTH_SECRET, so
- * the value in the (readable) cookie reveals nothing about the password.
- * Also used with a reset password's hash (see owner-password.ts).
+ * The owner's session version: a keyed hash (HMAC-SHA256 with AUTH_SECRET) of
+ * ADMIN_PASSWORD, so rotating the password signs out every existing owner
+ * session, and the value in the (readable) cookie reveals nothing about the
+ * password. Also used with a reset password's hash and the sign-out counter
+ * (see owner-password.ts). 52 bits, so it stays a safe integer in the cookie.
  */
-export function ownerSessionVersion(password: string): number {
-  const input = `${process.env.AUTH_SECRET ?? ""}|${password}`;
-  let h = 0x811c9dc5; // FNV-1a, 32-bit
-  for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return h >>> 0;
+export async function ownerSessionVersion(password: string): Promise<number> {
+  const mac = await hmac(`owner-session|${password}`);
+  let hex = "";
+  for (const b of mac.subarray(0, 7)) hex += b.toString(16).padStart(2, "0");
+  return parseInt(hex.slice(0, 13), 16);
 }
 
-/** The env-configured owner as a session user, or null when not configured. */
-export function envUser(): SessionUser | null {
+/**
+ * The env-configured owner (who, not yet a session: no session version), or
+ * null when not configured. getOwner() in owner-password.ts adds the version.
+ */
+export function envUser(): Omit<SessionUser, "sv"> | null {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const password = process.env.ADMIN_PASSWORD;
   if (!email || !password) return null;
-  return { id: ENV_USER_ID, email, role: "admin", sv: ownerSessionVersion(password) };
+  return { id: ENV_USER_ID, email, role: "admin" };
 }
 
 /** Checks the owner credentials from the environment. */

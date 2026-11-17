@@ -64,13 +64,22 @@ export function areaForPath(pathname: string): AccessArea | null {
   return ACCESS_AREAS.find((a) => a.paths.some((base) => under(p, base))) ?? null;
 }
 
-/** A user's access as stored: `undefined` = every content area (accounts made before per-section access). */
+/**
+ * Areas holding people's personal data (applicants, their résumés and emails,
+ * contact-form leads). A team member only gets these when ticked explicitly.
+ */
+const SENSITIVE_AREAS: readonly string[] = ["applications", "leads"];
+
+/**
+ * A user's access as stored: `undefined` = every content area except the
+ * sensitive ones (accounts made before per-section access).
+ */
 export type Access = readonly string[] | undefined;
 
 /** Whether this user may use the given area. */
 export function canUseArea(role: AdminRole, access: Access, area: string): boolean {
   if (role === "admin") return true;
-  return access === undefined || access.includes(area);
+  return access === undefined ? !SENSITIVE_AREAS.includes(area) : access.includes(area);
 }
 
 /** Whether this user may open the given /admin path. */

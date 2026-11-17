@@ -171,7 +171,8 @@ export const FOOTER_DEF: SectionDef = {
     { key: "solutionsTitle", label: "Column title, Solutions", kind: "text", max: 30, required: true },
     { key: "solutionLinks", label: "Solutions column links", kind: "group", itemLabel: "Link", fields: navLinkFields, minItems: 0, maxItems: 8, hint: "A link to a solution that is unpublished or deleted is left out automatically." },
     { key: "companyTitle", label: "Column title, Company", kind: "text", max: 30, required: true },
-    { key: "companyLinks", label: "Company column links", kind: "group", itemLabel: "Link", fields: navLinkFields, minItems: 0, maxItems: 10 },
+    // 12: the built-in column already has 11 links (Careers was added), so 10 made the footer unsaveable.
+    { key: "companyLinks", label: "Company column links", kind: "group", itemLabel: "Link", fields: navLinkFields, minItems: 0, maxItems: 12 },
     { key: "contactTitle", label: "Contact box, title", kind: "text", max: 30, required: true },
     { key: "contactText", label: "Contact box, text", kind: "textarea", max: 240, rows: 3 },
     { key: "contactLinkLabel", label: "Contact box, link text", kind: "text", max: 60 },

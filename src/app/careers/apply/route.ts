@@ -1,13 +1,14 @@
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { hasDatabaseUrl } from "@/lib/db/client";
-import { getCareers } from "@/lib/careers-store";
+import { findOpenCareer } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { checkApplicationLimits, createApplication, markEmailsSent } from "@/lib/applications-store";
 import { emailBrand, sendApplicationEmails } from "@/lib/application-emails";
-import { API_URL, trustedRequestOrigin } from "@/lib/site-origin";
+import { API_HOST, API_URL, SITE_HOST, trustedRequestOrigin } from "@/lib/site-origin";
+import { clientIp } from "@/lib/client-ip";
 import {
-  RESUME_MAX_BYTES, looksLikePdf, readApplication, resumeError, validateApplication, type ApplyResult,
+  ROLE_CLOSED_MESSAGE, RESUME_MAX_BYTES, closedRoleHref, looksLikePdf, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
 
 export const dynamic = "force-dynamic";
@@ -30,6 +31,7 @@ function ipLimited(ip: string): boolean {
     return true;
   }
   if (!byIp.has(ip) && byIp.size >= MAX_TRACKED) {
+    for (const [k, ts] of byIp) if (ts.every((t) => now - t >= IP_WINDOW_MS)) byIp.delete(k);
     for (const k of byIp.keys()) {
       if (byIp.size < MAX_TRACKED) break;
       byIp.delete(k);
@@ -40,12 +42,41 @@ function ipLimited(ip: string): boolean {
   return false;
 }
 
+/**
+ * Whether the request came from this site's own pages. Browsers send Origin
+ * on every cross-site POST (Referer as a fallback), so another site can't make
+ * a visitor's browser submit applications here.
+ */
+function sameSite(h: Headers): boolean {
+  const source = h.get("origin") || h.get("referer");
+  if (!source) return false;
+  let host: string;
+  try {
+    host = new URL(source).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  // `next dev` on the local network (npm run dev:mobile) is opened at 192.168.x.x.
+  if (process.env.NODE_ENV === "development") return true;
+  return host === SITE_HOST || host === API_HOST || /^(?:localhost|127\.0\.0\.1|\[::1\])$/.test(host);
+}
+
 /** Public Careers application form: details plus a PDF resume. */
 export async function POST(request: Request) {
+  if (!sameSite(request.headers)) {
+    return json({ ok: false, kind: "invalid", errors: { form: "Could not read the form. Please reload the page and try again." } }, 403);
+  }
+
   // Refuse oversized (or unsized) requests before reading the body.
   const declared = Number(request.headers.get("content-length") ?? NaN);
   if (!Number.isFinite(declared) || declared > RESUME_MAX_BYTES + 256 * 1024) {
     return json({ ok: false, kind: "too-large", message: `The resume must be ${RESUME_MAX_BYTES / 1024 / 1024} MB or smaller.` }, 413);
+  }
+
+  // Count the attempt before reading (and buffering) the upload.
+  const ip = clientIp(request.headers);
+  if (ipLimited(ip)) {
+    return json({ ok: false, kind: "limited", message: "Too many applications from this connection. Please try again later." }, 429);
   }
 
   let form: FormData;
@@ -77,12 +108,22 @@ export async function POST(request: Request) {
   if (!hasDatabaseUrl()) {
     return json({ ok: false, kind: "unavailable", message: "Applications can't be received right now." }, 503);
   }
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0].trim() || "local";
-  if (ipLimited(ip)) {
-    return json({ ok: false, kind: "limited", message: "Too many applications from this connection. Please try again later." }, 429);
-  }
-
   try {
+    // Only roles that are open right now take applications. Checked against
+    // the database itself (not the cached list), so a role moved to drafts stops
+    // taking applications at once, even from a page or shared link opened while
+    // it was still live. The position is also repeated in the email sent to the
+    // applicant, so free text is never accepted.
+    const [check, settings] = await Promise.all([findOpenCareer(input.position), getSiteSettings()]);
+    if (check.status === "unavailable") {
+      return json({ ok: false, kind: "unavailable", message: "Applications can't be received right now." }, 503);
+    }
+    if (check.status === "closed") {
+      return json({ ok: false, kind: "closed", message: ROLE_CLOSED_MESSAGE, redirectTo: closedRoleHref(check.slug) });
+    }
+    const match = check.career;
+    input.position = match.role;
+
     const limit = await checkApplicationLimits(input.email, input.position);
     if (limit === "duplicate") {
       return json({ ok: false, kind: "duplicate", message: "You've already applied for this position. Our HR team will be in touch." });
@@ -91,10 +132,8 @@ export async function POST(request: Request) {
       return json({ ok: false, kind: "limited", message: "You've sent several applications recently. Please try again later." }, 429);
     }
 
-    const [careers, settings] = await Promise.all([getCareers(), getSiteSettings()]);
-    const match = careers.find((c) => c.role.toLowerCase() === input.position.toLowerCase());
     const app = await createApplication(
-      { ...input, position: match?.role ?? input.position, careerSlug: match?.slug ?? null },
+      { ...input, careerSlug: match.slug },
       { bytes: bytes!, name: resume!.name }
     );
 

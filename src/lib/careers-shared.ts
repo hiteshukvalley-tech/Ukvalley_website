@@ -120,7 +120,7 @@ export function postedLabel(iso: string, today: string): string {
 export const NEW_ROLE_DAYS = 7;
 
 /** Offered as suggestions in the admin's Location box (it still accepts anything). */
-export const LOCATION_SUGGESTIONS = ["Pune, Maharashtra", "Nagpur, Maharashtra", "Pune / Nagpur", "Remote (India)", "India"];
+export const LOCATION_SUGGESTIONS = ["Nashik, Maharashtra", "Pune, Maharashtra", "Nagpur, Maharashtra", "Pune / Nagpur", "Remote (India)", "India"];
 
 /** URL-safe id from a role title, e.g. "Senior React / Next.js Engineer" -> "senior-react-next-js-engineer". */
 export function slugifyRole(role: string): string {

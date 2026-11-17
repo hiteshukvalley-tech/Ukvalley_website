@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { ArrowRight, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,8 @@ import { company as defaultCompany } from "@/lib/site-core";
 import { BUDGETS, MESSAGE_MAX, SERVICES, validatePhone } from "@/lib/contact-validation";
 import { submitEnquiryAction } from "@/app/contact/actions";
 import { T, Tx, useT } from "@/components/site/texts-context";
+import { trackEvent } from "@/lib/analytics";
+import { sendToWeb3Forms } from "@/lib/web3forms";
 
 export function ContactForm({
   email = defaultCompany.email,
@@ -28,6 +30,11 @@ export function ContactForm({
   const [formError, setFormError] = useState<string>();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [messageLength, setMessageLength] = useState(0);
+  // The form can be on the page twice (the Contact page and the scoping
+  // popup opened over it): every id is unique to this copy.
+  const uid = useId();
+  const id = (name: string) => `${uid}-${name}`;
+  const errorOf = (name: string) => (errors[name] ? id(`${name}-error`) : undefined);
 
   function validate(form: HTMLFormElement) {
     const data = new FormData(form);
@@ -71,7 +78,41 @@ export function ContactForm({
       result = undefined;
     }
 
+    // Email copy of the enquiry through Web3Forms (off when no key is set).
+    // Never for bots: the server answers a filled honeypot with a fake "ok".
+    const notify = async () =>
+      !String(data.get("website") ?? "") &&
+      sendToWeb3Forms({
+        subject: `New ${source === "scoping-popup" ? "scoping call request" : "project enquiry"} from ${data.get("name")}`,
+        fromName: "Ukvalley Website",
+        replyTo: String(data.get("email") ?? ""),
+        fields: {
+          name: String(data.get("name") ?? ""),
+          email: String(data.get("email") ?? ""),
+          phone: String(data.get("phone") ?? ""),
+          company: String(data.get("company") ?? ""),
+          service: String(data.get("service") ?? ""),
+          budget: String(data.get("budget") ?? ""),
+          message: String(data.get("message") ?? ""),
+          form: source === "scoping-popup" ? "Scoping popup" : "Contact page",
+          page: location.href,
+        },
+      });
+
+    // Analytics: the form and the visitor's choices only, never their details.
+    const track = (delivery: "saved" | "web3forms" | "email_app") =>
+      trackEvent("form_submit", {
+        form_name: source === "scoping-popup" ? "scoping_popup" : "contact",
+        form_type: "lead",
+        service: String(data.get("service") ?? ""),
+        budget: String(data.get("budget") ?? ""),
+        delivery,
+      });
+
     if (result?.ok) {
+      // Saved to Admin → Leads; the email copy goes out in the background.
+      void notify();
+      track("saved");
       setStatus("sent");
       return;
     }
@@ -90,8 +131,13 @@ export function ContactForm({
       return;
     }
 
-    // Not saved (no database, or the request failed): fall back to the
-    // visitor's mail client so the enquiry is never lost.
+    // Not saved (no database, or the request failed): Web3Forms still emails
+    // it to us; failing that, the visitor's mail client, so it is never lost.
+    if (await notify()) {
+      track("web3forms");
+      setStatus("sent");
+      return;
+    }
     const subject = encodeURIComponent(`New project enquiry from ${data.get("name")}`);
     const body = encodeURIComponent(
       [
@@ -106,6 +152,7 @@ export function ContactForm({
         String(data.get("message")),
       ].join("\n")
     );
+    track("email_app");
     window.location.href = `mailto:${company.email}?subject=${subject}&body=${body}`;
     setTimeout(() => setStatus("mailto"), 400);
   }
@@ -149,9 +196,9 @@ export function ContactForm({
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-uk-blue/15 text-uk-blue">
           <Check className="h-6 w-6" />
         </span>
-        {/* The form has no backend — it hands the enquiry to the visitor's
-            email app. Say so plainly: on phones without a mail app set up
-            nothing opens, and "sent" would be untrue. */}
+        {/* The enquiry couldn't be saved, so it was handed to the visitor's
+            email app instead. Say so plainly: on phones without a mail app
+            set up nothing opens, and "sent" would be untrue. */}
         <h3 className="mt-4 font-heading text-xl font-bold text-uk-heading">
           <T>One last step, press Send in your email app.</T>
         </h3>
@@ -202,26 +249,33 @@ export function ContactForm({
         </label>
       </div>
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <Field label="Full name" htmlFor="name" error={errors.name} required>
-          <Input id="name" name="name" autoComplete="name" placeholder={t("Your name")} required maxLength={100} className="h-11 px-3.5" />
-        </Field>
-        <Field label="Email" htmlFor="email" error={errors.email} required>
-          <Input id="email" name="email" type="email" autoComplete="email" placeholder={t("you@example.com")} required maxLength={200} className="h-11 px-3.5" />
-        </Field>
-        <Field label="Company" htmlFor="company" error={errors.company}>
+        <Field label="Full name" htmlFor={id("name")} error={errors.name} required>
           <Input
-            id="company"
+            id={id("name")} name="name" autoComplete="name" placeholder={t("Your name")} required maxLength={100}
+            aria-invalid={errors.name ? true : undefined} aria-describedby={errorOf("name")} className="h-11 px-3.5"
+          />
+        </Field>
+        <Field label="Email" htmlFor={id("email")} error={errors.email} required>
+          <Input
+            id={id("email")} name="email" type="email" autoComplete="email" placeholder={t("you@example.com")} required maxLength={200}
+            aria-invalid={errors.email ? true : undefined} aria-describedby={errorOf("email")} className="h-11 px-3.5"
+          />
+        </Field>
+        <Field label="Company" htmlFor={id("company")} error={errors.company}>
+          <Input
+            id={id("company")}
             name="company"
             autoComplete="organization"
             placeholder={t("Company name")}
             maxLength={150}
             aria-invalid={errors.company ? true : undefined}
+            aria-describedby={errorOf("company")}
             className="h-11 px-3.5"
           />
         </Field>
-        <Field label="Mobile number (optional)" htmlFor="phone" error={errors.phone}>
+        <Field label="Mobile number (optional)" htmlFor={id("phone")} error={errors.phone}>
           <Input
-            id="phone"
+            id={id("phone")}
             name="phone"
             type="tel"
             inputMode="tel"
@@ -229,6 +283,7 @@ export function ContactForm({
             maxLength={18}
             placeholder={t("+91 98765 43210")}
             aria-invalid={errors.phone ? true : undefined}
+            aria-describedby={errorOf("phone")}
             onChange={(e) => {
               const value = e.target.value;
               // Flag letters/symbols the moment they are typed; the full
@@ -256,9 +311,9 @@ export function ContactForm({
         </Field>
       </div>
 
-      <Field label="What do you need?" htmlFor="service">
+      <Field label="What do you need?" htmlFor={id("service")}>
         <select
-          id="service"
+          id={id("service")}
           name="service"
           defaultValue=""
           // text-base (16px) on phones: iOS Safari auto-zooms into any
@@ -272,7 +327,11 @@ export function ContactForm({
         </select>
       </Field>
 
-      <Field label="Budget range" htmlFor="budget">
+      {/* A group of radio buttons: named by its legend, not a <label> */}
+      <fieldset className="flex flex-col gap-2">
+        <legend className="mb-2 text-sm font-medium text-uk-body">
+          <T>Budget range</T>
+        </legend>
         <div className="flex flex-wrap gap-2">
           {BUDGETS.map((b) => (
             <label key={b} className="cursor-pointer">
@@ -283,23 +342,24 @@ export function ContactForm({
             </label>
           ))}
         </div>
-      </Field>
+      </fieldset>
 
-      <Field label="Tell us about your project" htmlFor="message" error={errors.message} required>
+      <Field label="Tell us about your project" htmlFor={id("message")} error={errors.message} required>
         <Textarea
-          id="message"
+          id={id("message")}
           name="message"
           rows={5}
           maxLength={MESSAGE_MAX}
           onChange={(e) => setMessageLength(e.target.value.length)}
           placeholder={t("Goals, scope, timeline, anything that helps us reply with substance.")}
           required
-          aria-describedby="message-count"
+          aria-invalid={errors.message ? true : undefined}
+          aria-describedby={[id("message-count"), errorOf("message")].filter(Boolean).join(" ")}
           data-lenis-prevent
           className="h-32 min-h-32 resize-none overflow-y-auto overscroll-contain px-3.5 py-3 field-sizing-fixed"
         />
         <span
-          id="message-count"
+          id={id("message-count")}
           className={`self-end text-xs tabular-nums ${
             messageLength >= MESSAGE_MAX ? "font-semibold text-destructive" : "text-uk-muted"
           }`}
@@ -312,6 +372,8 @@ export function ContactForm({
         <input
           type="checkbox"
           name="consent"
+          aria-invalid={errors.consent ? true : undefined}
+          aria-describedby={errorOf("consent")}
           className="mt-0.5 h-4 w-4 flex-none rounded border-uk-line-2 bg-uk-card text-uk-blue"
         />
         <span>
@@ -327,7 +389,7 @@ export function ContactForm({
           </a>
           .
           {errors.consent && (
-            <span className="mt-1 flex items-center gap-1 text-destructive">
+            <span id={id("consent-error")} className="mt-1 flex items-center gap-1 text-destructive">
               <AlertCircle className="h-3.5 w-3.5" />
               <Tx>{errors.consent}</Tx>
             </span>
@@ -358,6 +420,7 @@ export function ContactForm({
   );
 }
 
+/** A labelled field; its error message gets the id `<field id>-error` for aria-describedby. */
 function Field({
   label,
   htmlFor,
@@ -383,7 +446,7 @@ function Field({
       </Label>
       {children}
       {error && (
-        <span className="flex items-center gap-1 text-xs text-destructive">
+        <span id={`${htmlFor}-error`} className="flex items-center gap-1 text-xs text-destructive">
           <AlertCircle className="h-3.5 w-3.5" />
           <Tx>{error}</Tx>
         </span>

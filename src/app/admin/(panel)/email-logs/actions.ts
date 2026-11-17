@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-session";
-import { findApplicationByEmail } from "@/lib/applications-store";
+import { findApplicationByEmail, takeEmailSendSlot } from "@/lib/applications-store";
 import { isEmailStatus } from "@/lib/applications-validation";
 import { STATUS_EMAIL_BODY_MAX, STATUS_EMAIL_SUBJECT_MAX } from "@/lib/application-status-emails";
 import { emailBrand, sendManualEmail, type ManualEmail } from "@/lib/application-emails";
@@ -54,16 +54,26 @@ export async function sendManualEmailAction(_prev: ManualEmailState, formData: F
     return { status: "error", message: "Email is not set up yet — add your own SMTP in Settings, or an admin can add the HR SMTP in Site settings.", values, nonce };
   }
 
+  // Only applicants can be emailed from the HR mailbox, never any address.
+  const app = await findApplicationByEmail(values.to);
+  if (!app) {
+    return { status: "error", message: "Please fix the highlighted fields.", errors: { to: "No application was found from this email address." }, values, nonce };
+  }
+  if (!takeEmailSendSlot(user.id)) {
+    return { status: "error", message: "You've sent a lot of emails in the last hour. Please wait a while and try again.", values, nonce };
+  }
+
   try {
-    const [settings, app] = await Promise.all([getSiteSettings(), findApplicationByEmail(values.to)]);
+    const settings = await getSiteSettings();
     await sendManualEmail(
       { ...values, status: values.status as ManualEmail["status"] },
       { app, brand: emailBrand(settings), replyTo: settings.hr.email || undefined, sentBy: user.email, senderId: user.id }
     );
   } catch (e) {
+    console.error("Manual email failed:", e);
     revalidatePath("/admin/email-logs");
     // The form keeps what was typed so HR can try again.
-    return { status: "error", message: `The email could not be sent: ${e instanceof Error ? e.message : String(e)}`, values, nonce };
+    return { status: "error", message: "The email could not be sent. Check the email settings and try again.", values, nonce };
   }
   revalidatePath("/admin/email-logs");
   return { status: "sent", message: `Email sent to ${values.to}.`, values, nonce };

@@ -157,6 +157,8 @@ export function NotificationBell() {
                   <ul className="divide-y divide-uk-line">
                     {feed.items.map((n) => {
                       const Icon = ICONS[n.kind];
+                      // an interview starting within 30 minutes
+                      const soon = n.startsAt !== undefined && n.startsAt > now && n.startsAt - now <= 30 * 60 * 1000;
                       return (
                         <li key={n.key}>
                           <Link
@@ -168,7 +170,9 @@ export function NotificationBell() {
                               <Icon className="h-4 w-4" />
                             </span>
                             <span className="min-w-0 flex-1">
-                              <span className="block text-[11px] font-semibold uppercase tracking-wide text-uk-muted">{LABELS[n.kind]}</span>
+                              <span className={cn("block text-[11px] font-semibold uppercase tracking-wide", soon ? "text-rose-600 dark:text-rose-400" : "text-uk-muted")}>
+                                {soon ? `Interview starts in ${Math.max(1, Math.round((n.startsAt! - now) / 60000))} min` : LABELS[n.kind]}
+                              </span>
                               <span className="block truncate text-sm font-semibold text-uk-heading">{n.title}</span>
                               {n.detail && <span className="block truncate text-xs text-uk-muted">{n.detail}</span>}
                             </span>

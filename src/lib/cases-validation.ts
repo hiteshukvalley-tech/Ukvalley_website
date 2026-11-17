@@ -192,7 +192,7 @@ export function validateCase(
     value: {
       slug: v.slug, client: v.client, sector: v.sector, title: v.title,
       problem: v.problem, result: v.result, metrics, stack,
-      timeline: v.timeline, team, ...(teamMembers.length ? { teamMembers } : {}), approach,
+      timeline: v.timeline, team, teamMembers, approach,
       industryContext: v.industryContext, challenges, solution: v.solution,
       modules, results, integrations,
       testimonial: { quote: v.quote, name: v.quoteName, role: v.quoteRole },

@@ -23,7 +23,9 @@ export function HeroPhoto({
     <>
       {/* data-scan-*: Admin → All page text lists the photo as its own card */}
       <div className="absolute inset-0 -z-10" aria-hidden data-scan-card="Hero picture (behind the title)" data-scan-late="">
-        <Image src={src} alt="" fill preload sizes="100vw" quality={80} className={cn("object-cover", className)} />
+        {/* quality 55: the photo sits under a ~90% dark overlay, so the lost
+            detail never shows, and it is the page's LCP image on phones */}
+        <Image src={src} alt="" fill preload sizes="100vw" quality={55} className={cn("object-cover", className)} />
       </div>
       <div
         className={cn(

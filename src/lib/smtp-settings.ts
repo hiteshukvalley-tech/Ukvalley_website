@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { authSecret } from "@/lib/admin-auth";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 
 // Outgoing email (SMTP) settings. Server-only. Two kinds:
@@ -52,7 +53,8 @@ const where = (s: SmtpScope) =>
 
 // --- password encryption ------------------------------------------------------
 
-const key = () => createHash("sha256").update(`smtp-password|${process.env.AUTH_SECRET ?? ""}`).digest();
+// Throws without a proper AUTH_SECRET: saving fails, and a saved password reads as unreadable.
+const key = () => createHash("sha256").update(`smtp-password|${authSecret()}`).digest();
 
 function encrypt(plain: string): string {
   const iv = randomBytes(12);
@@ -61,7 +63,7 @@ function encrypt(plain: string): string {
   return [iv, cipher.getAuthTag(), data].map((b) => b.toString("base64")).join(".");
 }
 
-/** null when it can't be decrypted (e.g. AUTH_SECRET changed since it was saved). */
+/** null when it can't be decrypted (e.g. AUTH_SECRET changed since it was saved, or is missing). */
 function decrypt(stored: string): string | null {
   try {
     const [iv, tag, data] = stored.split(".").map((s) => Buffer.from(s, "base64"));
@@ -83,10 +85,13 @@ export function envSmtpConfig(): SmtpConfig | null {
   if (!host || !user || !pass) return null;
   const port = Number(process.env.SMTP_PORT) || 465;
   const from = process.env.MAIL_FROM ?? "";
+  // SMTP_SECURITY overrides the guess from the port (e.g. "none" for the QA
+  // suites' plain fake server on 127.0.0.1:2525).
+  const set = process.env.SMTP_SECURITY?.trim().toLowerCase();
   return {
     host,
     port,
-    security: port === 465 ? "ssl" : "starttls",
+    security: set === "ssl" || set === "starttls" || set === "none" ? set : port === 465 ? "ssl" : "starttls",
     user,
     pass,
     fromName: from.match(/^\s*"?([^"<]+?)"?\s*</)?.[1]?.trim() ?? "",
@@ -178,12 +183,22 @@ export async function getSmtpForAdmin(s: SmtpScope): Promise<{
 
 /**
  * The saved password (for "keep the current password" on save or test), or
- * null. Only given out for the same server and username it was saved with, so
- * pointing the form at another server can't send the saved password there.
+ * null. Only given out for the same server, port, security and username it was
+ * saved with, so pointing the form at another server — or the same one without
+ * encryption — can't send the saved password there.
  */
-export async function savedSmtpPassword(s: SmtpScope, host: string, user: string): Promise<string | null> {
+export async function savedSmtpPassword(
+  s: SmtpScope,
+  target: { host: string; port: number; security: SmtpSecurity; user: string }
+): Promise<string | null> {
   const doc = await readSaved(s);
-  if (!doc || doc.host.toLowerCase() !== host.toLowerCase() || doc.user.trim() !== user.trim()) return null;
+  if (
+    !doc ||
+    doc.host.toLowerCase() !== target.host.toLowerCase() ||
+    doc.port !== target.port ||
+    doc.security !== target.security ||
+    doc.user.trim() !== target.user.trim()
+  ) return null;
   return decrypt(doc.passEnc);
 }
 

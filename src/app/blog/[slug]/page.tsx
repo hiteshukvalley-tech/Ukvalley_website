@@ -15,6 +15,7 @@ import { CtaBand } from "@/components/site/cta";
 import { getPosts } from "@/lib/blog-store";
 import { jsonLd } from "@/lib/utils";
 import { ukText } from "@/lib/texts";
+import { formatPostDate } from "@/lib/blog-validation";
 
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
@@ -93,11 +94,7 @@ export default async function BlogArticlePage({ params }: Props) {
               {ukText(post.readTime)}
             </span>
             <time dateTime={post.date}>
-              {ukText(new Date(post.date).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              }))}
+              {ukText(formatPostDate(post.date))}
             </time>
           </div>
         </PageHero>
@@ -133,7 +130,7 @@ export default async function BlogArticlePage({ params }: Props) {
                       { label: "Read time", value: post.readTime.replace(" read", "") },
                       {
                         label: "Published",
-                        value: new Date(post.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+                        value: formatPostDate(post.date, "short"),
                       },
                     ].map((f) => (
                       <div key={f.label} className="flex items-baseline justify-between gap-4 py-3">

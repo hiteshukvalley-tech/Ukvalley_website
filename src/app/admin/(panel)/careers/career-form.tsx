@@ -30,7 +30,7 @@ export function CareerForm({
     <form action={action} key={state.nonce ?? "initial"} className="space-y-6" noValidate>
 
       <FormSection title="Role" description="Shown in the open-roles list on /careers and the Team page.">
-        <FormField label="Role" name="role" required full defaultValue={values.role} error={errors.role} hint="e.g. Senior React / Next.js Engineer" />
+        <FormField label="Role" name="role" full defaultValue={values.role} error={errors.role} hint="Optional. e.g. Senior React / Next.js Engineer. Left blank it is saved as “Untitled role”." />
         <FormField
           label="Slug"
           name="slug"
@@ -38,13 +38,12 @@ export function CareerForm({
           readOnly={mode === "edit"}
           defaultValue={values.slug}
           error={errors.slug}
-          hint={mode === "edit" ? "The slug can't be changed after creation." : "Optional — leave blank and it is made from the role name. It becomes the job's web address."}
+          hint={mode === "edit" ? "The slug can't be changed after creation." : "Optional, leave blank and it is made from the role name. It becomes the job's web address."}
         />
-        <FormField label="Location" name="location" required defaultValue={values.location} error={errors.location} suggestions={LOCATION_SUGGESTIONS} hint="Pick a suggestion or type your own, e.g. Pune, Maharashtra. Candidates search and filter by this." />
+        <FormField label="Location" name="location" defaultValue={values.location} error={errors.location} suggestions={LOCATION_SUGGESTIONS} hint="Optional (blank = India). Pick a suggestion or type your own, e.g. Nashik, Maharashtra. Candidates search and filter by this." />
         <FormSelect
           label="Job mode"
           name="mode"
-          required
           defaultValue={values.mode}
           error={errors.mode}
           options={JOB_MODES.map((m) => ({ value: m, label: m }))}
@@ -53,7 +52,6 @@ export function CareerForm({
         <FormSelect
           label="Job type"
           name="type"
-          required
           // a role saved when this was free text starts on its closest type
           defaultValue={toJobType(values.type)}
           error={errors.type}
@@ -64,20 +62,18 @@ export function CareerForm({
           label="Published date"
           name="postedAt"
           type="date"
-          required
           defaultValue={values.postedAt}
           error={errors.postedAt}
-          hint="Shown as “Posted …” on the listing. Roles from the last 7 days get a New badge."
+          hint="Shown as “Posted …” on the listing. Roles from the last 7 days get a New badge. Blank = today."
         />
         <FormField
           label="Minimum experience (years)"
           name="experienceMin"
           type="number"
           inputMode="numeric"
-          required
           defaultValue={values.experienceMin}
           error={errors.experienceMin}
-          hint="Whole years. 0 for freshers."
+          hint="Whole years. 0 or blank for freshers."
         />
         <FormField
           label="Maximum experience (years)"
@@ -88,12 +84,12 @@ export function CareerForm({
           error={errors.experienceMax}
           hint="Leave blank for “minimum+ years”."
         />
-        <FormTextarea label="About the role" name="summary" required full rows={3} defaultValue={values.summary} error={errors.summary} hint="Up to 300 characters. Shown under the role title and in “About the role” on the job page." />
+        <FormTextarea label="About the role" name="summary" full rows={6} defaultValue={values.summary} error={errors.summary} hint="Optional. One per line, up to 50, no character limit. Each line shows as its own paragraph in “About the role” on the job page; the first line is also the short intro under the role title." />
       </FormSection>
 
       <FormSection title="Details">
-        <FormTextarea label="Responsibilities" name="responsibilities" required full rows={6} defaultValue={values.responsibilities} error={errors.responsibilities} hint="One per line, up to 10." />
-        <FormTextarea label="Required skills" name="requirements" required full rows={6} defaultValue={values.requirements} error={errors.requirements} hint="One per line, up to 10." />
+        <FormTextarea label="Responsibilities" name="responsibilities" full rows={6} defaultValue={values.responsibilities} error={errors.responsibilities} hint="Optional. One per line, up to 50, no character limit. Leave empty to hide this section on the job page." />
+        <FormTextarea label="Required skills" name="requirements" full rows={6} defaultValue={values.requirements} error={errors.requirements} hint="Optional. One per line, up to 50, no character limit. Leave empty to hide this section on the job page." />
         <FormTextarea
           label="Qualifications"
           name="qualifications"
@@ -101,24 +97,23 @@ export function CareerForm({
           rows={4}
           defaultValue={values.qualifications}
           error={errors.qualifications}
-          hint="Optional. One per line, up to 10, e.g. B.E. / B.Tech in Computer Science or equivalent. Leave empty to hide this section on the job page."
+          hint="Optional. One per line, up to 50, no character limit, e.g. B.E. / B.Tech in Computer Science or equivalent. Leave empty to hide this section on the job page."
         />
-        <FormTextarea label="Perks" name="perks" required full rows={5} defaultValue={values.perks} error={errors.perks} />
+        <FormTextarea label="Perks" name="perks" full rows={5} defaultValue={values.perks} error={errors.perks} hint="Optional. One per line, up to 50, no character limit. Leave empty to hide this section on the job page." />
       </FormSection>
 
       <FormSection
         title="Hiring process"
-        description="The recruitment stages candidates see on this job's page, in order. Tailor them to the role — e.g. a portfolio review for designers."
+        description="The recruitment stages candidates see on this job's page, in order. Tailor them to the role, e.g. a portfolio review for designers."
       >
         <FormTextarea
           label="Stages"
           name="hiringProcess"
-          required
           full
           rows={7}
           defaultValue={values.hiringProcess}
           error={errors.hiringProcess}
-          hint={`One stage per line, written as “Title | what happens”. Up to ${HIRING_STEPS_MAX} stages.`}
+          hint={`One stage per line, written as “Title | what happens”. Up to ${HIRING_STEPS_MAX} stages. Optional: left empty, the standard hiring process is shown.`}
         />
       </FormSection>
 

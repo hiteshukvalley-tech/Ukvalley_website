@@ -4,6 +4,7 @@ import {
   LayoutGrid, Mail, MapPin, Phone, Search, Table2, X,
 } from "lucide-react";
 import { Pagination } from "@/components/admin/pagination";
+import { readPaging } from "@/lib/pagination";
 import { formatPostedDate, isIsoDate } from "@/lib/careers-shared";
 import type { Application, ApplicationCounts, ColumnFilters, RoleSummary } from "@/lib/applications-store";
 import { APPLICATION_STATUSES, EXPERIENCE_OPTIONS, applicationStatusLabel, type ApplicationStatus } from "@/lib/applications-validation";
@@ -19,8 +20,9 @@ const initials = (name: string) =>
 function ApplicationCards({ items, showPosition }: { items: Application[]; showPosition: boolean }) {
   const detail = "flex min-w-0 items-center gap-2 text-sm text-uk-body";
   const icon = "h-4 w-4 shrink-0 text-uk-muted";
+  // 1, 2 or 4 columns: each divides the Grid page sizes (28, 56, 112), so every row is full.
   return (
-    <ul className="grid gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+    <ul className="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-4">
       {items.map((a) => {
         const interview = scheduledInterview(a);
         return (
@@ -61,8 +63,9 @@ function ApplicationCards({ items, showPosition }: { items: Application[]; showP
               </div>
 
               {/* Applied on, résumé, open */}
-              <div className="flex items-center justify-between gap-2 border-t border-uk-line px-4 py-3 text-xs text-uk-muted">
-                <span>Applied {formatApplicationDate(a.createdAt)}</span>
+              {/* On a narrow card the links drop below the date instead of squeezing it onto two lines */}
+              <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5 border-t border-uk-line px-4 py-3 text-xs text-uk-muted">
+                <span className="whitespace-nowrap">Applied {formatApplicationDate(a.createdAt)}</span>
                 <span className="inline-flex shrink-0 items-center gap-3">
                   <span className="inline-flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> Resume</span>
                   <span className="inline-flex items-center gap-1 font-semibold text-uk-blue">
@@ -127,14 +130,12 @@ const COLUMN_PARAMS = {
   location: "c_loc",
   position: "c_pos",
   experience: "c_exp",
-  interview: "c_int",
 } as const satisfies Record<keyof ColumnFilters, string>;
 
 /** Reads the table-header filters from the address; unknown values are dropped. */
 export function readColumns(sp: Record<string, string | undefined>): ColumnFilters {
   const get = (k: keyof ColumnFilters) => (sp[COLUMN_PARAMS[k]] ?? "").trim().slice(0, 100);
   const experience = get("experience");
-  const interview = get("interview");
   return {
     name: get("name"),
     email: get("email"),
@@ -142,7 +143,6 @@ export function readColumns(sp: Record<string, string | undefined>): ColumnFilte
     location: get("location"),
     position: get("position"),
     experience: (EXPERIENCE_OPTIONS as readonly string[]).includes(experience) ? experience : "",
-    interview: interview === "scheduled" || interview === "none" ? interview : "",
   };
 }
 
@@ -155,23 +155,55 @@ function setColumns(p: URLSearchParams, c?: ColumnFilters) {
   }
 }
 
-export type RoleRow = { position: string; open: boolean; total: number; new: number; latest: Date | null };
+/**
+ * open = a published job opening; closed = a past (unpublished) one; removed =
+ * a past opening no longer in Careers (applications only come in for open
+ * roles, so every applied-for position was once an opening).
+ */
+export type RoleStatus = "open" | "closed" | "removed";
+export type RoleRow = { position: string; status: RoleStatus; total: number; new: number; latest: Date | null };
 
 /**
- * Every open role (even with no applications yet), followed by any other
- * positions applicants typed in, with their application counts.
+ * Every job opening, present and past (even with no applications yet): open
+ * ones first, then closed ones, each in the Careers order. Then past openings
+ * since deleted or renamed in Careers, known only from their applications.
  */
-export function roleRows(roles: RoleSummary[], careers: { role: string }[]): RoleRow[] {
+export function roleRows(roles: RoleSummary[], careers: { role: string; published: boolean }[]): RoleRow[] {
   const byKey = new Map(roles.map((r) => [r.position.toLowerCase(), r]));
+  // A role name listed twice (an old closed copy and a new open one) shows once, as open.
+  const openings = new Map<string, { role: string; published: boolean }>();
+  for (const c of careers) {
+    const key = c.role.toLowerCase();
+    if (!openings.has(key) || (c.published && !openings.get(key)!.published)) openings.set(key, c);
+  }
+  const listed = [...openings.values()];
+  const row = (c: { role: string; published: boolean }): RoleRow => {
+    const r = byKey.get(c.role.toLowerCase());
+    return { position: c.role, status: c.published ? "open" : "closed", total: r?.total ?? 0, new: r?.new ?? 0, latest: r?.latest ?? null };
+  };
   return [
-    ...careers.map((c) => {
-      const r = byKey.get(c.role.toLowerCase());
-      return { position: c.role, open: true, total: r?.total ?? 0, new: r?.new ?? 0, latest: r?.latest ?? null };
-    }),
+    ...listed.filter((c) => c.published).map(row),
+    ...listed.filter((c) => !c.published).map(row),
     ...roles
-      .filter((r) => !careers.some((c) => c.role.toLowerCase() === r.position.toLowerCase()))
-      .map((r) => ({ ...r, open: false })),
+      .filter((r) => !openings.has(r.position.toLowerCase()))
+      .map((r) => ({ ...r, status: "removed" as const })),
   ];
+}
+
+/** "Open" or "Closed" next to a role's name; a removed opening counts as closed. */
+export function RoleStatusBadge({ status }: { status: RoleStatus }) {
+  return (
+    <span
+      title={status === "removed" ? "Past job opening, no longer in Careers" : undefined}
+      className={
+        status === "open"
+          ? "ml-2 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.7rem] font-semibold text-emerald-700 dark:text-emerald-300"
+          : "ml-2 rounded-full bg-uk-surface-3 px-2 py-0.5 text-[0.7rem] font-semibold text-uk-muted"
+      }
+    >
+      {status === "open" ? "Open" : "Closed"}
+    </span>
+  );
 }
 
 export const APPLICANTS_PATH = "/admin/applications/applicants";
@@ -179,6 +211,22 @@ export const APPLICANTS_PATH = "/admin/applications/applicants";
 /** How the list is shown: cards (the default) or a table with one row per applicant. */
 export type ListView = "grid" | "table";
 export const readView = (v?: string): ListView => (v === "table" ? "table" : "grid");
+
+/**
+ * Per-page choices for each view. The Grid's are multiples of 28 (7 full rows
+ * of 4 cards, or 14 of 2), so its last row is never left half empty.
+ */
+const PAGE_SIZES_FOR: Record<ListView, readonly number[]> = { grid: [28, 56, 112], table: [10, 25, 50, 100] };
+const DEFAULT_PAGE_SIZE: Record<ListView, number> = { grid: 28, table: 25 };
+
+/** Page and page size from the address, for this view. */
+export const readListPaging = (view: ListView, pageParam?: string, perParam?: string) =>
+  readPaging(pageParam, perParam, DEFAULT_PAGE_SIZE[view], PAGE_SIZES_FOR[view]);
+
+/** The list's view, from the parameters it keeps in its links. */
+const viewOf = (f: ListFilters): ListView => (f.keep?.view === "table" ? "table" : "grid");
+/** Whether the page size differs from the view's default (and so goes in the address). */
+const customSize = (f: ListFilters) => f.pageSize !== DEFAULT_PAGE_SIZE[viewOf(f)];
 
 /** The applicants page: every applicant, or one job role's (`position`), keeping the chosen dates and view. */
 export function applicantsHref(position = "", dates?: Dates, view: ListView = "grid") {
@@ -200,7 +248,7 @@ export function listHref(f: ListFilters, over: { status?: string; q?: string | n
   if (search) p.set("q", search);
   setColumns(p, f.columns);
   if (over.page && over.page > 1) p.set("page", String(over.page));
-  if (f.pageSize !== 25) p.set("per", String(f.pageSize));
+  if (customSize(f)) p.set("per", String(f.pageSize));
   const qs = p.toString();
   return qs ? `${f.basePath}?${qs}` : f.basePath;
 }
@@ -209,11 +257,12 @@ export function listHref(f: ListFilters, over: { status?: string; q?: string | n
  * The same list in the other view; the view is kept in `keep` so every filter
  * link carries it. The column filters belong to the table, so Grid drops them.
  */
-function viewHref(f: ListFilters, view: ListView, page: number) {
+function viewHref(f: ListFilters, view: ListView) {
   const keep = { ...f.keep };
   if (view === "table") keep.view = "table";
   else delete keep.view;
-  return listHref({ ...f, keep, columns: view === "table" ? f.columns : undefined }, { page });
+  // Each view has its own page sizes, so switching starts at the new view's default size, on page 1.
+  return listHref({ ...f, keep, columns: view === "table" ? f.columns : undefined, pageSize: DEFAULT_PAGE_SIZE[view] }, { page: 1 });
 }
 
 const viewBtn = (active: boolean) =>
@@ -239,10 +288,6 @@ const filterInput = (active: boolean) =>
 
 const STATUS_OPTIONS = APPLICATION_STATUSES.map((s) => ({ value: s, label: applicationStatusLabel[s] }));
 const EXPERIENCE_FILTER_OPTIONS = EXPERIENCE_OPTIONS.map((e) => ({ value: e, label: e }));
-const INTERVIEW_OPTIONS = [
-  { value: "scheduled", label: "Scheduled" },
-  { value: "none", label: "Not scheduled" },
-] as const;
 
 /**
  * The filter form behind the table's filter row (the inputs sit in the header
@@ -253,7 +298,7 @@ function ColumnFilterForm({ f }: { f: ListFilters }) {
   return (
     <form id={FILTER_FORM} method="get" action={f.basePath} className="hidden">
       {Object.entries(f.keep ?? {}).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
-      {f.pageSize !== 25 && <input type="hidden" name="per" value={String(f.pageSize)} />}
+      {customSize(f) && <input type="hidden" name="per" value={String(f.pageSize)} />}
       {!f.lockDates && f.dates.mode === "range" && <input type="hidden" name="mode" value="range" />}
       {!f.lockDates && f.dates.from && <input type="hidden" name="from" value={f.dates.from} />}
       {!f.lockDates && f.dates.to && <input type="hidden" name="to" value={f.dates.to} />}
@@ -278,10 +323,10 @@ function TextFilter({ f, field, label }: { f: ListFilters; field: "name" | "emai
   );
 }
 
-/** One row per applicant with every detail, the interview date and the CV, with a filter under each column title. */
+/** One row per applicant with every detail and the CV, with a filter under each column title. */
 function ApplicationsTable({ f, items, showPosition, first }: { f: ListFilters; items: Application[]; showPosition: boolean; first: number }) {
   const filtered = hasColumns(f.columns) || f.status !== "all";
-  const columnCount = showPosition ? 12 : 11;
+  const columnCount = showPosition ? 11 : 10;
   return (
     <div className="overflow-x-auto">
       <ColumnFilterForm f={f} />
@@ -289,16 +334,16 @@ function ApplicationsTable({ f, items, showPosition, first }: { f: ListFilters; 
         <thead className="bg-uk-surface-2">
           <tr>
             <th scope="col" className={`${th} w-12 text-right`}>#</th>
-            <th scope="col" className={`${th} sticky left-0 z-10 border-r bg-uk-surface-2`}>Applicant</th>
+            <th scope="col" className={`${th} sticky left-0 z-10 border-r bg-uk-surface-2`}>Name</th>
+            {showPosition && <th scope="col" className={th}>Position Applied</th>}
+            <th scope="col" className={th}>Location</th>
+            <th scope="col" className={th}>Experience</th>
             <th scope="col" className={th}>Email</th>
             <th scope="col" className={th}>Phone</th>
-            <th scope="col" className={th}>Location</th>
-            {showPosition && <th scope="col" className={th}>Position applied for</th>}
-            <th scope="col" className={th}>Experience</th>
-            <th scope="col" className={th}>Expected joining</th>
             <th scope="col" className={th}>Status</th>
-            <th scope="col" className={th}>Interview</th>
+            <th scope="col" className={th}>Expected joining</th>
             <th scope="col" className={th}>Applied on</th>
+            <th scope="col" className={th}>Heard about us</th>
             <th scope="col" className={`${th} text-center`}>CV</th>
           </tr>
           {/* Column filters: type and press Enter (or Apply); dropdowns apply at once */}
@@ -315,21 +360,19 @@ function ApplicationsTable({ f, items, showPosition, first }: { f: ListFilters; 
               </button>
             </td>
             <td className={`${fth} sticky left-0 z-10 border-r bg-uk-surface-2`}><TextFilter f={f} field="name" label="Name" /></td>
-            <td className={fth}><TextFilter f={f} field="email" label="Email" /></td>
-            <td className={fth}><TextFilter f={f} field="phone" label="Phone" /></td>
-            <td className={fth}><TextFilter f={f} field="location" label="Location" /></td>
             {showPosition && <td className={fth}><TextFilter f={f} field="position" label="Position" /></td>}
+            <td className={fth}><TextFilter f={f} field="location" label="Location" /></td>
             <td className={fth}>
               <ColumnFilterSelect form={FILTER_FORM} name={COLUMN_PARAMS.experience} value={f.columns?.experience ?? ""} label="experience" options={EXPERIENCE_FILTER_OPTIONS} />
             </td>
-            <td className={fth} />
+            <td className={fth}><TextFilter f={f} field="email" label="Email" /></td>
+            <td className={fth}><TextFilter f={f} field="phone" label="Phone" /></td>
             <td className={fth}>
               <ColumnFilterSelect form={FILTER_FORM} name="status" value={f.status === "all" ? "" : f.status} label="status" options={STATUS_OPTIONS} />
             </td>
-            <td className={fth}>
-              <ColumnFilterSelect form={FILTER_FORM} name={COLUMN_PARAMS.interview} value={f.columns?.interview ?? ""} label="interview" options={INTERVIEW_OPTIONS} />
-            </td>
+            <td className={fth} />
             <td className={`${fth} text-xs text-uk-muted`}>{f.lockDates ? "Today" : "Use the date box above"}</td>
+            <td className={fth} />
             <td className={`${fth} text-center`}>
               {filtered && (
                 <Link
@@ -351,7 +394,6 @@ function ApplicationsTable({ f, items, showPosition, first }: { f: ListFilters; 
             </tr>
           )}
           {items.map((a, i) => {
-            const interview = scheduledInterview(a);
             const resume = `/admin/applications/${a.id}/resume`;
             const cell = (extra = "") => `${td} border-b border-uk-line ${extra}`;
             return (
@@ -365,30 +407,19 @@ function ApplicationsTable({ f, items, showPosition, first }: { f: ListFilters; 
                     {a.name}
                   </Link>
                 </td>
+                {showPosition && <td className={cell("font-medium text-uk-heading")}>{a.position}</td>}
+                <td className={cell()}>{a.location || muted}</td>
+                <td className={cell()}>{a.experience || muted}</td>
                 <td className={cell()}>
                   <a href={`mailto:${a.email}`} className="hover:text-uk-blue hover:underline">{a.email}</a>
                 </td>
                 <td className={cell("tabular-nums")}>
                   <a href={`tel:${a.phone.replace(/[^\d+]/g, "")}`} className="hover:text-uk-blue hover:underline">{a.phone}</a>
                 </td>
-                <td className={cell()}>{a.location || muted}</td>
-                {showPosition && <td className={cell("font-medium text-uk-heading")}>{a.position}</td>}
-                <td className={cell()}>{a.experience || muted}</td>
-                <td className={cell()}>{a.joiningDate ? formatPostedDate(a.joiningDate) : muted}</td>
                 <td className={cell()}><ApplicationStatusBadge status={a.status} /></td>
-                <td className={cell()}>
-                  {interview ? (
-                    <div className="leading-tight">
-                      <p className="font-medium text-uk-heading">{interview.date}</p>
-                      {(interview.time || interview.mode) && (
-                        <p className="mt-0.5 text-xs text-uk-muted">{[interview.time, interview.mode].filter(Boolean).join(" · ")}</p>
-                      )}
-                    </div>
-                  ) : (
-                    <span className="text-xs text-uk-muted">Not scheduled</span>
-                  )}
-                </td>
+                <td className={cell()}>{a.joiningDate ? formatPostedDate(a.joiningDate) : muted}</td>
                 <td className={cell("text-uk-muted")}>{formatApplicationDate(a.createdAt)}</td>
+                <td className={cell()}>{a.source || muted}</td>
                 <td className={cell()}>
                   <div className="flex items-center justify-center gap-1.5">
                     <a
@@ -422,7 +453,7 @@ function ApplicationsTable({ f, items, showPosition, first }: { f: ListFilters; 
 
 /** Status tabs with a date box beside them, search, the applications and paging. */
 export function ApplicationsList({
-  filters: f, items, total, counts, page, today, noneYet, dbError, showPosition = true, view = "grid", viewSwitch = false,
+  filters: f, items, total, counts, page, today, noneYet, dbError, showPosition = true, view = "grid", viewSwitch = false, statusTabs = true,
 }: {
   filters: ListFilters;
   items: Application[];
@@ -439,6 +470,8 @@ export function ApplicationsList({
   view?: ListView;
   /** show the Grid / Table switch */
   viewSwitch?: boolean;
+  /** show the status tabs (off when the page picks the status itself, e.g. Application status) */
+  statusTabs?: boolean;
 }) {
   const tabs = [{ key: "all", label: "All" }, ...APPLICATION_STATUSES.map((s) => ({ key: s, label: applicationStatusLabel[s] }))] as const;
 
@@ -448,10 +481,10 @@ export function ApplicationsList({
       <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
         {viewSwitch && (
           <div role="group" aria-label="View" className="mr-auto inline-flex rounded-lg border border-uk-line bg-uk-card p-0.5">
-            <Link href={viewHref(f, "grid", page)} aria-current={view === "grid" ? "page" : undefined} className={viewBtn(view === "grid")}>
+            <Link href={viewHref(f, "grid")} aria-current={view === "grid" ? "page" : undefined} className={viewBtn(view === "grid")}>
               <LayoutGrid className="h-4 w-4" /> Grid
             </Link>
-            <Link href={viewHref(f, "table", page)} aria-current={view === "table" ? "page" : undefined} className={viewBtn(view === "table")}>
+            <Link href={viewHref(f, "table")} aria-current={view === "table" ? "page" : undefined} className={viewBtn(view === "table")}>
               <Table2 className="h-4 w-4" /> Table
             </Link>
           </div>
@@ -466,6 +499,7 @@ export function ApplicationsList({
       {/* data-wide: with the Grid / Table switch, both views get the whole screen width (the admin page drops its width limit) */}
       <section data-wide={viewSwitch || undefined} className="rounded-2xl border border-uk-line bg-uk-card">
         <div className="flex flex-wrap items-center gap-1.5 border-b border-uk-line p-3">
+          {statusTabs && (
           <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Filter by status">
             {tabs.map((t) => {
               const active = f.status === t.key;
@@ -487,6 +521,7 @@ export function ApplicationsList({
               );
             })}
           </div>
+          )}
           {!f.lockDates && <DateBoxes mode={f.dates.mode} from={f.dates.from} to={f.dates.to} max={today} />}
         </div>
 
@@ -505,7 +540,7 @@ export function ApplicationsList({
 
         <form method="get" action={f.basePath} className="flex flex-wrap items-center gap-3 border-b border-uk-line p-4">
           {Object.entries(f.keep ?? {}).map(([k, v]) => <input key={k} type="hidden" name={k} value={v} />)}
-          {f.pageSize !== 25 && <input type="hidden" name="per" value={String(f.pageSize)} />}
+          {customSize(f) && <input type="hidden" name="per" value={String(f.pageSize)} />}
           {f.status !== "all" && <input type="hidden" name="status" value={f.status} />}
           {!f.lockDates && f.dates.mode === "range" && <input type="hidden" name="mode" value="range" />}
           {!f.lockDates && f.dates.from && <input type="hidden" name="from" value={f.dates.from} />}
@@ -560,7 +595,7 @@ export function ApplicationsList({
               <ApplicationCards items={items} showPosition={showPosition} />
             )}
 
-            <Pagination total={total} page={page} pageSize={f.pageSize} defaultSize={25} noun="applications" />
+            <Pagination total={total} page={page} pageSize={f.pageSize} sizes={PAGE_SIZES_FOR[view]} defaultSize={DEFAULT_PAGE_SIZE[view]} noun="applications" />
           </>
         )}
       </section>

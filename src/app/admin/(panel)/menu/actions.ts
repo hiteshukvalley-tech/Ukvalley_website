@@ -95,8 +95,9 @@ export async function createMainSectionAction(_prev: MenuState, formData: FormDa
   redirect(slug ? `/admin/menu/${slug}` : "/admin/menu");
 }
 
-export async function saveMainPageAction(slug: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
+export async function saveMainPageAction(rawSlug: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
   await requireAdmin("menu");
+  const slug = String(rawSlug ?? "");
   const nonce = Date.now();
   if (!isMainPageSlug(slug)) return { status: "error", message: "Unknown page.", nonce };
   let parsed: { values?: unknown };
@@ -123,8 +124,9 @@ export async function saveMainPageAction(slug: string, _prev: HomeSectionState, 
   return { status: "saved", message: "Saved. The page is updating.", values: result.value, visible: true, nonce };
 }
 
-export async function deleteMainPageAction(slug: string): Promise<MenuState> {
+export async function deleteMainPageAction(rawSlug: string): Promise<MenuState> {
   await requireAdmin("menu");
+  const slug = String(rawSlug ?? "");
   const nonce = Date.now();
   if (!isMainPageSlug(slug)) return { status: "error", message: "Unknown page.", nonce };
   if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, nonce };

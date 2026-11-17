@@ -13,6 +13,12 @@ import { getMenuForAdmin } from "@/lib/menu-store";
 import { scanHtml, type ScanItem } from "@/lib/texts-scan";
 import { API_HOST, SITE_HOST, SITE_URL, trustedRequestOrigin } from "@/lib/site-origin";
 
+/**
+ * The "Page not found" screen (app/not-found.tsx), opened at an address no page
+ * uses. It is the one page read here that answers 404 instead of 200.
+ */
+export const NOT_FOUND_PATH = "/404";
+
 /** Only plain site paths: no scheme, no query, no ".." — what we are willing to fetch from ourselves. */
 export const isScanPath = (p: string) => /^\/(?:[a-z0-9][a-z0-9._-]*(?:\/[a-z0-9][a-z0-9._-]*)*)?$/i.test(p) && p.length <= 200;
 
@@ -82,6 +88,7 @@ export async function listScanPaths(): Promise<PathGroup[]> {
         page("careers", "Main page"), ...rows("/careers", careers as Labelled[], "Job opening"),
         page("locations", "Main page"), ...rows("/locations", locations as Labelled[], "Location"),
         page("privacy"), page("terms"), page("sitemap"),
+        { path: NOT_FOUND_PATH, label: "Page not found", tag: "Page" },
       ],
     },
     { group: "Hire", entries: [page("hire", "Main page"), ...rows("/hire", hire as Labelled[], "Role")] },
@@ -122,7 +129,7 @@ export async function scanPage(path: string): Promise<{ items: ScanItem[]; error
       headers: { "user-agent": "ukvalley-admin-text-scan" },
       signal: AbortSignal.timeout(30_000),
     });
-    if (res.status !== 200) return { items: [], error: `The page answered ${res.status}. Open it on the site first to check it exists.` };
+    if (res.status !== (path === NOT_FOUND_PATH ? 404 : 200)) return { items: [], error: `The page answered ${res.status}. Open it on the site first to check it exists.` };
     return { items: scanHtml(await res.text()) };
   } catch (e) {
     return { items: [], error: `Could not read the page: ${e instanceof Error ? e.message : "network error"}` };

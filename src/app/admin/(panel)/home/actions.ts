@@ -33,11 +33,12 @@ const noDb = (nonce: number): HomeSectionState => ({
 
 /** Saves one section (built-in or custom). The editor sends its values as JSON in `payload`. */
 export async function saveHomeSectionAction(
-  key: string,
+  rawKey: string,
   _prev: HomeSectionState,
   formData: FormData
 ): Promise<HomeSectionState> {
   await requireAdmin("home");
+  const key = String(rawKey ?? "");
   const nonce = Date.now();
   const custom = isCustomKey(key);
   const def: SectionDef | undefined = custom ? CUSTOM_SECTION_DEF : homeSectionDef(key);
@@ -78,8 +79,9 @@ export async function saveHomeSectionAction(
 }
 
 /** Deletes the saved copy, so the section shows its original text again. */
-export async function resetHomeSectionAction(key: string): Promise<HomeSectionState> {
+export async function resetHomeSectionAction(rawKey: string): Promise<HomeSectionState> {
   await requireAdmin("home");
+  const key = String(rawKey ?? "");
   const nonce = Date.now();
   if (!isHomeSectionKey(key)) return { status: "error", message: "Unknown section.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);
@@ -129,8 +131,9 @@ export async function createCustomSectionAction(_prev: LayoutState, formData: Fo
   redirect(`/admin/home/${id}`);
 }
 
-export async function deleteCustomSectionAction(id: string): Promise<LayoutState> {
+export async function deleteCustomSectionAction(rawId: string): Promise<LayoutState> {
   await requireAdmin("home");
+  const id = String(rawId ?? "");
   const nonce = Date.now();
   if (!isCustomKey(id)) return { status: "error", message: "Only sections you added can be deleted.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);

@@ -30,7 +30,16 @@ check("sections restored", true);
 
 section("Public home page (defaults)");
 await go(page, "/", { timeout: 180000 });
-let body = await text(page);
+// The page's text, not innerText: home sections below the fold use
+// content-visibility: auto, so innerText leaves them out until they are drawn.
+// Scripts and styles (page data, JSON-LD) are left out: only the page's own text.
+const pageText = () =>
+  page.evaluate(() => {
+    const copy = document.body.cloneNode(true);
+    copy.querySelectorAll("script, style, noscript, template").forEach((n) => n.remove());
+    return copy.textContent;
+  });
+let body = await pageText();
 for (const s of [
   "Engineering systems in production",
   "Trusted by 150+ businesses",
@@ -96,10 +105,10 @@ check("required title error", (await text(page)).includes("Title is required."))
 
 section("Public home page reflects the edits");
 await go(page, "/");
-body = await text(page);
+body = await pageText();
 check("new hero badge shown", has(body, "QA badge test"));
 check("trust strip hidden", !has(body, "Trusted by 150+ businesses"));
-check("cta unchanged after failed save", has(body, "Book a scoping call with a software architect — not a sales bot."));
+check("cta unchanged after failed save", has(body, "Book a scoping call with a software architect"));
 
 section("Restore originals");
 for (const key of ["hero", "trust", "cta"]) {

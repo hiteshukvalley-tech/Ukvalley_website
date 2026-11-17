@@ -2,21 +2,25 @@
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { SESSION_COOKIE, type SessionUser } from "@/lib/admin-auth";
-import { setSessionCookie } from "@/lib/admin-session";
+import { ENV_USER_ID, SESSION_COOKIE, type SessionUser } from "@/lib/admin-auth";
+import { getSession, setSessionCookie } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
-import { checkOwnerCredentials } from "@/lib/owner-password";
-import { authenticateUser } from "@/lib/users-store";
+import { checkOwnerCredentials, revokeOwnerSessions } from "@/lib/owner-password";
+import { authenticateUser, bumpSessionVersion } from "@/lib/users-store";
 import { EMAIL_MAX, PASSWORD_MAX, passwordRuleError } from "@/lib/users-validation";
+import { clientIp } from "@/lib/client-ip";
 
 export type LoginState = { error?: string; email?: string; errors?: { password?: string } };
 
-// Simple in-memory throttle: 5 failed attempts per IP, and 10 per account, per
-// 15 minutes. The IP comes from a client-settable header, so the per-account
-// limit is what stops a guesser who rotates it. Resets on server restart and is
-// per-instance, which is enough to blunt password guessing.
+// Simple in-memory throttle: 5 failed attempts per IP per 15 minutes (see
+// client-ip.ts for which IP). Failures per account never lock the account —
+// anyone could lock out a known email that way — they slow it down instead:
+// past 10 in 15 minutes, each attempt waits a little longer (up to 5 s).
+// Resets on server restart and is per-instance, which is enough to blunt
+// password guessing.
 const MAX_FAILS_IP = 5;
-const MAX_FAILS_ACCOUNT = 10;
+const SLOW_AFTER_ACCOUNT_FAILS = 10;
+const MAX_DELAY_MS = 5000;
 const WINDOW_MS = 15 * 60 * 1000;
 const MAX_TRACKED = 5000;
 const fails = new Map<string, { count: number; first: number }>();
@@ -61,15 +65,17 @@ export async function loginAction(
   // rules can't be anyone's, so no account is looked up.
   const rule = passwordRuleError(password);
   if (rule) return { errors: { password: rule }, email };
-  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim() || "local";
+  const ip = clientIp(await headers());
   const ipKey = `ip:${ip}`;
   const accountKey = `acct:${email.trim().toLowerCase()}`;
 
-  if (failCount(ipKey) >= MAX_FAILS_IP || failCount(accountKey) >= MAX_FAILS_ACCOUNT) {
+  if (failCount(ipKey) >= MAX_FAILS_IP) {
     return { error: "Too many failed attempts. Try again in 15 minutes.", email };
   }
+  const over = failCount(accountKey) - SLOW_AFTER_ACCOUNT_FAILS;
+  if (over >= 0) await new Promise((r) => setTimeout(r, Math.min((over + 1) * 500, MAX_DELAY_MS)));
 
-  if (!process.env.AUTH_SECRET) {
+  if ((process.env.AUTH_SECRET ?? "").length < 16) {
     return { error: "Admin login is not configured. Set the env vars from .env.example." };
   }
 
@@ -91,7 +97,21 @@ export async function loginAction(
   redirect("/admin");
 }
 
+/**
+ * Signs out everywhere, not just this browser: a copied cookie stops working
+ * too. Database users get a new session version; the owner's sign-out count
+ * goes up (owner-password.ts). Without the database only the cookie is cleared.
+ */
 export async function logoutAction() {
+  const session = await getSession();
+  if (session && hasDatabaseUrl()) {
+    try {
+      if (session.id === ENV_USER_ID) await revokeOwnerSessions();
+      else await bumpSessionVersion(session.id);
+    } catch {
+      // Database unreachable: clearing the cookie is all that can be done.
+    }
+  }
   (await cookies()).delete(SESSION_COOKIE);
   redirect("/admin/login");
 }

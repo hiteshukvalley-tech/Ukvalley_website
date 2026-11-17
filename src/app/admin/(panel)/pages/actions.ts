@@ -19,8 +19,9 @@ const noDb = (nonce: number): HomeSectionState => ({
   status: "error", message: "Database is not connected (MONGODB_URI missing).", nonce,
 });
 
-export async function savePageAction(key: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
+export async function savePageAction(rawKey: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
   await requireAdmin("pages");
+  const key = String(rawKey ?? "");
   const nonce = Date.now();
   if (!isPageKey(key)) return { status: "error", message: "Unknown page.", nonce };
   let parsed: { values?: unknown };
@@ -44,8 +45,9 @@ export async function savePageAction(key: string, _prev: HomeSectionState, formD
   return { status: "saved", message: "Saved. The page is updating.", values: result.value, visible: true, nonce };
 }
 
-export async function resetPageAction(key: string): Promise<HomeSectionState> {
+export async function resetPageAction(rawKey: string): Promise<HomeSectionState> {
   await requireAdmin("pages");
+  const key = String(rawKey ?? "");
   const nonce = Date.now();
   if (!isPageKey(key)) return { status: "error", message: "Unknown page.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);

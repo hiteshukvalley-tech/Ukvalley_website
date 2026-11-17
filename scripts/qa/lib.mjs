@@ -3,13 +3,18 @@
 //   NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa npx next start -p 3100
 //   node scripts/qa/01-access-and-pages.mjs
 import puppeteer from "puppeteer-core";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 export const BASE = process.env.QA_BASE || "http://localhost:3100";
 const CHROME = process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 
+/** The local env file: .env.local when it has values, else .env. */
+export const ENV_TEXT = [".env.local", ".env"]
+  .map((f) => (existsSync(f) ? readFileSync(f, "utf8") : ""))
+  .find((t) => /^MONGODB_URI=/m.test(t)) ?? "";
+
 const env = Object.fromEntries(
-  readFileSync(".env.local", "utf8")
+  ENV_TEXT
     .split(/\r?\n/)
     .filter((l) => l.includes("=") && !l.startsWith("#"))
     .map((l) => [l.slice(0, l.indexOf("=")), l.slice(l.indexOf("=") + 1)])
@@ -72,8 +77,13 @@ export async function newPage(browser, { width = 1366, height = 900 } = {}) {
   return page;
 }
 
-export const go = (page, path, opts = {}) =>
-  page.goto(BASE + path, { waitUntil: "networkidle2", timeout: 60000, ...opts });
+// The tab is brought to the front first: a suite with an admin and a site tab
+// would otherwise drive a background tab, where Chrome pauses animation frames,
+// so clicks and waitForFunction (which poll on them) hang until they time out.
+export const go = async (page, path, opts = {}) => {
+  await page.bringToFront();
+  return page.goto(BASE + path, { waitUntil: "networkidle2", timeout: 60000, ...opts });
+};
 
 export async function login(page, creds = OWNER) {
   await go(page, "/admin/login");
@@ -83,6 +93,9 @@ export async function login(page, creds = OWNER) {
 }
 
 export async function logout(page) {
+  // "Sign out" lives in the account menu (the name in the top bar): open it first.
+  await page.evaluate(() => document.querySelector('button[aria-controls="admin-user-menu"]')?.click());
+  await page.waitForSelector('#admin-user-menu button[type="submit"]', { timeout: 10000 }).catch(() => {});
   await Promise.all([
     page.waitForNavigation({ waitUntil: "networkidle2" }).catch(() => {}),
     page.evaluate(() => [...document.querySelectorAll("button")].find((b) => /sign out/i.test(b.textContent))?.click()),
@@ -96,8 +109,15 @@ export const text = (page) => page.evaluate(() => document.body.innerText);
  * trigger (`#id`), then clicks the option with this visible label.
  */
 export async function pickOption(page, triggerSelector, label) {
-  await page.click(triggerSelector);
-  await page.waitForSelector('[role="option"]', { visible: true, timeout: 10000 });
+  // A click that lands while the form is still re-rendering (e.g. the live email
+  // preview redrawing after other fields changed) can miss: try a few times.
+  for (let attempt = 1; ; attempt++) {
+    await page.click(triggerSelector);
+    const open = await page.waitForSelector('[role="option"]', { visible: true, timeout: 4000 }).then(() => true, () => false);
+    if (open) break;
+    if (attempt === 3) throw new Error(`Dropdown ${triggerSelector} did not open`);
+    await sleep(500);
+  }
   await page.evaluate((l) => {
     const opt = [...document.querySelectorAll('[role="option"]')].find((o) => o.textContent.trim() === l);
     if (!opt) throw new Error(`No option "${l}"`);

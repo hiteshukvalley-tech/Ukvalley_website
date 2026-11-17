@@ -24,8 +24,9 @@ import { countNewApplications, listApplications } from "@/lib/applications-store
 import { listInterviews } from "@/lib/interviews-store";
 import { formatPostedDate, todayInIndia } from "@/lib/careers-shared";
 import { InterviewRow, formatInterviewDay, formatInterviewTime, relativeDay } from "./interviews/interview-ui";
+import { InterviewActions } from "./interviews/interview-actions";
 import { ApplicationStatusBadge } from "./applications/application-ui";
-import { applicantsHref, roleRows } from "./applications/applications-list";
+import { RoleStatusBadge, applicantsHref, roleRows } from "./applications/applications-list";
 import { getProfile } from "@/lib/profiles-store";
 import { firstName } from "@/lib/profile-validation";
 // import { countMedia } from "@/lib/media-store"; // Media card hidden (see below)
@@ -126,10 +127,13 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
     can("applications") ? listInterviews({ from: "0000-01-01", to: "9999-12-31" }) : null,
     getProfile(me),
   ]);
-  const upcoming = allInterviews ? allInterviews.items.filter((i) => i.date >= today) : [];
-  // Every job opening with its applications (all time and today), plus roles that are no longer open.
+  const upcoming = allInterviews ? allInterviews.items.filter((i) => i.date >= today && !i.cancelled) : [];
+  // Applications per role today, for the "Today" column.
   const todayByRole = new Map((todaysApplications?.roles ?? []).map((r) => [r.position.toLowerCase(), r.total]));
-  const jobRows = allApplications ? roleRows(allApplications.roles, careers) : [];
+  // Open (published) job openings only; closed roles stay on Careers → Applications.
+  const jobRows = allApplications
+    ? roleRows(allApplications.roles, careers.map((c) => ({ role: c.role, published: true }))).filter((r) => r.status === "open")
+    : [];
   const cards = content(services.length, posts.length, cases.length, products.length, solutions.length, industries.length, hireRoles.length, locations.length, team.length, careers.length, testimonials.length, faqs.length)
     .filter((c) => canOpenPath(me.role, me.access, c.href));
   const editedHome = HOME_SECTIONS.filter((s) => home.updated[s.key]).length;
@@ -353,7 +357,12 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
         ) : (
           <ul className="dash-scroll mt-2 max-h-72 divide-y divide-uk-line pr-2">
             {interviews.items.map((i) => (
-              <InterviewRow key={i.applicationId} interview={i} compact />
+              <InterviewRow
+                key={i.applicationId}
+                interview={i}
+                compact
+                actions={<InterviewActions applicationId={i.applicationId} name={i.name} date={i.date} time={i.time} mode={i.mode} venue={i.venue} cancelled={i.cancelled} today={today} />}
+              />
             ))}
           </ul>
         )}
@@ -371,14 +380,14 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
               <h2 id="roles-heading" className="flex items-center gap-2 font-heading text-lg font-semibold text-uk-heading">
                 <Briefcase className="h-5 w-5 text-uk-blue" /> Applications by job opening
               </h2>
-              <p className="mt-1 text-sm text-uk-muted">Every job opening and how many people applied, in total and today.</p>
+              <p className="mt-1 text-sm text-uk-muted">Every open job opening and how many people applied, in total and today.</p>
             </div>
             <Link href="/admin/applications" className="inline-flex items-center gap-1 text-xs font-medium text-uk-blue hover:text-uk-blue-bright">
               Filter by date <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           {jobRows.length === 0 ? (
-            <p className="p-6 text-sm text-uk-muted">No job openings or applications yet.</p>
+            <p className="p-6 text-sm text-uk-muted">No open job openings right now. Publish a role in Careers to list it here.</p>
           ) : (
             <div className="dash-scroll max-h-72 overflow-x-auto">
               <table className="w-full min-w-[30rem] text-sm">
@@ -398,7 +407,7 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
                       <tr key={r.position}>
                         <td className="px-6 py-2.5">
                           <span className="font-medium text-uk-heading">{r.position}</span>
-                          {!r.open && <span className="ml-2 text-xs text-uk-muted">(not an open role)</span>}
+                          <RoleStatusBadge status={r.status} />
                         </td>
                         <td className="px-3 py-2.5 text-right font-semibold tabular-nums text-uk-heading">{r.total}</td>
                         <td className="px-3 py-2.5 text-right tabular-nums">
@@ -440,16 +449,22 @@ export default async function AdminHome({ searchParams }: { searchParams: Promis
           ) : (
             <ul className="dash-scroll mt-2 max-h-72 divide-y divide-uk-line pr-2">
               {upcoming.slice(0, UPCOMING_INTERVIEWS_SHOWN).map((i) => (
-                <li key={i.applicationId} className="flex items-start justify-between gap-3 py-3">
-                  <div className="min-w-0">
-                    <Link href={`/admin/applications/${i.applicationId}`} className="block truncate text-sm font-semibold text-uk-heading hover:text-uk-blue">
-                      {i.name}
-                    </Link>
-                    <p className="truncate text-xs text-uk-muted">{i.position}{i.mode ? ` · ${i.mode}` : ""}</p>
+                <li key={i.applicationId} className="py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <Link href={`/admin/applications/${i.applicationId}`} className="block truncate text-sm font-semibold text-uk-heading hover:text-uk-blue">
+                        {i.name}
+                      </Link>
+                      <p className="truncate text-xs text-uk-muted">{i.position}{i.mode ? ` · ${i.mode}` : ""}</p>
+                    </div>
+                    <div className="shrink-0 text-right text-xs">
+                      <p className="font-semibold text-uk-heading">{relativeDay(i.date, today) || formatPostedDate(i.date)}</p>
+                      <p className="text-uk-muted">{i.time ? formatInterviewTime(i.time) : "No time set"}</p>
+                    </div>
                   </div>
-                  <div className="shrink-0 text-right text-xs">
-                    <p className="font-semibold text-uk-heading">{relativeDay(i.date, today) || formatPostedDate(i.date)}</p>
-                    <p className="text-uk-muted">{i.time ? formatInterviewTime(i.time) : "No time set"}</p>
+                  {/* the same Reschedule / Cancel as in Today's interviews */}
+                  <div className="mt-2">
+                    <InterviewActions applicationId={i.applicationId} name={i.name} date={i.date} time={i.time} mode={i.mode} venue={i.venue} cancelled={i.cancelled} today={today} />
                   </div>
                 </li>
               ))}

@@ -30,6 +30,16 @@ services:
       # Backend: the admin panel and server routes (/admin, /media, /careers/apply).
       - key: NEXT_PUBLIC_API_URL
         value: https://uat.ukvalley.com
+      # Google Tag Manager container (GTM-XXXXXXX). Read at build time: change
+      # it, then redeploy. Empty = no tracking; GTM_ENABLED=false switches it off.
+      - key: NEXT_PUBLIC_GTM_ID
+        sync: false
+      - key: NEXT_PUBLIC_GTM_ENABLED
+        value: "true"
+      # Web3Forms access key: emails a copy of each contact enquiry. Read at
+      # build time: change it, then redeploy. Empty = off.
+      - key: NEXT_PUBLIC_WEB3FORMS_KEY
+        sync: false
       - key: ADMIN_EMAIL
         sync: false
       - key: ADMIN_PASSWORD

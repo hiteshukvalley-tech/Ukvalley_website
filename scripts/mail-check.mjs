@@ -1,11 +1,13 @@
-// Checks the SMTP settings in .env.local and sends one test email.
+// Checks the SMTP settings in .env.local (else .env) and sends one test email.
 //   node scripts/mail-check.mjs                 → sends to SMTP_USER
 //   node scripts/mail-check.mjs you@example.com → sends to that address
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import nodemailer from "nodemailer";
 
+// .env.local when it has SMTP values, else .env (like scripts/qa/lib.mjs)
+const envText = [".env.local", ".env"].map((f) => (existsSync(f) ? readFileSync(f, "utf8") : "")).find((t) => /^SMTP_HOST=\S/m.test(t)) ?? "";
 const env = Object.fromEntries(
-  readFileSync(".env.local", "utf8")
+  envText
     .split(/\r?\n/)
     .filter((l) => l.includes("=") && !l.startsWith("#"))
     .map((l) => [l.slice(0, l.indexOf("=")).trim(), l.slice(l.indexOf("=") + 1).trim()])

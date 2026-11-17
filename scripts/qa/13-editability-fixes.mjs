@@ -7,11 +7,11 @@
 //   - the header's Solutions / Hire dropdowns follow the admin lists
 import { readFileSync } from "node:fs";
 import { MongoClient } from "mongodb";
-import { BASE, check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
+import { ENV_TEXT, BASE, check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
 
 const QA_DB = process.env.QA_DB || "ukvalley_qa";
 if (!QA_DB.endsWith("_qa")) throw new Error(`Refusing to run against "${QA_DB}" — use a scratch *_qa database.`);
-const uri = readFileSync(".env.local", "utf8").match(/^MONGODB_URI=(.*)$/m)?.[1]?.trim();
+const uri = ENV_TEXT.match(/^MONGODB_URI=(.*)$/m)?.[1]?.trim();
 const client = await new MongoClient(uri).connect();
 const db = client.db(QA_DB);
 
@@ -28,7 +28,8 @@ try {
   const ogTitle = await meta(page, 'meta[property="og:title"]');
   const ogUrl = await meta(page, 'meta[property="og:url"]');
   check("/pricing has its own og:title", !!ogTitle && /Pricing/i.test(ogTitle), String(ogTitle));
-  check("/pricing og:url is its own address", ogUrl === "https://ukvalley.com/pricing", String(ogUrl));
+  // the site address comes from NEXT_PUBLIC_SITE_URL (uat.ukvalley.com unless set): check the path is its own
+check("/pricing og:url is its own address", /^https:\/\/[^/]+\/pricing$/.test(String(ogUrl)), String(ogUrl));
   await go(page, "/blog");
   check("/blog og:title differs from home", !/Custom Software, CRM, ERP & Mobile Apps/.test((await meta(page, 'meta[property="og:title"]')) ?? ""));
 
@@ -49,8 +50,11 @@ try {
   check("meta description uses the SEO description", (await meta(site, 'meta[name="description"]')) === SEO_DESC);
   check("og:title uses the SEO title", (await meta(site, 'meta[property="og:title"]')) === SEO_TITLE);
   await go(page, "/admin/pages/about");
-  await clickButton(page, /Restore original text/);
-  await waitForText(page, "Restored").catch(() => {});
+  // retry: on a busy machine the first click can land before the page is interactive
+  for (let i = 0; i < 3; i++) {
+    await clickButton(page, /Restore original text/);
+    if (await waitForText(page, "Restored").then(() => true, () => false)) break;
+  }
   await sleep(1500);
   await go(site, "/about");
   check("restore brings the original title back", !(await site.title()).includes("QA SEO"), await site.title());
@@ -77,7 +81,8 @@ try {
   await go(p2, "/process");
   await sleep(2500);
   const shown = await text(p2);
-  check("after hydration the replacement is still shown", shown.includes(REPLACED));
+  // the eyebrow is shown in capitals, so compare ignoring case
+check("after hydration the replacement is still shown", shown.toLowerCase().includes(REPLACED.toLowerCase()));
   check("no hydration errors", !p2.problems.some((x) => /hydrat/i.test(x)), p2.problems.join(" | "));
   await db.collection("texts").updateOne({ _id: "overrides" }, { $set: { items: before, updatedAt: new Date() } }, { upsert: true });
 

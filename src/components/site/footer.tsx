@@ -16,11 +16,21 @@ import { SiteLogo } from "@/components/site/site-logo";
 // skipped, so nothing renders as a dead "#" placeholder.
 const LINKEDIN_PATH =
   "M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.5 8h4V24h-4V8zm7.5 0h3.8v2.2h.05c.53-1 1.83-2.2 3.77-2.2 4.03 0 4.78 2.65 4.78 6.1V24h-4v-7.1c0-1.7-.03-3.9-2.37-3.9-2.37 0-2.73 1.85-2.73 3.77V24h-4V8z";
+const FACEBOOK_PATH =
+  "M14 8h3V4h-3c-2.76 0-5 2.24-5 5v2H7v4h2v9h4v-9h3l1-4h-4V9c0-.55.45-1 1-1z";
+/** Instagram's camera outline: drawn with strokes, not a filled path. */
+const instagramIcon = (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <rect x="2.5" y="2.5" width="19" height="19" rx="5.5" />
+    <circle cx="12" cy="12" r="4.25" />
+    <circle cx="17.6" cy="6.4" r="1.1" fill="currentColor" stroke="none" />
+  </svg>
+);
 const socialMeta = [
   { key: "linkedin", label: "LinkedIn", path: LINKEDIN_PATH, text: "" },
   { key: "twitter", label: "X (Twitter)", path: "", text: "X" },
-  { key: "facebook", label: "Facebook", path: "", text: "f" },
-  { key: "instagram", label: "Instagram", path: "", text: "IG" },
+  { key: "facebook", label: "Facebook", path: FACEBOOK_PATH, text: "" },
+  { key: "instagram", label: "Instagram", path: "", text: "", icon: instagramIcon },
   { key: "youtube", label: "YouTube", path: "", text: "YT" },
   { key: "github", label: "GitHub", path: "", text: "GH" },
 ] as const;
@@ -51,10 +61,15 @@ export async function Footer() {
                 <a
                   key={s.label}
                   href={ukText(s.href)}
-                  aria-label={s.label}
+                  // the company's profiles open in a new tab, keeping the site open
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${s.label} (opens in a new tab)`}
                   className="flex h-11 w-11 items-center justify-center rounded-lg border border-uk-line bg-white dark:bg-uk-surface-2 text-uk-muted sm:h-9 sm:w-9 transition-colors hover:border-uk-blue/40 hover:bg-uk-blue/10 hover:text-uk-blue"
                 >
-                  {s.path ? (
+                  {"icon" in s && s.icon ? (
+                    s.icon
+                  ) : s.path ? (
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
                       <path d={s.path} />
                     </svg>

@@ -1,5 +1,6 @@
 import Link from "@/components/site/intent-link";
-import { Clock, ExternalLink, Mail, MapPin, Phone, Repeat, Video } from "lucide-react";
+import type { ReactNode } from "react";
+import { Ban, Clock, ExternalLink, Mail, MapPin, Phone, Repeat, Video } from "lucide-react";
 import type { Interview } from "@/lib/interviews-store";
 import { isIsoDate } from "@/lib/careers-shared";
 import { ApplicationStatusBadge } from "../applications/application-ui";
@@ -37,22 +38,29 @@ export function relativeDay(iso: string, today: string): string {
 
 const isUrl = (s: string) => /^https?:\/\/\S+$/i.test(s);
 
-/** One interview: time, candidate, role, mode and venue, with a link to the application. */
-export function InterviewRow({ interview: i, compact = false }: { interview: Interview; compact?: boolean }) {
-  const cancelled = i.status === "rejected";
+/** One interview: time, candidate, role, mode and venue, with a link to the application, and (optionally) its Reschedule / Cancel buttons. */
+export function InterviewRow({ interview: i, compact = false, actions }: { interview: Interview; compact?: boolean; actions?: ReactNode }) {
+  // Cancelled by HR, or the applicant was not selected: shown faded.
+  const cancelled = i.cancelled || i.status === "rejected";
   return (
-    <li className={`flex flex-col gap-3 py-4 sm:flex-row sm:items-start ${cancelled ? "opacity-60" : ""}`}>
-      <div className="flex w-28 shrink-0 items-center gap-1.5 font-heading text-sm font-semibold text-uk-heading">
+    // Only the details fade when cancelled; the buttons stay at full strength.
+    <li className="flex flex-col gap-3 py-4 sm:flex-row sm:items-start">
+      <div className={`flex w-28 shrink-0 items-center gap-1.5 font-heading text-sm font-semibold text-uk-heading ${cancelled ? "opacity-60" : ""}`}>
         <Clock className="h-4 w-4 text-uk-blue" />
-        {i.time ? formatInterviewTime(i.time) : <span className="font-normal text-uk-muted">No time set</span>}
+        {i.time ? <span className={i.cancelled ? "line-through" : undefined}>{formatInterviewTime(i.time)}</span> : <span className="font-normal text-uk-muted">No time set</span>}
       </div>
-      <div className="min-w-0 flex-1">
+      <div className={`min-w-0 flex-1 ${cancelled ? "opacity-60" : ""}`}>
         <div className="flex flex-wrap items-center gap-2">
           <Link href={`/admin/applications/${i.applicationId}`} className="font-semibold text-uk-heading hover:text-uk-blue">
             {i.name}
           </Link>
           <ApplicationStatusBadge status={i.status} />
-          {i.rescheduled && (
+          {i.cancelled && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-300">
+              <Ban className="h-3 w-3" /> Interview cancelled
+            </span>
+          )}
+          {i.rescheduled && !i.cancelled && (
             <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-xs font-medium text-amber-700 dark:text-amber-300">
               <Repeat className="h-3 w-3" /> Rescheduled
             </span>
@@ -89,7 +97,9 @@ export function InterviewRow({ interview: i, compact = false }: { interview: Int
           )}
         </div>
         {!compact && i.agenda && <p className="mt-1.5 whitespace-pre-line text-xs text-uk-muted">Agenda: {i.agenda}</p>}
+        {i.cancelled && i.cancelReason && <p className="mt-1.5 text-xs text-uk-muted">Cancelled: {i.cancelReason}</p>}
       </div>
+      {actions}
     </li>
   );
 }

@@ -147,7 +147,8 @@ export function validateIndustry(
     if (!v.featuredCaseTitle) e.featuredCaseTitle = "Enter the title too.";
     else if (v.featuredCaseTitle.length > 140) e.featuredCaseTitle = "Title must be 140 characters or fewer.";
     if (!v.featuredCaseHref) e.featuredCaseHref = "Enter the link too, e.g. /case-studies/loan-origination-nbfc.";
-    else if (!/^\/(?!\/)/.test(v.featuredCaseHref) && !/^https?:\/\//.test(v.featuredCaseHref)) {
+    else if (v.featuredCaseHref.length > 300) e.featuredCaseHref = "Link must be 300 characters or fewer.";
+    else if (!/^\/(?![/\\])/.test(v.featuredCaseHref) && !/^https?:\/\//.test(v.featuredCaseHref)) {
       e.featuredCaseHref = "Start with / (a page on this site) or https://";
     }
     featuredCase = { title: v.featuredCaseTitle, href: v.featuredCaseHref };

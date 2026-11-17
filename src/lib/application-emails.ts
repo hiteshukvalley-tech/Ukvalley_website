@@ -25,10 +25,11 @@ const LOGO_CID = "ukvalley-logo@ukvalley.com";
  * is the site's own path, which the admin's live preview loads; emails that
  * are sent carry the logo inside them instead (see withLogo).
  */
-export function emailBrand(settings: Pick<SiteSettings, "name" | "phonePrimary">): EmailBrand {
+export function emailBrand(settings: Pick<SiteSettings, "name" | "phonePrimary" | "hr">): EmailBrand {
   return {
     company: settings.name,
-    phone: settings.phonePrimary,
+    // Candidate emails give the HR line (Site settings → HR phone); the main number only when that is empty.
+    phone: settings.hr.phone.trim() || settings.phonePrimary,
     website: SITE_URL,
     logoUrl: LOGO_PATH,
   };
@@ -64,6 +65,14 @@ async function withLogo(brand: EmailBrand): Promise<{ brand: EmailBrand; attachm
 
 const applicantOf = (app: Application) => ({ id: app.id, name: app.name, position: app.position, appliedOn: app.createdAt });
 
+// The thank-you goes out automatically with the name exactly as the visitor
+// typed it: keep it to one short line so it can't carry a message of its own.
+const THANKS_NAME_MAX = 60;
+const thanksApplicantOf = (app: Application) => {
+  const name = app.name.replace(/\s+/g, " ").trim();
+  return { ...applicantOf(app), name: name.length > THANKS_NAME_MAX ? `${name.slice(0, THANKS_NAME_MAX - 1).trimEnd()}…` : name };
+};
+
 const reason = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
 /** One line in Admin → Careers → Email logs. */
@@ -96,6 +105,7 @@ function hrEmail(app: Application, adminUrl: string, brand: EmailBrand) {
     ["Job Title", app.position],
     ["Experience", app.experience],
     ["Expected Joining Date",app.joiningDate ? formatPostedDate(app.joiningDate) : "Not given"],
+    ["Heard About Us Via", app.source || "Not given"],
     ["Portfolio / LinkedIn", app.portfolio || "—"],
     ["Cover Letter", app.coverLetter || "—"],
   ];
@@ -117,7 +127,8 @@ function hrEmail(app: Application, adminUrl: string, brand: EmailBrand) {
 
 /** The thank-you sent when someone applies: the "New" status email. */
 function applicantEmail(app: Application, brand: EmailBrand) {
-  return renderApplicantEmail({ status: "new", applicant: applicantOf(app), email: statusEmailTemplate("new", applicantOf(app)), brand });
+  const applicant = thanksApplicantOf(app);
+  return renderApplicantEmail({ status: "new", applicant, email: statusEmailTemplate("new", applicant), brand });
 }
 
 /**
@@ -227,7 +238,7 @@ export async function sendApplicationEmails(
   const hr = hrEmail(app, opts.adminUrl, brand);
   const thanks = applicantEmail(app, brand);
   const hrEntry = { to: opts.hrEmail, subject: hr.subject, status: "new" as const };
-  const thanksEntry = { to: app.email, subject: thanks.subject, status: "new" as const, body: bodyOf(statusEmailTemplate("new", applicantOf(app))) };
+  const thanksEntry = { to: app.email, subject: thanks.subject, status: "new" as const, body: bodyOf(statusEmailTemplate("new", thanksApplicantOf(app))) };
   if (!(await hasMailer())) {
     console.info(`[careers] Application ${app.id} saved; emails not sent (SMTP not configured).`);
     const error = "Email (SMTP) is not set up.";

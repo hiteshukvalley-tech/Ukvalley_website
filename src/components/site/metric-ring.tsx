@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { onceInView, prefersReducedMotion, tween } from "@/lib/in-view";
 
 type MetricRingProps = {
   /** numeric portion, e.g. 60 for "60%" */
@@ -28,7 +23,6 @@ export function MetricRing({ value, suffix = "%", label, size = 120 }: MetricRin
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const ring = el.querySelector<SVGCircleElement>("[data-ring-progress]");
     const circumference = 2 * Math.PI * 52;
@@ -38,24 +32,17 @@ export function MetricRing({ value, suffix = "%", label, size = 120 }: MetricRin
       if (ring) ring.style.strokeDashoffset = String(circumference * (1 - v / 100));
     };
 
-    if (reduced) {
+    if (prefersReducedMotion()) {
       setProgress(value);
       return;
     }
 
-    const state = { v: 0 };
-    const ctx = gsap.context(() => {
-      setProgress(0);
-      gsap.to(state, {
-        v: value,
-        duration: 1.6,
-        ease: "power3.out",
-        onUpdate: () => setProgress(state.v),
-        scrollTrigger: { trigger: el, start: "top 85%", once: true },
-      });
-    }, el);
-
-    return () => ctx.revert();
+    let cancel = () => {};
+    const stop = onceInView(el, () => (cancel = tween(1600, (p) => setProgress(value * p))));
+    return () => {
+      stop();
+      cancel();
+    };
   }, [value]);
 
   return (

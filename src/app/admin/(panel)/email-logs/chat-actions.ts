@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/admin-session";
-import { findApplicationByEmail } from "@/lib/applications-store";
+import { findApplicationByEmail, takeEmailSendSlot } from "@/lib/applications-store";
 import { isApplicationStatus, type ApplicationStatus } from "@/lib/applications-validation";
 import { sendChatMessage } from "@/lib/application-emails";
 import { emailKindLabel, listConversationEmails } from "@/lib/email-logs-store";
@@ -59,11 +59,11 @@ export async function loadChatAction(rawEmail: string): Promise<Chat | { error: 
   const email = cleanEmail(rawEmail);
   if (!EMAIL.test(email)) return { error: "That isn't a valid email address." };
 
-  const mailboxes = await mailboxesFor(me.id);
-  const [app, logs, inbox, canSend] = await Promise.all([
-    findApplicationByEmail(email),
+  const [app, mailboxes] = await Promise.all([findApplicationByEmail(email), mailboxesFor(me.id)]);
+  // The HR inbox is only read for applicants, never for any address typed in.
+  const [logs, inbox, canSend] = await Promise.all([
     listConversationEmails(email),
-    mailboxes.length ? listMessagesFrom(mailboxes, email) : Promise.resolve({ items: [], error: undefined }),
+    app && mailboxes.length ? listMessagesFrom(mailboxes, email) : Promise.resolve({ items: [], error: undefined }),
     hasMailer(me.id),
   ]);
   const lastLog = logs.items[logs.items.length - 1];
@@ -95,7 +95,11 @@ export async function loadChatAction(rawEmail: string): Promise<Chat | { error: 
     position: app?.position || lastLog?.position || "",
     applicationId: app?.id || lastLog?.applicationId || "",
     messages,
-    problems: [logs.dbError, inbox.error].filter((p): p is string => !!p),
+    problems: [
+      logs.dbError,
+      inbox.error,
+      app ? undefined : "No application was found from this email address, so the HR inbox isn't read and messages can't be sent.",
+    ].filter((p): p is string => !!p),
     mailbox: mailboxes.length > 0,
     canSend,
   };
@@ -115,11 +119,16 @@ export async function sendChatAction(rawEmail: string, rawMessage: string): Prom
     return { ok: false, message: "Email is not set up yet: add your own SMTP in Settings, or an admin can add the HR SMTP in Site settings." };
   }
 
-  const [app, logs, settings] = await Promise.all([findApplicationByEmail(email), listConversationEmails(email), getSiteSettings()]);
+  // Only applicants can be emailed from the HR mailbox, never any address.
+  const app = await findApplicationByEmail(email);
+  if (!app) return { ok: false, message: "No application was found from this email address." };
+  if (!takeEmailSendSlot(me.id)) return { ok: false, message: "You've sent a lot of emails in the last hour. Please wait a while and try again." };
+
+  const [logs, settings] = await Promise.all([listConversationEmails(email), getSiteSettings()]);
   const last = logs.items[logs.items.length - 1];
-  const name = app?.name || last?.applicantName || email;
-  const position = app?.position || last?.position || "";
-  const status: ApplicationStatus = app?.status ?? (isApplicationStatus(last?.status) ? last.status : "new");
+  const name = app.name || last?.applicantName || email;
+  const position = app.position || last?.position || "";
+  const status: ApplicationStatus = isApplicationStatus(app.status) ? app.status : isApplicationStatus(last?.status) ? last.status : "new";
   // Keep the thread together in the applicant's inbox: reply to the last subject HR used.
   const lastSubject = [...logs.items].reverse().find((l) => l.result === "sent")?.subject;
   const subject = lastSubject
@@ -128,12 +137,13 @@ export async function sendChatAction(rawEmail: string, rawMessage: string): Prom
 
   try {
     await sendChatMessage(
-      { email, name, position, applicationId: app?.id || last?.applicationId || "", status },
+      { email, name, position, applicationId: app.id, status },
       { message, subject, replyTo: settings.hr.email || undefined, sentBy: me.email, senderId: me.id }
     );
   } catch (e) {
+    console.error("Chat message failed:", e);
     revalidatePath("/admin/email-logs");
-    return { ok: false, message: `The message could not be sent: ${e instanceof Error ? e.message : String(e)}` };
+    return { ok: false, message: "The message could not be sent. Check the email settings and try again." };
   }
   clearChatCache(email);
   revalidatePath("/admin/email-logs");

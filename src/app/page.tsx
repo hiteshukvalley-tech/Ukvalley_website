@@ -25,7 +25,7 @@ import { getFaqs } from "@/lib/faqs-store";
 import { getProcessSteps } from "@/lib/process-store";
 import { getTechStack } from "@/lib/tech-stack-store";
 import { getSiteSettings } from "@/lib/settings";
-import { getIndustries } from "@/lib/industries-store";
+import { getIndustries, toIndustryCards } from "@/lib/industries-store";
 import { getHomePage } from "@/lib/home-store";
 import { Marked } from "@/components/site/marked";
 import { CustomSection } from "@/components/site/custom-section";
@@ -105,7 +105,7 @@ export default async function Home() {
     caseStudies: <CaseStudies content={c.caseStudies} />,
     industries: (
       <Industries
-        industries={industries}
+        industries={toIndustryCards(industries)}
         eyebrow={ukText(c.industries.eyebrow)}
         title={<Marked text={ukText(c.industries.title)} />}
         description={ukText(c.industries.description)}
@@ -136,10 +136,17 @@ export default async function Home() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        {order.map((id) => {
-          if (isHomeSectionKey(id)) return show[id] ? <Fragment key={id}>{ukText(builtIn[id])}</Fragment> : null;
-          const section = custom.find((x) => x.id === id);
-          return section?.visible ? <CustomSection key={id} id={id} content={section.values} /> : null;
+        {order.map((id, i) => {
+          let node: ReactNode = null;
+          if (isHomeSectionKey(id)) node = show[id] ? builtIn[id] : null;
+          else {
+            const section = custom.find((x) => x.id === id);
+            node = section?.visible ? <CustomSection id={id} content={section.values} /> : null;
+          }
+          if (!node) return null;
+          // The first two sections are on screen at load; the browser skips
+          // layout and paint of the rest until they are scrolled near.
+          return i < 2 ? <Fragment key={id}>{node}</Fragment> : <div key={id} className="cv-auto">{node}</div>;
         })}
       </main>
       <Footer />

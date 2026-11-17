@@ -1,6 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { clientIp } from "@/lib/client-ip";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { canSendResetCodes, completeReset, requestResetCode, verifyResetCode } from "@/lib/password-reset";
 import { EMAIL_MAX, PASSWORD_MAX, passwordError } from "@/lib/users-validation";
@@ -21,26 +24,62 @@ export type ForgotState = {
 };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SEND_FAILED = "Could not send the email right now. Please try again in a few minutes.";
 
-async function sendCode(email: string, nonce: number): Promise<ForgotState> {
-  try {
-    const outcome = await requestResetCode(email);
-    if (outcome === "limited") {
-      return { step: "email", email, error: "Too many codes were requested for this email. Try again in an hour.", nonce };
-    }
-    if (outcome === "wait") {
-      return { step: "code", email, error: "A code was sent less than a minute ago. Check your inbox, or wait a minute and resend.", nonce };
-    }
-  } catch (e) {
-    // Shown in the server log only (e.g. Gmail "Invalid login: Application-specific password required").
-    console.error("[forgot password] Could not send the code email:", e instanceof Error ? e.message : e);
-    return { step: "email", email, error: SEND_FAILED, nonce };
+// Simple in-memory throttle per IP, like the sign-in one (app/admin/actions.ts):
+// 10 code requests and 10 wrong codes per 15 minutes. Every email address has
+// its own limits too (password-reset.ts); this stops one visitor spraying many.
+// Resets on server restart and is per-instance.
+const MAX_PER_IP = 10;
+const WINDOW_MS = 15 * 60 * 1000;
+const MAX_TRACKED = 5000;
+const hits = new Map<string, { count: number; first: number }>();
+
+function hitCount(key: string): number {
+  const rec = hits.get(key);
+  if (!rec) return 0;
+  if (Date.now() - rec.first > WINDOW_MS) {
+    hits.delete(key);
+    return 0;
   }
+  return rec.count;
+}
+
+function recordHit(key: string) {
+  const now = Date.now();
+  if (hits.size >= MAX_TRACKED) {
+    for (const [k, r] of hits) if (now - r.first > WINDOW_MS) hits.delete(k);
+    // Still full (a flood of unique keys): drop the oldest entries.
+    for (const k of hits.keys()) {
+      if (hits.size < MAX_TRACKED) break;
+      hits.delete(k);
+    }
+  }
+  const rec = hits.get(key);
+  if (!rec || now - rec.first > WINDOW_MS) hits.set(key, { count: 1, first: now });
+  else rec.count += 1;
+}
+
+const TOO_MANY = "Too many attempts from this network. Try again in 15 minutes.";
+
+/**
+ * Sends the code after the response, so every email gets the same answer at
+ * the same speed: whether it has an account, was sent a code a moment ago, hit
+ * the hourly limit or the send failed is only written to the server log.
+ */
+function sendCode(email: string, nonce: number): ForgotState {
+  after(async () => {
+    try {
+      const outcome = await requestResetCode(email);
+      if (outcome !== "sent") console.warn(`[forgot password] No code sent to ${email}: ${outcome}`);
+    } catch (e) {
+      // e.g. Gmail "Invalid login: Application-specific password required".
+      console.error("[forgot password] Could not send the code email:", e instanceof Error ? e.message : e);
+    }
+  });
   return {
     step: "code",
     email,
-    notice: `If ${email} has an admin account, a 6-digit code is on its way. It expires in 10 minutes.`,
+    notice: `If ${email} has an admin account, a 6-digit code is on its way. It expires in 10 minutes. No email after a few minutes? Resend the code, or wait an hour if you asked for several.`,
     nonce,
   };
 }
@@ -64,10 +103,15 @@ export async function forgotPasswordAction(_prev: ForgotState, formData: FormDat
     };
   }
 
+  const ip = clientIp(await headers());
+
   if (step === "email" || formData.get("intent") === "resend") {
     if (!EMAIL.test(email)) {
       return { step: "email", email, errors: { email: "Enter a valid email ID." }, nonce };
     }
+    const key = `send:${ip}`;
+    if (hitCount(key) >= MAX_PER_IP) return { step: "email", email, error: TOO_MANY, nonce };
+    recordHit(key);
     return sendCode(email, nonce);
   }
 
@@ -76,12 +120,19 @@ export async function forgotPasswordAction(_prev: ForgotState, formData: FormDat
     if (!/^\d{6}$/.test(code)) {
       return { step: "code", email, errors: { code: "Enter the 6-digit code from the email." }, nonce };
     }
+    const key = `verify:${ip}`;
+    if (hitCount(key) >= MAX_PER_IP) return { step: "code", email, error: TOO_MANY, nonce };
     try {
       const result = await verifyResetCode(email, code);
       if (!result.ok) {
-        return result.reason === "wrong"
-          ? { step: "code", email, errors: { code: "That code isn't right. Check the email and try again." }, nonce }
-          : { step: "code", email, error: "This code has expired or was tried too many times. Send a new code.", nonce };
+        recordHit(key);
+        // One message for a wrong, expired or used-up code (see verifyResetCode).
+        return {
+          step: "code",
+          email,
+          errors: { code: "That code isn't right or has expired. Check the email and try again, or send a new code." },
+          nonce,
+        };
       }
       return { step: "password", email, token: result.token, nonce };
     } catch {

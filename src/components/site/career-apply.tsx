@@ -2,17 +2,18 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { Dialog } from "@base-ui/react/dialog";
-import { AlertCircle, ArrowRight, Check, ChevronDown, FileText, Loader2, Upload, X } from "lucide-react";
+import { AlertCircle, ArrowRight, Check, ChevronDown, FileText, Loader2, Share2, Upload, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  COVER_LETTER_MAX, EMAIL_MAX, EXPERIENCE_OPTIONS, LOCATION_MAX, NAME_MAX, PORTFOLIO_MAX, POSITION_MAX,
-  RESUME_MAX_BYTES, latestJoiningDate, readApplication, resumeError, validateApplication, type ApplyResult,
+  COVER_LETTER_MAX, EMAIL_MAX, EXPERIENCE_OPTIONS, LOCATION_MAX, NAME_MAX, PORTFOLIO_MAX,
+  RESUME_MAX_BYTES, SOURCE_OPTIONS, SOURCE_OTHER_MAX, latestJoiningDate, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
 import { validatePhone } from "@/lib/contact-validation";
 import { DEFAULT_HIRING_PROCESS, todayInIndia, type HiringStep } from "@/lib/careers-shared";
 import { T, Tx, useT } from "@/components/site/texts-context";
+import { trackEvent } from "@/lib/analytics";
 
 /**
  * Careers "Apply" popup. Wrap the open roles in <CareerApplyProvider>; any
@@ -20,8 +21,13 @@ import { T, Tx, useT } from "@/components/site/texts-context";
  * position filled in. Submissions go to POST /careers/apply.
  */
 
-type ApplyContextValue = { open: (position?: string, trigger?: HTMLElement | null) => void };
-const ApplyContext = createContext<ApplyContextValue>({ open: () => {} });
+type ApplyContextValue = {
+  open: (position?: string, trigger?: HTMLElement | null) => void;
+  /** False when no role is open: applications are only taken for open roles. */
+  accepting: boolean;
+  hrEmail?: string;
+};
+const ApplyContext = createContext<ApplyContextValue>({ open: () => {}, accepting: false });
 
 export function ApplyButton({
   position,
@@ -32,7 +38,12 @@ export function ApplyButton({
   className?: string;
   children: React.ReactNode;
 }) {
-  const { open } = useContext(ApplyContext);
+  const { open, accepting, hrEmail } = useContext(ApplyContext);
+  // No open roles: there is nothing to apply for, so the button becomes an
+  // email to HR (or disappears when no address is known).
+  if (!accepting) {
+    return hrEmail ? <a href={`mailto:${hrEmail}`} className={className}>{children}</a> : null;
+  }
   return (
     <button type="button" onClick={(e) => open(position, e.currentTarget)} className={`cursor-pointer ${className ?? ""}`}>
       {children}
@@ -43,11 +54,17 @@ export function ApplyButton({
 export function CareerApplyProvider({
   positions,
   processes = {},
+  autoOpen,
+  hrEmail,
   children,
 }: {
   positions: string[];
   /** Hiring stages per role title, shown as "What happens next" after applying. */
   processes?: Record<string, HiringStep[]>;
+  /** Role whose form opens straight away when the URL has ?apply (a shared job link). */
+  autoOpen?: string;
+  /** Where the apply buttons point when no role is open. */
+  hrEmail?: string;
   children: React.ReactNode;
 }) {
   const [position, setPosition] = useState<string | null>(null);
@@ -59,6 +76,21 @@ export function CareerApplyProvider({
     setPosition(p ?? "");
   }, []);
   const close = useCallback(() => setPosition(null), []);
+  const accepting = positions.length > 0;
+
+  // A shared job link (/careers/<slug>?apply=1) opens the form for that role.
+  // The page only renders for an open role (a closed one redirects to Careers),
+  // and the flag is dropped from the address so a reload or Back doesn't reopen it.
+  useEffect(() => {
+    if (!autoOpen || !positions.includes(autoOpen)) return;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has("apply")) return;
+    url.searchParams.delete("apply");
+    window.history.replaceState(window.history.state, "", url.pathname + url.search + url.hash);
+    // A beat after hydration, so the page loader has faded first.
+    const t = window.setTimeout(() => setPosition(autoOpen), 300);
+    return () => window.clearTimeout(t);
+  }, [autoOpen, positions]);
 
   // The modal Dialog below handles Escape, backdrop clicks, the focus trap
   // and the page scroll lock, and hands focus back to the opener on close.
@@ -96,7 +128,7 @@ export function CareerApplyProvider({
   }, [isOpen, measure]);
 
   return (
-    <ApplyContext.Provider value={{ open }}>
+    <ApplyContext.Provider value={{ open, accepting, hrEmail }}>
       {children}
       <Dialog.Root open={isOpen} onOpenChange={(o) => !o && close()}>
         <Dialog.Portal>
@@ -205,6 +237,8 @@ function ApplicationForm({
   const [formError, setFormError] = useState<string>();
   const [fileName, setFileName] = useState<string>();
   const [coverLength, setCoverLength] = useState(0);
+  // "How did you hear about us?": "Other" opens a box for their own words.
+  const [source, setSource] = useState("");
   const [sentTo, setSentTo] = useState<{ name: string; email: string; position: string }>();
   const firstField = useRef<HTMLInputElement>(null);
   // Bounds of the joining-date picker: today (India) to 12 months ahead.
@@ -251,8 +285,17 @@ function ApplicationForm({
     }
 
     if (result?.ok) {
+      // Analytics: the role applied for, never the applicant's details.
+      trackEvent("form_submit", { form_name: "career_application", form_type: "job_application", job_position: input.position });
       setSentTo({ name: input.name.split(" ")[0], email: input.email, position: input.position });
       setStatus("sent");
+      return;
+    }
+    if (result && result.kind === "closed") {
+      // The role was closed after this page was opened: say so, then show the current openings.
+      setFormError(result.message);
+      const target = result.redirectTo;
+      window.setTimeout(() => window.location.assign(target), 2500);
       return;
     }
     setStatus("idle");
@@ -295,7 +338,7 @@ function ApplicationForm({
                 >
                   {i + 1}
                 </span>
-                <span className="text-sm text-uk-body">
+                <span className="min-w-0 text-sm text-uk-body wrap-anywhere">
                   <span className="font-semibold text-uk-heading"><Tx>{s.title}</Tx></span>
                   {i === 0 && <span className="ml-2 rounded-full bg-uk-blue/10 px-2 py-0.5 text-[0.65rem] font-semibold text-uk-blue"><T>You are here</T></span>}
                 </span>
@@ -357,16 +400,18 @@ function ApplicationForm({
           />
         </Field>
         <Field label="Position Applied For" htmlFor="apply-position" error={errors.position} required>
-          <Input
-            id="apply-position" name="position" list="apply-positions" defaultValue={initialPosition}
-            placeholder={t("Select or type a position")} maxLength={POSITION_MAX} autoComplete="off"
-            aria-invalid={!!errors.position || undefined} onInput={() => clearError("position")} className="h-11 px-3.5"
-          />
-          <datalist id="apply-positions">
+          {/* Only open roles can be chosen; the server checks again on submit. */}
+          <select
+            id="apply-position" name="position" defaultValue={positions.includes(initialPosition) ? initialPosition : ""}
+            aria-invalid={!!errors.position || undefined} onChange={() => clearError("position")}
+            // text-base on phones: iOS zooms into fields under 16px.
+            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue aria-invalid:border-destructive sm:text-sm"
+          >
+            <option value="" disabled><T>Select a position…</T></option>
             {positions.map((p) => (
-              <option key={p} value={p} />
+              <option key={p} value={p}><Tx>{p}</Tx></option>
             ))}
-          </datalist>
+          </select>
         </Field>
         <Field label="Years Of Experience" htmlFor="apply-experience" error={errors.experience} required>
           <select
@@ -396,16 +441,44 @@ function ApplicationForm({
             aria-invalid={!!errors.portfolio || undefined} onInput={() => clearError("portfolio")} className="h-11 px-3.5"
           />
         </Field>
+        <Field label="How Did You Hear About Ukvalley?" htmlFor="apply-source" error={errors.source} required>
+          <select
+            id="apply-source" name="source" value={source}
+            aria-invalid={!!errors.source || undefined}
+            onChange={(e) => {
+              setSource(e.target.value);
+              clearError("source");
+              clearError("sourceOther");
+            }}
+            // text-base on phones: iOS zooms into fields under 16px.
+            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue aria-invalid:border-destructive sm:text-sm"
+          >
+            <option value="" disabled><T>Select an option…</T></option>
+            {SOURCE_OPTIONS.map((x) => (
+              <option key={x} value={x}><Tx>{x}</Tx></option>
+            ))}
+          </select>
+        </Field>
+        {source === "Other" && (
+          <Field label="Please Tell Us Where" htmlFor="apply-source-other" error={errors.sourceOther} required>
+            <Input
+              id="apply-source-other" name="sourceOther" placeholder={t("e.g. a WhatsApp group, a newspaper ad")} maxLength={SOURCE_OTHER_MAX}
+              aria-invalid={!!errors.sourceOther || undefined} onInput={() => clearError("sourceOther")} className="h-11 px-3.5"
+            />
+          </Field>
+        )}
       </div>
 
-      <Field label="Upload Resume (PDF Only)" htmlFor="apply-resume" error={errors.resume} required>
+      <Field label="Upload Resume (PDF Only)" htmlFor="apply-resume-button" error={errors.resume} required>
         <div
           className={`flex flex-wrap items-center gap-3 rounded-lg border border-dashed px-3.5 py-3 ${
             errors.resume ? "border-destructive" : "border-uk-line-2 bg-uk-surface-2"
           }`}
         >
+          {/* The button below is the one control people reach (Tab, screen
+              readers); the real file input stays out of the tab order. */}
           <input
-            id="apply-resume" name="resume" type="file" accept="application/pdf,.pdf" className="sr-only"
+            id="apply-resume" name="resume" type="file" accept="application/pdf,.pdf" className="sr-only" tabIndex={-1} aria-hidden
             onChange={(e) => {
               const f = e.target.files?.[0];
               setFileName(f?.name);
@@ -419,7 +492,7 @@ function ApplicationForm({
             }}
           />
           <button
-            type="button" name="resume-button"
+            type="button" name="resume-button" id="apply-resume-button"
             onClick={() => document.getElementById("apply-resume")?.click()}
             className="inline-flex h-9 items-center gap-2 rounded-lg border border-uk-line bg-uk-card px-3.5 text-sm font-medium text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
           >
@@ -433,7 +506,7 @@ function ApplicationForm({
                 <span className="truncate text-uk-body"><Tx>{fileName}</Tx></span>
               </>
             ) : (
-              "No file chosen"
+              <T>No file chosen</T>
             )}
           </span>
           <span className="w-full text-xs text-uk-muted"><T>PDF only, up to</T> {RESUME_MAX_BYTES / 1024 / 1024} <T>MB.</T></span>
@@ -506,6 +579,75 @@ function Field({
           <Tx>{error}</Tx>
         </span>
       )}
+    </div>
+  );
+}
+
+/**
+ * Shares a job's apply link (/careers/<slug>?apply=1): the phone's share sheet
+ * where there is one, otherwise copies it. Opening the link shows the form for
+ * that role while it is open, or the Careers page with a "closed" notice after.
+ */
+export function ShareJobButton({ url, title, className }: { url: string; title: string; className?: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      className={className}
+      onClick={async () => {
+        if (typeof navigator.share === "function" && window.matchMedia("(pointer: coarse)").matches) {
+          try {
+            await navigator.share({ title, url });
+            return;
+          } catch {
+            // Share sheet dismissed or unavailable: fall back to copying.
+          }
+        }
+        try {
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+          window.setTimeout(() => setCopied(false), 2000);
+        } catch {
+          window.prompt("Copy this link", url);
+        }
+      }}
+    >
+      {copied ? <Check className="h-4 w-4 text-uk-blue" /> : <Share2 className="h-4 w-4" />}
+      <span aria-live="polite">{copied ? <T>Link copied</T> : <T>Share this job</T>}</span>
+    </button>
+  );
+}
+
+/**
+ * The Careers page notice for /careers?closed=<slug>: someone opened a link to
+ * a role that has since closed. Read in the browser so the page stays static.
+ */
+export function ClosedRoleNotice() {
+  const [slug, setSlug] = useState<string | null>(null);
+  useEffect(() => {
+    const value = new URLSearchParams(window.location.search).get("closed");
+    if (value === null) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the address once, after hydration
+    setSlug(value);
+  }, []);
+  if (slug === null) return null;
+  // The slug is made from the role title in the admin, so it reads back as one.
+  const name = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)
+    ? slug.replace(/-\d+$/, "").split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")
+    : "";
+  return (
+    <div role="status" className="mt-8 flex items-start gap-3 rounded-2xl border border-uk-yellow/50 bg-uk-yellow/10 p-5 text-sm text-uk-body">
+      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-uk-blue" aria-hidden />
+      <p>
+        {name ? (
+          <>
+            <T>The</T> <span className="font-semibold text-uk-heading"><Tx>{name}</Tx></span> <T>opening is closed now and no longer takes applications.</T>
+          </>
+        ) : (
+          <T>This job opening is closed now and no longer takes applications.</T>
+        )}{" "}
+        <T>Have a look at our current openings below.</T>
+      </p>
     </div>
   );
 }

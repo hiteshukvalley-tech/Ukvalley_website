@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 
 /**
- * First-paint branded loader. Shown only on the initial hard load,
- * fades out once the window finishes loading (or after a short safety
- * timeout). Route changes use the `template.tsx` entrance animation
- * instead, so this never flashes on navigation.
+ * First-paint branded loader. Shown only on the initial hard load and
+ * faded out as soon as the page has hydrated (a CSS failsafe hides it if
+ * JavaScript never runs). It lives in the root layout, which stays mounted
+ * across client-side navigation, so it never flashes on route changes.
  */
 export function PageLoader({
   logo,
@@ -23,19 +23,14 @@ export function PageLoader({
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const finish = () => {
-      setDone(true);
-      // Remove from DOM after the fade completes.
-      window.setTimeout(() => setHidden(true), 300);
-    };
-
     // Hydration has finished by the time this effect runs, so there is
     // nothing left to wait for — don't hold the page behind the loader
     // until every image/font fires window "load".
-    void reduced;
-    finish();
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time "hydrated" signal starting the fade
+    setDone(true);
+    // Remove from DOM after the fade completes.
+    const t = window.setTimeout(() => setHidden(true), 300);
+    return () => window.clearTimeout(t);
   }, []);
 
   if (hidden) return null;
@@ -51,7 +46,8 @@ export function PageLoader({
       }`}
     >
       <div className="absolute inset-0 loader-grid opacity-60" aria-hidden />
-      <div className="absolute left-1/2 top-1/2 h-72 w-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-uk-blue/15 blur-[120px]" aria-hidden />
+      {/* a radial gradient, not a 120px CSS blur: same glow, far cheaper to paint (Safari) */}
+      <div className="absolute left-1/2 top-1/2 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(closest-side,rgba(49,0,255,0.15),transparent)]" aria-hidden />
 
       <div className="relative flex flex-col items-center gap-6">
         {/* plain <img>: the logo can be /media/<id> or any https address; it must paint with the first HTML */}

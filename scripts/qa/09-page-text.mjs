@@ -53,7 +53,9 @@ const h1 = await page.$eval("h1", (h) => h.innerText);
 check("hero title replaced, stars removed", has(h1, "QA pricing headline") && !h1.includes("*"), h1);
 check("hero eyebrow replaced", has(body, "QA eyebrow"));
 check("blocks shown", has(body, "QA first block") && has(body, "First block body") && has(body, "QA second block") && has(body, "Go there"));
-check("first block before second", body.indexOf("QA first block") < body.indexOf("QA second block"));
+// block titles are shown in capitals (site headings), so compare ignoring case
+const at = (b, s) => b.toLowerCase().indexOf(s.toLowerCase());
+check("first block before second", at(body, "QA first block") >= 0 && at(body, "QA first block") < at(body, "QA second block"));
 check("blocks sit above the footer", body.indexOf("QA second block") < body.lastIndexOf("All rights reserved"));
 check("other pages untouched", !has(await (async () => { await go(page, "/about"); return text(page); })(), "QA first block"));
 
@@ -64,7 +66,7 @@ await clickButton("Save section");
 await waitForText("Saved. The page is updating.");
 await go(page, "/pricing", { timeout: 120000 });
 body = await text(page);
-check("order changed on the page", body.indexOf("QA second block") < body.indexOf("QA first block"));
+check("order changed on the page", at(body, "QA second block") >= 0 && at(body, "QA second block") < at(body, "QA first block"));
 
 await go(page, "/admin/pages/pricing");
 await clickButton("Restore original text");

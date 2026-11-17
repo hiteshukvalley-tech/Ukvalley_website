@@ -1,4 +1,3 @@
-import { Readable } from "node:stream";
 import { GridFSBucket, ObjectId } from "mongodb";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 
@@ -124,18 +123,65 @@ export async function countMedia(): Promise<number | null> {
   }
 }
 
-/** File info plus a web stream of its bytes, or null when it doesn't exist. */
-export async function openMedia(id: string): Promise<{ item: MediaItem; stream: ReadableStream<Uint8Array> } | null> {
+// In-memory copy of recently served files. A file's content never changes
+// for its id, and the logo and page images are asked for by every new
+// visitor: without this, each request was a metadata lookup plus a chunked
+// download from Atlas before the first byte went out. Least recently used
+// files are dropped once the total passes the budget (Render Starter: 512 MB).
+const CACHE_BUDGET_BYTES = 64 * 1024 * 1024;
+type Cached = { item: MediaItem; bytes: Buffer };
+const g = globalThis as unknown as { _ukMediaCache?: Map<string, Cached>; _ukMediaCacheBytes?: number; _ukMediaLoading?: Map<string, Promise<Cached | null>> };
+const cache = (g._ukMediaCache ??= new Map());
+const loading = (g._ukMediaLoading ??= new Map());
+
+function remember(id: string, entry: Cached) {
+  cache.set(id, entry);
+  g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) + entry.bytes.length;
+  for (const [key, old] of cache) {
+    if ((g._ukMediaCacheBytes ?? 0) <= CACHE_BUDGET_BYTES) break;
+    cache.delete(key);
+    g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) - old.bytes.length;
+  }
+}
+
+/**
+ * A file's info and bytes, from memory when it was served recently, else read
+ * once from the database (concurrent requests for the same id share the read).
+ * Null when it doesn't exist. Throws when the database can't be read.
+ */
+export async function readMedia(id: string): Promise<Cached | null> {
   if (!hasDatabaseUrl() || !isMediaId(id)) return null;
-  const oid = new ObjectId(id);
-  const doc = await files().findOne({ _id: oid });
-  if (!doc) return null;
-  const stream = Readable.toWeb(bucket().openDownloadStream(oid)) as unknown as ReadableStream<Uint8Array>;
-  return { item: toItem(doc), stream };
+  const hit = cache.get(id);
+  if (hit) {
+    // Map order is the LRU order: move to the newest end.
+    cache.delete(id);
+    cache.set(id, hit);
+    return hit;
+  }
+  let pending = loading.get(id);
+  if (!pending) {
+    pending = (async () => {
+      const oid = new ObjectId(id);
+      const doc = await files().findOne({ _id: oid });
+      if (!doc) return null;
+      const parts: Buffer[] = [];
+      for await (const chunk of bucket().openDownloadStream(oid)) parts.push(chunk as Buffer);
+      const entry = { item: toItem(doc), bytes: Buffer.concat(parts) };
+      remember(id, entry);
+      return entry;
+    })().finally(() => loading.delete(id));
+    loading.set(id, pending);
+  }
+  return pending;
 }
 
 export async function deleteMedia(id: string): Promise<boolean> {
-  if (!isMediaId(id)) return false;
+  if (!hasDatabaseUrl() || !isMediaId(id)) return false;
+  const cached = cache.get(id);
+  if (cached) {
+    cache.delete(id);
+    g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) - cached.bytes.length;
+  }
   try {
     await bucket().delete(new ObjectId(id));
     return true;

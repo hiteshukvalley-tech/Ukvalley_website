@@ -13,6 +13,7 @@ import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
 import { getPosts } from "@/lib/blog-store";
 import { ukText } from "@/lib/texts";
+import { formatPostDate } from "@/lib/blog-validation";
 
 // Re-render at least once a minute so admin text overrides always show up.
 export const revalidate = 60;
@@ -140,11 +141,7 @@ export default async function BlogPage() {
                     {ukText(featured.readTime)}
                   </span>
                   <time className="text-sm text-uk-gray" dateTime={featured.date}>
-                    {ukText(new Date(featured.date).toLocaleDateString("en-IN", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    }))}
+                    {ukText(formatPostDate(featured.date))}
                   </time>
                 </div>
               </Link>
@@ -176,11 +173,7 @@ export default async function BlogPage() {
                       {ukText(post.readTime)}
                     </span>
                     <time className="text-sm text-uk-gray" dateTime={post.date}>
-                      {ukText(new Date(post.date).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      }))}
+                      {ukText(formatPostDate(post.date))}
                     </time>
                   </div>
                 </Link>

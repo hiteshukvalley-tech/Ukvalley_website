@@ -79,6 +79,9 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
             <Row label="Expected joining date">
               {app.joiningDate ? formatPostedDate(app.joiningDate) : <span className="text-uk-muted">Not given</span>}
             </Row>
+            <Row label="How they heard about us">
+              {app.source || <span className="text-uk-muted">Not asked (applied before this question was added)</span>}
+            </Row>
             <Row label="Portfolio / LinkedIn">
               {app.portfolio ? (
                 <a href={app.portfolio} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1.5 break-all text-uk-blue hover:underline">
@@ -122,7 +125,8 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
                       <ApplicationStatusBadge status={m.status} />
                       <span className="font-medium">{m.subject}</span>
                       <span className="text-xs text-uk-muted">
-                        {formatApplicationDate(m.sentAt)} · {m.edited ? "edited by" : "default, sent by"} {m.sentBy}
+                        {formatApplicationDate(m.sentAt)} ·{" "}
+                        {m.emailed === false ? `saved without emailing the applicant, by ${m.sentBy}` : `${m.edited ? "edited by" : "default, sent by"} ${m.sentBy}`}
                       </span>
                     </li>
                   ))}

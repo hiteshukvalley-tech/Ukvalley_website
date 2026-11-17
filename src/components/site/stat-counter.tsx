@@ -1,12 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { easeOutQuad, onceInView, prefersReducedMotion, tween } from "@/lib/in-view";
 
 /**
  * Parses a stat string like "1,500+", "7+", "24h", "50+" into a
@@ -43,27 +38,22 @@ export function StatCounter({
       return;
     }
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      el.textContent = formatter.format(parsed.target) + parsed.suffix;
+    const show = (v: number) => (el.textContent = formatter.format(Math.round(v)) + parsed.suffix);
+    if (prefersReducedMotion()) {
+      show(parsed.target);
       return;
     }
 
-    const obj = { v: 0 };
-    const ctx = gsap.context(() => {
-      gsap.to(obj, {
-        v: parsed.target,
-        duration,
-        ease: "power2.out",
-        scrollTrigger: { trigger: el, start: "top 90%", once: true },
-        onUpdate: () => {
-          el.textContent =
-            formatter.format(Math.round(obj.v)) + parsed.suffix;
-        },
-      });
-    }, el);
-
-    return () => ctx.revert();
+    let cancel = () => {};
+    const stop = onceInView(
+      el,
+      () => (cancel = tween(duration * 1000, (p) => show(parsed.target * p), easeOutQuad)),
+      "0px 0px -10% 0px"
+    );
+    return () => {
+      stop();
+      cancel();
+    };
   }, [value, duration]);
 
   const parsed = parseStat(value);

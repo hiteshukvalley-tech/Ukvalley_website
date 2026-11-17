@@ -89,7 +89,8 @@ export function validateService(
 
   const href = v.href || (v.slug ? `/services/${v.slug}` : "");
   if (!href) e.href = "Link is required.";
-  else if (!/^\/(?!\/)/.test(href) && !/^https?:\/\//.test(href)) {
+  else if (href.length > 300) e.href = "Link must be 300 characters or fewer.";
+  else if (!/^\/(?![/\\])/.test(href) && !/^https?:\/\//.test(href)) {
     e.href = "Start with / (a page on this site) or https://";
   }
 

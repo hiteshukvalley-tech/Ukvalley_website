@@ -36,8 +36,8 @@ export const defaultSettings: SiteSettings = {
   social: {
     linkedin: "https://www.linkedin.com/company/ukvalley-technologies",
     twitter: "",
-    facebook: "",
-    instagram: "",
+    facebook: "https://www.facebook.com/UkvalleyTechnologies",
+    instagram: "https://www.instagram.com/ukvalley_technologies/",
     youtube: "",
     github: "",
   },

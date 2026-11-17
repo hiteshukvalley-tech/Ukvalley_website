@@ -159,7 +159,7 @@ export default async function TeamPage() {
             src: page.workImage || "/team-pool.svg",
             alt:
               page.workImageAlt ||
-              "Architects, full-stack, mobile and QA engineers working as one pool across the Pune and Nagpur offices",
+              "Architects, full-stack, mobile and QA engineers working as one pool across the Nashik, Pune and Nagpur offices",
             custom: true,
           }}
           eyebrow={ukText("How the team is built")}

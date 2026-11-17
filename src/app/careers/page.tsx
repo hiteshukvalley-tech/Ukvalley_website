@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SITE_URL } from "@/lib/site-origin";
 import { editableMetadata } from "@/lib/page-metadata";
 import {
-  ArrowRight, Award, Briefcase, Check, GraduationCap, Heart, MapPin, RotateCcw, Rocket, Sparkles,
+  ArrowRight, Briefcase, Check, GraduationCap, Heart, Mail, MapPin, RotateCcw, Rocket, Sparkles,
   TrendingUp, UserCheck, Users,
 } from "lucide-react";
 import { Header } from "@/components/site/header";
@@ -15,9 +15,8 @@ import { Reveal } from "@/components/site/reveal";
 import { getCareers } from "@/lib/careers-store";
 import { getSiteSettings } from "@/lib/settings";
 import { getPageContent } from "@/lib/pages-store";
-import { ApplyButton, CareerApplyProvider } from "@/components/site/career-apply";
+import { ApplyButton, CareerApplyProvider, ClosedRoleNotice } from "@/components/site/career-apply";
 import { CareersBoard } from "@/components/site/careers-board";
-import { HeroJobSearch } from "@/components/site/hero-job-search";
 import { HeroPhoto } from "@/components/site/hero-photo";
 import { roleInPlace } from "@/lib/careers-shared";
 import { jsonLd } from "@/lib/utils";
@@ -32,24 +31,25 @@ export const generateMetadata = () => editableMetadata("careers", baseMetadata);
 const baseMetadata: Metadata = {
   title: "Careers: find your next role",
   description:
-    "Open roles at Ukvalley Technologies, Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",
+    "Open roles at Ukvalley Technologies in Nashik, Pune, Nagpur and remote across India: React/Next.js, Flutter, backend, QA and design. Engineer-led, with real ownership. See how hiring works and apply in minutes.",
   alternates: { canonical: `${SITE_URL}/careers` },
 };
 
+// "Start here" cards, in this order: freshers first, then experienced hires.
 const pathways = [
-  {
-    icon: Briefcase,
-    title: "Experienced professionals",
-    text: "Your next career move could be your boldest one, own outcomes on real client projects and our own products.",
-    href: "/careers?experience=3#open-roles",
-    cta: "See roles for experienced hires",
-  },
   {
     icon: GraduationCap,
     title: "Freshers & graduates",
     text: "Start your career beside senior engineers who review your code, mentor you and let you ship real work early.",
     href: "/careers?experience=0#open-roles",
     cta: "See roles for freshers",
+  },
+  {
+    icon: Briefcase,
+    title: "Experienced professionals",
+    text: "Your next career move could be your boldest one, own outcomes on real client projects and our own products.",
+    href: "/careers?experience=3#open-roles",
+    cta: "See roles for experienced hires",
   },
   {
     icon: RotateCcw,
@@ -67,10 +67,13 @@ const pathways = [
   },
 ];
 
-const locations = [
-  { city: "Pune", text: "Our client-engagement hub, product, design and delivery teams working side by side." },
-  { city: "Nagpur", text: "Our engineering core, with a cost base that lets us pay well and keep senior engineers on every project." },
-  { city: "Remote", label: "Remote across India", text: "Roles open to engineers and designers anywhere in India, on the same delivery system as the offices." },
+// "Featured hiring locations": only Nashik for now. To show the others again,
+// uncomment their lines here (and the extra-cities block in CareersPage).
+const locations: { city: string; label?: string; text: string }[] = [
+  { city: "Nashik", text: "Our headquarters, home to leadership, the engineering core and our own product teams." },
+  // { city: "Pune", text: "Our client-engagement hub, product, design and delivery teams working side by side." },
+  // { city: "Nagpur", text: "Our engineering core, with a cost base that lets us pay well and keep senior engineers on every project." },
+  // { city: "Remote", label: "Remote across India", text: "Roles open to engineers and designers anywhere in India, on the same delivery system as the offices." },
 ];
 
 const expect = [
@@ -90,16 +93,18 @@ const eyebrowCls =
   "inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue";
 export default async function CareersPage() {
   const [careers, settings, page] = await Promise.all([getCareers(), getSiteSettings(), getPageContent("careers")]);
-  // Hiring places: the usual three, plus any other city an admin-added role is based in.
-  const known = locations.map((l) => l.city.toLowerCase());
-  const extraCities = Array.from(
-    new Set(
-      careers
-        .map((c) => c.location.split(/[,(/]/)[0].trim())
-        .filter((city) => city && !/^(india|remote|hybrid|on-?site|anywhere)$/i.test(city) && !known.includes(city.toLowerCase()))
-    )
-  ).map((city) => ({ city, label: undefined, text: `Roles based in ${city}.` }));
-  const places = [...locations, ...extraCities].map((l) => ({
+  // Hiring places: only the cities listed above (Nashik for now).
+  // Turned off with the other locations: a card for any other city an admin-added role is based in.
+  // const known = locations.map((l) => l.city.toLowerCase());
+  // const extraCities = Array.from(
+  //   new Set(
+  //     careers
+  //       .map((c) => c.location.split(/[,(/]/)[0].trim())
+  //       .filter((city) => city && !/^(india|remote|hybrid|on-?site|anywhere)$/i.test(city) && !known.includes(city.toLowerCase()))
+  //   )
+  // ).map((city) => ({ city, label: undefined, text: `Roles based in ${city}.` }));
+  // const places = [...locations, ...extraCities].map((l) => ({
+  const places = locations.map((l) => ({
     ...l,
     count: careers.filter((c) => roleInPlace(l.city, c.location, c.mode)).length,
   }));
@@ -126,14 +131,16 @@ export default async function CareersPage() {
       <ScrollProgress />
       <Header />
       <main id="main">
-        {/* The provider wraps the hero too: its search results have Apply buttons */}
+        {/* Every Apply button on the page opens the application popup */}
         <CareerApplyProvider
           positions={careers.map((c) => c.role)}
+          // With no open roles, the apply buttons become an email to HR.
+          hrEmail={settings.hr.email}
           processes={Object.fromEntries(careers.map((c) => [c.role, c.hiringProcess]))}
         >
-        {/* Hero — a job search over a photo of the team, so candidates land
-            straight on finding a role. Always dark (the `dark` class), like the
-            other page heroes; the photo can be swapped in Admin → All page text. */}
+        {/* Hero over a photo of the team, with the open roles right below it.
+            Always dark (the `dark` class), like the other page heroes; the photo
+            can be swapped in Admin → All page text. */}
         <section className="page-hero-photo dark relative isolate overflow-hidden bg-[#0b0820] pb-12 pt-24 text-white sm:pb-16 sm:pt-28">
           <HeroPhoto
             src={ukText("/social-impact/celebration-02.webp")}
@@ -157,26 +164,54 @@ export default async function CareersPage() {
                   ukText("Shape your career at an engineer-led software company. Search our open roles, see exactly how hiring works, and apply in minutes.")}
               </p>
             </Reveal>
-
-            <HeroJobSearch
-              total={careers.length}
-              jobs={careers.map((c) => ({
-                slug: c.slug,
-                role: c.role,
-                summary: c.summary,
-                location: c.location,
-                type: c.type,
-                mode: c.mode,
-                experienceMin: c.experienceMin,
-                ...(c.experienceMax === undefined ? {} : { experienceMax: c.experienceMax }),
-                postedAt: c.postedAt,
-              }))}
-            />
           </Container>
         </section>
 
+          {/* Open roles — every Apply button opens the application popup */}
+          <section id="open-roles" className="relative scroll-mt-20 bg-uk-surface section-py">
+            <Container>
+              <Reveal className="max-w-2xl">
+                <span className={eyebrowCls}>{ukText("Open roles")}</span>
+                <h2 className="mt-5 font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("Grow your career with us")}</h2>
+                <p className="mt-4 text-lg text-uk-gray">{ukText("Search by position, location or your years of experience. Every role shows its job mode, when it was posted and the hiring process, so you know what to expect before you apply.")}</p>
+              </Reveal>
+
+              {/* Shown after following a link to a role that has since closed. */}
+              <ClosedRoleNotice />
+
+              {/* Not wrapped in Reveal: cards come and go as the visitor searches,
+                  and a scroll-triggered entrance would leave new ones hidden. */}
+              {careers.length > 0 && (
+                <CareersBoard
+                  jobs={careers.map((c) => ({
+                    slug: c.slug,
+                    role: c.role,
+                    summary: c.summary,
+                    location: c.location,
+                    type: c.type,
+                    mode: c.mode,
+                    experienceMin: c.experienceMin,
+                    ...(c.experienceMax === undefined ? {} : { experienceMax: c.experienceMax }),
+                    postedAt: c.postedAt,
+                  }))}
+                />
+              )}
+              {/* "No open roles" box: hidden for now. With no open roles nothing
+                  is shown here. To bring it back, uncomment this block.
+              {careers.length === 0 && (
+                <div className="mt-12 rounded-2xl border border-dashed border-uk-line bg-uk-card p-8 text-center">
+                  <p className="text-uk-body">{ukText("There are no open roles right now, but we're always glad to hear from good people.")}</p>
+                  <ApplyButton className="mt-4 inline-flex items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright">
+                    {ukText("Send an application")}<ArrowRight className="h-4 w-4" />
+                  </ApplyButton>
+                </div>
+              )}
+              */}
+            </Container>
+          </section>
+
           {/* Pathways */}
-          <section className="relative bg-uk-surface section-py">
+          <section className="relative border-y border-uk-line bg-uk-surface-2 section-py">
             <Container>
               <Reveal className="max-w-2xl">
                 <span className={eyebrowCls}>{ukText("Start here")}</span>
@@ -206,13 +241,13 @@ export default async function CareersPage() {
           </section>
 
           {/* Locations */}
-          <section className="relative border-y border-uk-line bg-uk-surface-2 section-py">
+          <section className="relative bg-uk-surface section-py">
             <Container>
               <Reveal className="max-w-2xl">
                 <span className={eyebrowCls}>{ukText("Where you'll work")}</span>
                 <h2 className="mt-5 font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("Featured hiring locations")}</h2>
               </Reveal>
-              <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <Reveal staggerChildren className="mt-10 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
                 {places.map((l) => (
                   <a
                     key={l.city}
@@ -234,7 +269,7 @@ export default async function CareersPage() {
           </section>
 
           {/* What to expect */}
-          <section className="relative bg-uk-surface section-py">
+          <section className="relative border-y border-uk-line bg-uk-surface-2 section-py">
             <Container>
               <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_1.2fr] lg:gap-16">
                 <Reveal className="flex flex-col gap-5">
@@ -274,7 +309,7 @@ export default async function CareersPage() {
           </section>
 
           {/* How hiring works */}
-          <section className="relative border-y border-uk-line bg-uk-surface-2 section-py">
+          <section className="relative bg-uk-surface section-py">
             <Container>
               <Reveal className="max-w-2xl">
                 <span className={eyebrowCls}><UserCheck className="h-3.5 w-3.5" />{ukText("Your hiring journey")}</span>
@@ -293,44 +328,7 @@ export default async function CareersPage() {
             </Container>
           </section>
 
-          {/* Open roles — every Apply button opens the application popup */}
-          <section id="open-roles" className="relative scroll-mt-20 bg-uk-surface section-py">
-            <Container>
-              <Reveal className="max-w-2xl">
-                <span className={eyebrowCls}>{ukText("Open roles")}</span>
-                <h2 className="mt-5 font-heading text-3xl font-bold text-uk-heading sm:text-4xl">{ukText("Grow your career with us")}</h2>
-                <p className="mt-4 text-lg text-uk-gray">{ukText("Search by position, location or your years of experience. Every role shows its job mode, when it was posted and the hiring process, so you know what to expect before you apply.")}</p>
-              </Reveal>
-
-              {/* Not wrapped in Reveal: cards come and go as the visitor searches,
-                  and a scroll-triggered entrance would leave new ones hidden. */}
-              {careers.length > 0 && (
-                <CareersBoard
-                  jobs={careers.map((c) => ({
-                    slug: c.slug,
-                    role: c.role,
-                    summary: c.summary,
-                    location: c.location,
-                    type: c.type,
-                    mode: c.mode,
-                    experienceMin: c.experienceMin,
-                    ...(c.experienceMax === undefined ? {} : { experienceMax: c.experienceMax }),
-                    postedAt: c.postedAt,
-                  }))}
-                />
-              )}
-              {careers.length === 0 && (
-                <div className="mt-12 rounded-2xl border border-dashed border-uk-line bg-uk-card p-8 text-center">
-                  <p className="text-uk-body">{ukText("There are no open roles right now, but we're always glad to hear from good people.")}</p>
-                  <ApplyButton className="mt-4 inline-flex items-center gap-2 rounded-full bg-uk-blue px-5 py-2.5 text-sm font-semibold text-uk-white transition-colors hover:bg-uk-blue-bright">
-                    {ukText("Send an application")}<ArrowRight className="h-4 w-4" />
-                  </ApplyButton>
-                </div>
-              )}
-            </Container>
-          </section>
-
-          {/* Stay in touch */}
+          {/* Let's keep in touch: open application or email HR */}
           <section className="relative border-t border-uk-line bg-uk-surface-2 section-py">
             <Container>
               <Reveal className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
@@ -345,7 +343,7 @@ export default async function CareersPage() {
                     href={ukText(`mailto:${settings.hr.email}`)}
                     className="inline-flex h-12 items-center gap-2 rounded-full border border-uk-line bg-uk-card px-6 text-sm font-semibold text-uk-heading transition-colors hover:border-uk-blue/50 hover:text-uk-blue"
                   >
-                    <Award className="h-4 w-4 text-uk-blue" />{ukText(settings.hr.email)}
+                    <Mail className="h-4 w-4 text-uk-blue" />{ukText(settings.hr.email)}
                   </a>
                 </div>
               </Reveal>

@@ -13,7 +13,7 @@ import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
 
 import { getCaseStudies } from "@/lib/cases-store";
-import { getIndustries } from "@/lib/industries-store";
+import { getIndustries, toIndustryCards } from "@/lib/industries-store";
 import { ukText } from "@/lib/texts";
 
 // Re-render at least once a minute so admin text overrides always show up.
@@ -104,7 +104,7 @@ export default async function IndustriesPage() {
 
         {/* The page hero above already introduces the switchboard, so the
             section renders without its own heading on this page only. */}
-        <Industries industries={industries} heading={false} />
+        <Industries industries={toIndustryCards(industries)} heading={false} />
         <ByTheNumbers limit={4} className="bg-uk-surface" />
         <CtaBand related="industries" />
         <PageBlocks pageKey="industries" />

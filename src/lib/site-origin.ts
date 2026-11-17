@@ -60,7 +60,12 @@ export function isIndexableHost(host: string, override = process.env.NEXT_PUBLIC
 }
 export const SITE_INDEXABLE = isIndexableHost(SITE_HOST);
 
-const PUBLIC_HOST = /^(?:[a-z0-9-]+\.)?ukvalley\.com$|\.onrender\.com$/i;
+/**
+ * This deployment's own Render address (e.g. ukvalley.onrender.com), which
+ * Render sets on every service. Only that one — any *.onrender.com name would
+ * let another Render service's address count as this site.
+ */
+const RENDER_HOST = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "").trim().toLowerCase();
 const LOCAL_HOST = /^(?:localhost|127\.0\.0\.1|\[::1\])$/i;
 
 function isTrustedHost(host: string): boolean {
@@ -70,7 +75,7 @@ function isTrustedHost(host: string): boolean {
   // `next dev` on the local network (npm run dev:mobile opens it at 192.168.x.x).
   if (process.env.NODE_ENV === "development") return true;
   const lower = name.toLowerCase();
-  if (PUBLIC_HOST.test(lower) || lower === SITE_HOST || lower === API_HOST) return true;
+  if (lower === SITE_HOST || lower === API_HOST || (!!RENDER_HOST && lower === RENDER_HOST)) return true;
   // This machine: only the port the server itself listens on (when known), so
   // a forged "localhost:6379" can't reach other local services.
   return LOCAL_HOST.test(name) && (!process.env.PORT || !port || port === process.env.PORT);

@@ -3,17 +3,12 @@
 import { useEffect, useRef } from "react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Check } from "lucide-react";
 import { Marked } from "./marked";
 import type { ProcessStep } from "@/lib/process-validation";
 import type { HomeContent } from "@/lib/home-defaults";
 import { Tx } from "@/components/site/texts-context";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { prefersReducedMotion, watchInView } from "@/lib/in-view";
 
 /**
  * Delivery pipeline — a vertical progress spine that draws itself as you
@@ -34,57 +29,80 @@ export function Process({
   useEffect(() => {
     const el = spineRef.current;
     if (!el) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const draw = el.querySelector<HTMLElement>("[data-spine-draw]");
     const dots = Array.from(el.querySelectorAll<HTMLElement>("[data-spine-node]"));
 
+    // scaleY on a full-height line: composited, no re-layout while scrolling
     const setProgress = (p: number) => {
-      if (draw) draw.style.height = `${p * 100}%`;
+      if (draw) draw.style.transform = `scaleY(${p})`;
     };
 
-    if (reduced) {
+    if (prefersReducedMotion()) {
       setProgress(1);
       dots.forEach((d) => d.setAttribute("data-on", "true"));
       return;
     }
 
-    const ctx = gsap.context(() => {
-      setProgress(0);
-      gsap.to(
-        { p: 0 },
-        {
-          p: 1,
-          ease: "none",
-          onUpdate() {
-            setProgress((this.targets()[0] as { p: number }).p);
-          },
-          scrollTrigger: {
-            trigger: el,
-            start: "top 70%",
-            end: "bottom 55%",
-            scrub: 0.6,
-          },
+    // The spine draws from when the list's top passes 70% of the screen until
+    // its bottom passes 55%. Measured only while the list is on screen.
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      setProgress(Math.min(1, Math.max(0, (0.7 * vh - r.top) / (0.15 * vh + r.height))));
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    let listening = false;
+    const stopSpine = watchInView(
+      el,
+      ({ visible, first, above }) => {
+        if (first && above) return setProgress(1);
+        if (visible && !listening) {
+          listening = true;
+          window.addEventListener("scroll", onScroll, { passive: true });
+          onScroll();
+        } else if (!visible && listening) {
+          listening = false;
+          window.removeEventListener("scroll", onScroll);
+          onScroll(); // settle at 0 or 1
         }
-      );
+      },
+      "0px"
+    );
 
-      // nodes light up as the spine passes them
-      dots.forEach((d) => {
-        gsap.fromTo(
-          d,
-          { opacity: 0.35, scale: 0.9 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.4,
-            ease: "back.out(2)",
-            scrollTrigger: { trigger: d, start: "top 72%", once: true },
+    // Nodes light up as the spine passes them.
+    const stopDots = dots.map((d) => {
+      let stop = () => {};
+      stop = watchInView(
+        d,
+        ({ visible, first, above }) => {
+          if (first && (visible || above)) return stop();
+          if (first) {
+            d.style.opacity = "0.35";
+            d.style.transform = "scale(0.9)";
+            return;
           }
-        );
-      });
-    }, el);
+          if (!visible) return;
+          d.style.transition = "opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)";
+          d.style.opacity = "";
+          d.style.transform = "";
+          stop();
+        },
+        "0px 0px -28% 0px"
+      );
+      return stop;
+    });
 
-    return () => ctx.revert();
+    return () => {
+      stopSpine();
+      stopDots.forEach((s) => s());
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
   }, []);
 
   return (
@@ -120,8 +138,8 @@ export function Process({
             {/* spine draw (yellow → blue) */}
             <div
               data-spine-draw
-              className="absolute left-[1.4rem] top-2 w-px bg-gradient-to-b from-uk-yellow via-uk-blue to-uk-blue-bright shadow-[0_0_12px_rgba(49,0,255,0.5)] dark:shadow-[0_0_12px_rgba(104,77,255,0.5)]"
-              style={{ height: "0%" }}
+              className="absolute left-[1.4rem] top-2 h-full w-px origin-top bg-gradient-to-b from-uk-yellow via-uk-blue to-uk-blue-bright shadow-[0_0_12px_rgba(49,0,255,0.5)] transition-transform duration-500 ease-out dark:shadow-[0_0_12px_rgba(104,77,255,0.5)]"
+              style={{ transform: "scaleY(0)" }}
               aria-hidden
             />
             <Reveal staggerChildren className="flex flex-col gap-10">

@@ -26,7 +26,7 @@ export const generateMetadata = () => editableMetadata("locations", baseMetadata
 const baseMetadata: Metadata = {
   title: "Locations: where we engineer and engage",
   description:
-    "Ukvalley's offices and delivery coverage: Maharashtra headquarters, Pune and Nagpur offices, and delivery coverage for Mumbai, Delhi NCR, Bengaluru, Hyderabad, Ahmedabad, Chennai, Dubai, Toronto and New York.",
+    "Ukvalley's offices and delivery coverage: Nashik headquarters, Pune and Nagpur offices, and delivery coverage for Mumbai, Delhi NCR, Bengaluru, Hyderabad, Ahmedabad, Chennai, Dubai, Toronto and New York.",
   alternates: { canonical: `${SITE_URL}/locations` },
 };
 
@@ -72,7 +72,7 @@ export default async function LocationsPage() {
               <span className="text-gradient-blue">{ukText("clients on three continents.")}</span>
             </>
           }
-          description={ukText("One engineering core, many front doors. A Maharashtra headquarters plus offices in Pune and Nagpur, delivery coverage across India's business hubs, and international presence for clients in the Gulf and North America.")}
+          description={ukText("One engineering core, many front doors. A Nashik headquarters plus offices in Pune and Nagpur, delivery coverage across India's business hubs, and international presence for clients in the Gulf and North America.")}
         />
 
         {/* The problem it solves */}

@@ -2,10 +2,11 @@ import type { Application } from "@/lib/applications-store";
 import { formatPostedDate } from "@/lib/careers-shared";
 import { applicationStatusLabel, isInterviewStatus, type ApplicationStatus } from "@/lib/applications-validation";
 
-const badge: Record<ApplicationStatus, string> = {
+const applicationStatusTone: Record<ApplicationStatus, string> = {
   new: "bg-uk-blue/15 text-uk-blue",
   reviewing: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
   shortlisted: "bg-violet-500/15 text-violet-700 dark:text-violet-300",
+  "interview-scheduled": "bg-purple-500/15 text-purple-700 dark:text-purple-300",
   "no-show": "bg-rose-500/15 text-rose-700 dark:text-rose-300",
   "next-round": "bg-indigo-500/15 text-indigo-700 dark:text-indigo-300",
   rescheduled: "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300",
@@ -21,7 +22,7 @@ const badge: Record<ApplicationStatus, string> = {
 
 export function ApplicationStatusBadge({ status }: { status: ApplicationStatus }) {
   return (
-    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${badge[status]}`}>{applicationStatusLabel[status]}</span>
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${applicationStatusTone[status]}`}>{applicationStatusLabel[status]}</span>
   );
 }
 
@@ -31,7 +32,7 @@ export function formatApplicationDate(d: Date) {
 
 /**
  * The interview scheduled for this applicant: from the latest interview
- * status email (shortlisted, next round or rescheduled) HR sent with a date,
+ * status email (interview scheduled, rescheduled or next round) HR sent with a date,
  * e.g. { date: "12 Oct 2026", time: "03:30 PM", mode: "Online" }. Null when none was sent.
  */
 export function scheduledInterview(a: Application): { date: string; time: string; mode: string } | null {

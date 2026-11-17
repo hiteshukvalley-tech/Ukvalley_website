@@ -21,7 +21,16 @@ const setValue = async (sel, value) => {
 const has = (body, s) => body.toLowerCase().includes(s.toLowerCase());
 const waitForText = (t, ms = 30000) => page.waitForFunction((x) => document.body.innerText.includes(x), { timeout: ms }, t);
 /** ids of the sections inside <main> on the public home page, in order */
-const homeOrder = () => page.$$eval("main > section[id]", (els) => els.map((e) => e.id));
+// (sections below the fold sit in a <div class="cv-auto"> wrapper)
+const homeOrder = () => page.$$eval("main > section[id], main > .cv-auto > section[id]", (els) => els.map((e) => e.id));
+// The page's own text (no scripts), including sections not drawn yet:
+// content-visibility: auto keeps them out of innerText until scrolled to.
+const pageText = () =>
+  page.evaluate(() => {
+    const copy = document.body.cloneNode(true);
+    copy.querySelectorAll("script, style, noscript, template").forEach((n) => n.remove());
+    return copy.textContent;
+  });
 
 section("Start clean");
 await login(page);
@@ -80,7 +89,7 @@ check("custom section saved", true);
 
 section("Public home page shows it after Insights");
 await go(page, "/", { timeout: 180000 });
-let body = await text(page);
+let body = await pageText();
 check("custom title shown, stars removed", has(body, "Awards we are proud of") && !body.includes("*proud*"));
 check("eyebrow, description and card shown", has(body, "Recognition") && has(body, "QA description line") && has(body, "QA Card One") && has(body, "QA Card Two"));
 check("button shown", has(body, "Talk to us"));

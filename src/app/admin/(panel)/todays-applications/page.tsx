@@ -3,12 +3,11 @@ import { ArrowRight, CalendarCheck, CircleAlert } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { requireAdmin } from "@/lib/admin-session";
-import { readPaging } from "@/lib/pagination";
 import { listApplications } from "@/lib/applications-store";
 import { formatPostedDate, todayInIndia } from "@/lib/careers-shared";
 import { isApplicationStatus } from "@/lib/applications-validation";
 import {
-  ApplicationsList, applicantsHref, listHref, readColumns, readView, type ListFilters,
+  ApplicationsList, applicantsHref, listHref, readColumns, readListPaging, readView, type ListFilters,
 } from "../applications/applications-list";
 
 export const metadata = { title: "Today's applications" };
@@ -35,8 +34,9 @@ export default async function TodaysApplicationsPage({ searchParams }: Props) {
   const { q = "", status = "all", page: pageParam, per } = sp;
   const today = todayInIndia();
 
-  const { page, pageSize } = readPaging(pageParam, per, 25);
   const view = readView(sp.view);
+  // 28 cards per page in the Grid (full rows), 25 rows in the Table.
+  const { page, pageSize } = readListPaging(view, pageParam, per);
   const columns = view === "table" ? readColumns(sp) : undefined;
   const filters: ListFilters = {
     basePath: PATH,

@@ -2,9 +2,11 @@ import {
   LayoutDashboard, House, Settings, Wrench, Newspaper, Trophy, Boxes, Puzzle,
   Building2, UserPlus, MapPin, Users, MessageSquareQuote, Inbox, /* Image as ImageIcon, */
   ShieldCheck, DatabaseZap, Briefcase, HelpCircle, ListOrdered, Layers, Handshake,
-  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, /* Mail, */ MailCheck, UserCog, CalendarCheck, CalendarClock, UserRound, type LucideIcon,
+  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, /* Mail, */ MailCheck, UserCog, CalendarCheck, CalendarClock, UserRound, ListChecks, Recycle, type LucideIcon,
 } from "lucide-react";
 import { HOME_SECTIONS } from "@/lib/home-schema";
+import { canOpenPath, type Access } from "@/lib/admin-access";
+import type { AdminRole } from "@/lib/admin-auth";
 
 export type AdminNavLink = {
   label: string;
@@ -101,7 +103,9 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
         icon: Briefcase,
         children: [
           { label: "Job openings", href: "/admin/careers", icon: Briefcase },
+          { label: "Recycle openings", href: "/admin/careers/recycle", icon: Recycle },
           { label: "Job applications", href: "/admin/applications", icon: FileUser },
+          { label: "Application status", href: "/admin/applications/status", icon: ListChecks },
           { label: "Today's applications", href: "/admin/todays-applications", icon: CalendarCheck },
           { label: "Daily interviews", href: "/admin/interviews", icon: CalendarClock },
           { label: "Email logs", href: "/admin/email-logs", icon: MailCheck },
@@ -142,6 +146,37 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
     ],
   },
 ];
+
+/**
+ * Whether this user may see a link: team members only get the sections ticked
+ * for them in Admin → Users, and never admin-only pages (proxy.ts and the
+ * pages' own checks refuse them too).
+ */
+export function canSeeLink(role: AdminRole, access: Access, link: AdminNavLink): boolean {
+  return (!link.adminOnly || role === "admin") && canOpenPath(role, access, link.href);
+}
+
+/** A panel section the top-bar search can jump to. */
+export type NavTarget = { label: string; href: string; parent: string; icon?: LucideIcon };
+
+/** Every sidebar link this user may open, once each (a dropdown's own entry is skipped when a child has its address). */
+export function navTargets(role: AdminRole, access: Access): NavTarget[] {
+  const out: NavTarget[] = [];
+  const seen = new Set<string>();
+  const add = (t: NavTarget) => {
+    if (seen.has(t.href)) return;
+    seen.add(t.href);
+    out.push(t);
+  };
+  for (const g of adminNav) {
+    for (const item of g.items) {
+      if (item.children) {
+        for (const c of item.children) if (canSeeLink(role, access, c)) add({ label: c.label, href: c.href, parent: item.label, icon: c.icon ?? item.icon });
+      } else if (canSeeLink(role, access, item)) add({ label: item.label, href: item.href, parent: g.group, icon: item.icon });
+    }
+  }
+  return out;
+}
 
 /** Whether `pathname` is this link's page (or one of its sub-pages). */
 export function isActive(link: AdminNavLink, pathname: string): boolean {

@@ -6,6 +6,7 @@ import { SmoothScroll } from "@/components/site/smooth-scroll";
 import { PageLoader } from "@/components/site/page-loader";
 import { ThemeProviderWrapper } from "@/components/site/theme-provider";
 import { SpotlightCursor } from "@/components/site/spotlight-cursor";
+import { OffscreenPause } from "@/components/site/offscreen-pause";
 import { ScopingProvider } from "@/components/site/scoping-modal";
 import { getSiteSettings } from "@/lib/settings";
 import { getChrome } from "@/lib/home-store";
@@ -14,10 +15,16 @@ import { AuroraBackground } from "@/components/site/aurora-background";
 import { SiteOnly } from "@/components/site/site-only";
 import { TextsProvider } from "@/components/site/texts-context";
 import { textsSnapshot, ukText } from "@/lib/texts";
+import { GtmNoscript, GtmScript, GtmTracker } from "@/components/site/gtm";
 
 // Fonts are self-hosted (latin variable-weight files from Fontsource, OFL) in
 // ./fonts. next/font/google fetches from Google at build time, and an odd
 // reply from Google fails the Turbopack build (vercel/next.js#99114).
+//
+// preload: false on all three. Preloading puts 82 KB of fonts in the same
+// queue as the render-blocking stylesheet, so on a slow phone connection the
+// first paint waited ~2 s for fonts it doesn't need: text paints at once in
+// the size-matched fallback and swaps when each font arrives (display: swap).
 
 // Body face — Plus Jakarta Sans: modern, slightly geometric, reads as
 // premium-professional while staying highly legible at small sizes.
@@ -26,6 +33,7 @@ const jakarta = localFont({
   variable: "--font-sans",
   weight: "200 800",
   display: "swap",
+  preload: false,
 });
 
 const spaceGrotesk = localFont({
@@ -33,6 +41,7 @@ const spaceGrotesk = localFont({
   variable: "--font-heading",
   weight: "300 700",
   display: "swap",
+  preload: false,
 });
 
 // Display face for inner-page hero headings only (font-heading-display) —
@@ -42,6 +51,7 @@ const sora = localFont({
   variable: "--font-heading-display",
   weight: "100 800",
   display: "swap",
+  preload: false,
 });
 
 // Mobile browser chrome (Android Chrome address bar, iOS Safari status
@@ -106,7 +116,14 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       {/* bg-background: solid page base (matches --uk-surface exactly in
           both themes) — the aurora layer sits above it, and translucent
           section surfaces let it bleed through in dark mode */}
+      {/* Google Tag Manager: script first in <head>, fallback first in <body>.
+          Renders nothing without NEXT_PUBLIC_GTM_ID; skipped on /admin. */}
+      <head>
+        <GtmScript />
+      </head>
       <body className="min-h-full flex flex-col bg-background text-uk-body transition-colors duration-300">
+        <GtmNoscript />
+        <GtmTracker />
         <SiteOnly>
           <AuroraBackground />
         </SiteOnly>
@@ -116,6 +133,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <ScopingProvider email={settings.email} phone={settings.sales.phone || settings.phonePrimary}>
             <SiteOnly>
               <SpotlightCursor />
+              {/* stops looping decorations in sections that are off screen */}
+              <OffscreenPause />
             </SiteOnly>
             <a
               href="#main"

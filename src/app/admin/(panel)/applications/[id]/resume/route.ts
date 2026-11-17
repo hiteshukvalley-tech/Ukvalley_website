@@ -21,13 +21,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!resume) return new Response("Not found", { status: 404 });
 
   const download = new URL(request.url).searchParams.has("download");
-  // ASCII fallback plus the UTF-8 name (RFC 6266).
-  const ascii = resume.name.replace(/[^\x20-\x7e]/g, "_");
+  // ASCII fallback (safe characters only, so a quote can't break the header)
+  // plus the UTF-8 name (RFC 6266 / RFC 5987).
+  const ascii = resume.name.replace(/[^A-Za-z0-9 ._()-]/g, "_") || "resume.pdf";
+  const utf8 = encodeURIComponent(resume.name).replace(/['()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
   return new Response(resume.stream, {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Length": String(resume.size),
-      "Content-Disposition": `${download ? "attachment" : "inline"}; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(resume.name)}`,
+      "Content-Disposition": `${download ? "attachment" : "inline"}; filename="${ascii}"; filename*=UTF-8''${utf8}`,
       "X-Content-Type-Options": "nosniff",
       "Cache-Control": "private, no-store",
     },

@@ -1,18 +1,18 @@
 // QA: admin "Forgot password" (email code → verify → new password).
 // Runs its own fake SMTP server on :2525 that captures the emails, so start
 // the app pointed at it and at a scratch database:
-//   NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa SMTP_HOST=127.0.0.1 SMTP_PORT=2525 \
+//   NEXT_DIST_DIR=.next-test MONGODB_DB=ukvalley_qa SMTP_HOST=127.0.0.1 SMTP_PORT=2525 SMTP_SECURITY=none \
 //     SMTP_USER=qa SMTP_PASS=qa npx next start -p 3100
 //   node scripts/qa/06-forgot-password.mjs
 // The owner's reset password is removed again at the end.
 import net from "node:net";
 import { readFileSync } from "node:fs";
 import { MongoClient } from "mongodb";
-import { BASE, OWNER, check, go, launch, newPage, section, sleep, summary, text } from "./lib.mjs";
+import { ENV_TEXT, BASE, OWNER, check, go, launch, newPage, section, sleep, summary, text } from "./lib.mjs";
 
 const QA_DB = process.env.QA_DB || "ukvalley_qa";
 if (!QA_DB.endsWith("_qa")) throw new Error(`Refusing to run against "${QA_DB}" — use a scratch *_qa database.`);
-const uri = readFileSync(".env.local", "utf8").match(/^MONGODB_URI=(.*)$/m)?.[1];
+const uri = ENV_TEXT.match(/^MONGODB_URI=(.*)$/m)?.[1];
 
 // --- fake SMTP server -------------------------------------------------------
 const mails = [];
@@ -95,15 +95,17 @@ try {
   await page.$eval("#email", (e) => { e.value = ""; });
   await page.type("#email", OWNER.email);
   await submit(page);
-  await sleep(500);
-  const code = codeFor(OWNER.email);
+  // The code is sent after the response (same answer for every email), so poll.
+  let code = null;
+  for (let i = 0; i < 20 && !code; i++) { await sleep(300); code = codeFor(OWNER.email); }
   check("email with 6-digit code sent", !!code, (await text(page)).replace(/\s+/g, " ").slice(0, 300));
   if (!code) throw new Error("No code email; stopping.");
 
   section("Resend too soon");
   await page.click('button[value="resend"]');
-  await sleep(1200);
-  check("asks to wait a minute", /less than a minute ago/.test(await text(page)));
+  await sleep(1500);
+  check("same generic answer (no account leak)", /If .* has an admin account/.test(await text(page)));
+  check("no second email within a minute", mails.filter((m) => m.to === OWNER.email.toLowerCase()).length === 1);
 
   section("Wrong code");
   const wrong = code === "000000" ? "111111" : "000000";

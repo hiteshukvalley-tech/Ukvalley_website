@@ -1,5 +1,5 @@
 import Link from "@/components/site/intent-link";
-import { CircleAlert, FileUser, Plus, Search } from "lucide-react";
+import { CircleAlert, FileUser, Plus, Recycle, Search } from "lucide-react";
 import { PageHeader } from "@/components/admin/page-header";
 import { Pagination } from "@/components/admin/pagination";
 import { ReorderScope } from "@/components/admin/sortable-rows";
@@ -44,6 +44,12 @@ export default async function CareersAdminPage({ searchParams }: Props) {
               className="inline-flex h-10 items-center gap-2 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading"
             >
               <FileUser className="h-4 w-4" /> Applications
+            </Link>
+            <Link
+              href="/admin/careers/recycle"
+              className="inline-flex h-10 items-center gap-2 rounded-lg border border-uk-line px-4 text-sm font-medium text-uk-body transition-colors hover:bg-uk-surface-2 hover:text-uk-heading"
+            >
+              <Recycle className="h-4 w-4" /> Recycle openings
             </Link>
             <Link
               href="/admin/careers/new"

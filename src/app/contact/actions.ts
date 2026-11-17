@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { validateEnquiry } from "@/lib/contact-validation";
 import { createLead } from "@/lib/leads-store";
+import { clientIp } from "@/lib/client-ip";
 
 export type EnquiryResult =
   | { ok: true }
@@ -51,7 +52,7 @@ export async function submitEnquiryAction(formData: FormData): Promise<EnquiryRe
 
   if (!hasDatabaseUrl()) return { ok: false, kind: "unavailable" };
 
-  const ip = (await headers()).get("x-forwarded-for")?.split(",")[0].trim() || "local";
+  const ip = clientIp(await headers());
   if (ipLimited(ip)) return { ok: false, kind: "limited" };
 
   try {

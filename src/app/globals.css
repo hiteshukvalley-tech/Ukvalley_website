@@ -340,10 +340,11 @@ html.dark { color-scheme: dark; }
     color: transparent;
   }
 
-  /* Animated brand gradient — blue → violet, slowly panning. Applied
-     automatically to brand-blue spans inside headings (font-heading /
-     font-heading-display), so every section title and page hero across
-     the site shares one living accent without per-page edits. */
+  /* Brand gradient — blue → violet. Applied automatically to brand-blue
+     spans inside headings (font-heading / font-heading-display), so every
+     section title and page hero across the site shares one accent without
+     per-page edits. It stays still: panning it (background-position) repainted
+     the heading on every frame and kept phones and Safari busy. */
   .font-heading-display .text-uk-blue,
   .font-heading .text-uk-blue {
     background: linear-gradient(100deg, #3100ff 10%, #2400c7 50%, #3100ff 90%);
@@ -352,7 +353,6 @@ html.dark { color-scheme: dark; }
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: gradient-pan 9s ease-in-out infinite;
   }
   .dark .font-heading-display .text-uk-blue,
   .dark .font-heading .text-uk-blue {
@@ -367,12 +367,8 @@ html.dark { color-scheme: dark; }
     -webkit-text-fill-color: transparent;
     color: transparent;
   }
-  @keyframes gradient-pan {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
 
-  /* Standalone animated gradient text — use on any inline emphasis. */
+  /* Standalone gradient text — use on any inline emphasis. */
   .text-gradient-animated {
     background: linear-gradient(100deg, #3100ff, #2400c7, #3100ff);
     background-size: 220% 100%;
@@ -380,7 +376,6 @@ html.dark { color-scheme: dark; }
     background-clip: text;
     -webkit-text-fill-color: transparent;
     color: transparent;
-    animation: gradient-pan 9s ease-in-out infinite;
   }
   .dark .text-gradient-animated {
     background: linear-gradient(100deg, #684dff, #287bff, #684dff);
@@ -683,55 +678,67 @@ html.dark { color-scheme: dark; }
     transition-duration: 0.1s;
   }
 
-  /* Primary CTA breathing glow — a slow, confident halo pulse for the
-     hero's main action. Pair with .btn-sheen and bg-uk-blue. */
-  .btn-glow { animation: btn-glow-pulse 3.2s ease-in-out infinite; }
-  @keyframes btn-glow-pulse {
-    0%, 100% {
-      box-shadow: 0 10px 34px -10px rgba(49, 0, 255, 0.55), 0 0 0 0 rgba(49, 0, 255, 0.28);
-    }
-    50% {
-      box-shadow: 0 14px 44px -8px rgba(36, 0, 199, 0.65), 0 0 0 7px rgba(49, 0, 255, 0.10);
-    }
+  /* Primary CTA glow — a soft halo for the hero's main action that opens
+     up on hover. Pair with .btn-sheen and bg-uk-blue. (It used to pulse
+     non-stop; a looping box-shadow repaints the button on every frame and
+     kept the page busy for as long as the hero was on screen.) */
+  .btn-glow {
+    box-shadow: 0 12px 38px -10px rgba(49, 0, 255, 0.6), 0 0 0 3px rgba(49, 0, 255, 0.14);
+    transition: box-shadow 0.4s var(--ease-out-expo), background-color 0.25s ease;
   }
-  .dark .btn-glow { animation-name: btn-glow-pulse-dark; }
-  @keyframes btn-glow-pulse-dark {
-    0%, 100% {
-      box-shadow: 0 10px 34px -10px rgba(104, 77, 255, 0.45), 0 0 0 0 rgba(104, 77, 255, 0.25);
-    }
-    50% {
-      box-shadow: 0 14px 44px -8px rgba(138, 112, 255, 0.55), 0 0 0 7px rgba(104, 77, 255, 0.12);
-    }
+  .btn-glow:hover {
+    box-shadow: 0 14px 44px -8px rgba(36, 0, 199, 0.65), 0 0 0 7px rgba(49, 0, 255, 0.10);
+  }
+  .dark .btn-glow {
+    box-shadow: 0 12px 38px -10px rgba(104, 77, 255, 0.5), 0 0 0 3px rgba(104, 77, 255, 0.14);
+  }
+  .dark .btn-glow:hover {
+    box-shadow: 0 14px 44px -8px rgba(138, 112, 255, 0.55), 0 0 0 7px rgba(104, 77, 255, 0.12);
   }
 
   /* Rotating "border beam" — a light streak that travels around the
      border of a relative, overflow-hidden panel. Trending SaaS-hero
      effect; apply to the page's single centerpiece card. */
-  .border-beam::before {
-    content: "";
+  /* Markup: <span class="border-beam-ring"><span class="border-beam-spin"/></span>
+     as the panel's last child. The ring is masked down to a 1px border; the
+     square inside it carries a fixed conic gradient and turns with
+     `transform`, which the GPU animates on its own. (Turning the gradient's
+     angle instead repainted the whole panel on every frame.) */
+  .border-beam-ring {
     position: absolute;
     inset: 0;
     border-radius: inherit;
     padding: 1px;
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+  .border-beam-spin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    /* a square wide enough to cover the panel at every angle */
+    width: 200%;
+    aspect-ratio: 1;
     background: conic-gradient(
-      from var(--beam-angle),
+      from 0deg,
       transparent 0deg,
       rgba(49, 0, 255, 0.85) 40deg,
       rgba(40, 123, 255, 0.85) 75deg,
       rgba(255, 245, 0, 0.45) 100deg,
       transparent 140deg
     );
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
+    transform: translate(-50%, -50%) rotate(0deg);
     animation: beam-rotate 5s linear infinite;
-    pointer-events: none;
+    will-change: transform;
   }
   /* Dark mode: #3100FF at high alpha vanishes on Deep Space — the travelling
      streak switches to the bright ramp (bright indigo → blue → cyan). */
-  .dark .border-beam::before {
+  .dark .border-beam-spin {
     background: conic-gradient(
-      from var(--beam-angle),
+      from 0deg,
       transparent 0deg,
       rgba(104, 77, 255, 0.90) 40deg,
       rgba(40, 123, 255, 0.90) 75deg,
@@ -739,7 +746,9 @@ html.dark { color-scheme: dark; }
       transparent 140deg
     );
   }
-  @keyframes beam-rotate { to { --beam-angle: 360deg; } }
+  @keyframes beam-rotate {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+  }
 
   /* Aurora layered radial background — premium texture (light) */
   .bg-aurora {
@@ -887,17 +896,40 @@ html.dark { color-scheme: dark; }
   @keyframes flow-dash {
     to { stroke-dashoffset: -28; }
   }
+  /* The dashes flow on desktops only, and only while on screen
+     (data-pause-offscreen). Animating stroke-dashoffset repaints the SVG on
+     every frame: on a phone it kept the main thread busy more than half the
+     time while the hero was open. */
   .flow-dash {
     stroke-dasharray: 3 5;
-    animation: flow-dash 1.6s linear infinite;
   }
+  @media (hover: hover) and (pointer: fine) {
+    .flow-dash {
+      animation: flow-dash 1.6s linear infinite;
+    }
+  }
+  /* Pulsing dot: a ring that grows and fades. Drawn on ::after and animated
+     with transform + opacity only, so the compositor runs it; the old
+     box-shadow keyframes repainted every dot on every frame. The dot's own
+     inline animation-delay carries over to the ring. */
   @keyframes node-pulse {
-    0% { box-shadow: 0 0 0 0 rgba(49, 0, 255, 0.45); }
-    70% { box-shadow: 0 0 0 9px rgba(49, 0, 255, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(49, 0, 255, 0); }
+    0% { transform: scale(1); opacity: 0.45; }
+    70% { transform: scale(3.25); opacity: 0; }
+    100% { transform: scale(3.25); opacity: 0; }
   }
   .node-pulse {
+    position: relative;
+  }
+  .node-pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgb(49, 0, 255);
+    opacity: 0;
+    pointer-events: none;
     animation: node-pulse 2.4s var(--ease-premium) infinite;
+    animation-delay: inherit;
   }
   @keyframes glow-drift {
     0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
@@ -1133,13 +1165,8 @@ html.dark { color-scheme: dark; }
       linear-gradient(to right, rgba(104, 77, 255, 0.04) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(104, 77, 255, 0.04) 1px, transparent 1px);
   }
-  .dark .node-pulse {
-    animation-name: node-pulse-dark;
-  }
-  @keyframes node-pulse-dark {
-    0% { box-shadow: 0 0 0 0 rgba(104, 77, 255, 0.45); }
-    70% { box-shadow: 0 0 0 9px rgba(104, 77, 255, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(104, 77, 255, 0); }
+  .dark .node-pulse::after {
+    background: rgb(104, 77, 255);
   }
 
   /* ── GRADIENT CLASSES (light + dark variants) ── */
@@ -1244,10 +1271,93 @@ html.lenis body {
    seconds to start, and the server-rendered page underneath is already
    complete and readable. The component removes it from the DOM once it runs. */
 .page-loader-failsafe {
-  animation: loader-out 0.35s ease 0.45s forwards;
+  /* Kept short: the overlay hides an already complete page. */
+  animation: loader-out 0.25s ease 0.15s forwards;
 }
 @keyframes loader-out {
   to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+/* Decorative glows (`rounded-full bg-… blur-[70px…160px]`, used all over
+   the site): drawn as a soft radial mask instead of a huge CSS blur filter.
+   It looks the same, but a 100px+ blur is one of the slowest things a
+   browser can paint (Safari most of all), and the glows that drift or
+   change colour on hover re-blurred on every frame. The stops approximate
+   the blur's falloff; `scale` makes up for the spread the blur added past
+   the circle's edge (it composes with the translate/transform utilities). */
+.rounded-full:is([class*=" blur-[7"], [class*=" blur-[8"], [class*=" blur-[9"], [class*=" blur-[1"]) {
+  filter: none;
+  scale: 1.5;
+  -webkit-mask-image: radial-gradient(closest-side, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0.35) 45%, transparent);
+  mask-image: radial-gradient(closest-side, rgb(0 0 0 / 0.7), rgb(0 0 0 / 0.35) 45%, transparent);
+}
+
+/* Long pages: a section far below the screen is not laid out or painted
+   until it is scrolled near (src/app/page.tsx). The size is a placeholder
+   until the section has rendered once; `auto` then remembers its real
+   height. Browsers without support simply render everything. */
+.cv-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 1000px;
+}
+
+/* Sections out of view (components/site/offscreen-pause.tsx): their looping
+   decorations stop until they scroll back near the screen. Browsers keep
+   running animations far below the fold otherwise, which held the main
+   thread busy on phones and Safari. */
+[data-offscreen],
+[data-offscreen] *,
+[data-offscreen] *::before,
+[data-offscreen] *::after {
+  animation-play-state: paused !important;
+}
+
+/* Scroll reveal (components/site/reveal.tsx). Content renders visible; the
+   component marks content that is still below the fold "hidden" once the page
+   runs, then "shown" as it scrolls into view, and removes the attribute when
+   the entrance is over. Plain CSS transitions on opacity/transform only: the
+   compositor runs them, with no per-frame JavaScript. */
+[data-reveal="hidden"]:not([data-reveal-children]),
+[data-reveal="hidden"][data-reveal-children] > * {
+  opacity: 0;
+}
+[data-reveal="hidden"][data-reveal-variant="up"]:not([data-reveal-children]),
+[data-reveal="hidden"][data-reveal-variant="up"][data-reveal-children] > * {
+  transform: translate3d(0, var(--reveal-y, 28px), 0);
+}
+[data-reveal="hidden"][data-reveal-variant="clip"]:not([data-reveal-children]),
+[data-reveal="hidden"][data-reveal-variant="clip"][data-reveal-children] > * {
+  clip-path: inset(0 0 100% 0);
+}
+[data-reveal="shown"]:not([data-reveal-children]),
+[data-reveal="shown"][data-reveal-children] > * {
+  transition:
+    opacity 0.6s cubic-bezier(0.215, 0.61, 0.355, 1),
+    transform 0.6s cubic-bezier(0.215, 0.61, 0.355, 1),
+    clip-path 0.6s cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Word-by-word headline entrance (components/site/split-heading.tsx). */
+[data-sh-inner] {
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-sh-root="hidden"] [data-sh-inner] {
+  opacity: 0;
+  transform: translate3d(0, 115%, 0);
+  transition: none;
+}
+/* Above-the-fold version (hero h1): starts with the first paint, no JavaScript. */
+.sh-rise {
+  animation: sh-rise 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes sh-rise {
+  from { opacity: 0; transform: translate3d(0, 115%, 0); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-rise { animation: none; }
 }
 
 /* Website section headings and page titles in capitals (the reference
@@ -1286,13 +1396,7 @@ main#main:not([data-admin]) h1.font-heading-display {
   55%, 100% { transform: translateX(220%); }
 }
 /* Rotating conic gradient border around the popup panel */
-/* Registered custom property for the rotating border-beam conic gradient
-   (see .border-beam in the utility layer) and the scoping popup ring. */
-@property --beam-angle {
-  syntax: "<angle>";
-  initial-value: 0deg;
-  inherits: false;
-}
+/* Registered custom property for the scoping popup ring's conic gradient. */
 @property --scoping-angle {
   syntax: "<angle>";
   initial-value: 0deg;
@@ -1355,11 +1459,11 @@ main#main:not([data-admin]) h1.font-heading-display {
   .font-heading .text-uk-blue,
   .text-gradient-animated,
   .btn-glow { animation: none; }
-  .border-beam::before { animation: none; }
+  .border-beam-spin { animation: none; }
   .reveal { opacity: 1; transform: none; }
   .orbit-ring, .orbit-ring-rev, .orbit-item, .orbit-item-rev,
   .hero-orbit, .hero-orbit-rev, .hero-image-drift,
-  .radar-sweep, .glow-drift, .flow-dash, .node-pulse, .console-cursor,
+  .radar-sweep, .glow-drift, .flow-dash, .node-pulse::after, .console-cursor,
   .insight-travel, .orgbit-travel, .ncortex-a, .ncortex-b, .wpipeline,
   .assem-ring, .assem-a, .assem-b, .hire-travel-a, .hire-travel-b {
     animation: none !important;
@@ -1386,11 +1490,13 @@ main#main:not([data-admin]) h1.font-heading-display {
   opacity: 0.5;
 }
 
+/* Already a soft radial gradient (per tone, below); a blur filter on top cost
+   a full repaint of these large, drifting layers on every frame. A slightly
+   wider inset stands in for the spread the blur added. */
 .aurora-blob-glow {
   position: absolute;
-  inset: -22%;
+  inset: -30%;
   border-radius: 50%;
-  filter: blur(32px);
 }
 
 .aurora-blob-rim {

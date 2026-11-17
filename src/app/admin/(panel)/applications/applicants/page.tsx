@@ -3,13 +3,12 @@ import { ArrowLeft, CircleAlert } from "lucide-react";
 import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { FlashToast } from "@/components/admin/toast";
-import { readPaging } from "@/lib/pagination";
 import { listApplications } from "@/lib/applications-store";
-import { getCareers } from "@/lib/careers-store";
+import { listCareerRolesForAdmin } from "@/lib/careers-store";
 import { todayInIndia } from "@/lib/careers-shared";
 import { isApplicationStatus } from "@/lib/applications-validation";
 import {
-  APPLICANTS_PATH, ApplicationsList, applicantsHref, hasColumns, listHref, readColumns, readDates, readView, roleRows, type ListFilters,
+  APPLICANTS_PATH, ApplicationsList, applicantsHref, hasColumns, listHref, readColumns, readDates, readListPaging, readView, roleRows, type ListFilters,
 } from "../applications-list";
 
 export const metadata = { title: "Applicants" };
@@ -37,9 +36,10 @@ export default async function ApplicantsPage({ searchParams }: Props) {
   const { q = "", status = "all", page: pageParam, per, saved } = sp;
   const role = (sp.role ?? "").trim().slice(0, 100);
 
-  const { page, pageSize } = readPaging(pageParam, per, 25);
   const dates = readDates(sp);
   const view = readView(sp.view);
+  // 28 cards per page in the Grid (full rows), 25 rows in the Table.
+  const { page, pageSize } = readListPaging(view, pageParam, per);
   const keep: Record<string, string> = {};
   if (role) keep.role = role;
   if (view === "table") keep.view = "table";
@@ -57,7 +57,7 @@ export default async function ApplicantsPage({ searchParams }: Props) {
 
   const [{ items, total, counts, roles, dbError }, careers] = await Promise.all([
     listApplications({ status: filters.status, position: role || undefined, q, from: dates.from, to: dates.to, columns, page, pageSize }),
-    getCareers(),
+    listCareerRolesForAdmin(),
   ]);
   const rows = roleRows(roles, careers);
   const allCount = roles.reduce((n, r) => n + r.total, 0);
@@ -107,7 +107,8 @@ export default async function ApplicantsPage({ searchParams }: Props) {
             All roles
             <span className="rounded-full bg-uk-surface-3 px-2 py-0.5 text-[0.7rem] font-semibold text-uk-body">{allCount}</span>
           </Link>
-          {rows.map((r) => {
+          {/* Open (published) roles only; closed and draft roles are on the Job applications page */}
+          {rows.filter((r) => r.status === "open").map((r) => {
             const active = role.toLowerCase() === r.position.toLowerCase();
             return (
               <Link key={r.position} href={applicantsHref(r.position, dates, view)} aria-current={active ? "page" : undefined} className={chip(active)}>

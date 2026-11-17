@@ -7,7 +7,8 @@ export const dynamic = "force-dynamic";
 
 // Spreadsheet apps run text starting with = + - @ as a formula. Prefix those
 // so a hostile enquiry can't execute anything when an admin opens the export.
-function cell(value: string): string {
+function cell(v: string | null | undefined): string {
+  const value = String(v ?? "");
   const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
   return `"${safe.replace(/"/g, '""')}"`;
 }
@@ -29,7 +30,8 @@ export async function GET() {
   try {
     leads = await listAllLeads();
   } catch (e) {
-    return new Response(`Could not read leads: ${e instanceof Error ? e.message : "database error"}`, { status: 500 });
+    console.error("Leads export failed:", e);
+    return new Response("Could not read leads. Please try again.", { status: 500 });
   }
 
   const header = ["Received (IST)", "Name", "Email", "Mobile", "Company", "Service", "Budget", "Message", "Source", "Status", "Note"];

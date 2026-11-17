@@ -36,8 +36,13 @@ const nextConfig = {
   },
   images: {
     // Next 16 only allows quality 75 by default. 95 is used for the
-    // circular page-hero artwork, where fine detail must stay crisp.
-    qualities: [75, 95],
+    // circular page-hero artwork, where fine detail must stay crisp; 55 for
+    // the dark photo heroes (hero-photo.tsx), which sit under a ~90% overlay.
+    qualities: [55, 75, 95],
+    // AVIF first (Safari 16+, Chrome, Firefox, Edge), WebP for the rest. The
+    // hero photos come out ~45% smaller than WebP. AVIF is slower to encode,
+    // but only on an image's first request; the result is cached after that.
+    formats: ["image/avif", "image/webp"],
   },
 };
 

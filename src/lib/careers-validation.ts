@@ -92,25 +92,33 @@ export function validateCareer(
 ): { ok: true; value: CareerInput } | { ok: false; errors: FieldErrors } {
   const e: FieldErrors = {};
 
+  // No field is mandatory: a blank one is saved with a sensible default
+  // (role "Untitled role", location "India", 0 years, today's date) or left out.
   const text = (k: keyof CareerValues, label: string, max: number) => {
-    if (!v[k]) e[k] = `${label} is required.`;
-    else if (v[k].length > max) e[k] = `${label} must be ${max} characters or fewer.`;
+    if (v[k].length > max) e[k] = `${label} must be ${max} characters or fewer.`;
   };
-  text("role", "Role", 80);
-  text("location", "Location", 60);
-  text("summary", "About the role", 300);
+  text("role", "Role", 150);
+  text("location", "Location", 100);
+  // "About the role": one paragraph per line, up to 50, no character limit.
+  // Blank lines are dropped so the job page shows one tidy paragraph per line.
+  const summaryLines = lines(v.summary);
+  if (summaryLines.length > 50) e.summary = "Use 50 lines or fewer.";
+  const summary = summaryLines.join("\n");
+  const role = v.role || "Untitled role";
+  const location = v.location || "India";
 
-  if (requireSlug) {
-    if (!v.slug) e.slug = "Slug is required.";
-    else if (v.slug.length > 80) e.slug = "Slug must be 80 characters or fewer.";
+  // The slug is made from the role name when left blank (see the create action).
+  if (requireSlug && v.slug) {
+    if (v.slug.length > 80) e.slug = "Slug must be 80 characters or fewer.";
     else if (!SLUG.test(v.slug)) e.slug = "Use lowercase letters, numbers and single hyphens only.";
   }
 
-  if (!isJobMode(v.mode)) e.mode = "Choose Remote, Hybrid or On-site.";
-  if (!isJobType(v.type)) e.type = "Choose Full-time, Part-time, Freelancing or Internship.";
+  const mode = isJobMode(v.mode) ? v.mode : "Remote";
+  const type = isJobType(v.type) ? v.type : "Full-time";
 
+  // Blank means 0 years (freshers welcome).
   let experienceMin = 0;
-  if (!v.experienceMin) e.experienceMin = "Minimum experience is required (0 for freshers).";
+  if (!v.experienceMin) experienceMin = 0;
   else if (!WHOLE_NUMBER.test(v.experienceMin) || +v.experienceMin > EXPERIENCE_YEARS_MAX) {
     e.experienceMin = `Enter whole years from 0 to ${EXPERIENCE_YEARS_MAX}.`;
   } else experienceMin = +v.experienceMin;
@@ -124,45 +132,41 @@ export function validateCareer(
     } else experienceMax = +v.experienceMax;
   }
 
-  if (!v.postedAt) e.postedAt = "Published date is required.";
-  else if (!isIsoDate(v.postedAt)) e.postedAt = "Enter a valid date.";
-  else if (v.postedAt > todayInIndia()) e.postedAt = "The published date can't be in the future.";
+  let postedAt = todayInIndia();
+  if (v.postedAt) {
+    if (!isIsoDate(v.postedAt)) e.postedAt = "Enter a valid date.";
+    else if (v.postedAt > todayInIndia()) e.postedAt = "The published date can't be in the future.";
+    else postedAt = v.postedAt;
+  }
 
-  const list = (k: "responsibilities" | "requirements" | "qualifications" | "perks", label: string, max: number, optional = false) => {
+  // Every list is optional; an empty one is simply not shown on the job page.
+  // Up to 50 lines each, with no character limit on a line.
+  const list = (k: "responsibilities" | "requirements" | "qualifications" | "perks", max: number) => {
     const items = lines(v[k]);
-    if (items.length === 0 && !optional) e[k] = `Add at least one ${label}.`;
-    else if (items.length > max) e[k] = `Use ${max} or fewer.`;
-    else if (items.some((s) => s.length > 300)) e[k] = "Each line must be 300 characters or fewer.";
+    if (items.length > max) e[k] = `Use ${max} lines or fewer.`;
     return items;
   };
-  const responsibilities = list("responsibilities", "responsibility", 10);
-  const requirements = list("requirements", "required skill", 10);
-  const qualifications = list("qualifications", "qualification", 10, true);
-  // No limit is shown for perks; this cap only stops runaway lists.
-  const perks = list("perks", "perk", 30);
+  const responsibilities = list("responsibilities", 50);
+  const requirements = list("requirements", 50);
+  const qualifications = list("qualifications", 50);
+  const perks = list("perks", 50);
 
+  // Optional too: left empty, the job page shows the standard hiring process.
+  // "Title | what happens"; a line without "|" is a title on its own.
   const hiringProcess: HiringStep[] = [];
   const steps = lines(v.hiringProcess);
-  if (steps.length === 0) e.hiringProcess = "Add at least one hiring step.";
-  else if (steps.length > HIRING_STEPS_MAX) e.hiringProcess = `Use ${HIRING_STEPS_MAX} steps or fewer.`;
+  if (steps.length > HIRING_STEPS_MAX) e.hiringProcess = `Use ${HIRING_STEPS_MAX} steps or fewer.`;
   else {
     for (const [i, line] of steps.entries()) {
       const at = line.indexOf("|");
       const title = (at < 0 ? line : line.slice(0, at)).trim();
       const desc = at < 0 ? "" : line.slice(at + 1).trim();
-      if (!title || !desc) {
-        e.hiringProcess = `Step ${i + 1}: write it as "Title | what happens".`;
+      if (!title && !desc) continue;
+      if (title.length > 120) {
+        e.hiringProcess = `Step ${i + 1}: the title must be 120 characters or fewer.`;
         break;
       }
-      if (title.length > 60) {
-        e.hiringProcess = `Step ${i + 1}: the title must be 60 characters or fewer.`;
-        break;
-      }
-      if (desc.length > 240) {
-        e.hiringProcess = `Step ${i + 1}: the description must be 240 characters or fewer.`;
-        break;
-      }
-      hiringProcess.push({ title, desc });
+      hiringProcess.push({ title: title || `Step ${i + 1}`, desc });
     }
   }
 
@@ -170,9 +174,9 @@ export function validateCareer(
   return {
     ok: true,
     value: {
-      slug: v.slug, role: v.role, location: v.location, type: v.type as CareerInput["type"], mode: v.mode as CareerInput["mode"],
+      slug: v.slug, role, location, type, mode,
       experienceMin, ...(experienceMax === undefined ? {} : { experienceMax }),
-      postedAt: v.postedAt, summary: v.summary,
+      postedAt, summary,
       responsibilities, requirements, ...(qualifications.length ? { qualifications } : {}), perks, hiringProcess,
       published: v.published === "on",
     },

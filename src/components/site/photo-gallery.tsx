@@ -16,8 +16,21 @@ const AUTOPLAY_MS = 5000;
  * the tab is hidden and for visitors who prefer reduced motion). Click the
  * picture to open it whole in a viewer. Plain <img>: static files, and the
  * admin may use any address.
+ *
+ * `compact`: fills the card it sits in (e.g. beside text on /social-impact):
+ * no outer margin, border or shadow of its own, a 4:3 picture, no caption
+ * badge (the card shows it), and a photo counter instead of dots once there
+ * are too many to fit.
  */
-export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; caption?: string }) {
+export function PhotoCarousel({
+  photos,
+  caption,
+  compact = false,
+}: {
+  photos: GalleryPhoto[];
+  caption?: string;
+  compact?: boolean;
+}) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [viewer, setViewer] = useState(false);
@@ -27,6 +40,11 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const go = useCallback((i: number) => setIndex(((i % count) + count) % count), [count]);
+  // Slides are stacked in one spot, so `loading="lazy"` alone would fetch
+  // every photo as soon as the carousel is on screen. Only the current slide
+  // and its neighbours (the next fade, either arrow) get an image; the
+  // browser cache keeps the ones already seen.
+  const near = (i: number) => i === index || i === (index + 1) % count || i === (index - 1 + count) % count;
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -52,7 +70,10 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
     <>
       <div
         ref={carouselRef}
-        className="relative mx-auto mt-8 w-full max-w-6xl overflow-hidden rounded-2xl border border-uk-line bg-uk-surface-2 shadow-premium-lg"
+        className={cn(
+          "relative w-full overflow-hidden bg-uk-surface-2",
+          compact ? "h-full" : "mx-auto mt-8 max-w-6xl rounded-2xl border border-uk-line shadow-premium-lg"
+        )}
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocusCapture={() => setPaused(true)}
@@ -71,7 +92,7 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
         aria-label={caption ?? "Photos"}
       >
         {/* 4:3 on phones, 3:2 on tablets, 16:9 from md — the same ratios as ukvalley.com */}
-        <div className="relative aspect-[4/3] w-full sm:aspect-[3/2] md:aspect-video">
+        <div className={cn("relative w-full", compact ? "aspect-[4/3] h-full lg:aspect-auto lg:min-h-[24rem]" : "aspect-[4/3] sm:aspect-[3/2] md:aspect-video")}>
           {photos.map((p, i) => (
             <div
               key={p.src}
@@ -86,19 +107,22 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
                 aria-label={`Open ${p.alt} full size`}
                 className="group block h-full w-full cursor-zoom-in"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.src}
-                  alt={p.alt}
-                  loading={i === 0 ? "eager" : "lazy"}
-                  decoding="async"
-                  className={cn("h-full w-full object-cover", p.focus ?? "object-center")}
-                />
+                {near(i) && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={p.src}
+                    alt={p.alt}
+                    loading="lazy"
+                    decoding="async"
+                    className={cn("h-full w-full object-cover", p.focus ?? "object-center")}
+                  />
+                )}
               </button>
             </div>
           ))}
 
-          {caption && (
+          {/* compact: the card beside the photos shows the caption already */}
+          {caption && !compact && (
             <div className="pointer-events-none absolute bottom-4 left-4 z-10 max-w-[80%] rounded-lg bg-black/70 px-3.5 py-2 text-sm font-medium text-white backdrop-blur-sm sm:bottom-6 sm:left-6 sm:px-5 sm:py-3 sm:text-lg">
               <Tx>{caption}</Tx>
             </div>
@@ -116,7 +140,13 @@ export function PhotoCarousel({ photos, caption }: { photos: GalleryPhoto[]; cap
               <button type="button" aria-label="Next photo" onClick={() => go(index + 1)} className={cn(arrow, "right-3 sm:right-6")}>
                 <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
-              <div className="absolute bottom-3 left-1/2 z-10 flex max-w-[60%] -translate-x-1/2 flex-wrap justify-center gap-2 sm:bottom-6 sm:gap-3">
+              <div
+                className={cn(
+                  "absolute bottom-3 left-1/2 z-10 max-w-[60%] -translate-x-1/2 flex-wrap justify-center gap-2 sm:bottom-6 sm:gap-3",
+                  // a card is narrow: past 8 photos the dots would wrap into rows, the counter is enough
+                  compact && count > 8 ? "hidden" : "flex"
+                )}
+              >
                 {photos.map((p, i) => (
                   <button
                     key={p.src}

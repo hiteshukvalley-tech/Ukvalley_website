@@ -1,5 +1,7 @@
 "use server";
 
+import { lookup } from "node:dns/promises";
+import { isIP } from "node:net";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin-session";
@@ -36,6 +38,52 @@ const SECURITIES: SmtpSecurity[] = ["ssl", "starttls", "none"];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const HOST = /^(?=.{1,253}$)[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/i;
 const NO_DB = "Database is not connected (MONGODB_URI missing), so email settings can't be saved.";
+/** The ports mail servers take submissions on; anything else could aim the server at some other service. */
+const PORTS = [25, 465, 587, 2525];
+
+// The server connects wherever these settings point, so they must never reach
+// this machine or the private network (SSRF): no localhost, no single-label
+// names, nothing that is or resolves to a private, loopback or link-local
+// address. Outside production (and for the QA scripts' fake SMTP server on
+// 127.0.0.1:2525, which run `next start` with QA_ALLOW_LOCAL_SMTP=1) local
+// servers are allowed.
+const allowLocal = () => process.env.NODE_ENV !== "production" || process.env.QA_ALLOW_LOCAL_SMTP === "1";
+
+function isPrivateIp(ip: string): boolean {
+  const v4 = (ip.toLowerCase().startsWith("::ffff:") ? ip.slice(7) : ip).split(".").map(Number);
+  if (isIP(ip) === 4 || (v4.length === 4 && v4.every((n) => Number.isInteger(n)))) {
+    const [a, b] = v4;
+    return (
+      a === 0 || a === 10 || a === 127 || a >= 224 || // this network, private, loopback, multicast/reserved
+      (a === 100 && b >= 64 && b <= 127) || // carrier-grade NAT
+      (a === 169 && b === 254) || // link-local (cloud metadata)
+      (a === 172 && b >= 16 && b <= 31) ||
+      (a === 192 && b === 168)
+    );
+  }
+  const v6 = ip.toLowerCase();
+  // unspecified, loopback, IPv4-mapped (hex form), unique-local fc00::/7, link-local fe80::/10
+  return v6 === "::" || v6 === "::1" || v6.startsWith("::ffff:") || /^f[cd]/.test(v6) || /^fe[89ab]/.test(v6);
+}
+
+/** Why this host can't be used, or null when it can. Resolves it, so a public name pointing inward is caught too. */
+async function hostProblem(host: string): Promise<string | null> {
+  if (allowLocal()) return null;
+  if (host === "localhost" || host.endsWith(".localhost") || !host.includes(".")) {
+    return "Enter the mail server's full public name, e.g. smtp.gmail.com.";
+  }
+  if (isIP(host) && isPrivateIp(host)) return "That address is on a private network. Enter a public mail server.";
+  let addresses: { address: string }[];
+  try {
+    addresses = await lookup(host, { all: true });
+  } catch {
+    return "Could not find that server. Check the name, e.g. smtp.gmail.com.";
+  }
+  if (!addresses.length || addresses.some((a) => isPrivateIp(a.address))) {
+    return "That server is on a private network. Enter a public mail server.";
+  }
+  return null;
+}
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
 
@@ -79,8 +127,12 @@ async function toConfig(scope: SmtpScope, values: SmtpValues, pass: string): Pro
   const errors: Record<string, string> = {};
   if (!values.host) errors.host = "Enter the SMTP server, e.g. smtp.gmail.com.";
   else if (!HOST.test(values.host)) errors.host = "Enter a server name like smtp.gmail.com (no http:// or spaces).";
+  else {
+    const problem = await hostProblem(values.host);
+    if (problem) errors.host = problem;
+  }
   const port = Number(values.port);
-  if (!Number.isInteger(port) || port < 1 || port > 65535) errors.port = "Enter a port number, e.g. 465 or 587.";
+  if (!PORTS.includes(port)) errors.port = "Use port 465 (SSL/TLS), 587 (STARTTLS), 25 or 2525.";
   if (!values.user) errors.user = "Enter the username (usually the full email address).";
   else if (values.user.length > 254) errors.user = "Username must be 254 characters or fewer.";
   if (values.fromName.length > 100) errors.fromName = "Sender name must be 100 characters or fewer.";
@@ -92,9 +144,12 @@ async function toConfig(scope: SmtpScope, values: SmtpValues, pass: string): Pro
     // The HR form is pre-filled from the server's SMTP_* settings when nothing is
     // saved, so their password counts as "saved" for the same server/user.
     const env = scope.kind === "hr" ? envSmtpConfig() : null;
-    const envPass = env && env.host.toLowerCase() === values.host && env.user === values.user ? env.pass : null;
-    password = (await savedSmtpPassword(scope, values.host, values.user)) ?? envPass ?? "";
-    if (!password) errors.pass = "Enter the password (for Gmail, an App Password). A changed server or username needs it entered again.";
+    const envPass =
+      env && env.host.toLowerCase() === values.host && env.port === port && env.security === values.security && env.user === values.user
+        ? env.pass
+        : null;
+    password = (await savedSmtpPassword(scope, { host: values.host, port, security: values.security, user: values.user })) ?? envPass ?? "";
+    if (!password) errors.pass = "Enter the password (for Gmail, an App Password). A changed server, port, security or username needs it entered again.";
   }
   if (Object.keys(errors).length) return { errors };
   return {
@@ -134,6 +189,8 @@ export async function testSmtpAction(key: string, _prev: SmtpState, formData: Fo
   try {
     await sendTestEmail(config, values.testTo);
   } catch (e) {
+    // The details stay in the server log: the raw error could describe whatever answered at that address.
+    console.error(`[smtp] Test email via ${config.host}:${config.port} failed:`, errorText(e));
     return { status: "error", message: `Test failed: ${friendly(errorText(e))}`, values, nonce };
   }
   return { status: "tested", message: `Test email sent to ${values.testTo}. Check the inbox (and spam folder).`, values, nonce };
@@ -162,16 +219,19 @@ export async function removeSmtpAction(key: string): Promise<SmtpState> {
   return { status: "removed", message, nonce };
 }
 
-/** Turns common SMTP errors into a hint the admin can act on. */
+/** Turns an SMTP error into a short, fixed hint the admin can act on (never the raw message). */
 function friendly(msg: string): string {
-  if (/Invalid login|535|Username and Password not accepted|authentication failed/i.test(msg)) {
-    return `${msg} — the username or password was rejected. For Gmail, turn on 2-Step Verification and use an App Password, not your normal password.`;
+  if (/Invalid login|535|Username and Password not accepted|authentication failed|EAUTH/i.test(msg)) {
+    return "authentication failed — the username or password was rejected. For Gmail, turn on 2-Step Verification and use an App Password, not your normal password.";
   }
-  if (/ETIMEDOUT|ECONNREFUSED|ENOTFOUND|EHOSTUNREACH|Greeting never received|timeout/i.test(msg)) {
-    return `${msg} — the server could not be reached. Check the server name and port (465 with SSL/TLS, or 587 with STARTTLS).`;
+  if (/wrong version number|SSL routines|certificate|ESOCKET|TLS/i.test(msg)) {
+    return "could not start a secure connection — the security setting may not match the port. Use SSL/TLS with 465, or STARTTLS with 587.";
   }
-  if (/wrong version number|SSL routines|certificate/i.test(msg)) {
-    return `${msg} — the security setting doesn't match the port. Use SSL/TLS with 465, or STARTTLS with 587.`;
+  if (/ETIMEDOUT|ECONNREFUSED|ENOTFOUND|EHOSTUNREACH|ECONNECTION|Greeting never received|timeout/i.test(msg)) {
+    return "could not connect — the server could not be reached. Check the server name and port (465 with SSL/TLS, or 587 with STARTTLS).";
   }
-  return msg;
+  if (/EENVELOPE|recipient|sender|550|553|554/i.test(msg)) {
+    return "the server refused the message — check the sender address and the address the test goes to.";
+  }
+  return "the server did not accept the email. Check the settings and try again.";
 }

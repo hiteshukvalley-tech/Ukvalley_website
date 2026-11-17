@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "@/components/site/intent-link";
 import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,7 +10,8 @@ import { Marked } from "./marked";
 import { company } from "@/lib/site-core";
 import { markedWords } from "@/lib/home-schema";
 import type { HomeContent } from "@/lib/home-defaults";
-import { T, Tx, useT } from "@/components/site/texts-context";
+import { T, Tx } from "@/components/site/texts-context";
+import { ukText } from "@/lib/texts";
 
 /** Chip dot colours, by position. */
 const chipDots = [
@@ -21,9 +20,13 @@ const chipDots = [
   "bg-uk-blue shadow-[0_0_6px_rgba(49,0,255,0.5)] dark:shadow-[0_0_6px_rgba(104,77,255,0.6)]",
 ];
 
-/** Home page hero. Text comes from Admin → Home page → Hero. */
+/**
+ * Home page hero. Text comes from Admin → Home page → Hero.
+ * A server component: only the interactive parts inside it (counters, the
+ * dashboard mockup, the buttons) ship JavaScript and hydrate.
+ */
 export function Hero({ content: c }: { content: HomeContent["hero"] }) {
-  const t = useT();
+  const t = ukText;
   const headline = markedWords(c.headline);
   return (
     <section className="relative overflow-hidden bg-uk-surface-blue">
@@ -33,9 +36,9 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
         aria-hidden
       />
       <div className="absolute inset-0 bg-blueprint bg-grid-fade opacity-70" aria-hidden />
-      <div className="glow-drift absolute -left-40 top-0 h-[32rem] w-[32rem] rounded-full bg-uk-blue/18 blur-[140px]" />
-      <div className="glow-drift absolute right-[-8%] top-[-10%] h-[36rem] w-[36rem] rounded-full bg-uk-blue-bright/12 blur-[160px]" />
-      <div className="glow-drift absolute bottom-[-10%] left-[30%] h-80 w-80 rounded-full bg-uk-yellow/15 blur-[120px]" />
+      <div className="glow-drift absolute -left-40 top-0 h-[32rem] w-[32rem] rounded-full bg-uk-blue/18 blur-[140px]" aria-hidden />
+      <div className="glow-drift absolute right-[-8%] top-[-10%] h-[36rem] w-[36rem] rounded-full bg-uk-blue-bright/12 blur-[160px]" aria-hidden />
+      <div className="glow-drift absolute bottom-[-10%] left-[30%] h-80 w-80 rounded-full bg-uk-yellow/15 blur-[120px]" aria-hidden />
 
       {/* ── Hero content — top padding = fixed header (64px, 72px on lg) + 40px / 56px ── */}
       <div className="relative mx-auto max-w-7xl pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-26 pb-16 lg:px-8 lg:pt-32 lg:pb-20">
@@ -125,6 +128,10 @@ export function Hero({ content: c }: { content: HomeContent["hero"] }) {
             <div className="h-[22rem] lg:h-[28rem]">
               <DashboardShowcase />
             </div>
+            {/* the travelling light on the border (globals.css .border-beam) */}
+            <span className="border-beam-ring" aria-hidden>
+              <span className="border-beam-spin" />
+            </span>
           </div>
 
           {/* Floating accent cards below panel */}

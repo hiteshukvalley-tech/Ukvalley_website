@@ -44,9 +44,6 @@ export function ukText<T>(v: T): T {
 export function textsSnapshot(): Record<string, string> {
   const map = g.__ukTexts;
   if (!map || map.size === 0) return {};
-  const out: Record<string, string> = {};
-  // every override the admin can save (texts-store MAX_ORIGINAL), so long
-  // paragraphs replaced there also change in client components
-  for (const [o, r] of map) if (o.length <= 2000) out[o] = r;
-  return out;
+  // every override, so long paragraphs replaced there also change in client components
+  return Object.fromEntries(map);
 }

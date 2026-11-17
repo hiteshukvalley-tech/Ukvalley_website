@@ -4,10 +4,10 @@ import { redirect } from "next/navigation";
 import { PageHeader } from "@/components/admin/page-header";
 import { FlashToast } from "@/components/admin/toast";
 import { listApplications } from "@/lib/applications-store";
-import { getCareers } from "@/lib/careers-store";
+import { listCareerRolesForAdmin } from "@/lib/careers-store";
 import { todayInIndia } from "@/lib/careers-shared";
 import { formatApplicationDate } from "./application-ui";
-import { applicantsHref, datesLabel, readDates, roleRows } from "./applications-list";
+import { RoleStatusBadge, applicantsHref, datesLabel, readDates, roleRows } from "./applications-list";
 import { DateBoxes, DateModeSwitch } from "./date-filter";
 
 export const metadata = { title: "Job applications" };
@@ -31,8 +31,8 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
   const [{ counts, roles, dbError }, careers] = await Promise.all([
     // Only the counts are used here, so fetch a single row.
     listApplications({ from: dates.from, to: dates.to, pageSize: 1 }),
-    // The roles the Careers page shows (built-in ones until roles are imported).
-    getCareers(),
+    // Every job opening, open and past (built-in ones until roles are imported).
+    listCareerRolesForAdmin(),
   ]);
 
   const summary = roleRows(roles, careers);
@@ -86,7 +86,7 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
           </Link>
         </div>
         {summary.length === 0 ? (
-          <p className="p-6 text-center text-sm text-uk-muted">No open roles or applications yet.</p>
+          <p className="p-6 text-center text-sm text-uk-muted">No job openings or applications yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[34rem] text-sm">
@@ -104,7 +104,7 @@ export default async function ApplicationsAdminPage({ searchParams }: Props) {
                   <tr key={r.position}>
                     <td className="px-4 py-2.5">
                       <span className="font-medium text-uk-heading">{r.position}</span>
-                      {!r.open && <span className="ml-2 text-xs text-uk-muted">(not an open role)</span>}
+                      <RoleStatusBadge status={r.status} />
                     </td>
                     <td className="px-4 py-2.5 text-right font-semibold tabular-nums text-uk-heading">{r.total}</td>
                     <td className="px-4 py-2.5 text-right tabular-nums">

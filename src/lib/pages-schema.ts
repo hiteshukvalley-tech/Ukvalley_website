@@ -120,7 +120,8 @@ const SOCIAL_FIELDS: SectionDef["fields"] = [
     itemLabel: "Section",
     minItems: 0,
     maxItems: 30,
-    hint: "Each section is a title, a text and (optionally) a photo carousel. Add as many as you like with “Add section” and use the arrows to reorder them. Remove every section to show the built-in ones again.",
+    addAtTop: true,
+    hint: "Each section is a title, a text and (optionally) a photo carousel. “Add section” puts the new one at the top, so it shows first on the page; use the arrows to reorder them. Remove every section to show the built-in ones again.",
     fields: [
       { key: "title", label: "Title", kind: "text", max: 80, required: true },
       { key: "caption", label: "Badge on the photos (e.g. Tree Plantation)", kind: "text", max: 40 },

@@ -281,16 +281,17 @@ function JobCard({ job: j, today }: { job: JobListing; today?: string }) {
             </span>
           )}
         </div>
-        <h3 className="font-heading text-lg font-bold text-uk-heading">
+        <h3 className="font-heading text-lg font-bold text-uk-heading wrap-anywhere">
           {/* The link's ::after covers the whole card, so a click anywhere opens the job. */}
           <Link href={`/careers/${j.slug}`} className="transition-colors after:absolute after:inset-0 after:rounded-2xl group-hover:text-uk-blue">
             <Tx>{j.role}</Tx>
           </Link>
         </h3>
-        <p className="text-sm text-uk-gray"><Tx>{j.summary}</Tx></p>
+        {/* "About the role" can be long: the card shows its first paragraph (up to 3 lines), the job page shows it all */}
+        {j.summary && <p className="line-clamp-3 text-sm text-uk-gray wrap-anywhere"><Tx>{j.summary.split("\n")[0]}</Tx></p>}
         <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-uk-gray" aria-label="Job details">
-          <li className="inline-flex items-center gap-1.5">
-            <MapPin className="h-3.5 w-3.5 text-uk-blue" aria-hidden />
+          <li className="inline-flex min-w-0 items-center gap-1.5 wrap-anywhere">
+            <MapPin className="h-3.5 w-3.5 flex-none text-uk-blue" aria-hidden />
             <span className="sr-only"><T>Location:</T> </span>
             <Tx>{j.location}</Tx>
           </li>

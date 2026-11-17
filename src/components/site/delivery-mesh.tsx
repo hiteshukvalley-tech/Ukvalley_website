@@ -24,7 +24,8 @@ export function DeliveryMesh({ className }: { className?: string }) {
     .map((n) => `M ${n.x} ${n.y} Q ${(n.x + 476) / 2} ${Math.min(n.y, 96) - 58} 476 96`);
 
   return (
-    <div className={className} aria-hidden>
+    // data-pause-offscreen: the flowing dashes stop while this is out of view (offscreen-pause.tsx)
+    <div className={className} aria-hidden data-pause-offscreen>
       <svg viewBox="0 0 560 180" fill="none" className="h-full w-full">
         {/* faint world-dot backdrop */}
         {Array.from({ length: 7 }).map((_, row) =>
@@ -53,11 +54,11 @@ export function DeliveryMesh({ className }: { className?: string }) {
             {n.hq ? (
               <>
                 <circle cx={n.x} cy={n.y} r={16} className="fill-uk-blue/12" />
-                <circle cx={n.x} cy={n.y} r={7} className="node-pulse fill-uk-blue" />
+                <circle cx={n.x} cy={n.y} r={7} className="fill-uk-blue" />
                 <circle cx={n.x} cy={n.y} r={3} className="fill-uk-yellow" />
               </>
             ) : (
-              <circle cx={n.x} cy={n.y} r={4.5} className="node-pulse fill-uk-blue" style={{ animationDelay: `${nodes.indexOf(n) * 0.6}s` }} />
+              <circle cx={n.x} cy={n.y} r={4.5} className="fill-uk-blue" />
             )}
             <text
               x={n.x}

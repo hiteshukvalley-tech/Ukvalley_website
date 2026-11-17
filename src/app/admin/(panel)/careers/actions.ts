@@ -5,8 +5,10 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import {
-  CAREERS_TAG, createCareer, deleteCareer, importBuiltInCareers, reorderCareers, setCareerPublished, updateCareer,
+  CAREERS_TAG, createCareer, deleteCareer, getCareerForAdmin, purgeRecycledCareer, restoreCareer, importBuiltInCareers, listCareersForAdmin, reorderCareers,
+  setCareerPublished, updateCareer,
 } from "@/lib/careers-store";
+import { renameApplicationsPosition } from "@/lib/applications-store";
 import {
   readCareerValues, validateCareer, type CareerValues, type FieldErrors,
 } from "@/lib/careers-validation";
@@ -31,14 +33,16 @@ function refreshPublicSite() {
   revalidateTag(CAREERS_TAG, { expire: 0 });
   revalidatePath("/", "layout");
   revalidatePath("/admin/careers");
+  revalidatePath("/admin/careers/recycle");
 }
 
 export async function createCareerAction(_prev: CareerFormState, formData: FormData): Promise<CareerFormState> {
   await requireAdmin("careers");
   const values = readCareerValues(formData);
   // Slug left blank: make it from the role name (a taken one gets -2, -3 … in createCareer).
-  const derivedSlug = !values.slug && Boolean(values.role);
-  if (derivedSlug) values.slug = slugifyRole(values.role);
+  // No role name either: the slug becomes "untitled-role" (the role's default name).
+  const derivedSlug = !values.slug;
+  if (derivedSlug) values.slug = slugifyRole(values.role || "Untitled role");
   const nonce = Date.now();
 
   const result = validateCareer(values, { requireSlug: true });
@@ -82,14 +86,27 @@ export async function updateCareerAction(
   }
   if (!hasDatabaseUrl()) return { status: "error", message: NO_DB, values, nonce };
 
+  let moved = 0;
   try {
+    const before = await getCareerForAdmin(slug);
     const found = await updateCareer(result.value);
     if (!found) return { status: "error", message: "This role no longer exists.", values, nonce };
+    // Renamed: this same role keeps its applications under the new name (they
+    // store the name), unless another role still has the old one.
+    const norm = (s: string) => s.replace(/\s+/g, " ").trim().toLowerCase();
+    if (before && before.role !== result.value.role) {
+      const { items } = await listCareersForAdmin();
+      const oldNameInUse = items.some((c) => c.slug !== slug && norm(c.role) === norm(before.role));
+      if (!oldNameInUse) moved = await renameApplicationsPosition(before.role, result.value.role);
+    }
   } catch (e) {
     return { status: "error", message: `Could not save: ${dbMessage(e)}`, values, nonce };
   }
   refreshPublicSite();
-  return { status: "saved", message: "Role saved. The live site is updating.", values, nonce };
+  const message = moved
+    ? `Role saved. Its ${moved} ${moved === 1 ? "application moves" : "applications move"} to the new name. The live site is updating.`
+    : "Role saved. The live site is updating.";
+  return { status: "saved", message, values, nonce };
 }
 
 export async function importCareersAction(): Promise<ActionResult> {
@@ -135,12 +152,42 @@ export async function reorderCareersAction(slugs: string[]): Promise<ActionResul
   return { ok: true };
 }
 
+/** Delete: the role moves to Recycle openings (it can be restored there). */
 export async function deleteCareerAction(slug: string): Promise<ActionResult> {
   slug = String(slug);
+  const user = await requireAdmin("careers");
+  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
+  try {
+    await deleteCareer(slug, user.email);
+  } catch (e) {
+    return { ok: false, message: `Could not delete: ${dbMessage(e)}` };
+  }
+  refreshPublicSite();
+  return { ok: true };
+}
+
+/** Recycle openings → Restore: the role is back in Careers, as it was. */
+export async function restoreCareerAction(id: string): Promise<ActionResult> {
+  id = String(id);
   await requireAdmin("careers");
   if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
   try {
-    await deleteCareer(String(slug));
+    const slug = await restoreCareer(id);
+    if (!slug) return { ok: false, message: "This role is no longer in Recycle openings." };
+  } catch (e) {
+    return { ok: false, message: `Could not restore: ${dbMessage(e)}` };
+  }
+  refreshPublicSite();
+  return { ok: true };
+}
+
+/** Recycle openings → Delete forever. */
+export async function purgeCareerAction(id: string): Promise<ActionResult> {
+  id = String(id);
+  await requireAdmin("careers");
+  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
+  try {
+    await purgeRecycledCareer(id);
   } catch (e) {
     return { ok: false, message: `Could not delete: ${dbMessage(e)}` };
   }

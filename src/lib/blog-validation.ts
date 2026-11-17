@@ -1,3 +1,4 @@
+import { isIsoDate, todayInIndia } from "./careers-shared";
 import type { Insight } from "./site-data";
 
 export type FieldErrors = Record<string, string>;
@@ -18,7 +19,19 @@ export type BlogValues = {
   published: string;
 };
 
-const today = () => new Date().toISOString().slice(0, 10);
+/**
+ * A post's date for display: "1 October 2026" ("1 Oct 2026" with month "short").
+ * Read as a calendar date (UTC), so it never shifts a day with the server's
+ * time zone; a value that isn't a date is shown as stored, never "Invalid Date".
+ */
+export function formatPostDate(iso: string, month: "long" | "short" = "long"): string {
+  const d = new Date(isIsoDate(iso) ? `${iso}T00:00:00Z` : iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("en-IN", { day: "numeric", month, year: "numeric", timeZone: "UTC" }).format(d);
+}
+
+// India time, like the careers pages, so the default date is never "yesterday" in the morning.
+const today = () => todayInIndia();
 
 export const emptyBlogValues = (): BlogValues => ({
   title: "", slug: "", category: "", excerpt: "", readMinutes: "5",
@@ -32,7 +45,6 @@ export type BlogRecord = Insight & { published: boolean; order: number };
 export type BlogInput = Omit<BlogRecord, "order">;
 
 const SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 export function readBlogValues(formData: FormData): BlogValues {
   const s = (k: string) => String(formData.get(k) ?? "").trim();
@@ -90,7 +102,7 @@ export function validateBlog(
     e.readMinutes = "Enter whole minutes between 1 and 60.";
   }
 
-  if (!DATE.test(v.date) || Number.isNaN(new Date(v.date).getTime())) {
+  if (!isIsoDate(v.date)) {
     e.date = "Enter a valid date.";
   }
 

@@ -57,7 +57,11 @@ check("sitemap lists the new service", (await site.content()).includes(`/service
 
 await go(admin, `/admin/services?q=${encodeURIComponent(SVC_TITLE)}`); // the list is paged: search for it
 await admin.click(`button[aria-label^="Delete ${SVC_TITLE}"]`).catch(() => {});
-await sleep(3000);
+// wait for the row to go (the delete can take a few seconds on a busy machine)
+await admin
+  .waitForFunction((t) => !document.querySelector(`button[aria-label^="Delete ${t}"]`), { timeout: 20000 }, SVC_TITLE)
+  .catch(() => {});
+await sleep(1000);
 // fetch with no-store: the browser would answer with its cached copy (a 304).
 const gone = await fetch(`${BASE}/services/${SVC}`, { cache: "no-store" });
 check("deleted service 404s", gone.status === 404, `status ${gone.status}`);
@@ -110,7 +114,9 @@ check("faq created", admin.url().includes("saved=created"), admin.url());
 await go(site, "/faq");
 check("new FAQ appears on /faq", (await text(site)).includes(Q));
 await go(site, "/");
-check("new FAQ appears on the home page too", (await text(site)).includes(Q));
+// The page's HTML, not innerText: the home FAQ sits in a content-visibility:auto
+// section, whose text Chrome leaves out of innerText until it is scrolled near.
+check("new FAQ appears on the home page too", (await site.content()).includes(Q));
 await go(admin, "/admin/faqs");
 await admin.click(`button[aria-label^="Delete ${Q}"]`).catch(() => {});
 await sleep(3000);

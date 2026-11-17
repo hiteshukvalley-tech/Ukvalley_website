@@ -155,6 +155,11 @@ export async function changePassword(id: string, password: string): Promise<numb
   return doc ? doc.sessionVersion : null;
 }
 
+/** Ends every session of this user (on sign-out). */
+export async function bumpSessionVersion(id: string) {
+  await col().updateOne({ _id: id }, { $inc: { sessionVersion: 1 } });
+}
+
 /** Checks a user's current password (for the change-password form). */
 export async function checkUserPassword(id: string, password: string): Promise<boolean> {
   const doc = await col().findOne({ _id: id });

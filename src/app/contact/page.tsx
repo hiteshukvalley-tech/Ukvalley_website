@@ -86,7 +86,7 @@ export default async function ContactPage() {
             </a>
             {company.sales.phone && (
               <a
-                href={ukText(`tel:${company.sales.phone.replace(/s/g, "")}`)}
+                href={ukText(`tel:${company.sales.phone.replace(/\s/g, "")}`)}
                 className="btn-lift inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-uk-line bg-white/80 px-6 text-sm font-semibold text-uk-heading backdrop-blur hover:border-uk-blue/50 hover:text-uk-blue-bright dark:bg-uk-card/80 sm:w-auto"
               >
                 <Phone className="h-4 w-4 text-uk-blue" />

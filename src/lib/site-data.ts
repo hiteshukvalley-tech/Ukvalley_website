@@ -2547,7 +2547,7 @@ export const faqs = [
   },
   {
     q: "Are you based in India? Can you work with overseas clients?",
-    a: "We're headquartered in India, with offices in Pune and Nagpur and a presence in the United States. Our cost base is typically 30–40% below metro agencies, and we routinely work across time zones with US and Gulf clients.",
+    a: "We're headquartered in Nashik, India, with offices in Pune and Nagpur and a presence in the United States. Our cost base is typically 30–40% below metro agencies, and we routinely work across time zones with US and Gulf clients.",
   },
   {
     q: "Can you take over a project from another vendor?",

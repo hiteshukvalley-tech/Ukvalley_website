@@ -18,8 +18,9 @@ const noDb = (nonce: number): HomeSectionState => ({
   status: "error", message: "Database is not connected (MONGODB_URI missing).", nonce,
 });
 
-export async function saveChromeAction(part: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
+export async function saveChromeAction(rawPart: string, _prev: HomeSectionState, formData: FormData): Promise<HomeSectionState> {
   await requireAdmin("site");
+  const part = String(rawPart ?? "");
   const nonce = Date.now();
   if (!isChromeKey(part)) return { status: "error", message: "Unknown part of the site.", nonce };
   let parsed: { values?: unknown };
@@ -40,8 +41,9 @@ export async function saveChromeAction(part: string, _prev: HomeSectionState, fo
   return { status: "saved", message: "Saved. Every page is updating.", values: result.value, visible: true, nonce };
 }
 
-export async function resetChromeAction(part: string): Promise<HomeSectionState> {
+export async function resetChromeAction(rawPart: string): Promise<HomeSectionState> {
   await requireAdmin("site");
+  const part = String(rawPart ?? "");
   const nonce = Date.now();
   if (!isChromeKey(part)) return { status: "error", message: "Unknown part of the site.", nonce };
   if (!hasDatabaseUrl()) return noDb(nonce);

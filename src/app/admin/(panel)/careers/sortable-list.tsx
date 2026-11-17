@@ -2,7 +2,8 @@
 
 import Link from "@/components/site/intent-link";
 import { useState, useTransition } from "react";
-import { ExternalLink, Eye, EyeOff, Loader2, Pencil, Trash2 } from "lucide-react";
+import { ExternalLink, Eye, EyeOff, Link2, Loader2, Pencil, Trash2 } from "lucide-react";
+import { SITE_URL } from "@/lib/site-origin";
 import { SortableRows } from "@/components/admin/sortable-rows";
 import {
   deleteCareerAction, reorderCareersAction, setCareerPublishedAction, type ActionResult,
@@ -40,9 +41,30 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
       <div className="flex items-center gap-1.5">
         {pending && <Loader2 className="h-4 w-4 animate-spin text-uk-muted" aria-label="Working" />}
         {published && (
-          <Link draggable={false} href="/careers" target="_blank" className={btn} aria-label="View the careers page" title="View careers page">
-            <ExternalLink className="h-4 w-4" />
-          </Link>
+          <>
+            {/* The link to share: opens this role's application form while the
+                role is published, and the Careers page ("closed") once it isn't. */}
+            <button
+              type="button"
+              className={btn}
+              aria-label={`Copy the apply link for ${name}`}
+              title="Copy apply link to share"
+              onClick={async () => {
+                const url = `${SITE_URL}/careers/${slug}?apply=1`;
+                try {
+                  await navigator.clipboard.writeText(url);
+                  toast.success("Apply link copied. It works while the role is published.");
+                } catch {
+                  toast.error(`Couldn't copy. The link is ${url}`);
+                }
+              }}
+            >
+              <Link2 className="h-4 w-4" />
+            </button>
+            <Link draggable={false} href={`/careers/${slug}`} target="_blank" className={btn} aria-label={`View ${name} on the website`} title="View job page">
+              <ExternalLink className="h-4 w-4" />
+            </Link>
+          </>
         )}
         <button
           type="button"
@@ -63,8 +85,8 @@ function RowActions({ slug, name, published }: { slug: string; name: string; pub
           disabled={pending}
           aria-label={`Delete ${name}`}
           onClick={async () => {
-            if (await confirmDialog(`Delete “${name}”? This removes it from the live site and can't be undone.`)) {
-              run(() => deleteCareerAction(slug), `“${name}” deleted.`);
+            if (await confirmDialog(`Delete “${name}”? It comes off the live site and moves to Recycle openings, where you can restore it.`)) {
+              run(() => deleteCareerAction(slug), `“${name}” moved to Recycle openings.`);
             }
           }}
         >
@@ -91,7 +113,7 @@ export function CareerList({ initial, locked }: { initial: CareerItem[]; locked:
               <Link
                 draggable={false}
                 href={`/admin/careers/${p.slug}`}
-                className="truncate text-sm font-semibold text-uk-heading hover:text-uk-blue"
+                className="block max-w-full truncate text-sm font-semibold text-uk-heading hover:text-uk-blue"
               >
                 {p.title}
               </Link>

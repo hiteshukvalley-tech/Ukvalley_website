@@ -14,6 +14,30 @@ export type PasswordFormState = {
   nonce?: number;
 };
 
+// Wrong current passwords, per user: 5 per 15 minutes, so a session left open
+// on a shared computer can't be used to guess the password. In memory, like the
+// sign-in throttle (resets on restart, per instance).
+const MAX_WRONG = 5;
+const WINDOW_MS = 15 * 60 * 1000;
+const wrong = new Map<string, { count: number; first: number }>();
+
+function wrongCount(id: string): number {
+  const rec = wrong.get(id);
+  if (!rec) return 0;
+  if (Date.now() - rec.first > WINDOW_MS) {
+    wrong.delete(id);
+    return 0;
+  }
+  return rec.count;
+}
+
+function recordWrong(id: string) {
+  const now = Date.now();
+  const rec = wrong.get(id);
+  if (!rec || now - rec.first > WINDOW_MS) wrong.set(id, { count: 1, first: now });
+  else rec.count += 1;
+}
+
 export async function changePasswordAction(
   _prev: PasswordFormState,
   formData: FormData
@@ -43,8 +67,13 @@ export async function changePasswordAction(
     return { status: "error", message: "Please fix the highlighted fields.", errors, nonce };
   }
 
+  if (wrongCount(session.id) >= MAX_WRONG) {
+    return { status: "error", message: "Too many wrong current passwords. Try again in 15 minutes.", nonce };
+  }
+
   try {
     if (!(await checkUserPassword(session.id, current))) {
+      recordWrong(session.id);
       return {
         status: "error",
         message: "Please fix the highlighted fields.",
@@ -52,6 +81,7 @@ export async function changePasswordAction(
         nonce,
       };
     }
+    wrong.delete(session.id);
     const sv = await changePassword(session.id, next);
     if (sv === null) return { status: "error", message: "Your account no longer exists.", nonce };
     // The change signs out every session; issue this browser a fresh one.

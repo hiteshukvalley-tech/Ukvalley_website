@@ -33,7 +33,10 @@ type Result = { items: InboxReply[]; error?: string };
 const g = globalThis as unknown as { _inboxCache?: Map<string, { at: number; value: Promise<Result> }> };
 const cache = () => (g._inboxCache ??= new Map());
 
-/** smtp.gmail.com → imap.gmail.com; any other host is assumed to serve IMAP too. */
+/**
+ * smtp.gmail.com → imap.gmail.com; any other host is assumed to serve IMAP too.
+ * Always IMAP over SSL on port 993, whatever the SMTP security setting (see imapError).
+ */
 export const imapHostFor = (smtpHost: string) => smtpHost.trim().replace(/^smtp\./i, "imap.");
 
 type Envelope = { from: string; name: string; subject: string; date: Date; id: string };
@@ -44,7 +47,8 @@ async function withInbox<T>(cfg: SmtpConfig, fn: (client: ImapFlow) => Promise<T
     host: imapHostFor(cfg.host),
     port: 993,
     secure: true,
-    auth: { user: cfg.user, pass: cfg.pass },
+    // Same login as sending (mailer.ts): App Passwords are shown with spaces that aren't part of them.
+    auth: { user: cfg.user.trim(), pass: cfg.pass.replace(/\s+/g, "") },
     logger: false,
     connectionTimeout: 8000,
     greetingTimeout: 8000,
@@ -70,9 +74,15 @@ const ownAddresses = (cfg: SmtpConfig) => new Set([cfg.user, cfg.fromEmail].map(
 
 const imapError = (cfg: SmtpConfig, e: unknown) => {
   const msg = e instanceof Error ? e.message : String(e);
-  return /auth|login|credentials|invalid/i.test(msg)
-    ? `Could not sign in to ${cfg.user} over IMAP. Check that IMAP is turned on for this mailbox.`
-    : `Could not read the inbox of ${cfg.user} (${msg.slice(0, 120)}).`;
+  if (/auth|login|credentials|invalid/i.test(msg)) {
+    return `Could not sign in to ${cfg.user} over IMAP. Check that IMAP is turned on for this mailbox.`;
+  }
+  // Replies are only read over SSL on port 993. A mailbox that sends with
+  // STARTTLS or no encryption may have no such IMAP server: say so plainly.
+  const where = `${imapHostFor(cfg.host)}:993 (IMAP over SSL)`;
+  return cfg.security === "ssl"
+    ? `Could not read the inbox of ${cfg.user} at ${where} (${msg.slice(0, 120)}).`
+    : `Could not read the inbox of ${cfg.user}: replies are read from ${where}, but this mailbox's email settings use ${cfg.security === "none" ? "no encryption" : "STARTTLS"}, so that server may not exist (${msg.slice(0, 120)}).`;
 };
 
 async function readInbox(cfg: SmtpConfig): Promise<Envelope[]> {
@@ -111,9 +121,11 @@ async function load(cfg: SmtpConfig): Promise<Result> {
   const own = ownAddresses(cfg);
   envelopes = envelopes.filter((e) => !own.has(e.from));
   const senders = [...new Set(envelopes.map((e) => e.from))];
+  // Senders are lowercase; an application may have been saved with capitals,
+  // so match ignoring case (the collation), as findApplicationByEmail does.
   const apps = await getDb()
     .collection<{ _id: string; email: string; position: string; createdAt: Date }>("applications")
-    .find({ email: { $in: senders } }, { projection: { email: 1, position: 1, createdAt: 1 } })
+    .find({ email: { $in: senders } }, { projection: { email: 1, position: 1, createdAt: 1 }, collation: { locale: "en", strength: 2 } })
     .sort({ createdAt: 1 })
     .toArray();
   const latest = new Map(apps.map((a) => [a.email.toLowerCase(), a]));

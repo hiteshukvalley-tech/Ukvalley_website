@@ -13,37 +13,43 @@ import { listMainSlugs } from "@/lib/menu-store";
 
 const BASE = `${SITE_URL}`;
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+// lastModified only where a real date is known (blog posts, job posts), and
+// never an invalid one: an Invalid Date would throw while writing the XML.
+// Pages without a known date leave it out rather than claim "changed now".
+function modified(value: string | undefined): { lastModified?: Date } {
+  const d = value ? new Date(value) : null;
+  return d && !Number.isNaN(d.getTime()) ? { lastModified: d } : {};
+}
 
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: `${BASE}/`, lastModified: now, changeFrequency: "weekly", priority: 1 },
-    { url: `${BASE}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${BASE}/services`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
-    { url: `${BASE}/solutions`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${BASE}/hire`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/locations`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/products`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/case-studies`, lastModified: now, changeFrequency: "monthly", priority: 0.8 },
-    { url: `${BASE}/industries`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/process`, lastModified: now, changeFrequency: "yearly", priority: 0.6 },
-    { url: `${BASE}/engagement`, lastModified: now, changeFrequency: "yearly", priority: 0.6 },
-    { url: `${BASE}/tech-stack`, lastModified: now, changeFrequency: "yearly", priority: 0.5 },
-    { url: `${BASE}/pricing`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/team`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/social-impact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE}/press-kit`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
-    { url: `${BASE}/media`, lastModified: now, changeFrequency: "yearly", priority: 0.4 },
-    { url: `${BASE}/why-ukvalley`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/clients`, lastModified: now, changeFrequency: "monthly", priority: 0.7 },
-    { url: `${BASE}/project-rescue`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/support-maintenance`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
-    { url: `${BASE}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.6 },
-    { url: `${BASE}/careers`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE}/contact`, lastModified: now, changeFrequency: "yearly", priority: 0.7 },
-    { url: `${BASE}/privacy`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${BASE}/terms`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/`, changeFrequency: "weekly", priority: 1 },
+    { url: `${BASE}/about`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/services`, changeFrequency: "monthly", priority: 0.9 },
+    { url: `${BASE}/solutions`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/hire`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/locations`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/products`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/case-studies`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE}/industries`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/process`, changeFrequency: "yearly", priority: 0.6 },
+    { url: `${BASE}/engagement`, changeFrequency: "yearly", priority: 0.6 },
+    { url: `${BASE}/tech-stack`, changeFrequency: "yearly", priority: 0.5 },
+    { url: `${BASE}/pricing`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/team`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/social-impact`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/press-kit`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/media`, changeFrequency: "yearly", priority: 0.4 },
+    { url: `${BASE}/why-ukvalley`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/clients`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${BASE}/project-rescue`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/support-maintenance`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${BASE}/faq`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/blog`, changeFrequency: "weekly", priority: 0.6 },
+    { url: `${BASE}/careers`, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.7 },
+    { url: `${BASE}/privacy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/terms`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // Every service linking to its own /services/<slug> page (admin-created ones
@@ -51,7 +57,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const liveServices = (await getServices()).filter((s) => /^\/services\/[^/]+$/.test(s.href));
   const serviceRoutes: MetadataRoute.Sitemap = liveServices.map((s) => ({
     url: `${BASE}/services/${s.href.split("/").pop()}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.8,
   }));
@@ -59,63 +64,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Pages behind main-menu sections added in Admin → Main menu.
   const mainSectionRoutes: MetadataRoute.Sitemap = (await listMainSlugs()).map((slug) => ({
     url: `${BASE}/s/${slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
   const productRoutes: MetadataRoute.Sitemap = (await getProducts()).map((p) => ({
     url: `${BASE}/products/${p.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
   const caseRoutes: MetadataRoute.Sitemap = (await getCaseStudies()).map((c) => ({
     url: `${BASE}/case-studies/${c.slug}`,
-    lastModified: now,
     changeFrequency: "yearly",
     priority: 0.6,
   }));
 
   const industryRoutes: MetadataRoute.Sitemap = (await getIndustries()).map((i) => ({
     url: `${BASE}/industries/${i.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.5,
   }));
 
   const blogRoutes: MetadataRoute.Sitemap = (await getPosts()).map((p) => ({
     url: `${BASE}/blog/${p.slug}`,
-    lastModified: new Date(p.date),
+    ...modified(p.date),
     changeFrequency: "yearly",
     priority: 0.5,
   }));
 
   const solutionRoutes: MetadataRoute.Sitemap = (await getSolutions()).map((s) => ({
     url: `${BASE}/solutions/${s.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.7,
   }));
 
   const hireRoutes: MetadataRoute.Sitemap = (await getHireRoles()).map((r) => ({
     url: `${BASE}/hire/${r.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.6,
   }));
 
   const locationRoutes: MetadataRoute.Sitemap = (await getLocations()).map((l) => ({
     url: `${BASE}/locations/${l.slug}`,
-    lastModified: now,
     changeFrequency: "monthly",
     priority: 0.5,
   }));
 
   const careerRoutes: MetadataRoute.Sitemap = (await getCareers()).map((c) => ({
     url: `${BASE}/careers/${c.slug}`,
-    lastModified: new Date(`${c.postedAt}T00:00:00Z`),
+    ...modified(c.postedAt ? `${c.postedAt}T00:00:00Z` : undefined),
     changeFrequency: "weekly",
     priority: 0.5,
   }));

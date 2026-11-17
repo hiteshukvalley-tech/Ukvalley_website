@@ -9,8 +9,7 @@ import {
 } from "lucide-react";
 import { SectionHeading } from "./section-heading";
 import { Reveal } from "./reveal";
-import { gsap } from "gsap";
-import type { Industry } from "@/lib/site-data";
+import type { IndustryCard } from "@/lib/industries-store";
 import type { HomeContent } from "@/lib/home-defaults";
 import { Tx } from "@/components/site/texts-context";
 
@@ -65,7 +64,7 @@ export function Industries({
   labels = DEFAULT_LABELS,
 }: {
   /** Published industries, in display order (from the admin-managed list). */
-  industries: Industry[];
+  industries: IndustryCard[];
   heading?: boolean;
   eyebrow?: string;
   title?: React.ReactNode;
@@ -89,19 +88,21 @@ export function Industries({
     }
   };
 
-  // crossfade + slide the detail panel on every switch
+  // crossfade + slide the detail panel on every switch (not on first render:
+  // the panel the page loads with is shown as rendered)
+  const switched = useRef(false);
   useEffect(() => {
     const el = panelRef.current;
-    if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        el,
-        { opacity: 0, x: 16 },
-        { opacity: 1, x: 0, duration: 0.45, ease: "power3.out" }
-      );
-    }, el);
-    return () => ctx.revert();
+    if (!switched.current) {
+      switched.current = true;
+      return;
+    }
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const anim = el.animate(
+      [{ opacity: 0, transform: "translate3d(16px, 0, 0)" }, { opacity: 1, transform: "none" }],
+      { duration: 450, easing: "cubic-bezier(0.215, 0.61, 0.355, 1)" }
+    );
+    return () => anim.cancel();
   }, [active]);
 
   // Nothing published (every industry is a draft): show no section at all.
