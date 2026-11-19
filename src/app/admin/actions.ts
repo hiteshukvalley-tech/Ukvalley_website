@@ -93,6 +93,10 @@ export async function loginAction(
     return { error: "Incorrect email ID or password.", email };
   }
 
+  // A correct sign-in clears this IP's and this account's failures, so a few
+  // typos from a shared office address don't lock everyone else out.
+  fails.delete(ipKey);
+  fails.delete(accountKey);
   await setSessionCookie(user);
   redirect("/admin");
 }

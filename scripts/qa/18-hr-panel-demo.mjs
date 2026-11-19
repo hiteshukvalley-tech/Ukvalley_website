@@ -126,6 +126,9 @@ try {
     {
       $set: {
         settings: {
+// startRightAway (on by default) sends the invitation inviteDelayMinutes after
+          // applying (default 2); 0 sends it at once, so the suite needn't wait.
+          startRightAway: true, inviteDelayMinutes: 0,
           enabled: true, autoSchedule: true, questionCount: 5, maxFollowUps: 1, candidateReschedules: 1, maxResumes: 1,
           mcqEnabled: true, mcqCount: 3, mcqMinutes: 3, recordVideo: true,
           channels: { email: true, whatsapp: false, calendar: false },

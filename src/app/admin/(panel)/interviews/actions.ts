@@ -172,9 +172,15 @@ export type UpcomingInterview = {
  */
 export async function upcomingInterviewsAction(): Promise<UpcomingInterview[]> {
   const me = await requireAdmin();
-  if (!canUseArea(me.role, me.access, "applications")) return [];
+  if (!canUseArea(me.role, me.access, "applications") || !hasDatabaseUrl()) return [];
   const today = todayInIndia();
-  const { items } = await listInterviews({ from: today, to: today });
+  // Polled from every panel page: a database hiccup returns nothing rather than an error.
+  let items: Awaited<ReturnType<typeof listInterviews>>["items"];
+  try {
+    ({ items } = await listInterviews({ from: today, to: today }));
+  } catch {
+    return [];
+  }
   return items.flatMap((i) => {
     const startsAt = interviewStartsAt(i);
     if (i.cancelled || startsAt === null) return [];

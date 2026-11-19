@@ -33,35 +33,13 @@
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
+    "**/*.mts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts",
-    ".next-test/types/**/*.ts",
-    ".next-test/dev/types/**/*.ts",
-    ".next-dev-check/types/**/*.ts",
-    ".next-dev-check/dev/types/**/*.ts",
-    ".next/claude-check/types/**/*.ts",
-    ".next/claude-check/dev/types/**/*.ts",
-    ".next-qa-careers/types/**/*.ts",
-    ".next-qa-careers/dev/types/**/*.ts",
-    "next.config.mjs",
-    ".next-build/types/**/*.ts",
-    ".next-build/dev/types/**/*.ts",
-    ".next-verify/types/**/*.ts",
-    ".next-verify/dev/types/**/*.ts",
-    ".next-gtm/types/**/*.ts",
-    ".next-gtm/dev/types/**/*.ts",
-    ".next-dash/types/**/*.ts",
-    ".next-dash/dev/types/**/*.ts",
-    ".next-perf/types/**/*.ts",
-    ".next-perf/dev/types/**/*.ts",
-    ".next-qa/types/**/*.ts",
-    ".next-qa/dev/types/**/*.ts",
-    ".next-claude-qa/types/**/*.ts",
-    ".next-claude-qa/dev/types/**/*.ts"
+    "next.config.mjs"
   ],
   "exclude": [
     "node_modules",
-    "tests"
+    ".next-*"
   ]
 }

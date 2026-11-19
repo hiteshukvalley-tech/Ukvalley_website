@@ -33,6 +33,14 @@ function wrongCount(id: string): number {
 
 function recordWrong(id: string) {
   const now = Date.now();
+  // Keep the map bounded, like the sign-in throttle.
+  if (wrong.size >= 5000) {
+    for (const [k, r] of wrong) if (now - r.first > WINDOW_MS) wrong.delete(k);
+    for (const k of wrong.keys()) {
+      if (wrong.size < 5000) break;
+      wrong.delete(k);
+    }
+  }
   const rec = wrong.get(id);
   if (!rec || now - rec.first > WINDOW_MS) wrong.set(id, { count: 1, first: now });
   else rec.count += 1;

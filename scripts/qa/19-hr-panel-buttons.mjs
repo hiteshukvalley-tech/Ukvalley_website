@@ -76,7 +76,7 @@ try {
   section("Setup");
   await db.collection("aiInterviewSettings").updateOne(
     { _id: "global" },
-    { $set: { settings: { enabled: true, autoSchedule: true, questionCount: 4, maxFollowUps: 0, candidateReschedules: 1, mcqEnabled: false, recordVideo: true, channels: { email: true, whatsapp: false, calendar: false } }, templates: {}, updatedAt: new Date(), updatedBy: "qa" } },
+    { $set: { settings: { startRightAway: true, inviteDelayMinutes: 0, enabled: true, autoSchedule: true, questionCount: 4, maxFollowUps: 0, candidateReschedules: 1, mcqEnabled: false, recordVideo: true, channels: { email: true, whatsapp: false, calendar: false } }, templates: {}, updatedAt: new Date(), updatedBy: "qa" } },
     { upsert: true }
   );
   await sleep(31_000); // the server caches the AI settings for 30 s

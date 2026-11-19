@@ -460,7 +460,11 @@ export async function completeInterview(i: InterviewRecord, by = "candidate"): P
 // --- evaluation -------------------------------------------------------------------------------------------------
 
 /** An evaluation marked running longer than this is treated as crashed (the job may claim it again). */
-const EVALUATION_STALE_MS = 6 * 60_000; // just over a job lease: a reclaimed job (process died) may run it again
+// Longer than one evaluation can take: the Claude client allows 9 minutes per
+// try and retries 3 times (ai.ts), so a slow but healthy run (~36 min worst
+// case) is never claimed a second time. A run whose process died is retried
+// after this, by the job's next attempt or HR's "Evaluate again".
+const EVALUATION_STALE_MS = 40 * 60_000;
 
 export async function runEvaluation(id: string): Promise<void> {
   // Claimed atomically: two evaluate jobs (a retry and HR's "Evaluate again") never run at the same time.

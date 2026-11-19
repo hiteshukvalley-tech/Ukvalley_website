@@ -6,6 +6,13 @@ import puppeteer from "puppeteer-core";
 import { existsSync, readFileSync } from "node:fs";
 
 export const BASE = process.env.QA_BASE || "http://localhost:3100";
+// The suites create, edit and delete content through the app: never let them
+// run against a live site by accident. QA_ALLOW_REMOTE=1 overrides this for a
+// deliberate run against a throwaway test deployment.
+if (!/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/i.test(BASE) && process.env.QA_ALLOW_REMOTE !== "1") {
+  console.error(`QA refused: QA_BASE=${BASE} is not a local server. Set QA_ALLOW_REMOTE=1 only for a throwaway test deployment.`);
+  process.exit(2);
+}
 const CHROME = process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 
 /** The local env file: .env.local when it has values, else .env. */

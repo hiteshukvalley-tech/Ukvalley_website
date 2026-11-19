@@ -52,7 +52,15 @@ function limited(key: string): boolean {
   const recent = (hits.get(key) ?? []).filter((t) => now - t < WINDOW_MS);
   recent.push(now);
   hits.set(key, recent);
-  if (hits.size > 5000) for (const [k, v] of hits) if (v.every((t) => now - t >= WINDOW_MS)) hits.delete(k);
+  if (hits.size > 5000) {
+    for (const [k, v] of hits) if (v.every((t) => now - t >= WINDOW_MS)) hits.delete(k);
+    // Still full (a flood of made-up links within a minute): drop the oldest
+    // keys so memory stays bounded. Map keeps insertion order.
+    for (const k of hits.keys()) {
+      if (hits.size <= 5000) break;
+      if (k !== key) hits.delete(k);
+    }
+  }
   return recent.length > LIMIT;
 }
 

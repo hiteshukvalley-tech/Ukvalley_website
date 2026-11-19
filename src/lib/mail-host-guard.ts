@@ -19,12 +19,21 @@ export function isPrivateIp(ip: string): boolean {
       (a === 100 && b >= 64 && b <= 127) || // carrier-grade NAT
       (a === 169 && b === 254) || // link-local (cloud metadata)
       (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168)
+      (a === 192 && b === 168) ||
+      (a === 192 && b === 0 && v4[2] === 0) || // IETF protocol assignments 192.0.0.0/24
+      (a === 192 && b === 0 && v4[2] === 2) || // documentation 192.0.2.0/24
+      (a === 198 && (b === 18 || b === 19)) || // benchmarking 198.18.0.0/15
+      (a === 198 && b === 51 && v4[2] === 100) || // documentation 198.51.100.0/24
+      (a === 203 && b === 0 && v4[2] === 113) // documentation 203.0.113.0/24
     );
   }
   const v6 = ip.toLowerCase();
-  // unspecified, loopback, IPv4-mapped (hex form), unique-local fc00::/7, link-local fe80::/10
-  return v6 === "::" || v6 === "::1" || v6.startsWith("::ffff:") || /^f[cd]/.test(v6) || /^fe[89ab]/.test(v6);
+  // unspecified, loopback, IPv4-mapped (hex form), NAT64 64:ff9b::/96 (can reach
+  // IPv4 inside), unique-local fc00::/7, link-local fe80::/10, multicast ff00::/8
+  return (
+    v6 === "::" || v6 === "::1" || v6.startsWith("::ffff:") || v6.startsWith("64:ff9b:") ||
+    /^f[cd]/.test(v6) || /^fe[89ab]/.test(v6) || v6.startsWith("ff")
+  );
 }
 
 /** Why this host can't be used, or null when it can. Resolves it, so a public name pointing inward is caught too. */

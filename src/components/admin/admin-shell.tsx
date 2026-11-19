@@ -12,6 +12,7 @@ import { UserMenu } from "./user-menu";
 import { adminNav, canSeeLink, isActive, type AdminNavEntry, type AdminNavLink } from "./nav";
 import { Toaster } from "./toast";
 import { ConfirmHost } from "./confirm-dialog";
+import { BackButton } from "./back-button";
 import type { AdminRole } from "@/lib/admin-auth";
 import { canUseArea, isHrMember, type Access } from "@/lib/admin-access";
 import { roleLabel } from "@/lib/users-validation";
@@ -281,7 +282,8 @@ export function AdminShell({
         </header>
         {/* A page holding a wide table ([data-wide]) gets the full width */}
         <main id="main" data-admin="" className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 has-[[data-wide]]:max-w-none">
-
+          {/* every page: back to the previous panel page (or one level up) */}
+          <BackButton />
           {children}
         </main>
       </div>

@@ -45,9 +45,9 @@ async function wouldLockOutAdmins(id: string): Promise<boolean> {
 
 export async function createUserAction(_prev: UserFormState, formData: FormData): Promise<UserFormState> {
   await requireRole("admin");
-  const values = { ...readUserValues(formData), password: "" };
-  const nonce = Date.now();
   const raw = readUserValues(formData);
+  const values = { ...raw, password: "" };
+  const nonce = Date.now();
 
   const result = validateUser(raw, { isNew: true });
   if (!result.ok) {

@@ -90,6 +90,9 @@ try {
     {
       $set: {
         settings: {
+// startRightAway (on by default) sends the invitation inviteDelayMinutes after
+          // applying (default 2); 0 sends it at once, so the suite needn't wait.
+          startRightAway: true, inviteDelayMinutes: 0,
           enabled: true, autoSchedule: true, questionCount: 6, maxFollowUps: 1, candidateReschedules: 1,
           mustAskQuestions: ["behavioral: QA must-ask: tell me about a time you changed your mind."],
           mcqEnabled: true, mcqCount: 3, mcqMinutes: 3, recordVideo: true,

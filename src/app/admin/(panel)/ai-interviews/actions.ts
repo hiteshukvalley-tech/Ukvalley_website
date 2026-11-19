@@ -19,7 +19,8 @@ import { HR_COMMENT_MAX, isHrDecision, isRecommendation } from "@/lib/ai-intervi
 
 // Server actions for Admin → AI interviews. Every action checks the
 // "ai-interviews" section itself (a team member without it can't call them
-// directly), and every change lands in the interview's audit trail.
+// directly), and every change to an interview lands in its audit trail.
+// (Panel-wide actions such as settings or Google Calendar have no interview to log against.)
 
 export type ActionResult = { ok: true; message: string } | { ok: false; message: string; errors?: FieldErrors };
 
@@ -153,20 +154,25 @@ export async function interviewToolAction(id: string, tool: "evaluate" | "releas
 
 /** Sends a failed notification again (its job runs again now). */
 export async function retryNotificationAction(logId: string): Promise<ActionResult> {
-  await requireAdmin(AREA);
+  const me = await requireAdmin(AREA);
   if (!hasDatabaseUrl()) return NO_DB;
-  const log = await getNotification(logId);
-  if (!log) return { ok: false, message: "That notification no longer exists." };
-  const i = await getInterview(log.interviewId);
-  if (!i) return { ok: false, message: "That interview no longer exists." };
-  // The job key is not on the log line; requeue by searching the interview's jobs for this log id.
-  const { listJobs } = await import("@/lib/ai-interview/jobs");
-  const job = (await listJobs(i.id)).find((j) => j.payload.logId === logId || `cal-${j._id}` === logId);
-  if (!job) return { ok: false, message: "This notification can't be sent again." };
-  await requeue(job._id);
-  await logNotification({ id: logId, interviewId: log.interviewId, applicationId: log.applicationId, candidateName: log.candidateName, channel: log.channel, kind: log.kind, recipient: log.recipient, status: "queued", attempts: 0 });
-  revalidatePath("/admin/ai-interviews/notifications");
-  return { ok: true, message: "Queued to send again." };
+  try {
+    const log = await getNotification(logId);
+    if (!log) return { ok: false, message: "That notification no longer exists." };
+    const i = await getInterview(log.interviewId);
+    if (!i) return { ok: false, message: "That interview no longer exists." };
+    // The job key is not on the log line; requeue by searching the interview's jobs for this log id.
+    const { listJobs } = await import("@/lib/ai-interview/jobs");
+    const job = (await listJobs(i.id)).find((j) => j.payload.logId === logId || `cal-${j._id}` === logId);
+    if (!job) return { ok: false, message: "This notification can't be sent again." };
+    await requeue(job._id);
+    await logNotification({ id: logId, interviewId: log.interviewId, applicationId: log.applicationId, candidateName: log.candidateName, channel: log.channel, kind: log.kind, recipient: log.recipient, status: "queued", attempts: 0 });
+    await audit({ interviewId: i.id, applicationId: i.applicationId, candidateName: i.candidate.name, action: "notification_retried", by: me.email, detail: `${log.channel} ${log.kind}` });
+    revalidatePath("/admin/ai-interviews/notifications");
+    return { ok: true, message: "Queued to send again." };
+  } catch (e) {
+    return { ok: false, message: msg(e) };
+  }
 }
 
 /** Runs a failed background job again (Notifications → Failed background jobs). */
@@ -209,7 +215,11 @@ export async function saveJobOverrideAction(_: ActionResult | null, f: FormData)
   const slug = String(f.get("careerSlug") ?? "").trim();
   if (!/^[a-z0-9-]{1,80}$/.test(slug)) return { ok: false, message: "Choose a job opening." };
   if (f.get("remove") === "1") {
-    await deleteJobOverride(slug);
+    try {
+      await deleteJobOverride(slug);
+    } catch (e) {
+      return { ok: false, message: msg(e) };
+    }
     refresh();
     return { ok: true, message: "This job now uses the general settings." };
   }
@@ -228,7 +238,11 @@ export async function saveJobOverrideAction(_: ActionResult | null, f: FormData)
 export async function disconnectGoogleAction(): Promise<ActionResult> {
   await requireAdmin(AREA);
   if (!hasDatabaseUrl()) return NO_DB;
-  await disconnect();
+  try {
+    await disconnect();
+  } catch (e) {
+    return { ok: false, message: msg(e) };
+  }
   refresh();
   return { ok: true, message: "Google Calendar disconnected." };
 }
