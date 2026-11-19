@@ -10,6 +10,8 @@ import { getSiteSettings } from "@/lib/settings";
 import { formatPostedDate } from "@/lib/careers-shared";
 import { ApplicationStatusBadge, formatApplicationDate, formatBytes } from "../application-ui";
 import { ApplicationForm } from "../application-form";
+import { canUseArea } from "@/lib/admin-access";
+import { AiInterviewCard } from "../../ai-interviews/application-card";
 
 export const metadata = { title: "Job application" };
 export const dynamic = "force-dynamic";
@@ -148,6 +150,9 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
           canEmail={canEmail}
           initial={{ status: app.status, note: app.note }}
         />
+
+        {/* The AI interview for this applicant (only for users with the AI interviews section). */}
+        {canUseArea(me.role, me.access, "ai-interviews") && <AiInterviewCard applicationId={app.id} />}
 
         <Link
           href="/admin/applications/applicants"

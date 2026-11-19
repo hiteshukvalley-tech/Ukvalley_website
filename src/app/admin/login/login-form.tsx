@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/admin/password-input";
 import { CharCounter } from "@/components/admin/char-counter";
-import { EMAIL_MAX, PASSWORD_MAX, passwordRuleError } from "@/lib/users-validation";
+import { EMAIL_MAX, PASSWORD_MAX } from "@/lib/users-validation";
 
 export function LoginForm() {
   const [state, action, pending] = useActionState<LoginState, FormData>(loginAction, {});
@@ -24,7 +24,9 @@ export function LoginForm() {
 
   function checkBeforeSubmit(e: React.FormEvent<HTMLFormElement>) {
     const field = e.currentTarget.elements.namedItem("password") as HTMLInputElement | null;
-    const issue = passwordRuleError(field?.value ?? "");
+    // Only "is it filled in": the strength rules apply when a password is set,
+    // not at sign-in, where an older (or the owner's env) password may predate them.
+    const issue = field?.value ? undefined : "Please enter your password.";
     if (issue) {
       // Stops the sign-in request; the message explains what to fix.
       e.preventDefault();

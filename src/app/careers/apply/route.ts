@@ -7,6 +7,7 @@ import { checkApplicationLimits, createApplication, markEmailsSent } from "@/lib
 import { emailBrand, sendApplicationEmails } from "@/lib/application-emails";
 import { API_HOST, API_URL, SITE_HOST, trustedRequestOrigin } from "@/lib/site-origin";
 import { clientIp } from "@/lib/client-ip";
+import { onApplicationCreated } from "@/lib/ai-interview/lifecycle";
 import {
   ROLE_CLOSED_MESSAGE, RESUME_MAX_BYTES, closedRoleHref, looksLikePdf, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
@@ -42,6 +43,11 @@ function ipLimited(ip: string): boolean {
   return false;
 }
 
+/** A form sent back with field messages doesn't count: fixing a typo must never lock a candidate out. */
+function refundAttempt(ip: string) {
+  byIp.get(ip)?.pop();
+}
+
 /**
  * Whether the request came from this site's own pages. Browsers send Origin
  * on every cross-site POST (Referer as a fallback), so another site can't make
@@ -58,7 +64,15 @@ function sameSite(h: Headers): boolean {
   }
   // `next dev` on the local network (npm run dev:mobile) is opened at 192.168.x.x.
   if (process.env.NODE_ENV === "development") return true;
-  return host === SITE_HOST || host === API_HOST || /^(?:localhost|127\.0\.0\.1|\[::1\])$/.test(host);
+  if (host === SITE_HOST || host === API_HOST) return true;
+  const render = (process.env.RENDER_EXTERNAL_HOSTNAME ?? "").trim().toLowerCase();
+  if (render && host === render) return true;
+  // A local page only for a server reached locally (a production build run on
+  // this machine for QA): on the live site a page on someone's localhost
+  // can't post applications.
+  const local = /^(?:localhost|127\.0\.0\.1|\[::1\])$/;
+  const served = (h.get("host") ?? "").replace(/:\d+$/, "").toLowerCase();
+  return local.test(host) && local.test(served);
 }
 
 /** Public Careers application form: details plus a PDF resume. */
@@ -103,7 +117,10 @@ export async function POST(request: Request) {
   }
   // Answered with 200: a field message is a normal outcome for a form, and a
   // 4xx would log an error in the visitor's browser console.
-  if (Object.keys(errors).length) return json({ ok: false, kind: "invalid", errors });
+  if (Object.keys(errors).length) {
+    refundAttempt(ip);
+    return json({ ok: false, kind: "invalid", errors });
+  }
 
   if (!hasDatabaseUrl()) {
     return json({ ok: false, kind: "unavailable", message: "Applications can't be received right now." }, 503);
@@ -144,13 +161,24 @@ export async function POST(request: Request) {
     const origin = here && /^https?:\/\/(localhost|127\.0\.0\.1)[:/]?/.test(here) ? here : API_URL;
     const resumeBuffer = Buffer.from(bytes!);
     after(async () => {
-      const sent = await sendApplicationEmails(app, {
-        hrEmail: settings.hr.email,
-        adminUrl: `${origin}/admin/applications/${app.id}`,
-        resume: resumeBuffer,
-        brand: emailBrand(settings),
-      });
-      await markEmailsSent(app.id, sent).catch(() => {});
+      // Each step on its own: a mail-server problem must never stop the AI interview, and the other way round.
+      try {
+        const sent = await sendApplicationEmails(app, {
+          hrEmail: settings.hr.email,
+          adminUrl: `${origin}/admin/applications/${app.id}`,
+          resume: resumeBuffer,
+          brand: emailBrand(settings),
+        });
+        await markEmailsSent(app.id, sent).catch(() => {});
+      } catch (e) {
+        console.error("[careers] application emails failed:", e instanceof Error ? e.message : e);
+      }
+      // AI interview: creates, schedules and sends the invitation when it's on (Admin → AI interviews → Settings).
+      try {
+        await onApplicationCreated(app);
+      } catch (e) {
+        console.error("[careers] AI interview setup failed:", e instanceof Error ? e.message : e);
+      }
     });
   } catch {
     return json({ ok: false, kind: "unavailable", message: "Applications can't be received right now." }, 503);

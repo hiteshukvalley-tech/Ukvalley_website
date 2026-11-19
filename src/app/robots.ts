@@ -21,7 +21,8 @@ export default function robots(): MetadataRoute.Robots {
   if (!SITE_INDEXABLE) {
     return {
       rules: [
-        { userAgent: LINK_PREVIEW_BOTS, allow: "/" },
+        // Interview links are private: no previews for them either.
+        { userAgent: LINK_PREVIEW_BOTS, allow: "/", disallow: "/interview/" },
         { userAgent: "*", disallow: "/" },
       ],
     };
@@ -30,6 +31,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      // Candidates' private interview links (the pages also say noindex).
+      disallow: "/interview/",
     },
     sitemap: `${SITE_URL}/sitemap.xml`,
   };

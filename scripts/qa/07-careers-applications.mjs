@@ -6,7 +6,7 @@
 //   node scripts/qa/07-careers-applications.mjs
 // Applications and resumes created here are removed at the end.
 import net from "node:net";
-import { readFileSync, writeFileSync } from "node:fs";
+import { writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { MongoClient } from "mongodb";
@@ -285,7 +285,8 @@ try {
   check("edited email recorded", updated2?.status === "on-hold" && updated2?.statusEmails?.at(-1)?.edited === true);
 
   await go(admin, "/admin");
-  check("dashboard shows new-applications card", /New job applications/i.test(await text(admin)));
+  // The hiring dashboard: all / today's applications cards.
+  check("dashboard shows the applications cards", /All applications/i.test(await text(admin)) && /Today.s applications/i.test(await text(admin)));
 
   admin.on("dialog", (d) => d.accept());
   await go(admin, `/admin/applications/${saved._id}`);

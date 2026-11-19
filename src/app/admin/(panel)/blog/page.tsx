@@ -37,7 +37,7 @@ export default async function BlogAdminPage({ searchParams }: Props) {
       <PageHeader
         title="Blog"
         crumbs={[{ label: "Blog" }]}
-        description="Articles shown on the home page and /blog, in this order — the first is featured. Drag rows to reorder. Draft posts are hidden from the live site."
+        description="Articles shown on the home page and /blog, in this order — the first published post is featured. Drag rows to reorder. Draft posts are hidden from the live site."
         action={
           <Link
             href="/admin/blog/new"
@@ -112,6 +112,9 @@ export default async function BlogAdminPage({ searchParams }: Props) {
               // Re-mount from fresh server data after any save/refresh.
               key={view.slice.map((p) => `${p.slug}:${p.published}:${p.title}:${p.date}`).join("|")}
               locked={filtering}
+              // The live site features the first published post of the whole list.
+              featuredSlug={items.find((p) => p.published)?.slug ?? null}
+              firstPage={view.start === 0}
               initial={view.slice.map((p) => ({
                 slug: p.slug,
                 title: p.title,

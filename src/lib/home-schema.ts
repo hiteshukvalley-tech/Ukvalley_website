@@ -413,8 +413,8 @@ export function validateSection(
     if (!v) {
       if (f.required) errors[path] = `${f.label} is required.`;
     } else if (v.length > f.max) errors[path] = `Use ${f.max} characters or fewer.`;
-    else if (f.image && !isImagePath(v)) errors[path] = "Use an uploaded picture (/media/…) or a full https:// link.";
-    else if (f.link && !LINK.test(v)) errors[path] = "Use a path like /services, an anchor like #work, or a full https:// link.";
+    else if (f.image && !isImagePath(v)) errors[path] = "Use an uploaded picture (/media/…) or a full web link (https://…).";
+    else if (f.link && !LINK.test(v)) errors[path] = "Use a path like /services, an anchor like #work, or a full web link (https://…).";
   };
 
   for (const f of def.fields) {

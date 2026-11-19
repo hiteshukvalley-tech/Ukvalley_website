@@ -10,7 +10,6 @@ for (const w of [320, 390, 1366]) {
   await f.scrollIntoView();
   await new Promise((r) => setTimeout(r, 800));
   await f.screenshot({ path: `${OUT}/footer-${w}.png` });
-  const o = await p.$$eval("h3", (hs) => hs.find((h) => h.textContent.includes("Offices"))?.parentElement);
   const h = await p.evaluateHandle(() => [...document.querySelectorAll("h3")].find((h) => h.textContent.includes("Offices")).parentElement);
   await h.asElement().screenshot({ path: `${OUT}/offices-${w}.png` });
   await p.close();

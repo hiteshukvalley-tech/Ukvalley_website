@@ -11,7 +11,7 @@ export default function NewEngagementModelPage() {
       <PageHeader
         title="Add model"
         crumbs={[{ label: "Engagement", href: "/admin/engagement" }, { label: "Add model" }]}
-        description="Add an engagement model. It is added to the end of the list. It is added to the end of the list."
+        description="Add an engagement model. It is added to the end of the list."
       />
       <EngagementModelForm mode="create" initial={emptyEngagementModelValues()} />
     </>

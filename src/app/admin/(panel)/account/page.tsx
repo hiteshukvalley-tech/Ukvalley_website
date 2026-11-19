@@ -4,6 +4,8 @@ import { SmtpSection } from "@/components/admin/smtp/smtp-section";
 import { ENV_USER_ID } from "@/lib/admin-auth";
 import { requireAdmin } from "@/lib/admin-session";
 import { roleHelp, roleLabel } from "@/lib/users-validation";
+import { canManageKeys } from "@/lib/admin-access";
+import { ApiKeysSection } from "../settings/api-keys/section";
 import { PasswordForm } from "./password-form";
 
 export const metadata = { title: "Settings" };
@@ -19,7 +21,7 @@ export default async function AccountPage() {
 
   return (
     <>
-      <PageHeader title="Settings" crumbs={[{ label: "Settings" }]} description="Your account, your own email (SMTP) settings and your password." />
+      <PageHeader title="Settings" crumbs={[{ label: "Settings" }]} description={canManageKeys(me.role, me.access) ? "Your account, your own email (SMTP) settings, the API keys of every connected service, and your password." : "Your account, your own email (SMTP) settings and your password."} />
 
       <section className="mb-10 rounded-2xl border border-uk-line bg-uk-card p-6">
         <dl className="grid gap-4 sm:grid-cols-2">
@@ -44,6 +46,13 @@ export default async function AccountPage() {
         title="Your email (SMTP)"
         description="Your own mail server. Status emails and manual emails you send to applicants go out through it, from your address, and replies come back to you. Leave it empty to send through the HR email settings."
       />
+
+      {/* Every API key (Claude, Deepgram, Google Calendar, WhatsApp, recordings): add, replace, remove and test. Admins and HR staff. */}
+      {canManageKeys(me.role, me.access) && (
+        <div className="mt-12 border-t border-uk-line pt-10">
+          <ApiKeysSection />
+        </div>
+      )}
 
       <div className="mt-12 border-t border-uk-line pt-10">
         <h2 className="mb-6 font-heading text-xl font-semibold text-uk-heading">Password</h2>

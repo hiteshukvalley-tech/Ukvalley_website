@@ -7,14 +7,14 @@
 // One Next.js app serves both:
 //   SITE_URL  (frontend) — the public website: canonical links, sitemap, SEO, share previews
 //   API_URL   (backend)  — the admin panel and server routes (/admin, /media, /careers/apply)
-// Both are https://uat.ukvalley.com. Set NEXT_PUBLIC_SITE_URL / NEXT_PUBLIC_API_URL
+// Both are https://ukvalley.com. Set NEXT_PUBLIC_SITE_URL / NEXT_PUBLIC_API_URL
 // to change them (read at build time). If they ever differ, src/proxy.ts sends
 // /admin to the backend address and public pages to the frontend address.
 
 const clean = (u: string) => u.trim().replace(/\/+$/, "");
 
-/** The public website: https://uat.ukvalley.com */
-export const SITE_URL = clean(process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://uat.ukvalley.com");
+/** The public website: https://ukvalley.com */
+export const SITE_URL = clean(process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://ukvalley.com");
 /** The backend (admin panel and server routes); the same address as the website unless set. */
 export const API_URL = clean(process.env.NEXT_PUBLIC_API_URL || process.env.API_URL || SITE_URL);
 

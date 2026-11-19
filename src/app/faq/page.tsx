@@ -131,8 +131,8 @@ export default async function FaqPage() {
       .flatMap((g) => g.items)
       .map((f) => ({
         "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
+        name: ukText(f.q),
+        acceptedAnswer: { "@type": "Answer", text: ukText(f.a) },
       })),
   };
 

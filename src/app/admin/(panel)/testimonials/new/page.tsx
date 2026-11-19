@@ -11,7 +11,7 @@ export default function NewTestimonialPage() {
       <PageHeader
         title="Add testimonial"
         crumbs={[{ label: "Testimonials", href: "/admin/testimonials" }, { label: "Add testimonial" }]}
-        description="Add a client quote. It is added to the end of the list. It is added to the end of the list."
+        description="Add a client quote. It is added to the end of the list."
       />
       <TestimonialForm mode="create" initial={emptyTestimonialValues()} />
     </>

@@ -9,9 +9,14 @@ export const BASE = process.env.QA_BASE || "http://localhost:3100";
 const CHROME = process.env.CHROME_PATH || "C:/Program Files/Google/Chrome/Application/chrome.exe";
 
 /** The local env file: .env.local when it has values, else .env. */
-export const ENV_TEXT = [".env.local", ".env"]
+// QA_MONGODB_URI points the suites' own database checks at a local throwaway
+// server (the same one the app under test uses) instead of the database in .env.local / .env.
+const FILE_ENV = [".env.local", ".env"]
   .map((f) => (existsSync(f) ? readFileSync(f, "utf8") : ""))
   .find((t) => /^MONGODB_URI=/m.test(t)) ?? "";
+export const ENV_TEXT = process.env.QA_MONGODB_URI
+  ? FILE_ENV.replace(/^MONGODB_URI=.*$/m, `MONGODB_URI=${process.env.QA_MONGODB_URI}`) || `MONGODB_URI=${process.env.QA_MONGODB_URI}`
+  : FILE_ENV;
 
 const env = Object.fromEntries(
   ENV_TEXT
@@ -111,11 +116,31 @@ export const text = (page) => page.evaluate(() => document.body.innerText);
 export async function pickOption(page, triggerSelector, label) {
   // A click that lands while the form is still re-rendering (e.g. the live email
   // preview redrawing after other fields changed) can miss: try a few times.
+  const isOpen = (sel) =>
+    page.evaluate((s) => {
+      const t = document.querySelector(s);
+      return !!t && (t.hasAttribute("data-popup-open") || t.getAttribute("aria-expanded") === "true") && !!document.querySelector('[role="option"]');
+    }, sel);
   for (let attempt = 1; ; attempt++) {
-    await page.click(triggerSelector);
-    const open = await page.waitForSelector('[role="option"]', { visible: true, timeout: 4000 }).then(() => true, () => false);
+    // Already open (an earlier click landed late): don't click again, that would close it.
+    if (!(await isOpen(triggerSelector))) await page.click(triggerSelector);
+    const open = await page
+      .waitForFunction((s) => {
+        const t = document.querySelector(s);
+        return !!t && (t.hasAttribute("data-popup-open") || t.getAttribute("aria-expanded") === "true") && !!document.querySelector('[role="option"]');
+      }, { timeout: 4000, polling: 100 }, triggerSelector)
+      .then(() => true, () => false);
     if (open) break;
-    if (attempt === 3) throw new Error(`Dropdown ${triggerSelector} did not open`);
+    if (attempt === 3) {
+      const file = `${process.env.QA_SHOTS || "qa-shots"}/dropdown-failed-${triggerSelector.replace(/\W+/g, "_")}.png`;
+      await page.screenshot({ path: file, fullPage: true }).catch(() => {});
+      const info = await page.$eval(triggerSelector, (el) => {
+        const r = el.getBoundingClientRect();
+        const top = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+        return `at ${Math.round(r.x)},${Math.round(r.y)} ${Math.round(r.width)}x${Math.round(r.height)}; topmost there: ${top?.tagName}#${top?.id}.${String(top?.className).slice(0, 60)}`;
+      }).catch((e) => `not found (${e.message})`);
+      throw new Error(`Dropdown ${triggerSelector} did not open (${info}; screenshot ${file})`);
+    }
     await sleep(500);
   }
   await page.evaluate((l) => {

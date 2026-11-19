@@ -109,7 +109,19 @@ export type ApplicationInput = {
    * their own words. Applications sent before this field existed don't have it.
    */
   source: string;
+  /** Optional details used by the AI interview; missing on applications sent before they existed. */
+  currentCompany?: string;
+  skills?: string;
+  education?: string;
+  /** The applicant agreed to interview messages on WhatsApp. */
+  whatsappOptIn?: boolean;
+  /** The applicant's time zone (IANA name from their browser), for interview times. */
+  timeZone?: string;
 };
+
+export const CURRENT_COMPANY_MAX = 120;
+export const SKILLS_MAX = 500;
+export const EDUCATION_MAX = 300;
 
 /** "How did you hear about Ukvalley?" in the Apply popup. */
 export const SOURCE_OPTIONS = [
@@ -146,6 +158,12 @@ export function readApplication(data: FormData): ApplicationInput {
     coverLetter: get("coverLetter"),
     // "Other" carries the applicant's own words: "Other: a WhatsApp group"
     source: source === "Other" ? (other ? `Other: ${other}` : "Other") : source,
+    currentCompany: get("currentCompany").replace(/\s+/g, " "),
+    skills: get("skills").replace(/\s+/g, " "),
+    education: get("education").replace(/\s+/g, " "),
+    whatsappOptIn: data.get("whatsappOptIn") === "on",
+    // Checked (and replaced with India time when unknown) on the server.
+    timeZone: get("timeZone").slice(0, 64),
   };
 }
 
@@ -186,6 +204,9 @@ export function validateApplication(v: ApplicationInput): Record<string, string>
   }
 
   if (v.coverLetter.length > COVER_LETTER_MAX) e.coverLetter = `Cover letter must be ${COVER_LETTER_MAX} characters or fewer.`;
+  if ((v.currentCompany ?? "").length > CURRENT_COMPANY_MAX) e.currentCompany = `Use ${CURRENT_COMPANY_MAX} characters or fewer.`;
+  if ((v.skills ?? "").length > SKILLS_MAX) e.skills = `Use ${SKILLS_MAX} characters or fewer.`;
+  if ((v.education ?? "").length > EDUCATION_MAX) e.education = `Use ${EDUCATION_MAX} characters or fewer.`;
 
   if (!v.source) e.source = "Tell us how you heard about Ukvalley.";
   else if (v.source === "Other") e.sourceOther = "Tell us where you heard about us.";

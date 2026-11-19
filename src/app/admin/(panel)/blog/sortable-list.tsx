@@ -31,10 +31,16 @@ const MAX_SPEED = 22;
 export function SortableList({
   initial,
   locked,
+  featuredSlug,
+  firstPage,
 }: {
   initial: SortableItem[];
   /** True while a search/filter is active: reordering needs the full list. */
   locked: boolean;
+  /** The post the site features: the first published one of the whole list (from the server) */
+  featuredSlug: string | null;
+  /** This page starts the list, so a drag here can change which post is featured */
+  firstPage: boolean;
 }) {
   const fullOrder = useFullOrder();
   const [items, setItems] = useState(initial);
@@ -43,6 +49,8 @@ export function SortableList({
   const [dropAt, setDropAt] = useState<number | null>(null);
   const [error, setError] = useState<string>();
   const [pending, start] = useTransition();
+  // On the first page the order can change under the user's hands: follow it.
+  const featured = firstPage ? (items.find((x) => x.published)?.slug ?? featuredSlug) : featuredSlug;
   // Refs mirror the drag state so back-to-back drag events never see a stale render.
   const dragRef = useRef<string | null>(null);
   const dropRef = useRef<number | null>(null);
@@ -131,7 +139,7 @@ export function SortableList({
           {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <GripVertical className="h-3.5 w-3.5" />}
           {pending
             ? "Saving order…"
-            : "Drag any row and drop it anywhere — first, last or in between. The order saves automatically; the first post is featured."}
+            : "Drag any row and drop it anywhere — first, last or in between. The order saves automatically; the first published post is featured."}
         </p>
       )}
       <ul
@@ -196,7 +204,7 @@ export function SortableList({
                   >
                     {s.title}
                   </Link>
-                  {!locked && i === 0 && (
+                  {!locked && s.slug === featured && (
                     <span className="rounded-full bg-uk-blue/12 px-2 py-0.5 text-[0.7rem] font-semibold text-uk-blue">
                       Featured
                     </span>

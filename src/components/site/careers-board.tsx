@@ -258,7 +258,7 @@ function SearchField({
         />
         {list && options && (
           <datalist id={list}>
-            {options.map((o) => (
+            {[...new Set(options)].map((o) => (
               <option key={o} value={o} />
             ))}
           </datalist>

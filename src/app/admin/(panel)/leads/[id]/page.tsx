@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/admin/page-header";
 import { getLead, leadStatusLabel } from "@/lib/leads-store";
 import { formatLeadDate, sourceLabel, StatusBadge } from "../lead-ui";
 import { LeadForm } from "../lead-form";
+import { requireAdmin } from "@/lib/admin-session";
 
 export const metadata = { title: "Lead" };
 export const dynamic = "force-dynamic";
@@ -19,6 +20,9 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 }
 
 export default async function LeadPage({ params }: { params: Promise<{ id: string }> }) {
+  // Applicants' / leads' personal data: the section must be ticked for this user
+  // (the proxy checks the cookie; this re-checks the database).
+  await requireAdmin("leads");
   const { id } = await params;
   const lead = await getLead(id);
   if (!lead) notFound();

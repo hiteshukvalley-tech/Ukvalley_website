@@ -117,7 +117,7 @@ export default async function ServicesPage() {
 
         <PhotoPanel
           photo={photos.services}
-          eyebrow={ukText("How the eight lines fit together")}
+          eyebrow={`${ukText("How the")} ${ukText(word)} ${ukText("lines fit together")}`}
           title={ukText("One team from the first call to year three of support.")}
           facts={[
             "One architect owns the engagement end to end",
@@ -128,7 +128,7 @@ export default async function ServicesPage() {
           caption={ukText("Engineering core, architecture, web, mobile, cloud and QA under one roof.")}
         >
           <p>{ukText("Most agencies sell services as separate departments: a design team hands off to a build team, who hand off to an outsourced DevOps vendor, who has never met the marketing agency. Every hand-off loses context, and you pay for the re-learning.")}</p>
-          <p>{ukText("We run all eight lines as one team. The architect who scopes your CRM designs its cloud footprint, the engineer who builds the storefront tunes it for the SEO campaign, and the support engineer who answers your ticket in year two was on the original build. That continuity is where the time savings on this page actually come from.")}</p>
+          <p>{ukText("We run all")}{" "}{ukText(word)}{" "}{ukText("lines as one team. The architect who scopes your CRM designs its cloud footprint, the engineer who builds the storefront tunes it for the SEO campaign, and the support engineer who answers your ticket in year two was on the original build. That continuity is where the time savings on this page actually come from.")}</p>
         </PhotoPanel>
 
         <TimeSavers />

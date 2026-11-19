@@ -7,7 +7,7 @@ import { envUser } from "@/lib/admin-auth";
 import { requireRole } from "@/lib/admin-session";
 import { listUsers } from "@/lib/users-store";
 import { roleLabel } from "@/lib/users-validation";
-import { ACCESS_AREAS } from "@/lib/admin-access";
+import { ACCESS_AREAS, isHrMember } from "@/lib/admin-access";
 import { FlashToast } from "@/components/admin/toast";
 
 export const metadata = { title: "Users" };
@@ -87,7 +87,10 @@ export default async function UsersAdminPage({ searchParams }: Props) {
                     >
                       {roleLabel[u.role]}
                     </span>
-                    {u.title && <span className="text-xs font-medium text-uk-body">{u.title}</span>}
+                    {isHrMember(u.role, u.access) && (
+                      <span className="rounded-full bg-sky-500/15 px-2 py-0.5 text-[0.7rem] font-semibold text-sky-700 dark:text-sky-300" title="Signs in at /hr and sees only Dashboard, Careers, AI Interview and System">HR panel</span>
+                    )}
+                    {u.title &&<span className="text-xs font-medium text-uk-body">{u.title}</span>}
                     {!u.active && (
                       <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[0.7rem] font-semibold text-destructive">Disabled</span>
                     )}
@@ -117,9 +120,10 @@ export default async function UsersAdminPage({ searchParams }: Props) {
 
 /** "Sections: Job openings, Job applications" — or "All sections" for older accounts. */
 function accessSummary(access?: string[]): string {
+  // Older accounts: every content section, without applicants', leads' or AI interview data.
   if (!access) return "Sections: all content sections";
   const names = ACCESS_AREAS.filter((a) => access.includes(a.key)).map((a) => a.label);
-  if (names.length === ACCESS_AREAS.length) return "Sections: all content sections";
+  if (names.length === ACCESS_AREAS.length) return "Sections: all sections";
   const shown = names.slice(0, 4).join(", ");
   return `Sections: ${shown}${names.length > 4 ? ` +${names.length - 4} more` : ""}`;
 }

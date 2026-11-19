@@ -17,6 +17,9 @@ type RevealProps = {
   once?: boolean;
   /** entrance style; default "up" keeps legacy behavior */
   variant?: "up" | "fade" | "clip" | "blur";
+  /** accessible name, e.g. for a Reveal rendered as a <section> */
+  "aria-label"?: string;
+  id?: string;
 };
 
 const DURATION_MS = 600;
@@ -39,6 +42,8 @@ export function Reveal({
   staggerChildren = false,
   once = true,
   variant = "up",
+  "aria-label": ariaLabel,
+  id,
 }: RevealProps) {
   const ref = useRef<HTMLElement>(null);
 
@@ -106,6 +111,8 @@ export function Reveal({
       className,
       style,
       "data-reveal-variant": variant === "blur" ? "fade" : variant,
+      ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
+      ...(id ? { id } : {}),
       ...(staggerChildren ? { "data-reveal-children": "" } : {}),
     },
     children

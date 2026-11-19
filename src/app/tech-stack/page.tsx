@@ -61,7 +61,7 @@ export default async function TechStackPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "Tech Stack" }]}
           title={
             <>{ukText("We recommend the stack that fits")}{" "}
-              <span className="text-gradient-blue">{ukText("your team")}</span>{ukText("not ours.")}</>
+              <span className="text-gradient-blue">{ukText("your team")}</span>{", "}{ukText("not ours.")}</>
           }
           description={ukText("The platforms below are what we work with daily. We don't push a preferred stack onto a client; we choose based on your constraints, your team's familiarity and the problem in front of us.")}
         />

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  COVER_LETTER_MAX, EMAIL_MAX, EXPERIENCE_OPTIONS, LOCATION_MAX, NAME_MAX, PORTFOLIO_MAX,
+  COVER_LETTER_MAX, CURRENT_COMPANY_MAX, EDUCATION_MAX, EMAIL_MAX, EXPERIENCE_OPTIONS, SKILLS_MAX, LOCATION_MAX, NAME_MAX, PORTFOLIO_MAX,
   RESUME_MAX_BYTES, SOURCE_OPTIONS, SOURCE_OTHER_MAX, latestJoiningDate, readApplication, resumeError, validateApplication, type ApplyResult,
 } from "@/lib/applications-validation";
 import { validatePhone } from "@/lib/contact-validation";
@@ -236,6 +236,14 @@ function ApplicationForm({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState<string>();
   const [fileName, setFileName] = useState<string>();
+  // The visitor's time zone, written into the hidden field after mounting (the
+  // server can't know it); left empty, interview times are in India time.
+  const timeZoneField = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    try {
+      if (timeZoneField.current) timeZoneField.current.value = Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
+    } catch {}
+  }, []);
   const [coverLength, setCoverLength] = useState(0);
   // "How did you hear about us?": "Other" opens a box for their own words.
   const [source, setSource] = useState("");
@@ -405,7 +413,7 @@ function ApplicationForm({
             id="apply-position" name="position" defaultValue={positions.includes(initialPosition) ? initialPosition : ""}
             aria-invalid={!!errors.position || undefined} onChange={() => clearError("position")}
             // text-base on phones: iOS zooms into fields under 16px.
-            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue aria-invalid:border-destructive sm:text-sm"
+            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue focus-visible:ring-3 focus-visible:ring-uk-blue/25 aria-invalid:border-destructive sm:text-sm"
           >
             <option value="" disabled><T>Select a position…</T></option>
             {positions.map((p) => (
@@ -418,7 +426,7 @@ function ApplicationForm({
             id="apply-experience" name="experience" defaultValue=""
             aria-invalid={!!errors.experience || undefined} onChange={() => clearError("experience")}
             // text-base on phones: iOS zooms into fields under 16px.
-            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue aria-invalid:border-destructive sm:text-sm"
+            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue focus-visible:ring-3 focus-visible:ring-uk-blue/25 aria-invalid:border-destructive sm:text-sm"
           >
             <option value="" disabled><T>Select experience…</T></option>
             {EXPERIENCE_OPTIONS.map((x) => (
@@ -451,7 +459,7 @@ function ApplicationForm({
               clearError("sourceOther");
             }}
             // text-base on phones: iOS zooms into fields under 16px.
-            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue aria-invalid:border-destructive sm:text-sm"
+            className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue focus-visible:ring-3 focus-visible:ring-uk-blue/25 aria-invalid:border-destructive sm:text-sm"
           >
             <option value="" disabled><T>Select an option…</T></option>
             {SOURCE_OPTIONS.map((x) => (
@@ -528,6 +536,34 @@ function ApplicationForm({
           {coverLength}/{COVER_LETTER_MAX}
         </span>
       </Field>
+
+      {/* Optional details for the first-round (AI) interview's questions. */}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Current Company (Optional)" htmlFor="apply-company" error={errors.currentCompany}>
+          <Input
+            id="apply-company" name="currentCompany" autoComplete="organization" maxLength={CURRENT_COMPANY_MAX}
+            aria-invalid={!!errors.currentCompany || undefined} onInput={() => clearError("currentCompany")} className="h-11 px-3.5"
+          />
+        </Field>
+        <Field label="Education (Optional)" htmlFor="apply-education" error={errors.education}>
+          <Input
+            id="apply-education" name="education" placeholder={t("e.g. B.E. Computer Engineering, 2024")} maxLength={EDUCATION_MAX}
+            aria-invalid={!!errors.education || undefined} onInput={() => clearError("education")} className="h-11 px-3.5"
+          />
+        </Field>
+      </div>
+      <Field label="Key Skills (Optional)" htmlFor="apply-skills" error={errors.skills}>
+        <Input
+          id="apply-skills" name="skills" placeholder={t("e.g. React, Node.js, MongoDB")} maxLength={SKILLS_MAX}
+          aria-invalid={!!errors.skills || undefined} onInput={() => clearError("skills")} className="h-11 px-3.5"
+        />
+      </Field>
+      <label className="flex items-start gap-2.5 text-sm text-uk-body">
+        <input type="checkbox" name="whatsappOptIn" className="mt-0.5 h-4 w-4 accent-[var(--uk-blue)]" />
+        <span><T>Send me interview invitations and reminders on WhatsApp too (to the phone number above).</T></span>
+      </label>
+      {/* The applicant's time zone, so interview times are shown in their own time. */}
+      <input ref={timeZoneField} type="hidden" name="timeZone" defaultValue="" />
 
       {formError && (
         <p role="alert" className="flex items-start gap-1.5 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">

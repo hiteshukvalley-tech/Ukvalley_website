@@ -100,7 +100,9 @@ export function ContactForm({
       });
 
     // Analytics: the form and the visitor's choices only, never their details.
+    // Not for bots either (a filled honeypot gets a fake "ok" from the server).
     const track = (delivery: "saved" | "web3forms" | "email_app") =>
+      !String(data.get("website") ?? "") &&
       trackEvent("form_submit", {
         form_name: source === "scoping-popup" ? "scoping_popup" : "contact",
         form_type: "lead",
@@ -110,9 +112,12 @@ export function ContactForm({
       });
 
     if (result?.ok) {
-      // Saved to Admin → Leads; the email copy goes out in the background.
-      void notify();
-      track("saved");
+      // Saved to Admin → Leads; the email copy goes out in the background
+      // (not for a double submit: the first one already sent it).
+      if (!result.duplicate) {
+        void notify();
+        track("saved");
+      }
       setStatus("sent");
       return;
     }
@@ -318,7 +323,7 @@ export function ContactForm({
           defaultValue=""
           // text-base (16px) on phones: iOS Safari auto-zooms into any
           // form field under 16px when it's tapped, and stays zoomed in.
-          className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue sm:text-sm"
+          className="h-11 w-full rounded-lg border border-uk-line bg-uk-card px-3 text-base text-uk-body outline-none transition-colors focus:border-uk-blue focus-visible:ring-3 focus-visible:ring-uk-blue/25 sm:text-sm"
         >
           <option value="" disabled><T>Select a service…</T></option>
           {SERVICES.map((s) => (

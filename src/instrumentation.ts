@@ -7,4 +7,16 @@ export async function register() {
   await refreshTexts();
   const timer = setInterval(() => void refreshTexts(), 30_000);
   timer.unref?.();
+
+  // API keys saved in Site settings → API keys (encrypted in the database):
+  // loaded now and refreshed every 30 seconds.
+  const { startIntegrationKeyRefresh } = await import("@/lib/integration-keys");
+  await startIntegrationKeyRefresh();
+
+  // AI interviews: the background worker that sends invitations and reminders,
+  // syncs Google Calendar, evaluates finished interviews and deletes old
+  // recordings. Importing lifecycle registers the job handlers.
+  await import("@/lib/ai-interview/lifecycle");
+  const { startJobWorker } = await import("@/lib/ai-interview/jobs");
+  startJobWorker();
 }

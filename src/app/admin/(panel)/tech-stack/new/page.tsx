@@ -11,7 +11,7 @@ export default function NewTechCategoryPage() {
       <PageHeader
         title="Add category"
         crumbs={[{ label: "Tech stack", href: "/admin/tech-stack" }, { label: "Add category" }]}
-        description="Add a technology category. It is added to the end of the list. It is added to the end of the list."
+        description="Add a technology category. It is added to the end of the list."
       />
       <TechCategoryForm mode="create" initial={emptyTechCategoryValues()} />
     </>

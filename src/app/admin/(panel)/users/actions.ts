@@ -26,11 +26,6 @@ function refresh() {
   revalidatePath("/admin/users");
 }
 
-/**
- * True when removing this user's admin access (deleting, disabling or
- * demoting them) would leave nobody able to manage users: no other active
- * admin and no owner account configured in the environment.
- */
 /** Whether a save keeps the same role and sections (otherwise the user is signed out). */
 function sameAccess(before: { role: string; access?: string[] }, after: { role: string; access?: string[] }) {
   if (before.role !== after.role) return false;
@@ -38,6 +33,11 @@ function sameAccess(before: { role: string; access?: string[] }, after: { role: 
   return JSON.stringify(before.access ?? null) === JSON.stringify(after.access ?? null);
 }
 
+/**
+ * True when removing this user's admin access (deleting, disabling or
+ * demoting them) would leave nobody able to manage users: no other active
+ * admin and no owner account configured in the environment.
+ */
 async function wouldLockOutAdmins(id: string): Promise<boolean> {
   if (envUser()) return false;
   return (await countOtherActiveAdmins(id)) === 0;

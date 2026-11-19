@@ -211,6 +211,7 @@ export function GlobalSearch({ role, access, canTexts }: { role: AdminRole; acce
           id="admin-search-results"
           role="listbox"
           data-for={resultFor}
+          aria-busy={loading}
           className="absolute left-0 right-0 top-full z-40 mt-2 max-h-[70vh] overflow-y-auto rounded-2xl border border-uk-line bg-uk-card p-2 shadow-premium sm:min-w-[34rem]"
         >
           {/* matching sections still show when the database can't be searched */}

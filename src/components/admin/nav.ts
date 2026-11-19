@@ -1,8 +1,8 @@
 import {
   LayoutDashboard, House, Settings, Wrench, Newspaper, Trophy, Boxes, Puzzle,
-  Building2, UserPlus, MapPin, Users, MessageSquareQuote, Inbox, /* Image as ImageIcon, */
+  Building2, /* UserPlus, */ MapPin, Users, MessageSquareQuote, Inbox, /* Image as ImageIcon, */
   ShieldCheck, DatabaseZap, Briefcase, HelpCircle, ListOrdered, Layers, Handshake,
-  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, /* Mail, */ MailCheck, UserCog, CalendarCheck, CalendarClock, UserRound, ListChecks, Recycle, type LucideIcon,
+  FolderKanban, Landmark, FileUser, PanelTop, PanelBottom, FileText, Menu, HeartHandshake, /* Mail, */ MailCheck, UserCog, CalendarCheck, CalendarClock, UserRound, ListChecks, Recycle, Bot, BarChart3, Table2, Video, BellRing, SlidersHorizontal, KeyRound, type LucideIcon,
 } from "lucide-react";
 import { HOME_SECTIONS } from "@/lib/home-schema";
 import { canOpenPath, type Access } from "@/lib/admin-access";
@@ -16,6 +16,8 @@ export type AdminNavLink = {
   adminOnly?: boolean;
   /** active only on this exact path (not its sub-pages) */
   exact?: boolean;
+  /** a live count next to the link ("ai-inbox": interviews awaiting an HR decision) */
+  badge?: "ai-inbox";
 };
 
 /** A sidebar entry: a link, or a main section that opens into sub-sections. */
@@ -111,18 +113,34 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
           { label: "Email logs", href: "/admin/email-logs", icon: MailCheck },
         ],
       },
-      {
-        label: "Hire",
-        href: "/admin/hire",
-        icon: UserPlus,
-        children: [{ label: "Hire roles", href: "/admin/hire", icon: UserPlus }, pagesLink("hire")],
-      },
+      // Hire is hidden from the sidebar for now. The /admin/hire pages stay in
+      // place; uncomment this entry (and UserPlus above) to show it again.
+      // {
+      //   label: "Hire",
+      //   href: "/admin/hire",
+      //   icon: UserPlus,
+      //   children: [{ label: "Hire roles", href: "/admin/hire", icon: UserPlus }, pagesLink("hire")],
+      // },
       {
         label: "Insights",
         href: "/admin/blog",
         icon: Newspaper,
         children: [{ label: "Articles", href: "/admin/blog", icon: Newspaper }, pagesLink("insights")],
       },
+    ],
+  },
+  // AI Interview: its own sidebar group, as in GrowthValley's HR panel
+  // (AI dashboard first), plus Ukvalley's Notifications page.
+  {
+    group: "AI Interview",
+    items: [
+      { label: "AI dashboard", href: "/admin/ai-interviews", icon: BarChart3, exact: true },
+      { label: "AI interviews", href: "/admin/ai-interviews/schedule", icon: Bot },
+      { label: "Awaiting decision", href: "/admin/ai-interviews/inbox", icon: Inbox, badge: "ai-inbox" },
+      { label: "Recordings", href: "/admin/ai-interviews/recordings", icon: Video },
+      { label: "Compare AI scores", href: "/admin/ai-interviews/compare", icon: Table2 },
+      { label: "Notifications", href: "/admin/ai-interviews/notifications", icon: BellRing },
+      { label: "AI interview settings", href: "/admin/ai-interviews/settings", icon: SlidersHorizontal },
     ],
   },
   {
@@ -134,6 +152,7 @@ export const adminNav: { group: string; items: AdminNavEntry[] }[] = [
       // it); uncomment this line (and ImageIcon above) to show it again.
       // { label: "Media", href: "/admin/media", icon: ImageIcon },
       { label: "Site settings", href: "/admin/settings", icon: Settings, adminOnly: true, exact: true },
+      { label: "API keys", href: "/admin/settings/api-keys", icon: KeyRound, adminOnly: true },
       // The HR mail server is now edited in Site settings, and each user's own
       // in Settings below; /admin/settings/email redirects to Site settings.
       // { label: "Email (SMTP)", href: "/admin/settings/email", icon: Mail, adminOnly: true },

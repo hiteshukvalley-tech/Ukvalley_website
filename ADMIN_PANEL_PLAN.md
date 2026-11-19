@@ -1,6 +1,6 @@
 # Ukvalley Admin Panel — Plan (for approval)
 
-Status: **DRAFT — no code has been written for the admin panel yet.**
+Status: **HISTORICAL — this was the original plan. The admin panel is built; see README.md for the current setup.**
 
 ## 1. Goal
 Make the website content-driven. Today all copy lives in `src/lib/*.ts`

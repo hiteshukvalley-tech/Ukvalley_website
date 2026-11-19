@@ -9,6 +9,7 @@ import { todayInIndia } from "@/lib/careers-shared";
 import { formatApplicationDate } from "./application-ui";
 import { RoleStatusBadge, applicantsHref, datesLabel, readDates, roleRows } from "./applications-list";
 import { DateBoxes, DateModeSwitch } from "./date-filter";
+import { requireAdmin } from "@/lib/admin-session";
 
 export const metadata = { title: "Job applications" };
 export const dynamic = "force-dynamic";
@@ -22,6 +23,9 @@ type Props = {
  * range). The applicants themselves are listed on the Applicants page.
  */
 export default async function ApplicationsAdminPage({ searchParams }: Props) {
+  // Applicants' / leads' personal data: the section must be ticked for this user
+  // (the proxy checks the cookie; this re-checks the database).
+  await requireAdmin("applications");
   const sp = await searchParams;
   const { role, saved } = sp;
   const dates = readDates(sp);

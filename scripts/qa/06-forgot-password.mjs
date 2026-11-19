@@ -6,7 +6,6 @@
 //   node scripts/qa/06-forgot-password.mjs
 // The owner's reset password is removed again at the end.
 import net from "node:net";
-import { readFileSync } from "node:fs";
 import { MongoClient } from "mongodb";
 import { ENV_TEXT, BASE, OWNER, check, go, launch, newPage, section, sleep, summary, text } from "./lib.mjs";
 

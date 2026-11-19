@@ -1,5 +1,11 @@
 import puppeteer from "puppeteer-core";
 const base = process.env.BASE;
+// Safety: this script saves test values into Site settings, so it only runs
+// against a local server unless ALLOW_PROD_WRITE=1.
+if (!base || (!/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/|$)/.test(base) && process.env.ALLOW_PROD_WRITE !== "1")) {
+  console.error("Set BASE to a local server (e.g. http://localhost:3100). It saves test values into Site settings.");
+  process.exit(1);
+}
 const b = await puppeteer.launch({ executablePath: "C:/Program Files/Google/Chrome/Application/chrome.exe", headless: true });
 const p = await b.newPage();
 await p.setViewport({ width: 1366, height: 900 });

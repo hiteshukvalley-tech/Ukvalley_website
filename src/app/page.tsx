@@ -68,8 +68,8 @@ const buildFaqSchema = (faqs: Awaited<ReturnType<typeof getFaqs>>) => ({
   "@type": "FAQPage",
   mainEntity: faqs.map((f) => ({
     "@type": "Question",
-    name: f.q,
-    acceptedAnswer: { "@type": "Answer", text: f.a },
+    name: ukText(f.q),
+    acceptedAnswer: { "@type": "Answer", text: ukText(f.a) },
   })),
 });
 

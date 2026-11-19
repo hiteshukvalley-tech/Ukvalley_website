@@ -25,8 +25,11 @@ if (rawId && !validId && !placeholder && typeof window === "undefined") {
 /** The container ID to load, or "" when tracking is off. */
 export const GTM_ID = enabled && validId ? rawId : "";
 
-/** Public pages only: /admin URLs carry applicant emails (e.g. ?chat=<email>). */
-export const isTrackedPath = (pathname: string) => !/^\/admin(\/|$)/i.test(pathname);
+/**
+ * Public pages only: /admin URLs carry applicant emails (e.g. ?chat=<email>),
+ * and /interview URLs carry a candidate's private interview token.
+ */
+export const isTrackedPath = (pathname: string) => !/^\/(admin|interview)(\/|$)/i.test(pathname);
 
 type DataLayerEvent = Record<string, unknown>;
 

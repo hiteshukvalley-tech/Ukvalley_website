@@ -1,4 +1,4 @@
-import { BASE, OWNER, check, go, launch, login, logout, newPage, section, sleep, summary, text } from "./lib.mjs";
+import { BASE, OWNER, check, go, launch, login, logout, newPage, section, summary, text } from "./lib.mjs";
 
 const browser = await launch();
 

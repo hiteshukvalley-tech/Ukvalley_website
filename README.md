@@ -42,16 +42,19 @@ service that runs `npm ci && npm run build`, then `npm start`.
    "Database: Connected". If the database is new, run
    *Admin → Migration → Import all* once.
 6. **Domain:** the website and the admin panel both run on
-   `https://uat.ukvalley.com` (set in `render.yaml`):
+   `https://ukvalley.com` (set in `render.yaml`):
 
    | Variable | Value | Serves |
    |---|---|---|
-   | `NEXT_PUBLIC_SITE_URL` | `https://uat.ukvalley.com` | the public website (canonical URLs, sitemap, SEO, share previews) |
-   | `NEXT_PUBLIC_API_URL` | `https://uat.ukvalley.com` | the admin panel and server routes (`/admin`, `/media`, `/careers/apply`) |
+   | `NEXT_PUBLIC_SITE_URL` | `https://ukvalley.com` | the public website (canonical URLs, sitemap, SEO, share previews) |
+   | `NEXT_PUBLIC_API_URL` | `https://ukvalley.com` | the admin panel and server routes (`/admin`, `/media`, `/careers/apply`) |
 
-   Add `uat.ukvalley.com` under the service's **Settings → Custom Domains** and
-   create the DNS record Render shows (a CNAME for `uat`). The admin panel is at
-   `https://uat.ukvalley.com/admin`. If the two values are ever set to different
+   Add `ukvalley.com` (and `www.ukvalley.com`, redirected to it) under the
+   service's **Settings → Custom Domains** and create the DNS records Render
+   shows. The admin panel is at `https://ukvalley.com/admin`. This is the
+   production domain, so search engines may index it (see below). For a test
+   deployment use `https://uat.ukvalley.com` in both values instead; it is kept
+   out of search results automatically. If the two values are ever set to different
    domains, `/admin` on the website is redirected to the backend and public
    pages opened on the backend go to the website. The values are read at build
    time: after changing them, redeploy.
@@ -143,3 +146,10 @@ The SMTP_* values send every email to the suites' fake mail server on
 localhost:2525, so no real email goes out. `QA_ALLOW_LOCAL_SMTP=1` lets the SMTP settings accept the suites' fake mail
 server on localhost:2525. Never set it on Render: in production, SMTP hosts on
 local or private addresses are refused.
+
+### AI interviews
+
+Setup (Claude, Google Calendar, WhatsApp, recordings), the data models, the HR
+REST API (`/admin/api/ai-interviews/…`), testing and deployment are documented
+in [docs/AI_INTERVIEWS.md](docs/AI_INTERVIEWS.md). Its end-to-end suite is
+`scripts/qa/16-ai-interviews.mjs` (local MongoDB, mock AI, fake camera).

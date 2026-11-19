@@ -328,7 +328,6 @@ export async function updateApplication(id: string, patch: { status: Application
   return res.matchedCount > 0;
 }
 
-/** Deletes the application and its resume. */
 /**
  * A job role was renamed in Careers. Applications store the role's name, so
  * move the ones under the old name (ignoring case and extra spaces) to the new
@@ -347,6 +346,7 @@ export async function renameApplicationsPosition(from: string, to: string): Prom
   return res.modifiedCount;
 }
 
+/** Deletes the application and its resume. */
 export async function deleteApplication(id: string) {
   const doc = await col().findOneAndDelete({ _id: id });
   if (doc && ObjectId.isValid(doc.resume.fileId)) {

@@ -7,6 +7,7 @@ import { readPaging } from "@/lib/pagination";
 import { isLeadStatus, leadStatusLabel, listLeads, type LeadStatus } from "@/lib/leads-store";
 import { formatLeadDate, sourceLabel, StatusBadge } from "./lead-ui";
 import { FlashToast } from "@/components/admin/toast";
+import { requireAdmin } from "@/lib/admin-session";
 
 export const metadata = { title: "Leads" };
 export const dynamic = "force-dynamic";
@@ -14,6 +15,9 @@ export const dynamic = "force-dynamic";
 type Props = { searchParams: Promise<{ q?: string; status?: string; page?: string; per?: string; saved?: string }> };
 
 export default async function LeadsAdminPage({ searchParams }: Props) {
+  // Applicants' / leads' personal data: the section must be ticked for this user
+  // (the proxy checks the cookie; this re-checks the database).
+  await requireAdmin("leads");
   const { q = "", status = "all", page: pageParam, per, saved } = await searchParams;
   const { page, pageSize } = readPaging(pageParam, per, 25);
   const activeStatus = isLeadStatus(status) ? status : "all";

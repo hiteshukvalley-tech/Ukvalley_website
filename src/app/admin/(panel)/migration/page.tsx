@@ -11,11 +11,12 @@ export const dynamic = "force-dynamic";
 
 // Content that still lives only in code. It has no admin page, so it changes
 // with a code edit and a redeploy.
+// (Their wording can still be changed in Pages & text; the lists themselves can't.)
+// Home-page numbers, the main menu and the header and footer are editable now.
 const STILL_IN_CODE = [
-  "Home-page numbers (hero stats, “by the numbers”) and client logos",
+  "Client logos on /clients",
   "Principles and values on /about and /why-ukvalley",
   "Office addresses on /contact",
-  "Header and footer menus",
   "The grouped /faq page and PDF reports",
 ];
 

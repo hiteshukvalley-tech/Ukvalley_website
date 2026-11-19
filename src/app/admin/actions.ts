@@ -7,7 +7,7 @@ import { getSession, setSessionCookie } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { checkOwnerCredentials, revokeOwnerSessions } from "@/lib/owner-password";
 import { authenticateUser, bumpSessionVersion } from "@/lib/users-store";
-import { EMAIL_MAX, PASSWORD_MAX, passwordRuleError } from "@/lib/users-validation";
+import { EMAIL_MAX, PASSWORD_MAX } from "@/lib/users-validation";
 import { clientIp } from "@/lib/client-ip";
 
 export type LoginState = { error?: string; email?: string; errors?: { password?: string } };
@@ -61,10 +61,10 @@ export async function loginAction(
   if (email.length > EMAIL_MAX || password.length > PASSWORD_MAX) {
     return { error: "Incorrect email ID or password.", email: email.slice(0, EMAIL_MAX) };
   }
-  // Same check the form runs before submitting. A password that breaks the
-  // rules can't be anyone's, so no account is looked up.
-  const rule = passwordRuleError(password);
-  if (rule) return { errors: { password: rule }, email };
+  // Only an empty password is refused before checking: the strength rules apply
+  // when a password is set, and an owner password from the environment or an
+  // older account's password may predate them (and must still sign in).
+  if (!password) return { errors: { password: "Please enter your password." }, email };
   const ip = clientIp(await headers());
   const ipKey = `ip:${ip}`;
   const accountKey = `acct:${email.trim().toLowerCase()}`;

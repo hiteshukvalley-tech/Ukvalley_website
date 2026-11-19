@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from "nodemailer";
+import { publicAddressFor } from "@/lib/mail-host-guard";
 import { getSmtpConfigFor, type SmtpConfig } from "@/lib/smtp-settings";
 
 // Outgoing email over SMTP (Gmail, Zoho, SES…). Server-only. The settings come
@@ -9,9 +10,16 @@ import { getSmtpConfigFor, type SmtpConfig } from "@/lib/smtp-settings";
 /** True when email can be sent (the user's own SMTP, the HR SMTP or the env vars). */
 export const hasMailer = async (senderId?: string) => (await getSmtpConfigFor(senderId)) !== null;
 
-function createTransport(c: SmtpConfig): Transporter {
+/**
+ * `address`: the server's IP, resolved and checked just before connecting
+ * (mail-host-guard), so a name that passed the check when it was saved can't
+ * point at this machine or the private network later (DNS rebinding). TLS
+ * still checks the certificate against the real name.
+ */
+function createTransport(c: SmtpConfig, address: string): Transporter {
   return nodemailer.createTransport({
-    host: c.host,
+    host: address,
+    ...(address !== c.host ? { tls: { servername: c.host } } : {}),
     port: c.port,
     // "ssl": TLS from the start (465). "starttls": upgrade after connecting (587). "none": plain (local/test servers).
     secure: c.security === "ssl",
@@ -29,11 +37,11 @@ function createTransport(c: SmtpConfig): Transporter {
 // Changed settings make a new key; old ones are dropped once there are too many.
 const MAX_TRANSPORTS = 20;
 const g = globalThis as unknown as { _mailers?: Map<string, Transporter> };
-const configKey = (c: SmtpConfig) => JSON.stringify([c.host, c.port, c.security, c.user, c.pass]);
+const configKey = (c: SmtpConfig, address: string) => JSON.stringify([c.host, address, c.port, c.security, c.user, c.pass]);
 
-function transport(c: SmtpConfig): Transporter {
+function transport(c: SmtpConfig, address: string): Transporter {
   const pool = (g._mailers ??= new Map());
-  const k = configKey(c);
+  const k = configKey(c, address);
   let t = pool.get(k);
   if (!t) {
     if (pool.size >= MAX_TRANSPORTS) {
@@ -42,7 +50,7 @@ function transport(c: SmtpConfig): Transporter {
       pool.delete(oldKey);
       old.close();
     }
-    t = createTransport(c);
+    t = createTransport(c, address);
     pool.set(k, t);
   }
   return t;
@@ -82,7 +90,7 @@ export async function sendMail(message: MailMessage, opts: { senderId?: string }
   const { replyTo, ...rest } = message;
   await deliver(
     smtp.config,
-    transport(smtp.config),
+    transport(smtp.config, await publicAddressFor(smtp.config.host)),
     own ? { ...rest, fromName: smtp.config.fromName || message.fromName } : { ...rest, ...(replyTo ? { replyTo } : {}) }
   );
 }
@@ -92,7 +100,7 @@ export async function sendMail(message: MailMessage, opts: { senderId?: string }
  * Uses its own short-lived connection, so it never disturbs the live one.
  */
 export async function sendTestEmail(c: SmtpConfig, to: string) {
-  const t = createTransport(c);
+  const t = createTransport(c, await publicAddressFor(c.host));
   try {
     await t.verify();
     const when = new Date().toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" });

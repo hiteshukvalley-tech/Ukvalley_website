@@ -5,7 +5,6 @@
 //   - text overrides also stick in client components after hydration
 //   - deep links (#section) are not reset to the top on first load
 //   - the header's Solutions / Hire dropdowns follow the admin lists
-import { readFileSync } from "node:fs";
 import { MongoClient } from "mongodb";
 import { ENV_TEXT, BASE, check, go, launch, login, newPage, section, sleep, summary, text } from "./lib.mjs";
 

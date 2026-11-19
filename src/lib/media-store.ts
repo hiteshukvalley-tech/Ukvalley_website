@@ -130,18 +130,35 @@ export async function countMedia(): Promise<number | null> {
 // files are dropped once the total passes the budget (Render Starter: 512 MB).
 const CACHE_BUDGET_BYTES = 64 * 1024 * 1024;
 type Cached = { item: MediaItem; bytes: Buffer };
+/**
+ * How long a cached file is served without asking the database whether it
+ * still exists. A delete clears this server's copy at once; with several
+ * servers, the others notice within this time instead of serving it forever.
+ */
+const RECHECK_MS = 10 * 60_000;
+const checkedAt = new Map<string, number>();
 const g = globalThis as unknown as { _ukMediaCache?: Map<string, Cached>; _ukMediaCacheBytes?: number; _ukMediaLoading?: Map<string, Promise<Cached | null>> };
 const cache = (g._ukMediaCache ??= new Map());
 const loading = (g._ukMediaLoading ??= new Map());
 
 function remember(id: string, entry: Cached) {
   cache.set(id, entry);
+  checkedAt.set(id, Date.now());
   g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) + entry.bytes.length;
   for (const [key, old] of cache) {
     if ((g._ukMediaCacheBytes ?? 0) <= CACHE_BUDGET_BYTES) break;
     cache.delete(key);
+    checkedAt.delete(key);
     g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) - old.bytes.length;
   }
+}
+
+function forget(id: string) {
+  const cached = cache.get(id);
+  if (!cached) return;
+  cache.delete(id);
+  checkedAt.delete(id);
+  g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) - cached.bytes.length;
 }
 
 /**
@@ -152,7 +169,20 @@ function remember(id: string, entry: Cached) {
 export async function readMedia(id: string): Promise<Cached | null> {
   if (!hasDatabaseUrl() || !isMediaId(id)) return null;
   const hit = cache.get(id);
-  if (hit) {
+  if (hit && Date.now() - (checkedAt.get(id) ?? 0) > RECHECK_MS) {
+    // Still there? (Deleted on another server: stop serving it.) A failed
+    // check keeps serving the copy; the next request asks again.
+    try {
+      if (!(await files().findOne({ _id: new ObjectId(id) }, { projection: { _id: 1 } }))) {
+        forget(id);
+        return null;
+      }
+      checkedAt.set(id, Date.now());
+    } catch {
+      /* database unreachable: serve the cached copy */
+    }
+  }
+  if (hit && cache.has(id)) {
     // Map order is the LRU order: move to the newest end.
     cache.delete(id);
     cache.set(id, hit);
@@ -177,11 +207,7 @@ export async function readMedia(id: string): Promise<Cached | null> {
 
 export async function deleteMedia(id: string): Promise<boolean> {
   if (!hasDatabaseUrl() || !isMediaId(id)) return false;
-  const cached = cache.get(id);
-  if (cached) {
-    cache.delete(id);
-    g._ukMediaCacheBytes = (g._ukMediaCacheBytes ?? 0) - cached.bytes.length;
-  }
+  forget(id);
   try {
     await bucket().delete(new ObjectId(id));
     return true;

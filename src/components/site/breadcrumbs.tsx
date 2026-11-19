@@ -42,7 +42,7 @@ export function Breadcrumbs({ items }: { items: Crumb[] }) {
                     {ukText(c.label)}
                   </Link>
                 ) : (
-                  <span className={last ? "text-uk-heading" : ""}>
+                  <span className={last ? "text-uk-heading" : ""} aria-current={last ? "page" : undefined}>
                     {ukText(c.label)}
                   </span>
                 )}

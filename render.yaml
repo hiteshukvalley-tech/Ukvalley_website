@@ -26,10 +26,10 @@ services:
       # build time: change it, then redeploy.
       # Frontend: the public website (canonical links, sitemap, SEO).
       - key: NEXT_PUBLIC_SITE_URL
-        value: https://uat.ukvalley.com
+        value: https://ukvalley.com
       # Backend: the admin panel and server routes (/admin, /media, /careers/apply).
       - key: NEXT_PUBLIC_API_URL
-        value: https://uat.ukvalley.com
+        value: https://ukvalley.com
       # Google Tag Manager container (GTM-XXXXXXX). Read at build time: change
       # it, then redeploy. Empty = no tracking; GTM_ENABLED=false switches it off.
       - key: NEXT_PUBLIC_GTM_ID

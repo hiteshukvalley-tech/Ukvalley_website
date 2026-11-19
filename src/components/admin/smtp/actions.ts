@@ -1,12 +1,11 @@
 "use server";
 
-import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import { sendTestEmail } from "@/lib/mailer";
+import { hostProblem } from "@/lib/mail-host-guard";
 import {
   deleteSmtpSettings, envSmtpConfig, getSmtpConfigFor, parseScope, saveSmtpSettings, savedSmtpPassword,
   type SmtpConfig, type SmtpScope, type SmtpSecurity,
@@ -40,50 +39,6 @@ const HOST = /^(?=.{1,253}$)[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[
 const NO_DB = "Database is not connected (MONGODB_URI missing), so email settings can't be saved.";
 /** The ports mail servers take submissions on; anything else could aim the server at some other service. */
 const PORTS = [25, 465, 587, 2525];
-
-// The server connects wherever these settings point, so they must never reach
-// this machine or the private network (SSRF): no localhost, no single-label
-// names, nothing that is or resolves to a private, loopback or link-local
-// address. Outside production (and for the QA scripts' fake SMTP server on
-// 127.0.0.1:2525, which run `next start` with QA_ALLOW_LOCAL_SMTP=1) local
-// servers are allowed.
-const allowLocal = () => process.env.NODE_ENV !== "production" || process.env.QA_ALLOW_LOCAL_SMTP === "1";
-
-function isPrivateIp(ip: string): boolean {
-  const v4 = (ip.toLowerCase().startsWith("::ffff:") ? ip.slice(7) : ip).split(".").map(Number);
-  if (isIP(ip) === 4 || (v4.length === 4 && v4.every((n) => Number.isInteger(n)))) {
-    const [a, b] = v4;
-    return (
-      a === 0 || a === 10 || a === 127 || a >= 224 || // this network, private, loopback, multicast/reserved
-      (a === 100 && b >= 64 && b <= 127) || // carrier-grade NAT
-      (a === 169 && b === 254) || // link-local (cloud metadata)
-      (a === 172 && b >= 16 && b <= 31) ||
-      (a === 192 && b === 168)
-    );
-  }
-  const v6 = ip.toLowerCase();
-  // unspecified, loopback, IPv4-mapped (hex form), unique-local fc00::/7, link-local fe80::/10
-  return v6 === "::" || v6 === "::1" || v6.startsWith("::ffff:") || /^f[cd]/.test(v6) || /^fe[89ab]/.test(v6);
-}
-
-/** Why this host can't be used, or null when it can. Resolves it, so a public name pointing inward is caught too. */
-async function hostProblem(host: string): Promise<string | null> {
-  if (allowLocal()) return null;
-  if (host === "localhost" || host.endsWith(".localhost") || !host.includes(".")) {
-    return "Enter the mail server's full public name, e.g. smtp.gmail.com.";
-  }
-  if (isIP(host) && isPrivateIp(host)) return "That address is on a private network. Enter a public mail server.";
-  let addresses: { address: string }[];
-  try {
-    addresses = await lookup(host, { all: true });
-  } catch {
-    return "Could not find that server. Check the name, e.g. smtp.gmail.com.";
-  }
-  if (!addresses.length || addresses.some((a) => isPrivateIp(a.address))) {
-    return "That server is on a private network. Enter a public mail server.";
-  }
-  return null;
-}
 
 const errorText = (e: unknown) => (e instanceof Error ? e.message : String(e));
 

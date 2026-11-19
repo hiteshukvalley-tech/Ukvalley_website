@@ -5,7 +5,7 @@ import { useActionState, useState, useTransition } from "react";
 import { Loader2, Save, Trash2 } from "lucide-react";
 import { FormCheckbox, FormField, FormSection, FormSelect } from "@/components/admin/form";
 import { ADMIN_ROLES } from "@/lib/admin-auth";
-import { ACCESS_AREAS } from "@/lib/admin-access";
+import { ACCESS_AREAS, HR_ACCESS } from "@/lib/admin-access";
 import { EMAIL_MAX, PASSWORD_HINT, PASSWORD_MAX, TITLE_MAX, roleHelp, roleLabel, type UserValues } from "@/lib/users-validation";
 import { cn } from "@/lib/utils";
 import { createUserAction, deleteUserAction, updateUserAction, type UserFormState } from "./actions";
@@ -221,6 +221,17 @@ function RoleAndAccess({
             Their sidebar shows only these, and every other section is closed to them. The dashboard and their own
             account page are always available.
           </p>
+          <div className="-mt-1 flex flex-wrap items-center gap-2 rounded-xl border border-uk-line bg-uk-surface px-4 py-3">
+            <span className="text-sm text-uk-body">HR team: job openings, applications and AI interviews (recordings, scores, decisions).</span>
+            <button
+              type="button"
+              className="ml-auto rounded-lg border border-uk-line px-3 py-1.5 text-xs font-medium text-uk-heading transition-colors hover:bg-uk-surface-2"
+              onClick={() => setPicked(new Set(HR_ACCESS))}
+              aria-pressed={picked.size === HR_ACCESS.length && HR_ACCESS.every((k) => picked.has(k))}
+            >
+              Use HR team access
+            </button>
+          </div>
           {GROUPS.map((group) => {
             const areas = ACCESS_AREAS.filter((a) => a.group === group);
             const all = areas.every((a) => picked.has(a.key));

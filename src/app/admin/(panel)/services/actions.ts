@@ -6,7 +6,7 @@ import { requireAdmin } from "@/lib/admin-session";
 import { hasDatabaseUrl } from "@/lib/db/client";
 import {
   SERVICES_TAG, createService, deleteService, importBuiltInServices,
-  moveService, reorderServices, setServicePublished, updateService,
+  reorderServices, setServicePublished, updateService,
 } from "@/lib/services-store";
 import {
   readServiceValues, validateService,
@@ -115,19 +115,6 @@ export async function setPublishedAction(slug: string, published: boolean): Prom
     await setServicePublished(slug, published);
   } catch (e) {
     return { ok: false, message: `Could not update: ${dbMessage(e)}` };
-  }
-  refreshPublicSite();
-  return { ok: true };
-}
-
-export async function moveServiceAction(slug: string, direction: "up" | "down"): Promise<ActionResult> {
-  slug = String(slug);
-  await requireAdmin("services");
-  if (!hasDatabaseUrl()) return { ok: false, message: NO_DB };
-  try {
-    await moveService(slug, direction);
-  } catch (e) {
-    return { ok: false, message: `Could not reorder: ${dbMessage(e)}` };
   }
   refreshPublicSite();
   return { ok: true };

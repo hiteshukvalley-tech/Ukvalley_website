@@ -13,6 +13,7 @@ import { Reveal } from "@/components/site/reveal";
 import { CtaBand } from "@/components/site/cta";
 import { ReportsSection } from "@/components/site/report-card";
 import { getCaseStudies } from "@/lib/cases-store";
+import { capitalize, countWord } from "@/lib/services-validation";
 import { ukText } from "@/lib/texts";
 
 // Re-render at least once a minute so admin text overrides always show up.
@@ -20,11 +21,18 @@ export const revalidate = 60;
 
 
 // Title and description can be replaced in Admin → Page text (SEO fields).
-export const generateMetadata = () => editableMetadata("case-studies", baseMetadata);
+// The count follows the live list (Admin → Case studies).
+export const generateMetadata = async () => {
+  const n = (await getCaseStudies()).length;
+  return editableMetadata("case-studies", {
+    ...baseMetadata,
+    description: `${capitalize(countWord(n))} anonymised ${n === 1 ? "engagement" : "engagements"} across fintech, retail, healthcare, manufacturing, logistics, education and more. Each case study names the sector context, the challenge, what we built, the stack and the measured result.`,
+  });
+};
 const baseMetadata: Metadata = {
   title: "Case studies: projects with measured results",
   description:
-    "Eleven anonymised engagements across fintech, retail, healthcare, manufacturing, logistics, education and more. Each case study names the sector context, the challenge, what we built, the stack and the measured result.",
+    "Anonymised engagements across fintech, retail, healthcare, manufacturing, logistics, education and more. Each case study names the sector context, the challenge, what we built, the stack and the measured result.",
   alternates: { canonical: `${SITE_URL}/case-studies` },
 };
 
@@ -49,7 +57,7 @@ export default async function CaseStudiesPage() {
           crumbs={[{ label: "Home", href: "/" }, { label: "Case Studies" }]}
           title={
             <>{ukText("Results we're")}{" "}
-              <span className="text-gradient-blue">{ukText("accountable for")}</span>{ukText("with the numbers.")}</>
+              <span className="text-gradient-blue">{ukText("accountable for")}</span>{" "}{ukText("with the numbers.")}</>
           }
           description={ukText("Anonymised engagements from lending desks to cold-chain fleets. Each one names the sector reality, the constraint, what we built, the stack and the measured result, not just adjectives.")}
         />
@@ -76,7 +84,7 @@ export default async function CaseStudiesPage() {
             <div className="mt-6 grid grid-cols-1 gap-10 lg:grid-cols-[1.25fr_1fr] lg:items-start lg:gap-16">
               <Reveal className="flex flex-col gap-5">
                 <h2 className="font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("Why we publish the sector reality, not just the win")}</h2>
-                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency portfolios show a logo, a screenshot and an adjective, \"seamless\", \"robust\", \"game-changing\"which tells a buyer nothing about whether that team can solve their specific problem. A CRM built for a five-person startup and a CRM built for a 200-store retail chain look identical in a screenshot, and completely different in every decision that actually mattered.")}</p>
+                <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Most agency portfolios show a logo, a screenshot and an adjective, \"seamless\", \"robust\", \"game-changing\", which tells a buyer nothing about whether that team can solve their specific problem. A CRM built for a five-person startup and a CRM built for a 200-store retail chain look identical in a screenshot, and completely different in every decision that actually mattered.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("The gap costs buyers at contract time: without the sector context, the real constraints and what was actually built, there's no way to judge whether a vendor's past work is relevant to your problem or just adjacent to it, so decisions get made on the size of the case-study logo instead of the size of the actual challenge solved.")}</p>
                 <p className="text-justify-prose text-base leading-relaxed text-uk-body sm:text-lg">{ukText("Every engagement below names the sector reality it sat inside, the specific failures we found on day one, what we actually built module by module, and a measured before-and-after, so you can judge fit on substance, not adjectives.")}</p>
               </Reveal>

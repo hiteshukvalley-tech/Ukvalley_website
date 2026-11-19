@@ -7,6 +7,7 @@ import { listApplications } from "@/lib/applications-store";
 import { listCareerRolesForAdmin } from "@/lib/careers-store";
 import { todayInIndia } from "@/lib/careers-shared";
 import { isApplicationStatus } from "@/lib/applications-validation";
+import { requireAdmin } from "@/lib/admin-session";
 import {
   APPLICANTS_PATH, ApplicationsList, applicantsHref, hasColumns, listHref, readColumns, readDates, readListPaging, readView, roleRows, type ListFilters,
 } from "../applications-list";
@@ -32,6 +33,9 @@ const chip = (active: boolean) =>
  * status, date and search filters as the Job applications page.
  */
 export default async function ApplicantsPage({ searchParams }: Props) {
+  // Applicants' / leads' personal data: the section must be ticked for this user
+  // (the proxy checks the cookie; this re-checks the database).
+  await requireAdmin("applications");
   const sp = await searchParams;
   const { q = "", status = "all", page: pageParam, per, saved } = sp;
   const role = (sp.role ?? "").trim().slice(0, 100);

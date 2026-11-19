@@ -40,9 +40,33 @@ export const ACCESS_AREAS: AccessArea[] = [
 
   { key: "careers", label: "Job openings", group: "Careers & leads", paths: ["/admin/careers"] },
   { key: "applications", label: "Job applications", group: "Careers & leads", hint: "Applicants' details, résumés, interviews and email logs", paths: ["/admin/applications", "/admin/todays-applications", "/admin/interviews", "/admin/email-logs"] },
+  { key: "ai-interviews", label: "AI interviews", group: "Careers & leads", hint: "AI interview recordings, transcripts, scores, decisions and settings", paths: ["/admin/ai-interviews", "/admin/api/ai-interviews"] },
   { key: "leads", label: "Leads", group: "Careers & leads", hint: "Enquiries from the contact forms", paths: ["/admin/leads"] },
   { key: "media", label: "Media library", group: "Careers & leads", paths: ["/admin/media"] },
 ];
+
+/**
+ * The HR team's sections: job openings, applications (with interviews and
+ * email logs) and AI interviews. "HR team" in Admin → Users ticks these.
+ */
+export const HR_ACCESS: readonly string[] = ["careers", "applications", "ai-interviews"];
+
+/**
+ * An HR team member: a team member whose sections are only HR ones (job
+ * openings, applications, AI interviews). They see the panel as the "HR
+ * panel" (brand label, sign-in wording), like GrowthValley's /hr panel.
+ */
+export function isHrMember(role: AdminRole, access: Access): boolean {
+  return role !== "admin" && Array.isArray(access) && access.length > 0 && access.every((k) => HR_ACCESS.includes(k));
+}
+
+/**
+ * Who may add, replace and remove the API keys (Settings → API keys): admins,
+ * and HR staff (anyone with the AI interviews section), as on GrowthValley.
+ */
+export function canManageKeys(role: AdminRole, access: Access): boolean {
+  return role === "admin" || canUseArea(role, access, "ai-interviews");
+}
 
 export const ACCESS_KEYS: readonly string[] = ACCESS_AREAS.map((a) => a.key);
 
@@ -68,7 +92,7 @@ export function areaForPath(pathname: string): AccessArea | null {
  * Areas holding people's personal data (applicants, their résumés and emails,
  * contact-form leads). A team member only gets these when ticked explicitly.
  */
-const SENSITIVE_AREAS: readonly string[] = ["applications", "leads"];
+const SENSITIVE_AREAS: readonly string[] = ["applications", "leads", "ai-interviews"];
 
 /**
  * A user's access as stored: `undefined` = every content area except the
@@ -89,6 +113,16 @@ export function canOpenPath(role: AdminRole, access: Access, pathname: string): 
   if (OPEN_PATHS.includes(p)) return true;
   const area = areaForPath(p);
   return area ? canUseArea(role, access, area.key) : role === "admin";
+}
+
+/**
+ * The sections a team member can actually open, as a list: their stored list,
+ * or for an account made before per-section access, every section except the
+ * sensitive ones (the same rule as canUseArea). The user form starts from this,
+ * so saving it unchanged never grants more than the person already had.
+ */
+export function effectiveAccess(access: Access): string[] {
+  return access === undefined ? ACCESS_KEYS.filter((k) => !SENSITIVE_AREAS.includes(k)) : cleanAccess(access);
 }
 
 /** Keeps only known area keys, in the checklist's order, without duplicates. */

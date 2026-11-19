@@ -1,7 +1,7 @@
 // Admin top-bar search: find any line or word on any page without opening the
 // page, open the hit's editor, and see saved edits show up in later searches.
 // Run against a QA database only (see lib.mjs).
-import { launch, newPage, go, login, check, section, summary, text, sleep } from "./lib.mjs";
+import { launch, newPage, go, login, check, section, summary, text } from "./lib.mjs";
 
 const browser = await launch();
 const page = await newPage(browser, { width: 1366, height: 900 });
@@ -11,7 +11,8 @@ const clickButton = (label) =>
   page.evaluate((l) => [...document.querySelectorAll("button")].find((b) => b.textContent.trim().startsWith(l))?.click(), label);
 const waitForText = (t, ms = 60000) => page.waitForFunction((x) => document.body.innerText.includes(x), { timeout: ms }, t);
 
-const box = 'input[aria-label="Search any text on any page"]';
+// The top-bar search now covers sections, applicants, leads and content as well as page text.
+const box = 'input[aria-label="Search sections, applicants, leads, content and page text"]';
 const panel = "#admin-search-results";
 async function search(term) {
   // clear the box with Ctrl+A (a triple-click doesn't always select it: the box widens on focus)
@@ -21,7 +22,11 @@ async function search(term) {
   await page.keyboard.up("Control");
   await page.keyboard.press("Backspace");
   await page.type(box, term);
-  await page.waitForFunction((sel, t) => document.querySelector(sel)?.getAttribute("data-for") === t, { timeout: 180000 }, panel, term);
+  // Records come back first and page text a moment later: wait until both are in (aria-busy off).
+  await page.waitForFunction(
+    (sel, t) => { const p = document.querySelector(sel); return p?.getAttribute("data-for") === t && p.getAttribute("aria-busy") === "false"; },
+    { timeout: 180000 }, panel, term
+  );
   return page.$eval(panel, (p) => p.innerText);
 }
 
@@ -56,13 +61,13 @@ check("says when nothing is found", has(out, "Nothing found"));
 
 section("Open a hit");
 await search("what we collect");
-await page.keyboard.press("ArrowDown");
-await page.keyboard.press("Enter");
+// The Privacy page's line (sections and records may be listed above it).
+await page.$$eval(`${panel} [role=option]`, (os) => os.find((o) => /Privacy/.test(o.textContent) && /what we collect/i.test(o.textContent))?.click());
 await page.waitForFunction(() => location.pathname.startsWith("/admin/texts/"), { timeout: 60000 });
 const url = page.url();
 check("opens the page's editor in its menu section", /\/admin\/texts\/company\?path=%2Fprivacy&q=/.test(url), url);
 await page.waitForSelector("main section button");
-const body = await text(page);
+await text(page);
 check("editor shows the page name", (await page.$eval("h1", (h) => h.innerText)) === "Privacy policy");
 check("search is pre-filled with the term", (await page.$eval('main input[placeholder^="Search text"]', (i) => i.value)) === "what we collect");
 const boxes = 'main textarea[aria-label^="All text of the section"]';

@@ -11,7 +11,7 @@ export default function NewProcessStepPage() {
       <PageHeader
         title="Add step"
         crumbs={[{ label: "Process", href: "/admin/process" }, { label: "Add step" }]}
-        description="Add a delivery step. It is added to the end of the list. It is added to the end of the list."
+        description="Add a delivery step. It is added to the end of the list."
       />
       <ProcessStepForm mode="create" initial={emptyProcessStepValues()} />
     </>

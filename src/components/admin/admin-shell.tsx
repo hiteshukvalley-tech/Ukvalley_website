@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "@/components/site/intent-link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X, ExternalLink } from "lucide-react";
@@ -13,19 +13,19 @@ import { adminNav, canSeeLink, isActive, type AdminNavEntry, type AdminNavLink }
 import { Toaster } from "./toast";
 import { ConfirmHost } from "./confirm-dialog";
 import type { AdminRole } from "@/lib/admin-auth";
-import { canUseArea, type Access } from "@/lib/admin-access";
+import { canUseArea, isHrMember, type Access } from "@/lib/admin-access";
 import { roleLabel } from "@/lib/users-validation";
 import { firstName } from "@/lib/profile-validation";
 import { cn } from "@/lib/utils";
 import { OFFICIAL_LOGO } from "@/lib/site-content-schema";
 
-function Brand() {
+function Brand({ hr = false }: { hr?: boolean }) {
   return (
-    <Link href="/admin" className="flex flex-col gap-1" aria-label="Ukvalley Technologies admin panel home">
+    <Link href="/admin" className="flex flex-col gap-1" aria-label={`Ukvalley Technologies ${hr ? "HR" : "admin"} panel home`}>
       {/* the official logo (public/brand, built by scripts/build-brand-assets.mjs) */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={OFFICIAL_LOGO} alt="Ukvalley Technologies" className="h-10 w-auto max-w-[11rem] object-contain object-left" />
-      <span className="pl-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-uk-muted">Admin panel</span>
+      <span className="pl-0.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-uk-muted">{hr ? "HR panel" : "Admin panel"}</span>
     </Link>
   );
 }
@@ -95,8 +95,38 @@ function NavSection({
   );
 }
 
+/**
+ * The "Awaiting decision" count for the sidebar badge (as in GrowthValley):
+ * refreshed every minute, on every page change, and when a decision is saved
+ * (the "ai-inbox-changed" event). Null while unknown or without access.
+ */
+function useAiInboxCount(enabled: boolean, pathname: string): number | null {
+  const [count, setCount] = useState<number | null>(null);
+  useEffect(() => {
+    if (!enabled) return;
+    let alive = true;
+    const load = () =>
+      fetch("/admin/api/ai-interviews/inbox-count", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((j: { ok?: boolean; data?: { count?: number } } | null) => {
+          if (alive && j?.ok && typeof j.data?.count === "number") setCount(j.data.count);
+        })
+        .catch(() => {});
+    void load();
+    const timer = setInterval(load, 60_000);
+    window.addEventListener("ai-inbox-changed", load);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+      window.removeEventListener("ai-inbox-changed", load);
+    };
+  }, [enabled, pathname]);
+  return enabled ? count : null;
+}
+
 function NavList({ role, access, onNavigate }: { role: AdminRole; access: Access; onNavigate?: () => void }) {
   const pathname = usePathname();
+  const inboxCount = useAiInboxCount(canUseArea(role, access, "ai-interviews"), pathname);
   // Which section's dropdown is open: one at a time. Opening another section,
   // or going to any other tab, closes the previous one.
   const sectionHolding = (path: string) =>
@@ -153,7 +183,15 @@ function NavList({ role, access, onNavigate }: { role: AdminRole; access: Access
                     className={cn(linkBase, active ? linkActive : linkIdle)}
                   >
                     <Icon className="h-4 w-4" />
-                    {item.label}
+                    <span className="flex-1">{item.label}</span>
+                    {item.badge === "ai-inbox" && !!inboxCount && (
+                      <span
+                        className={cn("min-w-5 rounded-full px-1.5 text-center text-[11px] font-bold tabular-nums", active ? "bg-uk-white/25 text-uk-white" : "bg-uk-blue text-uk-white")}
+                        aria-label={`${inboxCount} awaiting a decision`}
+                      >
+                        {inboxCount > 99 ? "99+" : inboxCount}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
@@ -181,7 +219,7 @@ export function AdminShell({
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-uk-line bg-uk-card lg:flex">
         <div className="border-b border-uk-line px-5 py-4">
-          <Brand />
+          <Brand hr={isHrMember(user.role, user.access)} />
         </div>
         <NavList role={user.role} access={user.access} />
       </aside>
@@ -196,7 +234,7 @@ export function AdminShell({
           />
           <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col border-r border-uk-line bg-uk-card">
             <div className="flex items-center justify-between border-b border-uk-line px-5 py-4">
-              <Brand />
+              <Brand hr={isHrMember(user.role, user.access)} />
               <button
                 aria-label="Close menu"
                 onClick={() => setOpen(false)}

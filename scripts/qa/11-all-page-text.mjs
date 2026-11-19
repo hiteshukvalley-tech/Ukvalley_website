@@ -2,7 +2,7 @@
 // an image on a page, check the public site follows, that an edit that cannot
 // show is reported, that revert / reset-all restore the originals. Run against
 // a QA database only (see lib.mjs).
-import { launch, newPage, go, login, check, section, summary, text, sleep } from "./lib.mjs";
+import { launch, newPage, go, login, check, section, summary, text } from "./lib.mjs";
 
 const browser = await launch();
 const page = await newPage(browser, { width: 1366, height: 900 });

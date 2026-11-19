@@ -139,12 +139,14 @@ export default async function ContactPage() {
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-uk-blue">{ukText("Sales team")}</p>
                       <ul className="mt-2 flex flex-col gap-2">
+                        {company.sales.phone && (
                         <li>
                           <a href={ukText(`tel:${company.sales.phone.replace(/\s/g, "")}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Phone className="h-4 w-4 text-uk-blue" />
                             {ukText(company.sales.phone)}
                           </a>
                         </li>
+                        )}
                         <li>
                           <a href={ukText(`mailto:${company.sales.email}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Mail className="h-4 w-4 text-uk-blue" />
@@ -156,12 +158,14 @@ export default async function ContactPage() {
                     <div>
                       <p className="text-xs font-bold uppercase tracking-wider text-uk-blue">{ukText("Careers (HR)")}</p>
                       <ul className="mt-2 flex flex-col gap-2">
+                        {company.hr.phone && (
                         <li>
                           <a href={ukText(`tel:${company.hr.phone.replace(/\s/g, "")}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Phone className="h-4 w-4 text-uk-blue" />
                             {ukText(company.hr.phone)}
                           </a>
                         </li>
+                        )}
                         <li>
                           <a href={ukText(`mailto:${company.hr.email}`)} className="flex items-center gap-3 text-uk-body transition-colors hover:text-uk-blue-bright">
                             <Mail className="h-4 w-4 text-uk-blue" />

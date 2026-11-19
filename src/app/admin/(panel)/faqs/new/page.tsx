@@ -11,7 +11,7 @@ export default function NewFaqPage() {
       <PageHeader
         title="Add FAQ"
         crumbs={[{ label: "FAQs", href: "/admin/faqs" }, { label: "Add FAQ" }]}
-        description="Add a question and answer. It is added to the end of the list. It is added to the end of the list."
+        description="Add a question and answer. It is added to the end of the list."
       />
       <FaqForm mode="create" initial={emptyFaqValues()} />
     </>

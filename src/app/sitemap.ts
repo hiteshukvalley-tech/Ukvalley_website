@@ -50,6 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/contact`, changeFrequency: "yearly", priority: 0.7 },
     { url: `${BASE}/privacy`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/terms`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/sitemap`, changeFrequency: "monthly", priority: 0.2 },
   ];
 
   // Every service linking to its own /services/<slug> page (admin-created ones

@@ -47,18 +47,14 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# env files
-.env
-.env*.local
 
 # local MCP config
 .mcp.local.json
-/.next-test/
 
 # local-only artefacts — never commit or deploy
 /.git.zip
 *.zip
 /.shots/
-/.next-test/
+/qa-shots/
 /.claude/settings.local.json
 /backups/

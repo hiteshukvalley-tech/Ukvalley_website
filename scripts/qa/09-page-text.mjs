@@ -1,7 +1,7 @@
 // Admin → Page text: replace an inner page's hero text, add / reorder / remove
 // extra blocks, and check the public page follows. Run against a QA database
 // only (see lib.mjs).
-import { launch, newPage, go, login, check, section, summary, text, sleep } from "./lib.mjs";
+import { launch, newPage, go, login, check, section, summary, text } from "./lib.mjs";
 
 const browser = await launch();
 const page = await newPage(browser, { width: 1366, height: 900 });

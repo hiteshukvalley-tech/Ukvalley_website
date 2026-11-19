@@ -1,4 +1,5 @@
 import { ImapFlow } from "imapflow";
+import { publicAddressFor } from "@/lib/mail-host-guard";
 import { getDb, hasDatabaseUrl } from "@/lib/db/client";
 import type { SmtpConfig } from "@/lib/smtp-settings";
 
@@ -43,8 +44,14 @@ type Envelope = { from: string; name: string; subject: string; date: Date; id: s
 
 /** Opens the mailbox's INBOX read-only, runs `fn`, and always signs out. */
 async function withInbox<T>(cfg: SmtpConfig, fn: (client: ImapFlow) => Promise<T>): Promise<T> {
+  // The IMAP host is derived from the SMTP host, which a team member can set:
+  // check it the same way (never this machine or the private network), and
+  // connect to the address that was checked. TLS still verifies the real name.
+  const host = imapHostFor(cfg.host);
+  const address = await publicAddressFor(host);
   const client = new ImapFlow({
-    host: imapHostFor(cfg.host),
+    host: address,
+    ...(address !== host ? { servername: host } : {}),
     port: 993,
     secure: true,
     // Same login as sending (mailer.ts): App Passwords are shown with spaces that aren't part of them.

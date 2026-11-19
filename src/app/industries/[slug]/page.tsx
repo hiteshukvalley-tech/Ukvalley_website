@@ -279,7 +279,7 @@ export default async function IndustryPage({ params }: Props) {
             <Reveal className="max-w-2xl">
               <span className="inline-flex w-fit items-center gap-2 rounded-full border border-uk-blue/30 bg-uk-blue/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.22em] text-uk-blue">{ukText("How we help")}</span>
               <h2 className="mt-5 font-heading text-2xl font-bold text-uk-heading sm:text-3xl">{ukText("How we can help")}</h2>
-              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("The products we sell and the consulting we deliver in ")}{ukText(ind.name)}{" "}{ukText("one accountable team across all of them.")}</p>
+              <p className="mt-3 text-sm leading-relaxed text-uk-gray">{ukText("The products we sell and the consulting we deliver in ")}{ukText(ind.name)}{", "}{ukText("one accountable team across all of them.")}</p>
             </Reveal>
             <Reveal
               staggerChildren

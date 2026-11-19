@@ -142,16 +142,3 @@ export async function reorderServices(slugs: string[]): Promise<boolean> {
   );
   return true;
 }
-
-/** Swaps a service with its neighbour, then renumbers so orders stay 0..n-1. */
-export async function moveService(slug: string, direction: "up" | "down") {
-  const docs = await col().find({}, { projection: { _id: 1 } }).sort({ order: 1 }).toArray();
-  const ids = docs.map((d) => d._id);
-  const from = ids.indexOf(slug);
-  const to = direction === "up" ? from - 1 : from + 1;
-  if (from < 0 || to < 0 || to >= ids.length) return;
-  [ids[from], ids[to]] = [ids[to], ids[from]];
-  await col().bulkWrite(
-    ids.map((id, order) => ({ updateOne: { filter: { _id: id }, update: { $set: { order } } } }))
-  );
-}
